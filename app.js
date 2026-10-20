@@ -1,4 +1,66 @@
+import { PRODUCTS, calculatePortion } from './nutrition.js';
+
 const $=id=>document.getElementById(id);
+
+const productSelect = $('product');
+const amountInput = $('amount');
+const portionPreview = $('portion-preview');
+const calculatorMessage = $('calculator-message');
+const portionFields = {
+  kcal: $('portion-kcal'),
+  protein: $('portion-protein'),
+  fat: $('portion-fat'),
+  carbs: $('portion-carbs'),
+};
+const portionFormatter = new Intl.NumberFormat('pl-PL', {
+  maximumFractionDigits: 2,
+});
+
+for (const product of PRODUCTS) {
+  const option = document.createElement('option');
+  option.value = product.id;
+  option.textContent = product.name;
+  productSelect.append(option);
+}
+
+function updatePortionPreview() {
+  const product = PRODUCTS.find(item => item.id === productSelect.value);
+  $('amount-unit').textContent = product.unit;
+  portionPreview.hidden = true;
+  for (const field of Object.values(portionFields)) {
+    field.textContent = '';
+  }
+  amountInput.setAttribute('aria-invalid', 'false');
+
+  const rawAmount = amountInput.value.trim();
+  if (rawAmount === '') {
+    calculatorMessage.textContent = 'Podaj ilość, aby zobaczyć wartości porcji.';
+    return;
+  }
+  if (!/^-?\d+(?:[.,]\d+)?$/.test(rawAmount)) {
+    calculatorMessage.textContent = 'Wpisz liczbę, np. 50 lub 50,5.';
+    amountInput.setAttribute('aria-invalid', 'true');
+    return;
+  }
+
+  try {
+    const amount = Number(rawAmount.replace(',', '.'));
+    const portion = calculatePortion(product, amount);
+    for (const [nutrient, field] of Object.entries(portionFields)) {
+      field.textContent = portionFormatter.format(portion[nutrient]);
+    }
+    calculatorMessage.textContent = '';
+    portionPreview.hidden = false;
+  } catch (error) {
+    calculatorMessage.textContent = error.message;
+    amountInput.setAttribute('aria-invalid', 'true');
+  }
+}
+
+productSelect.addEventListener('change', updatePortionPreview);
+amountInput.addEventListener('input', updatePortionPreview);
+updatePortionPreview();
+
 const key='benger.meals.v1';let entries=[];let storageOK=true;
 try{const saved=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(saved))throw Error();entries=saved.filter(x=>x&&typeof x.text==='string'&&typeof x.date==='string'&&typeof x.id==='string'&&typeof x.meal==='string');}catch{storageOK=false;$('status').textContent='Nie udało się odczytać dziennika';$('hint').textContent='Zapis jest zablokowany, aby chronić wcześniejsze dane. Sprawdź ustawienia pamięci przeglądarki.';$('save').disabled=true;}
 const now=new Date();$('date').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
