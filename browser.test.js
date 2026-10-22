@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { createServer } from 'node:net';
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+const CHROMIUM_STARTUP_TIMEOUT_MS = 45_000;
 const DAY = '2026-10-22';
 const OTHER_DAY = '2026-10-23';
 const KEY = 'benger.nutrition.v1';
@@ -57,7 +58,7 @@ async function startBrowser() {
     processes.push(chrome);
     const endpoint = await new Promise((resolve, reject) => {
       let output = '';
-      const timer = setTimeout(() => reject(new Error(`Chromium timeout: ${output}`)), 15000);
+      const timer = setTimeout(() => reject(new Error(`Chromium timeout: ${output}`)), CHROMIUM_STARTUP_TIMEOUT_MS);
       chrome.on('error', error => { clearTimeout(timer); reject(error); });
       chrome.on('exit', code => { clearTimeout(timer); reject(new Error(`Chromium zakończył pracę: ${code}`)); });
       chrome.stderr.on('data', data => {
