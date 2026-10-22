@@ -12,7 +12,9 @@ npm start
 
 Uruchamiaj z katalogu projektu. Domyślny port to 3000; zmienna `PORT` pozwala go zmienić. Nie skonfigurowano publicznego hostingu. Na telefonie używaj bezpiecznego połączenia HTTPS. Manifest pozwala przeglądarce korzystać z nazwy i kolorów aplikacji przy dodawaniu do ekranu głównego; nie ma service workera ani gwarancji uruchomienia offline.
 
-Po zmianie tras w `server.js` zatrzymaj wcześniejszy serwer (`Ctrl+C`) i uruchom `npm start` ponownie.
+Serwer automatycznie udostępnia zwykłe pliki `.html`, `.js`, `.css` i `.webmanifest` z katalogu projektu i podkatalogów. Nowy moduł JavaScript działa bez dopisywania trasy i bez restartu. `/` nadal zwraca `index.html`.
+
+Pliki i katalogi zaczynające się od `.`, `server.js`, `package.json`, pliki `*.test.js`, dowiązania oraz próby wyjścia poza katalog są blokowane. Inne rozszerzenia nie są publiczne. Odpowiedzi wymagają ponownej weryfikacji przez przeglądarkę (`Cache-Control: no-cache`). Po zmianie samego kodu `server.js` nadal trzeba zatrzymać wcześniejszy proces (`Ctrl+C`) i ponownie uruchomić `npm start`.
 
 ## Dziennik produktów
 
@@ -86,13 +88,13 @@ Dyktowanie nie jest połączone z dziennikiem produktów. Wymaga obsługi Web Sp
 
 ## Testy
 
-Obliczenia i parser, bez dodatkowych bibliotek:
+Obliczenia, parser i bezpieczeństwo serwera, bez dodatkowych bibliotek:
 
 ```sh
 npm test
 ```
 
-Polecenie uruchamia `node --test nutrition.test.js meal-parser.test.js`. Testy parsera obejmują aliasy, szyk nazw i ilości, posiłki, kilka produktów, polski przecinek, niejasności, niezgodne jednostki i nieprawidłowe ilości.
+Polecenie uruchamia `node --test nutrition.test.js meal-parser.test.js server.test.js`. Testy parsera obejmują aliasy, szyk nazw i ilości, posiłki, kilka produktów, polski przecinek, niejasności, niezgodne jednostki i nieprawidłowe ilości. Testy serwera sprawdzają nowe pliki dodane po uruchomieniu procesu, typy odpowiedzi, blokadę plików prywatnych i testowych, path traversal, dowiązania oraz błędne adresy. Używają tymczasowego katalogu i nie zmieniają plików aplikacji.
 
 Testy interfejsu wymagają zainstalowanego Chromium i także nie wymagają pakietów npm:
 
