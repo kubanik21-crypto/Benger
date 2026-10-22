@@ -1,5 +1,6 @@
 import { PRODUCTS, calculatePortion, sumNutrition } from './nutrition.js';
 import { initLegacyNotes } from './legacy.js';
+import { parseMealText } from './meal-parser.js';
 
 const $ = id => document.getElementById(id);
 const MEAL_LABELS = {
@@ -17,8 +18,10 @@ const productSelect = $('product');
 const amountInput = $('amount');
 const mealSelect = $('nutrition-meal');
 const addButton = $('add-nutrition');
+const textInput = $('meal-text');
 let nutritionEntries = [];
 let nutritionStorageOK = true;
+let mealProposal = null;
 
 function populateSelect(select, choices) {
   for (const [value, label] of choices) {
@@ -94,6 +97,11 @@ function isValidDiaryDate(value) {
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
+function readDiaryDate() {
+  if (!isValidDiaryDate(dateInput.value)) throw fieldError('Wybierz prawidłową datę dziennika.', 'date');
+  return dateInput.value;
+}
+
 function isValidNutritionEntry(entry) {
   return entry !== null && typeof entry === 'object'
     && typeof entry.id === 'string' && entry.id.trim() !== ''
@@ -121,11 +129,13 @@ function loadNutritionEntries() {
     nutritionEntries = saved;
     nutritionStorageOK = true;
     addButton.disabled = false;
+    updateProposalButton();
     $('nutrition-storage-message').textContent = '';
     return true;
   } catch {
     nutritionStorageOK = false;
     addButton.disabled = true;
+    updateProposalButton();
     $('nutrition-storage-message').textContent = 'Nie można odczytać dziennika. Zapis jest zablokowany, aby chronić dane. Nie zostały usunięte ani nadpisane. Sprawdź ustawienia pamięci przeglądarki. Notatki tekstowe są przechowywane oddzielnie.';
     return false;
   }
@@ -163,10 +173,9 @@ function renderDaySummary(selectedEntries) {
   }
 }
 
-function createNutritionArticle(entry) {
+function createPortionArticle(entry) {
   const article = document.createElement('article');
   article.className = 'food-entry';
-  article.dataset.entryId = entry.id;
   const name = document.createElement('h4');
   name.textContent = entry.productName;
   const amount = document.createElement('p');
@@ -175,13 +184,20 @@ function createNutritionArticle(entry) {
   const values = document.createElement('p');
   values.className = 'entry-nutrition';
   values.textContent = `${formatter.format(entry.nutrition.kcal)} kcal · Białko: ${formatter.format(entry.nutrition.protein)} g · Tłuszcz: ${formatter.format(entry.nutrition.fat)} g · Węglowodany: ${formatter.format(entry.nutrition.carbs)} g`;
+  article.append(name, amount, values);
+  return article;
+}
+
+function createNutritionArticle(entry) {
+  const article = createPortionArticle(entry);
+  article.dataset.entryId = entry.id;
   const remove = document.createElement('button');
   remove.type = 'button';
   remove.className = 'button-secondary remove-entry';
   remove.textContent = 'Usuń';
-  remove.setAttribute('aria-label', `Usuń ${entry.productName}, ${amount.textContent}, ${MEAL_LABELS[entry.meal]}`);
+  remove.setAttribute('aria-label', `Usuń ${entry.productName}, ${amountFormatter.format(entry.amount)} ${entry.unit}, ${MEAL_LABELS[entry.meal]}`);
   remove.addEventListener('click', () => removeNutritionEntry(entry.id));
-  article.append(name, amount, values, remove);
+  article.append(remove);
   return article;
 }
 
@@ -229,6 +245,19 @@ function createEntryId() {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
+function appendNutritionPortions(portions, meal, date) {
+  if (!isValidDiaryDate(date)) throw fieldError('Wybierz prawidłową datę dziennika.', 'date');
+  if (!Object.hasOwn(MEAL_LABELS, meal)) throw fieldError('Wybierz posiłek.', 'nutrition-meal');
+  const createdAt = new Date().toISOString();
+  // Cały zestaw przygotowujemy przed zapisem. Jeden błąd oznacza brak zapisu.
+  const entries = portions.map(({ product, amount, nutrition }) => ({
+    id: createEntryId(), date, createdAt, meal,
+    productId: product.id, productName: product.name, amount, unit: product.unit,
+    nutrition: { ...nutrition },
+  }));
+  return updateNutritionEntries(current => [...current, ...entries]);
+}
+
 function addNutritionEntry(event) {
   event.preventDefault();
   if (!nutritionStorageOK) return;
@@ -236,16 +265,11 @@ function addNutritionEntry(event) {
   clearFieldError('date');
   clearFieldError('nutrition-meal');
   try {
-    const date = dateInput.value;
-    if (!isValidDiaryDate(date)) throw fieldError('Wybierz prawidłową datę dziennika.', 'date');
+    const date = readDiaryDate();
     const meal = mealSelect.value;
     if (!Object.hasOwn(MEAL_LABELS, meal)) throw fieldError('Wybierz posiłek.', 'nutrition-meal');
     const { product, amount, nutrition } = readPortionInput();
-    const entry = {
-      id: createEntryId(), date, createdAt: new Date().toISOString(), meal,
-      productId: product.id, productName: product.name, amount, unit: product.unit, nutrition,
-    };
-    if (updateNutritionEntries(current => [...current, entry])) {
+    if (appendNutritionPortions([{ product, amount, nutrition }], meal, date)) {
       amountInput.value = '';
       updatePortionPreview();
       $('calculator-message').textContent = `Dodano: ${product.name}, ${amountFormatter.format(amount)} ${product.unit} — ${MEAL_LABELS[meal]}.`;
@@ -254,6 +278,111 @@ function addNutritionEntry(event) {
   } catch (error) {
     updatePortionPreview(true);
     showError(error, true);
+  }
+}
+
+function updateProposalButton() {
+  $('save-meal-proposal').disabled = mealProposal === null || !nutritionStorageOK;
+}
+
+function resetMealProposal(message = '') {
+  mealProposal = null;
+  $('meal-proposal').hidden = true;
+  $('meal-proposal-items').replaceChildren();
+  $('meal-proposal-issues').replaceChildren();
+  $('meal-proposal-summary').hidden = true;
+  $('meal-text-status').textContent = message;
+  updateProposalButton();
+}
+
+function invalidateMealProposal() {
+  const hadProposal = !$('meal-proposal').hidden;
+  resetMealProposal(hadProposal ? 'Dane zmienione. Kliknij „Analizuj posiłek” ponownie.' : '');
+  clearFieldError('meal-text');
+}
+
+function createProblemArticle(source) {
+  const article = document.createElement('article');
+  article.className = 'proposal-problem';
+  const heading = document.createElement('h4');
+  heading.textContent = 'Wymaga poprawienia';
+  const text = document.createElement('p');
+  text.textContent = source;
+  article.append(heading, text);
+  return article;
+}
+
+function analyzeMealText(event) {
+  event.preventDefault();
+  resetMealProposal();
+  clearFieldError('meal-text');
+  clearFieldError('date');
+  let date;
+  try { date = readDiaryDate(); } catch (error) { showError(error, true); return; }
+  const result = parseMealText(textInput.value, { defaultMeal: mealSelect.value });
+  if (result.items.length === 0) {
+    showError(fieldError(result.issues.map(issue => issue.message).join(' '), 'meal-text'), true);
+    return;
+  }
+  const issues = [...result.issues];
+  const portions = [];
+  for (const [itemIndex, item] of result.items.entries()) {
+    if (item.status === 'recognized') {
+      const product = PRODUCTS.find(candidate => candidate.id === item.productId);
+      try {
+        const nutrition = calculatePortion(product, item.amount);
+        // Kopiujemy metadane i wartości widoczne przy akceptacji, bez przeliczania przy zapisie.
+        portions.push({ product: { id: product.id, name: product.name, unit: product.unit }, amount: item.amount, nutrition });
+        $('meal-proposal-items').append(createPortionArticle({ productName: product.name, amount: item.amount, unit: product.unit, nutrition }));
+        continue;
+      } catch {
+        issues.push({ itemIndex, message: 'Nie można obliczyć porcji. Sprawdź, czy ilość nie jest zbyt duża.' });
+      }
+    }
+    $('meal-proposal-items').append(createProblemArticle(item.source));
+  }
+  if (issues.length === 0) {
+    try {
+      writeNutritionFields('proposal', sumNutrition(portions.map(portion => portion.nutrition)));
+      $('meal-proposal-summary').hidden = false;
+      mealProposal = { source: textInput.value, defaultMeal: mealSelect.value, date, meal: result.meal, portions };
+    } catch {
+      issues.push({ message: 'Suma propozycji jest zbyt duża. Zmniejsz ilości i ponów analizę.' });
+    }
+  }
+  for (const issue of issues) {
+    const li = document.createElement('li');
+    li.textContent = `${issue.itemIndex === undefined ? '' : `Pozycja ${issue.itemIndex + 1}: `}${issue.message}`;
+    $('meal-proposal-issues').append(li);
+  }
+  if (issues.length) {
+    showError(fieldError('Nie można zapisać całej propozycji. Popraw wskazane problemy w tekście i ponów analizę.', 'meal-text'));
+  } else {
+    $('meal-text-status').textContent = `Rozpoznano ${portions.length} pozycje. Sprawdź je przed zapisaniem. Analiza nie zapisuje danych.`;
+  }
+  $('meal-proposal-context').textContent = `Dzień: ${date} · Posiłek: ${MEAL_LABELS[result.meal] ?? 'wymaga doprecyzowania'}`;
+  $('meal-proposal').hidden = false;
+  updateProposalButton();
+  $('meal-proposal-title').focus();
+}
+
+function saveMealProposal() {
+  if (!mealProposal || !nutritionStorageOK) return;
+  const proposal = mealProposal;
+  // Chronimy przed zapisem starego podglądu także wtedy, gdy zmiana nie wysłała zdarzenia input/change.
+  if (proposal.source !== textInput.value || proposal.date !== dateInput.value || proposal.defaultMeal !== mealSelect.value) {
+    invalidateMealProposal();
+    return;
+  }
+  clearFieldError('meal-text');
+  try {
+    if (appendNutritionPortions(proposal.portions, proposal.meal, proposal.date)) {
+      textInput.value = '';
+      resetMealProposal(`Dodano do dziennika: ${proposal.portions.length} pozycje — ${MEAL_LABELS[proposal.meal]}, ${proposal.date}.`);
+      textInput.focus();
+    }
+  } catch (error) {
+    showError(error.fieldId ? error : fieldError(error.message, 'meal-text'), true);
   }
 }
 
@@ -272,9 +401,16 @@ populateSelect(productSelect, PRODUCTS.map(product => [product.id, product.name]
 populateSelect(mealSelect, Object.entries(MEAL_LABELS));
 productSelect.addEventListener('change', () => updatePortionPreview());
 amountInput.addEventListener('input', () => updatePortionPreview());
-mealSelect.addEventListener('change', () => clearFieldError('nutrition-meal'));
+mealSelect.addEventListener('change', () => {
+  clearFieldError('nutrition-meal');
+  invalidateMealProposal();
+});
 $('nutrition-form').addEventListener('submit', addNutritionEntry);
+$('meal-text-form').addEventListener('submit', analyzeMealText);
+textInput.addEventListener('input', invalidateMealProposal);
+$('save-meal-proposal').addEventListener('click', saveMealProposal);
 dateInput.addEventListener('change', () => {
+  invalidateMealProposal();
   clearFieldError('date');
   $('diary-message').textContent = '';
   if (!isValidDiaryDate(dateInput.value)) showError(fieldError('Wybierz prawidłową datę dziennika.', 'date'));

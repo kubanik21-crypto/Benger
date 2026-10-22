@@ -5,6 +5,7 @@ const files = new Map([
   ['/', 'index.html'],
   ['/app.js', 'app.js'],
   ['/nutrition.js', 'nutrition.js'],
+  ['/meal-parser.js', 'meal-parser.js'],
   ['/legacy.js', 'legacy.js'],
   ['/style.css', 'style.css'],
   ['/manifest.webmanifest', 'manifest.webmanifest'],

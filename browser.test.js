@@ -139,9 +139,11 @@ async function startBrowser() {
       const visible = () => evaluate("[...document.querySelectorAll('#nutrition-entries article')].map(article => ({ id: article.dataset.entryId, text: article.textContent }))");
       const outputs = prefix => evaluate(`['kcal', 'protein', 'fat', 'carbs'].map(key => document.getElementById(${JSON.stringify(prefix)} + '-' + key).textContent)`);
       const remove = id => evaluate(`[...document.querySelectorAll('#nutrition-entries article')].find(article => article.dataset.entryId === ${JSON.stringify(id)}).querySelector('button').click()`);
+      const analyze = text => evaluate(`document.getElementById('meal-text').value = ${JSON.stringify(text)}; document.getElementById('meal-text').dispatchEvent(new Event('input')); document.getElementById('analyze-meal').click();`);
+      const accept = () => evaluate("document.getElementById('save-meal-proposal').click()");
       await send('Page.navigate', { url: base });
       await waitReady(null);
-      return { send, evaluate, reload, date, choose, submit, raw, setRaw, saved, visible, outputs, remove };
+      return { send, evaluate, reload, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
     }
     return { base, page, errors, requests, close, serverErrors: () => serverErrors };
   } catch (error) { await close(); throw error; }
@@ -174,7 +176,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
   await a.date(DAY);
 
   await t.test('strona i moduły są dostępne, katalog pochodzi z PRODUCTS', async () => {
-    for (const path of ['/', '/app.js', '/nutrition.js', '/legacy.js', '/style.css', '/manifest.webmanifest']) {
+    for (const path of ['/', '/app.js', '/nutrition.js', '/meal-parser.js', '/legacy.js', '/style.css', '/manifest.webmanifest']) {
       assert.equal((await fetch(browser.base + path)).status, 200, path);
     }
     assert.equal((await fetch(browser.base + '/missing')).status, 404);
@@ -352,6 +354,270 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
     assert.equal(JSON.parse(await a.raw(NOTE_KEY)).length, 1);
   });
   await t.test('konsola i serwer bez błędów, bez zewnętrznych zasobów', async () => {
+    assert.deepEqual(browser.errors, []);
+    assert.equal(browser.serverErrors(), '');
+    assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !url.startsWith(browser.base + '/')), []);
+  });
+});
+
+test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, async t => {
+  const browser = await startBrowser();
+  t.after(() => browser.close());
+  const a = await browser.page();
+  await a.date(DAY);
+  const example = 'Na śniadanie zjadłem 50 g płatków owsianych i 200 ml mleka 2%';
+  const three = 'Obiad: 50 g płatków owsianych, 200 ml mleka 2% i banan 120 g';
+  const disabled = () => a.evaluate("document.getElementById('save-meal-proposal').disabled");
+  const countWrites = () => a.evaluate(`
+    window.__nutritionWrites = 0;
+    window.__countedSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+      if (key === '${KEY}') window.__nutritionWrites++;
+      return window.__countedSetItem.call(this, key, value);
+    };
+  `);
+
+  await t.test('analiza pokazuje dwa produkty i sumę, bez zapisu przed akceptacją', async () => {
+    await countWrites();
+    await a.analyze(example);
+    assert.equal(await a.raw(KEY), null);
+    assert.equal(await a.evaluate('window.__nutritionWrites'), 0);
+    assert.equal((await a.visible()).length, 0);
+    const cards = await a.evaluate("[...document.querySelectorAll('#meal-proposal-items .food-entry')].map(card => card.textContent)");
+    assert.equal(cards.length, 2);
+    assert.ok(cards[0].includes('Płatki owsiane') && cards[0].includes('185 kcal') && cards[0].includes('6,5 g'));
+    assert.ok(cards[1].includes('Mleko 2%') && cards[1].includes('100 kcal') && cards[1].includes('6,8 g'));
+    assert.deepEqual(await a.outputs('proposal'), ['285', '13,3', '7,5', '39,6']);
+    assert.deepEqual(await a.outputs('total'), ['0', '0', '0', '0']);
+    assert.equal(await disabled(), false);
+    assert.equal(await a.evaluate('document.activeElement.id'), 'meal-proposal-title');
+    assert.ok(await a.evaluate("document.getElementById('meal-proposal-context').textContent.includes('Śniadanie')"));
+  });
+
+  await t.test('zatwierdzenie tworzy osobne wpisy w jednej operacji, bez podwójnego zapisu', async () => {
+    await a.evaluate("document.getElementById('save-meal-proposal').click(); document.getElementById('save-meal-proposal').click()");
+    const entries = await a.saved();
+    assert.equal(entries.length, 2);
+    assert.equal(new Set(entries.map(entry => entry.id)).size, 2);
+    assert.ok(entries.every(entry => entry.date === DAY && entry.meal === 'breakfast' && new Date(entry.createdAt).toISOString() === entry.createdAt));
+    assert.deepEqual(entries.map(entry => entry.nutrition), [
+      { kcal: 185, protein: 6.5, fat: 3.5, carbs: 30 }, { kcal: 100, protein: 6.8, fat: 4, carbs: 9.6 },
+    ]);
+    assert.equal(await a.evaluate('window.__nutritionWrites'), 1);
+    assert.equal((await a.visible()).length, 2);
+    assert.deepEqual(await a.outputs('total'), ['285', '13,3', '7,5', '39,6']);
+    assert.equal(await disabled(), true);
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"), '');
+    assert.equal(await a.evaluate('document.activeElement.id'), 'meal-text');
+    assert.ok(await a.evaluate("document.getElementById('meal-text-status').textContent.includes('Dodano do dziennika')"));
+    assert.equal(await a.raw(NOTE_KEY), null);
+  });
+
+  await t.test('odświeżenie zachowuje wpisy; brak nazwy posiłku używa wyboru formularza', async () => {
+    const raw = await a.raw(KEY);
+    await a.reload(); await a.date(OTHER_DAY);
+    assert.equal(await a.raw(KEY), raw);
+    assert.equal((await a.visible()).length, 0);
+    await a.choose('oat-flakes', '', 'snack');
+    await a.analyze('banan 120 g i 150 g jogurtu naturalnego');
+    assert.ok(await a.evaluate("document.getElementById('meal-proposal-context').textContent.includes('Przekąska')"));
+    assert.deepEqual(await a.outputs('proposal'), ['196,8', '7,32', '3,36', '36,36']);
+    assert.equal(await a.raw(KEY), raw);
+  });
+
+  await t.test('trzy produkty w jednym zapisie, posiłek z tekstu i rozdzielenie dni', async () => {
+    await countWrites();
+    await a.analyze(three);
+    assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal-items .food-entry').length"), 3);
+    assert.deepEqual(await a.outputs('proposal'), ['391,8', '14,62', '7,86', '66,96']);
+    await a.accept();
+    assert.equal(await a.evaluate('window.__nutritionWrites'), 1);
+    const entries = await a.saved();
+    assert.equal(entries.length, 5);
+    assert.ok(entries.slice(-3).every(entry => entry.date === OTHER_DAY && entry.meal === 'lunch'));
+    assert.equal(new Set(entries.map(entry => entry.id)).size, 5);
+    assert.deepEqual(await a.outputs('total'), ['391,8', '14,62', '7,86', '66,96']);
+    await a.date(DAY);
+    assert.deepEqual(await a.outputs('total'), ['285', '13,3', '7,5', '39,6']);
+    await a.date(OTHER_DAY);
+  });
+
+  await t.test('ręczny formularz nadal dodaje i usuwa wpisy we wspólnym dzienniku', async () => {
+    await a.choose('natural-yogurt', '100', 'dinner'); await a.submit();
+    assert.equal((await a.visible()).length, 4);
+    assert.deepEqual(await a.outputs('total'), ['451,8', '18,62', '9,86', '72,96']);
+    const added = (await a.saved()).at(-1);
+    await a.remove(added.id);
+    assert.equal((await a.visible()).length, 3);
+    assert.deepEqual(await a.outputs('total'), ['391,8', '14,62', '7,86', '66,96']);
+  });
+
+  await t.test('błędne lub niepełne dane blokują całą propozycję i zachowują tekst', async () => {
+    const raw = await a.raw(KEY);
+    for (const text of ['', 'to zupełnie nieznane jedzenie', 'zjadłem banana', '200 g mleka', '50 g płatków i 100 g czegoś', 'banan -5 g', 'banan 5,5,5 g', 'jogurt truskawkowy 150 g', 'śniadanie banan 100 g i obiad mleko 100 ml']) {
+      await a.analyze(text);
+      assert.equal(await disabled(), true, text);
+      assert.equal(await a.evaluate("document.getElementById('meal-proposal-summary').hidden"), true, text);
+      assert.ok(await a.evaluate("document.getElementById('meal-text-error').textContent"), text);
+      assert.equal(await a.evaluate("document.getElementById('meal-text').value"), text);
+      await a.accept();
+      assert.equal(await a.raw(KEY), raw, text);
+    }
+  });
+
+  await t.test('poprawienie tekstu i ponowna analiza odblokowują prawidłową propozycję', async () => {
+    const raw = await a.raw(KEY);
+    await a.analyze('50,5 g płatków i 200 ml mleka');
+    assert.equal(await disabled(), false);
+    assert.equal(await a.evaluate("document.getElementById('meal-text').getAttribute('aria-invalid')"), 'false');
+    assert.deepEqual(await a.outputs('proposal'), ['286,85', '13,37', '7,54', '39,9']);
+    assert.equal(await a.raw(KEY), raw);
+  });
+
+  await t.test('zmiana tekstu, daty lub domyślnego posiłku unieważnia stary podgląd', async () => {
+    const raw = await a.raw(KEY);
+    await a.evaluate("document.getElementById('meal-text').value='banan 120 g'; document.getElementById('meal-text').dispatchEvent(new Event('input'))");
+    assert.equal(await disabled(), true);
+    assert.equal(await a.evaluate("document.getElementById('meal-proposal').hidden"), true);
+    await a.analyze(example); await a.date(DAY);
+    assert.equal(await disabled(), true);
+    await a.analyze('banan 120 g');
+    await a.evaluate("document.getElementById('nutrition-meal').value='snack'; document.getElementById('nutrition-meal').dispatchEvent(new Event('change'))");
+    assert.equal(await disabled(), true);
+    // Zmiany programowe bez zdarzenia także nie mogą zatwierdzić starego podglądu.
+    for (const [id, value] of [['meal-text', 'mleko 300 ml'], ['date', OTHER_DAY], ['nutrition-meal', 'lunch']]) {
+      await a.analyze(example);
+      await a.evaluate(`document.getElementById(${JSON.stringify(id)}).value=${JSON.stringify(value)}`);
+      await a.accept();
+      assert.equal(await disabled(), true);
+      assert.equal(await a.raw(KEY), raw);
+      await a.date(DAY);
+    }
+  });
+
+  await t.test('brak daty blokuje analizę z czytelnym błędem i fokusem', async () => {
+    const raw = await a.raw(KEY);
+    await a.date(''); await a.analyze(example);
+    assert.equal(await disabled(), true);
+    assert.equal(await a.evaluate('document.activeElement.id'), 'date');
+    assert.ok(await a.evaluate("document.getElementById('date-error').textContent"));
+    assert.equal(await a.raw(KEY), raw);
+    await a.date(DAY);
+  });
+
+  await t.test('błąd setItem nie zapisuje części zestawu; ponowienie zapisuje całość', async () => {
+    await a.analyze(three);
+    const raw = await a.raw(KEY), before = await a.visible(), totals = await a.outputs('total');
+    await a.evaluate(`window.__quotaSetItem=Storage.prototype.setItem; window.__failedWrites=0; Storage.prototype.setItem=function(key,value) { if(key==='${KEY}') { window.__failedWrites++; throw new DOMException('Test quota','QuotaExceededError'); } return window.__quotaSetItem.call(this,key,value); };`);
+    await a.accept();
+    assert.equal(await a.evaluate('window.__failedWrites'), 1);
+    assert.equal(await a.raw(KEY), raw);
+    assert.deepEqual(await a.visible(), before);
+    assert.deepEqual(await a.outputs('total'), totals);
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"), three);
+    assert.equal(await disabled(), false);
+    assert.ok(await a.evaluate("document.getElementById('nutrition-storage-message').textContent.includes('Nie udało się zapisać')"));
+    assert.ok(!(await a.evaluate("document.getElementById('meal-text-status').textContent")).includes('Dodano'));
+    await a.evaluate('Storage.prototype.setItem=window.__quotaSetItem');
+    await a.accept();
+    assert.equal((await a.saved()).length, JSON.parse(raw).length + 3);
+    assert.equal((await a.visible()).length, before.length + 3);
+  });
+
+  await t.test('uszkodzenie pamięci po analizie blokuje cały zapis i chroni dane', async () => {
+    const raw = await a.raw(KEY);
+    await a.analyze(example);
+    await a.setRaw(KEY, '{broken');
+    await a.accept();
+    assert.equal(await a.raw(KEY), '{broken');
+    assert.equal(await disabled(), true);
+    assert.ok(await a.evaluate("document.getElementById('nutrition-storage-message').textContent.includes('Nie można odczytać')"));
+    await a.setRaw(KEY, raw); await a.reload(); await a.date(DAY);
+  });
+
+  await t.test('zatwierdzenie propozycji zachowuje nowy wpis drugiej karty i synchronizuje obie', async () => {
+    const b = await browser.page(); await b.date(DAY);
+    const before = (await a.visible()).length;
+    await a.analyze(example);
+    await a.evaluate('window.__pauseStorageSync=true');
+    await b.choose('natural-yogurt', '150', 'snack'); await b.submit();
+    const id = (await b.saved()).at(-1).id;
+    assert.equal((await a.visible()).length, before);
+    await a.accept();
+    await waitCount(a, before + 3); await waitCount(b, before + 3);
+    assert.ok((await a.saved()).some(entry => entry.id === id));
+    assert.deepEqual(await a.outputs('total'), await b.outputs('total'));
+    await a.evaluate('window.__pauseStorageSync=false');
+  });
+
+  await t.test('zapis wielu pozycji działa bez crypto.randomUUID', async () => {
+    const before = (await a.saved()).length;
+    await a.evaluate("Object.defineProperty(crypto,'randomUUID',{value:undefined,configurable:true})");
+    await a.analyze(example); await a.accept();
+    const added = (await a.saved()).slice(before);
+    assert.equal(added.length, 2);
+    assert.equal(new Set(added.map(entry => entry.id)).size, 2);
+    for (const entry of added) assert.match(entry.id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    await a.reload(); await a.date(DAY);
+  });
+
+  await t.test('awaria tworzenia drugiego ID nie zapisuje pierwszej pozycji', async () => {
+    await a.analyze(three);
+    const raw = await a.raw(KEY);
+    await a.evaluate("window.__uuid=crypto.randomUUID; window.__uuidCount=0; Object.defineProperty(crypto,'randomUUID',{configurable:true,value:function(){if(++window.__uuidCount===2) throw new Error('Test ID failure'); return window.__uuid.call(crypto);}})");
+    await a.accept();
+    assert.equal(await a.raw(KEY), raw);
+    assert.ok(await a.evaluate("document.getElementById('meal-text-error').textContent"));
+    await a.evaluate("Object.defineProperty(crypto,'randomUUID',{configurable:true,value:window.__uuid})");
+    await a.accept();
+    assert.equal((await a.saved()).length, JSON.parse(raw).length + 3);
+  });
+
+  await t.test('zapis zachowuje dokładnie metadane i makro pokazane do akceptacji', async () => {
+    await a.analyze('50 g płatków owsianych');
+    await a.evaluate("(async()=>{const {PRODUCTS}=await import('./nutrition.js'); const p=PRODUCTS[0]; window.__oldProduct={name:p.name,unit:p.unit,kcal:p.per100.kcal}; p.name='Zmieniony katalog'; p.unit='ml'; p.per100.kcal=9999;})()");
+    await a.accept();
+    const entry = (await a.saved()).at(-1);
+    assert.equal(entry.productName, 'Płatki owsiane');
+    assert.equal(entry.unit, 'g');
+    assert.deepEqual(entry.nutrition, { kcal: 185, protein: 6.5, fat: 3.5, carbs: 30 });
+    await a.evaluate("(async()=>{const {PRODUCTS}=await import('./nutrition.js'); const p=PRODUCTS[0]; p.name=window.__oldProduct.name; p.unit=window.__oldProduct.unit; p.per100.kcal=window.__oldProduct.kcal;})()");
+  });
+
+  await t.test('przepełnienie porcji lub sumy i HTML w tekście nie prowadzą do zapisu', async () => {
+    const raw = await a.raw(KEY);
+    for (const text of [`${'1' + '0'.repeat(308)} g płatków`, `${'3' + '0'.repeat(307)} g płatków i ${'3' + '0'.repeat(307)} g płatków`, '<img src=x onerror=alert(1)> banan 120 g']) {
+      await a.analyze(text);
+      assert.equal(await disabled(), true);
+      assert.equal(await a.raw(KEY), raw);
+      assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal img').length"), 0);
+      assert.ok(await a.evaluate("document.getElementById('meal-text-error').textContent"));
+    }
+  });
+
+  await t.test('nowy formularz ma etykietę, komunikaty i focus; widoki 320/390 px bez poziomego scrolla', async () => {
+    await a.analyze(three);
+    assert.ok(await a.evaluate("Boolean(document.querySelector('label[for=\"meal-text\"]'))"));
+    assert.equal(await a.evaluate("document.getElementById('meal-text-error').getAttribute('role')"), 'alert');
+    assert.equal(await a.evaluate("document.getElementById('meal-text-status').getAttribute('role')"), 'status');
+    for (const width of [320, 390]) {
+      await a.send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true });
+      assert.ok(await a.evaluate('document.documentElement.scrollWidth<=innerWidth'));
+    }
+    await a.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+    for (const id of ['analyze-meal', 'save-meal-proposal']) {
+      const style = await a.evaluate(`(()=>{const b=document.getElementById('${id}'); b.focus(); const s=getComputedStyle(b); return {color:s.color,background:s.backgroundColor,height:b.getBoundingClientRect().height,outline:s.outlineStyle,width:parseFloat(s.outlineWidth)};})()`);
+      assert.ok(contrast(style.color, style.background)>=4.5);
+      assert.ok(style.height>=48);
+      assert.equal(style.outline, 'solid'); assert.ok(style.width>=2);
+    }
+    if (process.env.BENGER_TEXT_SCREENSHOT_PATH) {
+      const { data } = await a.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+      await writeFile(process.env.BENGER_TEXT_SCREENSHOT_PATH, Buffer.from(data, 'base64'));
+    }
+  });
+
+  await t.test('konsola, serwer i importy bez błędów; bez zewnętrznych żądań', async () => {
     assert.deepEqual(browser.errors, []);
     assert.equal(browser.serverErrors(), '');
     assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !url.startsWith(browser.base + '/')), []);

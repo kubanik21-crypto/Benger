@@ -31,6 +31,35 @@
       </div>
     </div>
     <p id="nutrition-storage-message" class="field-error storage-error" role="alert"></p>
+    <section class="panel text-meal" aria-labelledby="text-meal-title">
+      <p class="eyebrow">OPISZ SWÓJ POSIŁEK</p>
+      <h2 id="text-meal-title">Dodaj z tekstu</h2>
+      <form id="meal-text-form" novalidate>
+        <label for="meal-text">Co i ile zjadłeś?</label>
+        <textarea id="meal-text" rows="3" aria-describedby="meal-text-help meal-text-error" aria-invalid="false" placeholder="Na śniadanie zjadłem 50 g płatków owsianych i 200 ml mleka 2%"></textarea>
+        <p id="meal-text-help" class="field-help">Podaj ilości w g lub ml. Produkty oddziel przecinkiem lub słowem „i”. Bez nazwy posiłku użyjemy wyboru z formularza ręcznego poniżej. Przed zapisem sprawdzisz propozycję.</p>
+        <p id="meal-text-error" class="field-error" role="alert"></p>
+        <button id="analyze-meal" class="button-primary" type="submit">Analizuj posiłek</button>
+      </form>
+      <p id="meal-text-status" class="success-message" role="status"></p>
+      <section id="meal-proposal" aria-labelledby="meal-proposal-title" hidden>
+        <h3 id="meal-proposal-title" tabindex="-1">Sprawdź przed zapisaniem</h3>
+        <p id="meal-proposal-context" class="field-help"></p>
+        <div id="meal-proposal-items"></div>
+        <ul id="meal-proposal-issues" class="field-error"></ul>
+        <div id="meal-proposal-summary" class="portion-preview" hidden>
+          <h4 class="preview-label">SUMA CAŁEJ PROPOZYCJI</h4>
+          <dl class="nutrition-grid">
+            <div><dt>Energia</dt><dd><output id="proposal-kcal"></output> <span>kcal</span></dd></div>
+            <div><dt>Białko</dt><dd><output id="proposal-protein"></output> <span>g</span></dd></div>
+            <div><dt>Tłuszcz</dt><dd><output id="proposal-fat"></output> <span>g</span></dd></div>
+            <div><dt>Węglowodany</dt><dd><output id="proposal-carbs"></output> <span>g</span></dd></div>
+          </dl>
+        </div>
+        <button id="save-meal-proposal" class="button-primary" type="button" disabled>Dodaj wszystko do dziennika</button>
+      </section>
+      <p class="fine">Rozpoznajemy tylko produkty z lokalnego katalogu. Popraw tekst i ponów analizę, jeśli czegoś brakuje. Na tym etapie analizuje go prosty parser, bez AI.</p>
+    </section>
     <div class="workspace">
       <section class="panel calculator" aria-labelledby="calculator-title">
         <p class="eyebrow">DODAJ COŚ DOBREGO</p>
