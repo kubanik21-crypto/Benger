@@ -156,3 +156,16 @@ test('parser jest deterministyczny i nie zmienia katalogu ani opcji', () => {
   assert.deepEqual(PRODUCTS, before);
   assert.equal(Object.hasOwn(second.items[0], 'nutrition'), false);
 });
+
+test('niedokończona lub powtórzona lista nie ukrywa brakującej pozycji', () => {
+  for (const text of ['banan 120 g i', 'banan 120 g oraz', 'i banan 120 g', 'banan 120 g i i mleko 200 ml']) {
+    const result = parse(text);
+    assert.ok(result.issues.some(issue => issue.code === 'incomplete-list'), text);
+  }
+});
+
+test('naturalne wprowadzenia dla jedzenia i picia nie zmieniają ilości', () => {
+  const result = parse('Dziś zjadłem 50 g płatków i wypiłem 200 ml mleka 2%');
+  assert.deepEqual(result.issues, []);
+  assert.deepEqual(result.items.map(item => item.amount), [50, 200]);
+});

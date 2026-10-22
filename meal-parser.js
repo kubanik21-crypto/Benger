@@ -108,7 +108,11 @@ export function parseMealText(text, { defaultMeal } = {}) {
   }
 
   // Przecinek pomiędzy cyframi jest częścią liczby, pozostałe rozdzielają produkty.
-  const segments = normalized.replace(mealPattern, ' ')
+  const content = normalized.replace(mealPattern, ' ').trim();
+  if (/^(?:i|oraz)\b|\b(?:i|oraz)\s*[,;.!?]*$|\b(?:i|oraz)\s+(?:i|oraz)\b/.test(content)) {
+    issues.push({ code: 'incomplete-list', message: 'Lista produktów jest niedokończona. Podaj produkt po każdym „i” lub „oraz”.' });
+  }
+  const segments = content
     .split(/(?<!\d),|,(?!\d)|;|\b(?:i|oraz)\b/)
     .map(segment => segment.trim()).filter(Boolean);
   for (const source of segments) {

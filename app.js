@@ -358,7 +358,7 @@ function analyzeMealText(event) {
   if (issues.length) {
     showError(fieldError('Nie można zapisać całej propozycji. Popraw wskazane problemy w tekście i ponów analizę.', 'meal-text'));
   } else {
-    $('meal-text-status').textContent = `Rozpoznano ${portions.length} pozycje. Sprawdź je przed zapisaniem. Analiza nie zapisuje danych.`;
+    $('meal-text-status').textContent = `Rozpoznane pozycje: ${portions.length}. Sprawdź je przed zapisaniem. Analiza nie zapisuje danych.`;
   }
   $('meal-proposal-context').textContent = `Dzień: ${date} · Posiłek: ${MEAL_LABELS[result.meal] ?? 'wymaga doprecyzowania'}`;
   $('meal-proposal').hidden = false;
@@ -378,7 +378,7 @@ function saveMealProposal() {
   try {
     if (appendNutritionPortions(proposal.portions, proposal.meal, proposal.date)) {
       textInput.value = '';
-      resetMealProposal(`Dodano do dziennika: ${proposal.portions.length} pozycje — ${MEAL_LABELS[proposal.meal]}, ${proposal.date}.`);
+      resetMealProposal(`Dodano do dziennika. Liczba pozycji: ${proposal.portions.length}. ${MEAL_LABELS[proposal.meal]}, ${proposal.date}.`);
       textInput.focus();
     }
   } catch (error) {

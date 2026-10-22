@@ -454,7 +454,7 @@ test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, a
 
   await t.test('błędne lub niepełne dane blokują całą propozycję i zachowują tekst', async () => {
     const raw = await a.raw(KEY);
-    for (const text of ['', 'to zupełnie nieznane jedzenie', 'zjadłem banana', '200 g mleka', '50 g płatków i 100 g czegoś', 'banan -5 g', 'banan 5,5,5 g', 'jogurt truskawkowy 150 g', 'śniadanie banan 100 g i obiad mleko 100 ml']) {
+    for (const text of ['', 'to zupełnie nieznane jedzenie', 'zjadłem banana', '200 g mleka', '50 g płatków i 100 g czegoś', 'banan -5 g', 'banan 5,5,5 g', 'jogurt truskawkowy 150 g', 'śniadanie banan 100 g i obiad mleko 100 ml', 'banan 120 g i', 'banan 120 g oraz']) {
       await a.analyze(text);
       assert.equal(await disabled(), true, text);
       assert.equal(await a.evaluate("document.getElementById('meal-proposal-summary').hidden"), true, text);
@@ -603,6 +603,10 @@ test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, a
     for (const width of [320, 390]) {
       await a.send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true });
       assert.ok(await a.evaluate('document.documentElement.scrollWidth<=innerWidth'));
+      await a.analyze(`${'1' + '0'.repeat(100)} g płatków`);
+      assert.equal(await disabled(), false);
+      assert.ok(await a.evaluate('document.documentElement.scrollWidth<=innerWidth'), 'Długa ilość musi zawijać się na telefonie.');
+      await a.analyze(three);
     }
     await a.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
     for (const id of ['analyze-meal', 'save-meal-proposal']) {

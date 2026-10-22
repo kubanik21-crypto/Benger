@@ -64,7 +64,7 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .meal-group h3 { border-bottom: 1px solid #c8d0c0; padding-bottom: 10px; }
 .food-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; background: #fffef8; border: 1px solid #d4dccb; border-radius: 14px; padding: 18px; margin: 10px 0; }
 .food-entry h4 { font-size: 16px; margin: 0; overflow-wrap: anywhere; }
-.entry-amount { margin: 0; color: #526557; font-size: 14px; }
+.entry-amount { margin: 0; color: #526557; font-size: 14px; overflow-wrap: anywhere; }
 .entry-nutrition { grid-column: 1 / -1; margin: 6px 0 0; font-size: 13px; overflow-wrap: anywhere; }
 .remove-entry { grid-column: 2; grid-row: 1 / 3; align-self: start; }
 .empty { text-align: center; border: 1px dashed #7c8d7b; border-radius: 14px; padding: 28px 18px; color: #526557; }
