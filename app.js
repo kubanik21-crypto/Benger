@@ -1,12 +1,292 @@
-const $=id=>document.getElementById(id);
-const key='benger.meals.v1';let entries=[];let storageOK=true;
-try{const saved=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(saved))throw Error();entries=saved.filter(x=>x&&typeof x.text==='string'&&typeof x.date==='string'&&typeof x.id==='string'&&typeof x.meal==='string');}catch{storageOK=false;$('status').textContent='Nie udało się odczytać dziennika';$('hint').textContent='Zapis jest zablokowany, aby chronić wcześniejsze dane. Sprawdź ustawienia pamięci przeglądarki.';$('save').disabled=true;}
-const now=new Date();$('date').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-function persist(next){try{localStorage.setItem(key,JSON.stringify(next));entries=next;render();return true;}catch{$('status').textContent='Brak miejsca lub dostępu do pamięci';return false;}}
-function render(){const box=$('entries');box.replaceChildren();const list=entries.filter(x=>x.date===$('date').value);if(!list.length){const p=document.createElement('p');p.className='empty';p.textContent='Jeszcze pusto. Pierwszy posiłek? Opowiedz o nim ↑';box.append(p);}for(const entry of list){const article=document.createElement('article');article.className='entry';const small=document.createElement('small');small.textContent=entry.meal;const p=document.createElement('p');p.textContent=entry.text;const del=document.createElement('button');del.textContent='Usuń wpis';del.addEventListener('click',()=>{if(confirm('Usunąć ten posiłek?'))persist(entries.filter(x=>x.id!==entry.id));});article.append(small,p,del);box.append(article);}}
-$('date').addEventListener('change',render);
-$('save').addEventListener('click',()=>{const text=$('words').value.trim();if(!text){$('status').textContent='Najpierw powiedz lub wpisz posiłek';return;}if(!$('date').value){$('status').textContent='Wybierz datę';return;}if(storageOK&&persist([...entries,{id:crypto.randomUUID(),text,date:$('date').value,meal:$('meal').value}])){$('words').value='';$('status').textContent='Posiłek zapisany ✓';}});
-$('export').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(entries,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='benger-dziennik.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
-const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;let listening=false;
-if(Speech&&window.isSecureContext){const recognition=new Speech();recognition.lang='pl-PL';recognition.interimResults=true;let base='';recognition.onstart=()=>{listening=true;$('mic').classList.add('active');$('mic').setAttribute('aria-label','Zatrzymaj dyktowanie');$('status').textContent='Słucham… dotknij, aby zakończyć';};recognition.onresult=e=>{let transcript='';for(let i=0;i<e.results.length;i++)transcript+=e.results[i][0].transcript+' ';$('words').value=(base+' '+transcript).trim();};recognition.onend=()=>{listening=false;$('mic').classList.remove('active');$('mic').setAttribute('aria-label','Rozpocznij dyktowanie');if($('status').textContent.startsWith('Słucham'))$('status').textContent='Sprawdź notatkę i zapisz posiłek';};recognition.onerror=e=>{$('status').textContent=e.error==='not-allowed'?'Zezwól na dostęp do mikrofonu':'Dyktowanie przerwane — możesz wpisać notatkę';};$('mic').onclick=()=>{if(listening){recognition.stop();return;}base=$('words').value;try{recognition.start();}catch{$('status').textContent='Poczekaj na zakończenie dyktowania';}};}else{$('mic').disabled=true;$('status').textContent='Dyktowanie przeglądarki jest niedostępne';$('hint').textContent='Użyj mikrofonu na klawiaturze telefonu albo wpisz notatkę.';}
-render();
+import { PRODUCTS, calculatePortion, sumNutrition } from './nutrition.js';
+import { initLegacyNotes } from './legacy.js';
+
+const $ = id => document.getElementById(id);
+const MEAL_LABELS = {
+  breakfast: 'Śniadanie',
+  lunch: 'Obiad',
+  dinner: 'Kolacja',
+  snack: 'Przekąska',
+};
+const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
+const nutritionStorageKey = 'benger.nutrition.v1';
+const formatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
+const amountFormatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 20 });
+const dateInput = $('date');
+const productSelect = $('product');
+const amountInput = $('amount');
+const mealSelect = $('nutrition-meal');
+const addButton = $('add-nutrition');
+let nutritionEntries = [];
+let nutritionStorageOK = true;
+
+function populateSelect(select, choices) {
+  for (const [value, label] of choices) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = label;
+    select.append(option);
+  }
+}
+
+function fieldError(message, fieldId) {
+  const error = new Error(message);
+  error.fieldId = fieldId;
+  return error;
+}
+
+function clearFieldError(fieldId) {
+  $(fieldId).setAttribute('aria-invalid', 'false');
+  $(`${fieldId}-error`).textContent = '';
+}
+
+function showError(error, focus = false) {
+  if (error.fieldId) {
+    $(error.fieldId).setAttribute('aria-invalid', 'true');
+    $(`${error.fieldId}-error`).textContent = error.message;
+    if (focus) $(error.fieldId).focus();
+  } else {
+    $('calculator-message').textContent = error.message;
+  }
+}
+
+function readPortionInput() {
+  const product = PRODUCTS.find(item => item.id === productSelect.value);
+  if (!product) throw fieldError('Wybierz produkt.', 'product');
+  const rawAmount = amountInput.value.trim();
+  if (rawAmount === '') throw fieldError('Podaj ilość produktu.', 'amount');
+  if (!/^-?\d+(?:[.,]\d+)?$/.test(rawAmount)) {
+    throw fieldError('Wpisz liczbę, np. 50 lub 50,5.', 'amount');
+  }
+  const amount = Number(rawAmount.replace(',', '.'));
+  try {
+    return { product, amount, nutrition: calculatePortion(product, amount) };
+  } catch (error) {
+    throw fieldError(error.message, 'amount');
+  }
+}
+
+function writeNutritionFields(prefix, nutrition) {
+  for (const nutrient of Object.keys(NUTRIENT_LABELS)) {
+    $(`${prefix}-${nutrient}`).textContent = formatter.format(nutrition[nutrient]);
+  }
+}
+
+function updatePortionPreview(showEmptyError = false) {
+  $('portion-preview').hidden = true;
+  for (const nutrient of Object.keys(NUTRIENT_LABELS)) $(`portion-${nutrient}`).textContent = '';
+  clearFieldError('product');
+  clearFieldError('amount');
+  $('calculator-message').textContent = '';
+  $('amount-unit').textContent = PRODUCTS.find(item => item.id === productSelect.value)?.unit ?? '';
+  try {
+    const { nutrition } = readPortionInput();
+    writeNutritionFields('portion', nutrition);
+    $('portion-preview').hidden = false;
+  } catch (error) {
+    if (amountInput.value.trim() !== '' || showEmptyError || error.fieldId === 'product') showError(error);
+  }
+}
+
+function isValidDiaryDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function isValidNutritionEntry(entry) {
+  return entry !== null && typeof entry === 'object'
+    && typeof entry.id === 'string' && entry.id.trim() !== ''
+    && isValidDiaryDate(entry.date)
+    && typeof entry.createdAt === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(entry.createdAt)
+    && Number.isFinite(Date.parse(entry.createdAt))
+    && typeof entry.meal === 'string' && Object.hasOwn(MEAL_LABELS, entry.meal)
+    && typeof entry.productId === 'string' && entry.productId.trim() !== ''
+    && typeof entry.productName === 'string' && entry.productName.trim() !== ''
+    && Number.isFinite(entry.amount) && entry.amount > 0
+    && ['g', 'ml'].includes(entry.unit)
+    && entry.nutrition !== null && typeof entry.nutrition === 'object'
+    && Object.keys(NUTRIENT_LABELS).every(nutrient =>
+      Number.isFinite(entry.nutrition[nutrient]) && entry.nutrition[nutrient] >= 0);
+}
+
+function loadNutritionEntries() {
+  try {
+    const raw = localStorage.getItem(nutritionStorageKey);
+    const saved = raw === null ? [] : JSON.parse(raw);
+    if (!Array.isArray(saved) || !saved.every(isValidNutritionEntry)
+        || new Set(saved.map(entry => entry.id)).size !== saved.length) {
+      throw new Error('Nieprawidłowy format wpisów.');
+    }
+    nutritionEntries = saved;
+    nutritionStorageOK = true;
+    addButton.disabled = false;
+    $('nutrition-storage-message').textContent = '';
+    return true;
+  } catch {
+    nutritionStorageOK = false;
+    addButton.disabled = true;
+    $('nutrition-storage-message').textContent = 'Nie można odczytać dziennika. Zapis jest zablokowany, aby chronić dane. Nie zostały usunięte ani nadpisane. Sprawdź ustawienia pamięci przeglądarki. Notatki tekstowe są przechowywane oddzielnie.';
+    return false;
+  }
+}
+
+function updateNutritionEntries(change) {
+  // Odczyt aktualnej listy jest potrzebny także przy usuwaniu z nieaktualnej karty.
+  // localStorage nie zapewnia transakcji między kartami: równoczesny zapis może się ścigać.
+  if (!loadNutritionEntries()) {
+    renderNutritionEntries();
+    return false;
+  }
+  const next = change(nutritionEntries);
+  try {
+    localStorage.setItem(nutritionStorageKey, JSON.stringify(next));
+  } catch {
+    renderNutritionEntries();
+    $('nutrition-storage-message').textContent = 'Nie udało się zapisać zmiany. Sprawdź wolne miejsce i dostęp do pamięci przeglądarki. Możesz spróbować ponownie.';
+    return false;
+  }
+  nutritionEntries = next;
+  renderNutritionEntries();
+  return true;
+}
+
+function renderDaySummary(selectedEntries) {
+  $('summary-error').textContent = '';
+  try {
+    const total = sumNutrition(selectedEntries.map(entry => entry.nutrition));
+    writeNutritionFields('total', total);
+    $('day-summary').hidden = false;
+  } catch {
+    $('day-summary').hidden = true;
+    $('summary-error').textContent = 'Wartości są zbyt duże, aby obliczyć podsumowanie. Sprawdź ilości i usuń nieprawidłowy wpis.';
+  }
+}
+
+function createNutritionArticle(entry) {
+  const article = document.createElement('article');
+  article.className = 'food-entry';
+  article.dataset.entryId = entry.id;
+  const name = document.createElement('h4');
+  name.textContent = entry.productName;
+  const amount = document.createElement('p');
+  amount.className = 'entry-amount';
+  amount.textContent = `${amountFormatter.format(entry.amount)} ${entry.unit}`;
+  const values = document.createElement('p');
+  values.className = 'entry-nutrition';
+  values.textContent = `${formatter.format(entry.nutrition.kcal)} kcal · Białko: ${formatter.format(entry.nutrition.protein)} g · Tłuszcz: ${formatter.format(entry.nutrition.fat)} g · Węglowodany: ${formatter.format(entry.nutrition.carbs)} g`;
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.className = 'button-secondary remove-entry';
+  remove.textContent = 'Usuń';
+  remove.setAttribute('aria-label', `Usuń ${entry.productName}, ${amount.textContent}, ${MEAL_LABELS[entry.meal]}`);
+  remove.addEventListener('click', () => removeNutritionEntry(entry.id));
+  article.append(name, amount, values, remove);
+  return article;
+}
+
+function renderNutritionEntries() {
+  const box = $('nutrition-entries');
+  box.replaceChildren();
+  $('day-summary').hidden = true;
+  $('summary-error').textContent = '';
+  if (!nutritionStorageOK) return;
+  if (!isValidDiaryDate(dateInput.value)) {
+    box.textContent = 'Wybierz datę, aby zobaczyć dziennik.';
+    return;
+  }
+  const selectedEntries = nutritionEntries.filter(entry => entry.date === dateInput.value);
+  renderDaySummary(selectedEntries);
+  if (selectedEntries.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'empty';
+    empty.textContent = 'Ten dzień czeka na pierwszy posiłek.';
+    box.append(empty);
+  }
+  for (const [meal, label] of Object.entries(MEAL_LABELS)) {
+    const items = selectedEntries.filter(entry => entry.meal === meal);
+    if (items.length === 0) continue;
+    const group = document.createElement('section');
+    group.className = 'meal-group';
+    group.dataset.meal = meal;
+    const heading = document.createElement('h3');
+    heading.textContent = `${label} (${items.length})`;
+    group.append(heading, ...items.map(createNutritionArticle));
+    box.append(group);
+  }
+}
+
+function createEntryId() {
+  const cryptoApi = globalThis.crypto;
+  if (typeof cryptoApi?.randomUUID === 'function') return cryptoApi.randomUUID();
+  if (typeof cryptoApi?.getRandomValues !== 'function') {
+    throw new Error('Ta przeglądarka nie obsługuje bezpiecznego tworzenia identyfikatorów. Spróbuj w aktualnej przeglądarce.');
+  }
+  const bytes = cryptoApi.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+function addNutritionEntry(event) {
+  event.preventDefault();
+  if (!nutritionStorageOK) return;
+  $('calculator-message').textContent = '';
+  clearFieldError('date');
+  clearFieldError('nutrition-meal');
+  try {
+    const date = dateInput.value;
+    if (!isValidDiaryDate(date)) throw fieldError('Wybierz prawidłową datę dziennika.', 'date');
+    const meal = mealSelect.value;
+    if (!Object.hasOwn(MEAL_LABELS, meal)) throw fieldError('Wybierz posiłek.', 'nutrition-meal');
+    const { product, amount, nutrition } = readPortionInput();
+    const entry = {
+      id: createEntryId(), date, createdAt: new Date().toISOString(), meal,
+      productId: product.id, productName: product.name, amount, unit: product.unit, nutrition,
+    };
+    if (updateNutritionEntries(current => [...current, entry])) {
+      amountInput.value = '';
+      updatePortionPreview();
+      $('calculator-message').textContent = `Dodano: ${product.name}, ${amountFormatter.format(amount)} ${product.unit} — ${MEAL_LABELS[meal]}.`;
+      amountInput.focus();
+    }
+  } catch (error) {
+    updatePortionPreview(true);
+    showError(error, true);
+  }
+}
+
+function removeNutritionEntry(id) {
+  const entry = nutritionEntries.find(item => item.id === id);
+  if (updateNutritionEntries(current => current.filter(item => item.id !== id))) {
+    $('diary-message').textContent = `Usunięto: ${entry?.productName ?? 'produkt'}.`;
+    const nextButton = $('nutrition-entries').querySelector('button');
+    (nextButton ?? $('nutrition-title')).focus();
+  }
+}
+
+const now = new Date();
+dateInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+populateSelect(productSelect, PRODUCTS.map(product => [product.id, product.name]));
+populateSelect(mealSelect, Object.entries(MEAL_LABELS));
+productSelect.addEventListener('change', () => updatePortionPreview());
+amountInput.addEventListener('input', () => updatePortionPreview());
+mealSelect.addEventListener('change', () => clearFieldError('nutrition-meal'));
+$('nutrition-form').addEventListener('submit', addNutritionEntry);
+dateInput.addEventListener('change', () => {
+  clearFieldError('date');
+  $('diary-message').textContent = '';
+  if (!isValidDiaryDate(dateInput.value)) showError(fieldError('Wybierz prawidłową datę dziennika.', 'date'));
+  renderNutritionEntries();
+});
+window.addEventListener('storage', event => {
+  if (event.storageArea === localStorage && (event.key === nutritionStorageKey || event.key === null)) {
+    loadNutritionEntries();
+    renderNutritionEntries();
+  }
+});
+updatePortionPreview();
+loadNutritionEntries();
+renderNutritionEntries();
+initLegacyNotes({ dateInput, createEntryId });
