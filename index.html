@@ -1,7 +1,7 @@
 <!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#174d3c"><link rel="manifest" href="/manifest.webmanifest"><link rel="stylesheet" href="/style.css"><title>Benger · Twój dziennik</title></head><body><main><header><a href="/" class="brand">benger<span>●</span></a><span>MNIEJ KLIKANIA. WIĘCEJ ŻYCIA.</span></header><section class="intro"><div class="tag">TWÓJ DZIENNIK JEDZENIA</div><h1>Powiedz, co<br>dzisiaj jadłeś.</h1><p>Posiłki, przekąski i małe przyjemności.<br>Po prostu opowiedz o nich po swojemu.</p></section>
 <section class="entry" aria-labelledby="calculator-title">
   <h2 id="calculator-title">Kalkulator porcji</h2>
-  <p>Dane przykładowe do celów edukacyjnych. Ten kalkulator nie zapisuje produktów w dzienniku.</p>
+  <p>Dane przykładowe do celów edukacyjnych. Wpisy zapisują się w tej przeglądarce.</p>
   <label for="product">Produkt</label>
   <select id="product"></select>
   <label for="amount">Ilość</label>
@@ -9,7 +9,13 @@
     <input id="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="np. 50 lub 50,5" aria-describedby="amount-unit calculator-message">
     <span id="amount-unit"></span>
   </div>
+  <label for="nutrition-meal">Posiłek</label>
+  <div class="actions">
+    <select id="nutrition-meal"></select>
+    <button id="add-nutrition" type="button">Dodaj do dziennika</button>
+  </div>
   <p id="calculator-message" role="status"></p>
+  <p id="nutrition-storage-message" role="alert"></p>
   <div id="portion-preview" aria-live="polite" hidden>
     <dl>
       <dt>Energia</dt><dd><output id="portion-kcal"></output> kcal</dd>
@@ -19,4 +25,9 @@
     </dl>
   </div>
 </section>
-<section class="capture"><button id="mic" class="mic" aria-label="Rozpocznij dyktowanie">🎙</button><h2 id="status" aria-live="polite">Dotknij i opowiedz</h2><p id="hint">Na przykład: „Zjadłem banana i wypiłem kawę”.</p><label for="words">Twoja notatka</label><textarea id="words" rows="3" placeholder="Możesz też napisać tutaj…"></textarea><div class="actions"><select id="meal" aria-label="Rodzaj posiłku"><option>Śniadanie</option><option>Obiad</option><option>Kolacja</option><option>Przekąska</option></select><button id="save">Zapisz posiłek ↗</button></div><p class="fine">Zapisujemy Twoje słowa, bez zgadywania składników i kalorii.</p></section><section class="diary"><div class="heading"><h2>Twój dzień</h2><input type="date" id="date" aria-label="Data dziennika"></div><div id="entries"></div></section><footer><p>Notatki zostają w tej przeglądarce. Eksportuj je, aby mieć kopię.<br>Dyktowanie może korzystać z usługi dostawcy przeglądarki. Wymaga HTTPS i obsługiwanej przeglądarki.</p><button id="export">Pobierz dziennik ↓</button></footer></main><script type="module" src="/app.js"></script></body></html>
+<section class="capture"><button id="mic" class="mic" aria-label="Rozpocznij dyktowanie">🎙</button><h2 id="status" aria-live="polite">Dotknij i opowiedz</h2><p id="hint">Na przykład: „Zjadłem banana i wypiłem kawę”.</p><label for="words">Twoja notatka</label><textarea id="words" rows="3" placeholder="Możesz też napisać tutaj…"></textarea><div class="actions"><select id="meal" aria-label="Rodzaj posiłku"><option>Śniadanie</option><option>Obiad</option><option>Kolacja</option><option>Przekąska</option></select><button id="save">Zapisz posiłek ↗</button></div><p class="fine">Zapisujemy Twoje słowa, bez zgadywania składników i kalorii.</p></section><section class="diary"><div class="heading"><h2>Twój dzień</h2><input type="date" id="date" aria-label="Data dziennika"></div><div id="entries"></div></section>
+<section class="diary" aria-labelledby="nutrition-title">
+  <h2 id="nutrition-title">Produkty w wybranym dniu</h2>
+  <div id="nutrition-entries"></div>
+</section>
+<footer><p>Notatki zostają w tej przeglądarce. Eksportuj je, aby mieć kopię.<br>Dyktowanie może korzystać z usługi dostawcy przeglądarki. Wymaga HTTPS i obsługiwanej przeglądarki.</p><button id="export">Pobierz dziennik ↓</button></footer></main><script type="module" src="/app.js"></script></body></html>
