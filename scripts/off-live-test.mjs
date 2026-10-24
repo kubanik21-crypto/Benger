@@ -80,7 +80,7 @@ try {
 } catch (error) { report.error = error.message; }
 finally {
   if (browser) {
-    report.http = browser.responses; report.consoleErrors = browser.errors;
+    report.http = browser.responses.filter(response => /^https?:/.test(response.url)); report.consoleErrors = browser.errors;
     report.networkFailures = browser.failures;
     await browser.close();
   }

@@ -205,7 +205,8 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       }
       await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
       await send('Page.addScriptToEvaluateOnNewDocument', { source: `
-        window.__documentId = crypto.randomUUID();
+        // Identyfikator dokumentu testowego, również dla niezabezpieczonej strony błędu Chrome.
+        window.__documentId = globalThis.crypto?.randomUUID?.() ?? String(performance.timeOrigin);
         window.__pauseStorageSync = false;
         window.addEventListener('storage', event => { if (window.__pauseStorageSync) event.stopImmediatePropagation(); }, true);
         window.confirm = () => true;
