@@ -257,4 +257,3 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
     return { base, page, errors, requests, responses, failures, off, close, serverErrors: () => serverErrors };
   } catch (error) { await close(); throw error; }
 }
-

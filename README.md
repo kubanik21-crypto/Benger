@@ -18,11 +18,11 @@ Pliki i katalogi zaczynające się od `.`, `server.js`, `package.json`, pliki `*
 
 ## Hosting statyczny i przygotowanie PWA
 
-Frontend działa również bez `server.js`: potrzebne są `index.html`, `style.css`, `app.js`, `nutrition.js`, `meal-parser.js`, `legacy.js`, `manifest.webmanifest`, `product-model.js`, `product-errors.js`, `product-cache.js`, `product-repository.js`, `product-search-ui.js` oraz `product-providers/local.js` i `product-providers/open-food-facts.js`. Zachowaj strukturę podkatalogów. Względne ścieżki działają zarówno pod `/`, jak i pod `/Benger/`. Przy hostowaniu w katalogu adres powinien kończyć się ukośnikiem.
+Frontend działa również bez `server.js`: potrzebne są `index.html`, `style.css`, `app.js`, `nutrition.js`, `meal-parser.js`, `legacy.js`, `manifest.webmanifest`, `app-storage.js`, `off-diagnostics.html`, `off-diagnostics.js`, `product-model.js`, `product-errors.js`, `product-cache.js`, `product-repository.js`, `product-search-ui.js` oraz `product-providers/local.js` i `product-providers/open-food-facts.js`. Zachowaj strukturę podkatalogów. Względne ścieżki działają zarówno pod `/`, jak i pod `/Benger/`. Przy hostowaniu w katalogu adres powinien kończyć się ukośnikiem.
 
 Lokalny `npm start` nadal serwuje aplikację pod `/`. Hosting pod `/Benger/` jest symulowany w testach jako osobny serwer statyczny; nie dodano takiej trasy do serwera deweloperskiego.
 
-Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages pozostaje prostym hostingiem. W tym etapie nie aktualizujemy produkcyjnej gałęzi `gh-pages` i nie publikujemy zmian automatycznie.
+Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages pozostaje prostym hostingiem. Workflow preview aktualizuje wyłącznie podkatalog `previews/etap-3/` istniejącej gałęzi `gh-pages`. Pliki głównej wersji pozostają niezmienione. Podgląd ma oddzielną pamięć danych.
 
 Manifest ma względne `start_url` i `scope`, ale nadal brakuje ikon instalacyjnych, service workera i offline shella. Nie ma jeszcze gwarancji instalacji ani odświeżenia bez sieci. Zmiana domeny, protokołu lub portu tworzy inny origin i nie przenosi danych localStorage; zmiana samej ścieżki na tym samym origin nie oddziela danych.
 
@@ -51,9 +51,9 @@ Wartości produktów w `nutrition.js` są **przykładowe, edukacyjne**. Nie opis
 - Limity: minimum 6,5 s między wyszukiwaniami, 4,5 s między odczytami kodów. 429 daje co najmniej minutę przerwy. Nie ma automatycznych ponowień. Request ma timeout 10 s; błędy są przedstawiane zwykłym komunikatem.
 - Jedynie jawne dane OFF na **100 ml** pozwalają wybrać ml. Dane na 100 g pozostają w g; starsze odpowiedzi bez jednoznacznej podstawy dostają ostrzeżenie. Wielkość opakowania nie służy do zgadywania gęstości. Zawsze porównaj wynik z etykietą.
 
-Bezpośredni frontend → OFF używa CORS i wspieranego przez oficjalną konfigurację `X-User-Agent: Benger/0.3 (https://github.com/kubanik21-crypto/Benger)`. Nie zmienia `User-Agent` przeglądarki i nie potrzebuje klucza ani proxy. Używa pełnotekstowego CGI ze schematem API 3.5 oraz odczytu `/api/v3.5/product/{barcode}`. Szczegóły i źródła w dokumencie architektury.
+Bezpośredni frontend → OFF używa CORS i wspieranego przez oficjalną konfigurację `X-User-Agent: Benger/0.3 (https://github.com/kubanik21-crypto/Benger)`. Nie zmienia `User-Agent` przeglądarki i nie potrzebuje klucza ani proxy. Używa pełnotekstowego CGI ze schematem API 3.6 oraz odczytu `/api/v3.6/product/{barcode}`. Szczegóły i źródła w dokumencie architektury.
 
-**Weryfikacja połączenia:** środowisko wykonawcze blokuje produkcyjne API OFF (403). Schemat zweryfikowano w oficjalnym kodzie/OpenAPI i zapisanych odpowiedziach integracyjnych; testy używają mocków, a nie zapytań produkcyjnych. Przed wdrożeniem potrzebny jest test wyszukiwania i kodu w normalnej przeglądarce oraz rejestracja aplikacji w formularzu API OFF przez właściciela.
+**Weryfikacja połączenia:** proxy środowiska odrzuca zestawienie tunelu do OFF (CONNECT 403 / Chromium `ERR_TUNNEL_CONNECTION_FAILED`), zanim dotrze do API. Nie jest to potwierdzona odpowiedź 403 z OFF ani diagnoza CORS. Schemat zweryfikowano w oficjalnym kodzie/OpenAPI i zapisanych odpowiedziach integracyjnych; testy używają mocków, a nie zapytań produkcyjnych. Przed wdrożeniem potrzebny jest test wyszukiwania i kodu w normalnej przeglądarce oraz rejestracja aplikacji w formularzu API OFF przez właściciela.
 
 Aplikacja już załadowana działa bez sieci; nie ma jeszcze service workera gwarantującego uruchomienie/odświeżenie offline. Wyszukiwane frazy/kody i żądania miniatur są wysyłane do OFF. Dziennik i notatki nie są wysyłane.
 
@@ -168,3 +168,26 @@ Testy katalogu obejmują mapowanie OFF, brak nazwy/kcal/makro, nieprawidłowe li
 Test Chromium Etapu 3 używa natywnego `fetch`, przechwytuje ruch OFF przez CDP z kontrolowanym CORS i działa na rzeczywistym IndexedDB pod `/Benger/`. Sprawdza pełny zapis produktu OFF, trwałość, offline, usuwanie ulubionego, barcode, limity także w dwóch kartach, awarie API, XSS, uszkodzony cache oraz zablokowany IndexedDB. Opcjonalny zrzut: `BENGER_CATALOG_SCREENSHOT_PATH=/tmp/benger-catalog.png npm run test:browser`.
 
 GitHub Actions uruchamia testy także po push do `etap-3-katalog-produktow` (bez tworzenia PR). To workflow testowy, bez deploymentu.
+
+
+## Preview PR #3 i ręczny test produkcyjnego OFF
+
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-3/**
+
+Jest przygotowywane po push gałęzi `etap-3-katalog-produktow` przez workflow `Stage 3 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
+
+Pasek podglądu pokazuje SHA. Preview używa `benger.preview-etap-3.nutrition.v1`, `benger.preview-etap-3.meals.v1` oraz IndexedDB `BengerDB-preview-etap-3`. Dane wersji głównej nie są kopiowane ani zmieniane.
+
+Ręczna publikacja z czystej gałęzi Etapu 3: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
+
+W preview kliknij „Sprawdź połączenie OFF”. Strona diagnostyczna uruchamia prawdziwe wyszukiwanie i barcode, zapisuje statusy HTTP, informację o czytelnej odpowiedzi CORS, znormalizowany produkt/makro i wynik ładowania zdjęcia. Nie dodaje wpisów do dziennika. Raport można pobrać jako JSON. Na tej stronie nic nie jest mockowane.
+
+Pełny test rzeczywistego przepływu w Chromium z tymczasowym profilem, poza standardowym CI:
+
+```sh
+npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-3/ --report /tmp/benger-off-live.json
+```
+
+Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.
+
+Ogólna dokumentacja OFF rekomenduje custom `User-Agent`. Browser nie może go niezawodnie ustawić; `X-User-Agent` jest jawnie dopuszczony i testowany w oficjalnej konfiguracji CORS OFF, ale nie opisujemy go jako ogólnie zalecanego zamiennika w przewodniku API. Nie dodajemy nieudokumentowanego parametru READ ani niepotrzebnego proxy. Szczegóły, aktualny formularz rejestracji i pozostałe bramki przed merge: [audyt produkcyjny](docs/off-production-audit.md).
