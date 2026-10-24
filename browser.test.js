@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:net';
+import { createServer as createHttpServer } from 'node:http';
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const CHROMIUM_STARTUP_TIMEOUT_MS = 45_000;
@@ -12,17 +13,53 @@ const DAY = '2026-10-22';
 const OTHER_DAY = '2026-10-23';
 const KEY = 'benger.nutrition.v1';
 const NOTE_KEY = 'benger.meals.v1';
+const STATIC_ASSETS = ['index.html', 'app.js', 'nutrition.js', 'meal-parser.js', 'legacy.js', 'style.css', 'manifest.webmanifest'];
 
-async function startBrowser() {
+// Osobny hosting wyłącznie plików publicznych, bez uruchamiania server.js.
+// Przy /Benger/ nie ma zasobów pod root domeny, które mogłyby zamaskować błędne ścieżki.
+async function startStaticHost(prefix) {
+  const directory = await mkdtemp(join(tmpdir(), 'benger-static-host-'));
+  let server;
+  try {
+    for (const name of STATIC_ASSETS) await copyFile(new URL(name, import.meta.url), join(directory, name));
+    const types = { js: 'text/javascript', css: 'text/css', html: 'text/html', webmanifest: 'application/manifest+json' };
+    server = createHttpServer(async (request, response) => {
+      const pathname = new URL(request.url, 'http://localhost').pathname;
+      if (prefix !== '/' && pathname === prefix.slice(0, -1)) {
+        response.writeHead(301, { Location: prefix }); response.end(); return;
+      }
+      const file = pathname.startsWith(prefix) ? pathname.slice(prefix.length) || 'index.html' : null;
+      if (!STATIC_ASSETS.includes(file)) { response.writeHead(404); response.end(); return; }
+      try {
+        response.setHeader('Content-Type', `${types[file.split('.').at(-1)]}; charset=utf-8`);
+        response.end(await readFile(join(directory, file)));
+      } catch {
+        response.writeHead(500); response.end();
+      }
+    });
+    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+    return {
+      base: `http://127.0.0.1:${server.address().port}${prefix}`,
+      close: async () => {
+        await new Promise(resolve => server.close(resolve));
+        await rm(directory, { recursive: true, force: true });
+      },
+    };
+  } catch (error) {
+    if (server?.listening) await new Promise(resolve => server.close(resolve));
+    await rm(directory, { recursive: true, force: true });
+    throw error;
+  }
+}
+
+async function startBrowser({ staticPrefix } = {}) {
   const profile = await mkdtemp(join(tmpdir(), 'benger-browser-test-'));
-  const probe = createServer();
-  await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
-  const port = probe.address().port;
-  await new Promise(resolve => probe.close(resolve));
   const processes = [];
+  let staticSite;
   let socket;
   const errors = [];
   const requests = [];
+  const responses = [];
   const pending = new Map();
   async function close() {
     if (socket) socket.close();
@@ -35,16 +72,27 @@ async function startBrowser() {
       await Promise.race([exited, pause(2000)]);
       if (child.exitCode === null) { child.kill('SIGKILL'); await exited; }
     }
+    if (staticSite) await staticSite.close();
     await rm(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
   }
   try {
-    const app = spawn(process.execPath, ['server.js'], {
-      cwd: import.meta.dirname, env: { ...process.env, PORT: String(port) }, stdio: ['ignore', 'ignore', 'pipe'],
-    });
-    processes.push(app);
     let serverErrors = '';
-    app.stderr.on('data', data => { serverErrors += data; });
-    const base = `http://127.0.0.1:${port}`;
+    let base;
+    if (staticPrefix === undefined) {
+      const probe = createServer();
+      await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
+      const port = probe.address().port;
+      await new Promise(resolve => probe.close(resolve));
+      const app = spawn(process.execPath, ['server.js'], {
+        cwd: import.meta.dirname, env: { ...process.env, PORT: String(port) }, stdio: ['ignore', 'ignore', 'pipe'],
+      });
+      processes.push(app);
+      app.stderr.on('data', data => { serverErrors += data; });
+      base = `http://127.0.0.1:${port}`;
+    } else {
+      staticSite = await startStaticHost(staticPrefix);
+      base = staticSite.base;
+    }
     let ready = false;
     for (let i = 0; i < 50; i++) {
       try { if ((await fetch(base)).status === 200) { ready = true; break; } } catch {}
@@ -76,6 +124,7 @@ async function startBrowser() {
       if (message.method === 'Log.entryAdded' && message.params.entry.level === 'error') errors.push(message.params.entry);
       if (message.method === 'Runtime.consoleAPICalled' && message.params.type === 'error') errors.push(message.params.args);
       if (message.method === 'Network.requestWillBeSent') requests.push(message.params.request.url);
+      if (message.method === 'Network.responseReceived') responses.push({ url: message.params.response.url, status: message.params.response.status });
       const request = pending.get(message.id);
       if (request) {
         clearTimeout(request.timer);
@@ -92,7 +141,7 @@ async function startBrowser() {
         socket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
       });
     }
-    async function page() {
+    async function page(url = base) {
       const { targetId } = await command('Target.createTarget', { url: 'about:blank' });
       const { sessionId } = await command('Target.attachToTarget', { targetId, flatten: true });
       const send = (method, params) => command(method, params, sessionId);
@@ -127,6 +176,11 @@ async function startBrowser() {
         await send('Page.reload');
         await waitReady(previous);
       }
+      async function navigate(nextUrl) {
+        const previous = await evaluate('window.__documentId');
+        await send('Page.navigate', { url: nextUrl });
+        await waitReady(previous);
+      }
       async function date(value) {
         await evaluate(`document.getElementById('date').value = ${JSON.stringify(value)}; document.getElementById('date').dispatchEvent(new Event('change'));`);
       }
@@ -142,11 +196,11 @@ async function startBrowser() {
       const remove = id => evaluate(`[...document.querySelectorAll('#nutrition-entries article')].find(article => article.dataset.entryId === ${JSON.stringify(id)}).querySelector('button').click()`);
       const analyze = text => evaluate(`document.getElementById('meal-text').value = ${JSON.stringify(text)}; document.getElementById('meal-text').dispatchEvent(new Event('input')); document.getElementById('analyze-meal').click();`);
       const accept = () => evaluate("document.getElementById('save-meal-proposal').click()");
-      await send('Page.navigate', { url: base });
+      await send('Page.navigate', { url });
       await waitReady(null);
-      return { send, evaluate, reload, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
+      return { send, evaluate, reload, navigate, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
     }
-    return { base, page, errors, requests, close, serverErrors: () => serverErrors };
+    return { base, page, errors, requests, responses, close, serverErrors: () => serverErrors };
   } catch (error) { await close(); throw error; }
 }
 
@@ -360,6 +414,154 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
     assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !url.startsWith(browser.base + '/')), []);
   });
 });
+
+for (const prefix of ['/', '/Benger/']) {
+  test(`hosting statyczny pod ${prefix}`, { timeout: 120000 }, async t => {
+    const browser = await startBrowser({ staticPrefix: prefix });
+    t.after(() => browser.close());
+    const a = await browser.page();
+    await a.date(DAY);
+    const origin = new URL(browser.base).origin;
+    const allowedOrigins = new Set([origin]);
+    const audit = { prefix, widths: [], pwa: {} };
+
+    await t.test('publiczny frontend działa bez server.js, bez zasobów zastępczych pod root domeny', async () => {
+      for (const file of STATIC_ASSETS) {
+        const response = await fetch(new URL(file, browser.base));
+        assert.equal(response.status, 200, file);
+        assert.equal(await response.text(), await readFile(new URL(file, import.meta.url), 'utf8'), file);
+        if (file.endsWith('.js')) assert.match(response.headers.get('content-type'), /javascript/);
+      }
+      for (const file of ['server.js', 'package.json', 'browser.test.js']) {
+        assert.equal((await fetch(new URL(file, browser.base))).status, 404, file);
+      }
+      if (prefix !== '/') {
+        for (const file of ['app.js', 'style.css', 'manifest.webmanifest']) assert.equal((await fetch(`${origin}/${file}`)).status, 404);
+        const redirect = await fetch(`${origin}${prefix.slice(0, -1)}`, { redirect: 'manual' });
+        assert.equal(redirect.status, 301);
+        assert.equal(redirect.headers.get('location'), prefix);
+      }
+      assert.equal(await a.evaluate("document.querySelector('link[rel=stylesheet]').href"), new URL('style.css', browser.base).href);
+      assert.equal(await a.evaluate('getComputedStyle(document.body).margin'), '0px');
+      assert.equal(await a.evaluate("document.getElementById('product').options.length"), 4);
+    });
+
+    await t.test('importy, ręczne dodawanie i propozycja tekstowa korzystają ze wspólnego dziennika', async () => {
+      await a.choose('oat-flakes', '50'); await a.submit();
+      const raw = await a.raw(KEY);
+      await a.analyze('Na śniadanie zjadłem 200 ml mleka 2% i banana 120 g');
+      assert.equal(await a.raw(KEY), raw);
+      assert.deepEqual(await a.outputs('proposal'), ['206,8', '8,12', '4,36', '36,96']);
+      await a.accept();
+      assert.equal((await a.saved()).length, 3);
+      assert.deepEqual(await a.outputs('total'), ['391,8', '14,62', '7,86', '66,96']);
+    });
+
+    await t.test('odświeżenie, index.html i logo pozostają we właściwym podkatalogu', async () => {
+      const raw = await a.raw(KEY);
+      await a.reload(); await a.date(DAY);
+      assert.equal(await a.raw(KEY), raw);
+      assert.equal((await a.visible()).length, 3);
+      await a.navigate(new URL('index.html', browser.base).href);
+      const home = await a.evaluate("document.querySelector('.brand').href");
+      assert.equal(home, browser.base);
+      await a.navigate(home); await a.date(DAY);
+      assert.equal(await a.evaluate('location.pathname'), prefix);
+      assert.equal(await a.raw(KEY), raw);
+      assert.deepEqual(await a.outputs('total'), ['391,8', '14,62', '7,86', '66,96']);
+    });
+
+    await t.test('manifest ma względny start_url i scope oraz spójny theme-color', async () => {
+      const pwa = await a.evaluate(`(async () => {
+        const url = document.querySelector('link[rel=manifest]').href;
+        const response = await fetch(url);
+        const manifest = await response.json();
+        return { url, manifest, startUrl: new URL(manifest.start_url, url).href,
+          scope: new URL(manifest.scope, url).href,
+          theme: document.querySelector('meta[name=theme-color]').content,
+          secureContext: isSecureContext,
+          serviceWorkers: (await navigator.serviceWorker.getRegistrations()).length };
+      })()`);
+      assert.equal(pwa.url, new URL('manifest.webmanifest', browser.base).href);
+      assert.equal(pwa.startUrl, browser.base);
+      assert.equal(pwa.scope, browser.base);
+      assert.equal(pwa.manifest.display, 'standalone');
+      assert.equal(pwa.theme, pwa.manifest.theme_color);
+      audit.pwa = pwa;
+      // Diagnoza zależna od wersji przeglądarki, bez narzucania braków PWA jako wymagań regresji.
+      if (process.env.BENGER_AUDIT_DIR) {
+        try { audit.pwa.installability = await a.send('Page.getInstallabilityErrors'); }
+        catch (error) { audit.pwa.installabilityDiagnostic = error.message; }
+      }
+    });
+
+    await t.test('układ mieści się na 320, 390, 768, 1024 i 1440 px', async () => {
+      for (const width of [320, 390, 768, 1024, 1440]) {
+        await a.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 720 });
+        await a.evaluate('window.scrollTo(0, 0)');
+        const metrics = await a.evaluate(`(() => {
+          const rect = selector => {
+            const { x, y, width, height } = document.querySelector(selector).getBoundingClientRect();
+            return { x, y, width, height };
+          };
+          return { viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth,
+            main: rect('main'), textForm: rect('.text-meal'), workspace: rect('.workspace'),
+            summary: rect('#day-summary'), diary: rect('#nutrition-entries'),
+            columns: getComputedStyle(document.querySelector('.workspace')).gridTemplateColumns };
+        })()`);
+        assert.ok(metrics.scrollWidth <= width, JSON.stringify(metrics));
+        assert.ok(metrics.summary.width > 0);
+        audit.widths.push({ width, ...metrics });
+        if (process.env.BENGER_AUDIT_DIR && prefix === '/Benger/') {
+          await mkdir(process.env.BENGER_AUDIT_DIR, { recursive: true });
+          const { data } = await a.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+          await writeFile(join(process.env.BENGER_AUDIT_DIR, `layout-${width}.png`), Buffer.from(data, 'base64'));
+          if ([390, 1440].includes(width)) {
+            await a.evaluate("document.getElementById('day-summary').scrollIntoView({block:'start'})");
+            const diary = await a.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+            await writeFile(join(process.env.BENGER_AUDIT_DIR, `diary-${width}.png`), Buffer.from(diary.data, 'base64'));
+            await a.evaluate('window.scrollTo(0, 0)');
+          }
+        }
+      }
+      if (process.env.BENGER_AUDIT_DIR) {
+        await mkdir(process.env.BENGER_AUDIT_DIR, { recursive: true });
+        await writeFile(join(process.env.BENGER_AUDIT_DIR, `audit-${prefix === '/' ? 'root' : 'Benger'}.json`), JSON.stringify(audit, null, 2));
+      }
+      t.diagnostic(`Szerokości bez poziomego przewijania: ${audit.widths.map(item => item.width).join(', ')}.`);
+    });
+
+    await t.test('localStorage zależy od origin, a nie od ścieżki strony', async () => {
+      const raw = await a.raw(KEY);
+      const sameOrigin = await a.evaluate(`(() => {
+        const original = location.href;
+        try { history.replaceState(null, '', '/inna-sciezka/'); return localStorage.getItem('${KEY}'); }
+        finally { history.replaceState(null, '', original); }
+      })()`);
+      assert.equal(sameOrigin, raw);
+      const otherSite = await startStaticHost(prefix);
+      allowedOrigins.add(new URL(otherSite.base).origin);
+      try {
+        // Ta sama instancja Chromium i ten sam profil, ale inny port (inny origin).
+        const b = await browser.page(otherSite.base);
+        assert.equal(await b.raw(KEY), null);
+        await b.choose('milk-2-percent', '100'); await b.submit();
+        assert.equal((await b.saved()).length, 1);
+        assert.equal(await a.raw(KEY), raw);
+      } finally { await otherSite.close(); }
+    });
+
+    await t.test('konsola i zasoby frontendu bez błędów; brak zewnętrznych API', async () => {
+      assert.deepEqual(browser.errors, []);
+      assert.equal(browser.serverErrors(), '');
+      const webResponses = browser.responses.filter(response => /^https?:/.test(response.url));
+      assert.deepEqual(webResponses.filter(response => response.status >= 400), []);
+      assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !allowedOrigins.has(new URL(url).origin)), []);
+      const initialRequests = browser.requests.filter(url => url.startsWith(origin + '/'));
+      if (prefix !== '/') assert.ok(initialRequests.every(url => new URL(url).pathname.startsWith(prefix)));
+    });
+  });
+}
 
 test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, async t => {
   const browser = await startBrowser();
