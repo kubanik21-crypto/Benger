@@ -16,6 +16,19 @@ Serwer automatycznie udostępnia zwykłe pliki `.html`, `.js`, `.css` i `.webman
 
 Pliki i katalogi zaczynające się od `.`, `server.js`, `package.json`, pliki `*.test.js`, dowiązania oraz próby wyjścia poza katalog są blokowane. Inne rozszerzenia nie są publiczne. Odpowiedzi wymagają ponownej weryfikacji przez przeglądarkę (`Cache-Control: no-cache`). Po zmianie samego kodu `server.js` nadal trzeba zatrzymać wcześniejszy proces (`Ctrl+C`) i ponownie uruchomić `npm start`.
 
+## Hosting statyczny i przygotowanie PWA
+
+Frontend działa również bez `server.js`: wystarczą `index.html`, `style.css`, `app.js`, `nutrition.js`, `meal-parser.js`, `legacy.js` i `manifest.webmanifest`. Względne ścieżki działają zarówno pod `/`, jak i pod `/Benger/`. Przy hostowaniu w katalogu adres powinien kończyć się ukośnikiem.
+
+Lokalny `npm start` nadal serwuje aplikację pod `/`. Hosting pod `/Benger/` jest symulowany w testach jako osobny serwer statyczny; nie dodano takiej trasy do serwera deweloperskiego.
+
+Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages jest rekomendowanym pierwszym wariantem; nie został jeszcze włączony i aplikacja nie została opublikowana.
+
+Manifest ma względne `start_url` i `scope`, ale nadal brakuje ikon instalacyjnych, service workera i offline shella. Nie ma jeszcze gwarancji instalacji ani odświeżenia bez sieci. Zmiana domeny, protokołu lub portu tworzy inny origin i nie przenosi danych localStorage; zmiana samej ścieżki na tym samym origin nie oddziela danych.
+
+- [Audyt gotowości webowej](docs/web-readiness-audit.md): wyniki hostingu, responsive layout, PWA, dane i porównanie hostów.
+- [Projekt Etapu 3 — Web Experience](docs/stage-3-web-experience.md): konkretny układ desktop/mobile, dialog dodawania, offline i przyszły workflow publikacji. To plan, nie zaimplementowany Etap 3.
+
 ## Dziennik produktów
 
 1. Wybierz dzień nad formularzem — dotyczy on dodawania, listy i podsumowania.
@@ -112,6 +125,16 @@ Opcjonalny zrzut ekranu po dodaniu czterech posiłków:
 BENGER_SCREENSHOT_PATH=/tmp/benger.png npm run test:browser
 ```
 
-Testy sprawdzają porcje, walidację i fokus, posiłki i dwa dni, sumowanie, usuwanie, odświeżenie, dwie karty, awarie pamięci, UUID zastępcze, historyczne wartości, kontrast, szerokości 320/390/1024 px, notatnik i konsolę.
+Testy sprawdzają porcje, walidację i fokus, posiłki i dwa dni, sumowanie, usuwanie, odświeżenie, dwie karty, awarie pamięci, UUID zastępcze, historyczne wartości, kontrast, szerokości 320/390/768/1024/1440 px, notatnik i konsolę.
 
 Dla Etapu 2 sprawdzają także podgląd dwóch i trzech produktów, brak zapisu przed akceptacją, pojedynczy zapis całego zestawu, poprawianie tekstu, blokadę starego podglądu, brak częściowego sukcesu przy awarii pamięci lub ID, snapshot propozycji, współpracę z formularzem ręcznym i widoki 320/390 px. Opcjonalny zrzut propozycji: `BENGER_TEXT_SCREENSHOT_PATH=/tmp/benger-text.png npm run test:browser`.
+
+Dwa dodatkowe zestawy uruchamiają sam publiczny frontend na osobnym hostingu statycznym pod `/` i `/Benger/`, bez produkcyjnego serwera Node. Podkatalog nie ma zasobów zastępczych pod root domeny. Testy obejmują importy, CSS, manifest, oba formularze, zapis, odświeżenie, logo i rozdzielenie localStorage między origin.
+
+Opcjonalne pomiary i zrzuty pięciu szerokości:
+
+```sh
+BENGER_AUDIT_DIR=/tmp/benger-web-audit npm run test:browser
+```
+
+Start Chromium ma limit 45 sekund dla wolniejszego CI; rzeczywisty błąd lub przedwczesne zakończenie procesu nadal przerywa test. Nie dodano opóźnienia po poprawnym starcie.
