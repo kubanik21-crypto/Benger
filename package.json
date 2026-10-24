@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test nutrition.test.js",
+    "test": "node --test nutrition.test.js meal-parser.test.js server.test.js",
     "test:browser": "node --test browser.test.js"
   }
 }

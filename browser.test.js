@@ -1,27 +1,65 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:net';
+import { createServer as createHttpServer } from 'node:http';
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+const CHROMIUM_STARTUP_TIMEOUT_MS = 45_000;
 const DAY = '2026-10-22';
 const OTHER_DAY = '2026-10-23';
 const KEY = 'benger.nutrition.v1';
 const NOTE_KEY = 'benger.meals.v1';
+const STATIC_ASSETS = ['index.html', 'app.js', 'nutrition.js', 'meal-parser.js', 'legacy.js', 'style.css', 'manifest.webmanifest'];
 
-async function startBrowser() {
+// Osobny hosting wyłącznie plików publicznych, bez uruchamiania server.js.
+// Przy /Benger/ nie ma zasobów pod root domeny, które mogłyby zamaskować błędne ścieżki.
+async function startStaticHost(prefix) {
+  const directory = await mkdtemp(join(tmpdir(), 'benger-static-host-'));
+  let server;
+  try {
+    for (const name of STATIC_ASSETS) await copyFile(new URL(name, import.meta.url), join(directory, name));
+    const types = { js: 'text/javascript', css: 'text/css', html: 'text/html', webmanifest: 'application/manifest+json' };
+    server = createHttpServer(async (request, response) => {
+      const pathname = new URL(request.url, 'http://localhost').pathname;
+      if (prefix !== '/' && pathname === prefix.slice(0, -1)) {
+        response.writeHead(301, { Location: prefix }); response.end(); return;
+      }
+      const file = pathname.startsWith(prefix) ? pathname.slice(prefix.length) || 'index.html' : null;
+      if (!STATIC_ASSETS.includes(file)) { response.writeHead(404); response.end(); return; }
+      try {
+        response.setHeader('Content-Type', `${types[file.split('.').at(-1)]}; charset=utf-8`);
+        response.end(await readFile(join(directory, file)));
+      } catch {
+        response.writeHead(500); response.end();
+      }
+    });
+    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+    return {
+      base: `http://127.0.0.1:${server.address().port}${prefix}`,
+      close: async () => {
+        await new Promise(resolve => server.close(resolve));
+        await rm(directory, { recursive: true, force: true });
+      },
+    };
+  } catch (error) {
+    if (server?.listening) await new Promise(resolve => server.close(resolve));
+    await rm(directory, { recursive: true, force: true });
+    throw error;
+  }
+}
+
+async function startBrowser({ staticPrefix } = {}) {
   const profile = await mkdtemp(join(tmpdir(), 'benger-browser-test-'));
-  const probe = createServer();
-  await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
-  const port = probe.address().port;
-  await new Promise(resolve => probe.close(resolve));
   const processes = [];
+  let staticSite;
   let socket;
   const errors = [];
   const requests = [];
+  const responses = [];
   const pending = new Map();
   async function close() {
     if (socket) socket.close();
@@ -34,16 +72,27 @@ async function startBrowser() {
       await Promise.race([exited, pause(2000)]);
       if (child.exitCode === null) { child.kill('SIGKILL'); await exited; }
     }
+    if (staticSite) await staticSite.close();
     await rm(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
   }
   try {
-    const app = spawn(process.execPath, ['server.js'], {
-      cwd: import.meta.dirname, env: { ...process.env, PORT: String(port) }, stdio: ['ignore', 'ignore', 'pipe'],
-    });
-    processes.push(app);
     let serverErrors = '';
-    app.stderr.on('data', data => { serverErrors += data; });
-    const base = `http://127.0.0.1:${port}`;
+    let base;
+    if (staticPrefix === undefined) {
+      const probe = createServer();
+      await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
+      const port = probe.address().port;
+      await new Promise(resolve => probe.close(resolve));
+      const app = spawn(process.execPath, ['server.js'], {
+        cwd: import.meta.dirname, env: { ...process.env, PORT: String(port) }, stdio: ['ignore', 'ignore', 'pipe'],
+      });
+      processes.push(app);
+      app.stderr.on('data', data => { serverErrors += data; });
+      base = `http://127.0.0.1:${port}`;
+    } else {
+      staticSite = await startStaticHost(staticPrefix);
+      base = staticSite.base;
+    }
     let ready = false;
     for (let i = 0; i < 50; i++) {
       try { if ((await fetch(base)).status === 200) { ready = true; break; } } catch {}
@@ -57,7 +106,7 @@ async function startBrowser() {
     processes.push(chrome);
     const endpoint = await new Promise((resolve, reject) => {
       let output = '';
-      const timer = setTimeout(() => reject(new Error(`Chromium timeout: ${output}`)), 15000);
+      const timer = setTimeout(() => reject(new Error(`Chromium timeout: ${output}`)), CHROMIUM_STARTUP_TIMEOUT_MS);
       chrome.on('error', error => { clearTimeout(timer); reject(error); });
       chrome.on('exit', code => { clearTimeout(timer); reject(new Error(`Chromium zakończył pracę: ${code}`)); });
       chrome.stderr.on('data', data => {
@@ -75,6 +124,7 @@ async function startBrowser() {
       if (message.method === 'Log.entryAdded' && message.params.entry.level === 'error') errors.push(message.params.entry);
       if (message.method === 'Runtime.consoleAPICalled' && message.params.type === 'error') errors.push(message.params.args);
       if (message.method === 'Network.requestWillBeSent') requests.push(message.params.request.url);
+      if (message.method === 'Network.responseReceived') responses.push({ url: message.params.response.url, status: message.params.response.status });
       const request = pending.get(message.id);
       if (request) {
         clearTimeout(request.timer);
@@ -91,7 +141,7 @@ async function startBrowser() {
         socket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
       });
     }
-    async function page() {
+    async function page(url = base) {
       const { targetId } = await command('Target.createTarget', { url: 'about:blank' });
       const { sessionId } = await command('Target.attachToTarget', { targetId, flatten: true });
       const send = (method, params) => command(method, params, sessionId);
@@ -126,6 +176,11 @@ async function startBrowser() {
         await send('Page.reload');
         await waitReady(previous);
       }
+      async function navigate(nextUrl) {
+        const previous = await evaluate('window.__documentId');
+        await send('Page.navigate', { url: nextUrl });
+        await waitReady(previous);
+      }
       async function date(value) {
         await evaluate(`document.getElementById('date').value = ${JSON.stringify(value)}; document.getElementById('date').dispatchEvent(new Event('change'));`);
       }
@@ -139,11 +194,13 @@ async function startBrowser() {
       const visible = () => evaluate("[...document.querySelectorAll('#nutrition-entries article')].map(article => ({ id: article.dataset.entryId, text: article.textContent }))");
       const outputs = prefix => evaluate(`['kcal', 'protein', 'fat', 'carbs'].map(key => document.getElementById(${JSON.stringify(prefix)} + '-' + key).textContent)`);
       const remove = id => evaluate(`[...document.querySelectorAll('#nutrition-entries article')].find(article => article.dataset.entryId === ${JSON.stringify(id)}).querySelector('button').click()`);
-      await send('Page.navigate', { url: base });
+      const analyze = text => evaluate(`document.getElementById('meal-text').value = ${JSON.stringify(text)}; document.getElementById('meal-text').dispatchEvent(new Event('input')); document.getElementById('analyze-meal').click();`);
+      const accept = () => evaluate("document.getElementById('save-meal-proposal').click()");
+      await send('Page.navigate', { url });
       await waitReady(null);
-      return { send, evaluate, reload, date, choose, submit, raw, setRaw, saved, visible, outputs, remove };
+      return { send, evaluate, reload, navigate, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
     }
-    return { base, page, errors, requests, close, serverErrors: () => serverErrors };
+    return { base, page, errors, requests, responses, close, serverErrors: () => serverErrors };
   } catch (error) { await close(); throw error; }
 }
 
@@ -174,7 +231,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
   await a.date(DAY);
 
   await t.test('strona i moduły są dostępne, katalog pochodzi z PRODUCTS', async () => {
-    for (const path of ['/', '/app.js', '/nutrition.js', '/legacy.js', '/style.css', '/manifest.webmanifest']) {
+    for (const path of ['/', '/app.js', '/nutrition.js', '/meal-parser.js', '/legacy.js', '/style.css', '/manifest.webmanifest']) {
       assert.equal((await fetch(browser.base + path)).status, 200, path);
     }
     assert.equal((await fetch(browser.base + '/missing')).status, 404);
@@ -352,6 +409,422 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
     assert.equal(JSON.parse(await a.raw(NOTE_KEY)).length, 1);
   });
   await t.test('konsola i serwer bez błędów, bez zewnętrznych zasobów', async () => {
+    assert.deepEqual(browser.errors, []);
+    assert.equal(browser.serverErrors(), '');
+    assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !url.startsWith(browser.base + '/')), []);
+  });
+});
+
+for (const prefix of ['/', '/Benger/']) {
+  test(`hosting statyczny pod ${prefix}`, { timeout: 120000 }, async t => {
+    const browser = await startBrowser({ staticPrefix: prefix });
+    t.after(() => browser.close());
+    const a = await browser.page();
+    await a.date(DAY);
+    const origin = new URL(browser.base).origin;
+    const allowedOrigins = new Set([origin]);
+    const audit = { prefix, widths: [], pwa: {} };
+
+    await t.test('publiczny frontend działa bez server.js, bez zasobów zastępczych pod root domeny', async () => {
+      for (const file of STATIC_ASSETS) {
+        const response = await fetch(new URL(file, browser.base));
+        assert.equal(response.status, 200, file);
+        assert.equal(await response.text(), await readFile(new URL(file, import.meta.url), 'utf8'), file);
+        if (file.endsWith('.js')) assert.match(response.headers.get('content-type'), /javascript/);
+      }
+      for (const file of ['server.js', 'package.json', 'browser.test.js']) {
+        assert.equal((await fetch(new URL(file, browser.base))).status, 404, file);
+      }
+      if (prefix !== '/') {
+        for (const file of ['app.js', 'style.css', 'manifest.webmanifest']) assert.equal((await fetch(`${origin}/${file}`)).status, 404);
+        const redirect = await fetch(`${origin}${prefix.slice(0, -1)}`, { redirect: 'manual' });
+        assert.equal(redirect.status, 301);
+        assert.equal(redirect.headers.get('location'), prefix);
+      }
+      assert.equal(await a.evaluate("document.querySelector('link[rel=stylesheet]').href"), new URL('style.css', browser.base).href);
+      assert.equal(await a.evaluate('getComputedStyle(document.body).margin'), '0px');
+      assert.equal(await a.evaluate("document.getElementById('product').options.length"), 4);
+    });
+
+    await t.test('importy, ręczne dodawanie i propozycja tekstowa korzystają ze wspólnego dziennika', async () => {
+      await a.choose('oat-flakes', '50'); await a.submit();
+      const raw = await a.raw(KEY);
+      await a.analyze('Na śniadanie zjadłem 200 ml mleka 2% i banana 120 g');
+      assert.equal(await a.raw(KEY), raw);
+      assert.deepEqual(await a.outputs('proposal'), ['206,8', '8,12', '4,36', '36,96']);
+      await a.accept();
+      assert.equal((await a.saved()).length, 3);
+      assert.deepEqual(await a.outputs('total'), ['391,8', '14,62', '7,86', '66,96']);
+    });
+
+    await t.test('odświeżenie, index.html i logo pozostają we właściwym podkatalogu', async () => {
+      const raw = await a.raw(KEY);
+      await a.reload(); await a.date(DAY);
+      assert.equal(await a.raw(KEY), raw);
+      assert.equal((await a.visible()).length, 3);
+      await a.navigate(new URL('index.html', browser.base).href);
+      const home = await a.evaluate("document.querySelector('.brand').href");
+      assert.equal(home, browser.base);
+      await a.navigate(home); await a.date(DAY);
+      assert.equal(await a.evaluate('location.pathname'), prefix);
+      assert.equal(await a.raw(KEY), raw);
+      assert.deepEqual(await a.outputs('total'), ['391,8', '14,62', '7,86', '66,96']);
+    });
+
+    await t.test('manifest ma względny start_url i scope oraz spójny theme-color', async () => {
+      const pwa = await a.evaluate(`(async () => {
+        const url = document.querySelector('link[rel=manifest]').href;
+        const response = await fetch(url);
+        const manifest = await response.json();
+        return { url, manifest, startUrl: new URL(manifest.start_url, url).href,
+          scope: new URL(manifest.scope, url).href,
+          theme: document.querySelector('meta[name=theme-color]').content,
+          secureContext: isSecureContext,
+          serviceWorkers: (await navigator.serviceWorker.getRegistrations()).length };
+      })()`);
+      assert.equal(pwa.url, new URL('manifest.webmanifest', browser.base).href);
+      assert.equal(pwa.startUrl, browser.base);
+      assert.equal(pwa.scope, browser.base);
+      assert.equal(pwa.manifest.display, 'standalone');
+      assert.equal(pwa.theme, pwa.manifest.theme_color);
+      audit.pwa = pwa;
+      // Diagnoza zależna od wersji przeglądarki, bez narzucania braków PWA jako wymagań regresji.
+      if (process.env.BENGER_AUDIT_DIR) {
+        try { audit.pwa.installability = await a.send('Page.getInstallabilityErrors'); }
+        catch (error) { audit.pwa.installabilityDiagnostic = error.message; }
+      }
+    });
+
+    await t.test('układ mieści się na 320, 390, 768, 1024 i 1440 px', async () => {
+      for (const width of [320, 390, 768, 1024, 1440]) {
+        await a.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 720 });
+        await a.evaluate('window.scrollTo(0, 0)');
+        const metrics = await a.evaluate(`(() => {
+          const rect = selector => {
+            const { x, y, width, height } = document.querySelector(selector).getBoundingClientRect();
+            return { x, y, width, height };
+          };
+          return { viewport: innerWidth, scrollWidth: document.documentElement.scrollWidth,
+            main: rect('main'), textForm: rect('.text-meal'), workspace: rect('.workspace'),
+            summary: rect('#day-summary'), diary: rect('#nutrition-entries'),
+            columns: getComputedStyle(document.querySelector('.workspace')).gridTemplateColumns };
+        })()`);
+        assert.ok(metrics.scrollWidth <= width, JSON.stringify(metrics));
+        assert.ok(metrics.summary.width > 0);
+        audit.widths.push({ width, ...metrics });
+        if (process.env.BENGER_AUDIT_DIR && prefix === '/Benger/') {
+          await mkdir(process.env.BENGER_AUDIT_DIR, { recursive: true });
+          const { data } = await a.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+          await writeFile(join(process.env.BENGER_AUDIT_DIR, `layout-${width}.png`), Buffer.from(data, 'base64'));
+          if ([390, 1440].includes(width)) {
+            await a.evaluate("document.getElementById('day-summary').scrollIntoView({block:'start'})");
+            const diary = await a.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+            await writeFile(join(process.env.BENGER_AUDIT_DIR, `diary-${width}.png`), Buffer.from(diary.data, 'base64'));
+            await a.evaluate('window.scrollTo(0, 0)');
+          }
+        }
+      }
+      if (process.env.BENGER_AUDIT_DIR) {
+        await mkdir(process.env.BENGER_AUDIT_DIR, { recursive: true });
+        await writeFile(join(process.env.BENGER_AUDIT_DIR, `audit-${prefix === '/' ? 'root' : 'Benger'}.json`), JSON.stringify(audit, null, 2));
+      }
+      t.diagnostic(`Szerokości bez poziomego przewijania: ${audit.widths.map(item => item.width).join(', ')}.`);
+    });
+
+    await t.test('localStorage zależy od origin, a nie od ścieżki strony', async () => {
+      const raw = await a.raw(KEY);
+      const sameOrigin = await a.evaluate(`(() => {
+        const original = location.href;
+        try { history.replaceState(null, '', '/inna-sciezka/'); return localStorage.getItem('${KEY}'); }
+        finally { history.replaceState(null, '', original); }
+      })()`);
+      assert.equal(sameOrigin, raw);
+      const otherSite = await startStaticHost(prefix);
+      allowedOrigins.add(new URL(otherSite.base).origin);
+      try {
+        // Ta sama instancja Chromium i ten sam profil, ale inny port (inny origin).
+        const b = await browser.page(otherSite.base);
+        assert.equal(await b.raw(KEY), null);
+        await b.choose('milk-2-percent', '100'); await b.submit();
+        assert.equal((await b.saved()).length, 1);
+        assert.equal(await a.raw(KEY), raw);
+      } finally { await otherSite.close(); }
+    });
+
+    await t.test('konsola i zasoby frontendu bez błędów; brak zewnętrznych API', async () => {
+      assert.deepEqual(browser.errors, []);
+      assert.equal(browser.serverErrors(), '');
+      const webResponses = browser.responses.filter(response => /^https?:/.test(response.url));
+      assert.deepEqual(webResponses.filter(response => response.status >= 400), []);
+      assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !allowedOrigins.has(new URL(url).origin)), []);
+      const initialRequests = browser.requests.filter(url => url.startsWith(origin + '/'));
+      if (prefix !== '/') assert.ok(initialRequests.every(url => new URL(url).pathname.startsWith(prefix)));
+    });
+  });
+}
+
+test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, async t => {
+  const browser = await startBrowser();
+  t.after(() => browser.close());
+  const a = await browser.page();
+  await a.date(DAY);
+  const example = 'Na śniadanie zjadłem 50 g płatków owsianych i 200 ml mleka 2%';
+  const three = 'Obiad: 50 g płatków owsianych, 200 ml mleka 2% i banan 120 g';
+  const disabled = () => a.evaluate("document.getElementById('save-meal-proposal').disabled");
+  const countWrites = () => a.evaluate(`
+    window.__nutritionWrites = 0;
+    window.__countedSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+      if (key === '${KEY}') window.__nutritionWrites++;
+      return window.__countedSetItem.call(this, key, value);
+    };
+  `);
+
+  await t.test('analiza pokazuje dwa produkty i sumę, bez zapisu przed akceptacją', async () => {
+    await countWrites();
+    await a.analyze(example);
+    assert.equal(await a.raw(KEY), null);
+    assert.equal(await a.evaluate('window.__nutritionWrites'), 0);
+    assert.equal((await a.visible()).length, 0);
+    const cards = await a.evaluate("[...document.querySelectorAll('#meal-proposal-items .food-entry')].map(card => card.textContent)");
+    assert.equal(cards.length, 2);
+    assert.ok(cards[0].includes('Płatki owsiane') && cards[0].includes('185 kcal') && cards[0].includes('6,5 g'));
+    assert.ok(cards[1].includes('Mleko 2%') && cards[1].includes('100 kcal') && cards[1].includes('6,8 g'));
+    assert.deepEqual(await a.outputs('proposal'), ['285', '13,3', '7,5', '39,6']);
+    assert.deepEqual(await a.outputs('total'), ['0', '0', '0', '0']);
+    assert.equal(await disabled(), false);
+    assert.equal(await a.evaluate('document.activeElement.id'), 'meal-proposal-title');
+    assert.ok(await a.evaluate("document.getElementById('meal-proposal-context').textContent.includes('Śniadanie')"));
+  });
+
+  await t.test('zatwierdzenie tworzy osobne wpisy w jednej operacji, bez podwójnego zapisu', async () => {
+    await a.evaluate("document.getElementById('save-meal-proposal').click(); document.getElementById('save-meal-proposal').click()");
+    const entries = await a.saved();
+    assert.equal(entries.length, 2);
+    assert.equal(new Set(entries.map(entry => entry.id)).size, 2);
+    assert.ok(entries.every(entry => entry.date === DAY && entry.meal === 'breakfast' && new Date(entry.createdAt).toISOString() === entry.createdAt));
+    assert.deepEqual(entries.map(entry => entry.nutrition), [
+      { kcal: 185, protein: 6.5, fat: 3.5, carbs: 30 }, { kcal: 100, protein: 6.8, fat: 4, carbs: 9.6 },
+    ]);
+    assert.equal(await a.evaluate('window.__nutritionWrites'), 1);
+    assert.equal((await a.visible()).length, 2);
+    assert.deepEqual(await a.outputs('total'), ['285', '13,3', '7,5', '39,6']);
+    assert.equal(await disabled(), true);
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"), '');
+    assert.equal(await a.evaluate('document.activeElement.id'), 'meal-text');
+    assert.ok(await a.evaluate("document.getElementById('meal-text-status').textContent.includes('Dodano do dziennika')"));
+    assert.equal(await a.raw(NOTE_KEY), null);
+  });
+
+  await t.test('odświeżenie zachowuje wpisy; brak nazwy posiłku używa wyboru formularza', async () => {
+    const raw = await a.raw(KEY);
+    await a.reload(); await a.date(OTHER_DAY);
+    assert.equal(await a.raw(KEY), raw);
+    assert.equal((await a.visible()).length, 0);
+    await a.choose('oat-flakes', '', 'snack');
+    await a.analyze('banan 120 g i 150 g jogurtu naturalnego');
+    assert.ok(await a.evaluate("document.getElementById('meal-proposal-context').textContent.includes('Przekąska')"));
+    assert.deepEqual(await a.outputs('proposal'), ['196,8', '7,32', '3,36', '36,36']);
+    assert.equal(await a.raw(KEY), raw);
+  });
+
+  await t.test('trzy produkty w jednym zapisie, posiłek z tekstu i rozdzielenie dni', async () => {
+    await countWrites();
+    await a.analyze(three);
+    assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal-items .food-entry').length"), 3);
+    assert.deepEqual(await a.outputs('proposal'), ['391,8', '14,62', '7,86', '66,96']);
+    await a.accept();
+    assert.equal(await a.evaluate('window.__nutritionWrites'), 1);
+    const entries = await a.saved();
+    assert.equal(entries.length, 5);
+    assert.ok(entries.slice(-3).every(entry => entry.date === OTHER_DAY && entry.meal === 'lunch'));
+    assert.equal(new Set(entries.map(entry => entry.id)).size, 5);
+    assert.deepEqual(await a.outputs('total'), ['391,8', '14,62', '7,86', '66,96']);
+    await a.date(DAY);
+    assert.deepEqual(await a.outputs('total'), ['285', '13,3', '7,5', '39,6']);
+    await a.date(OTHER_DAY);
+  });
+
+  await t.test('ręczny formularz nadal dodaje i usuwa wpisy we wspólnym dzienniku', async () => {
+    await a.choose('natural-yogurt', '100', 'dinner'); await a.submit();
+    assert.equal((await a.visible()).length, 4);
+    assert.deepEqual(await a.outputs('total'), ['451,8', '18,62', '9,86', '72,96']);
+    const added = (await a.saved()).at(-1);
+    await a.remove(added.id);
+    assert.equal((await a.visible()).length, 3);
+    assert.deepEqual(await a.outputs('total'), ['391,8', '14,62', '7,86', '66,96']);
+  });
+
+  await t.test('błędne lub niepełne dane blokują całą propozycję i zachowują tekst', async () => {
+    const raw = await a.raw(KEY);
+    for (const text of ['', 'to zupełnie nieznane jedzenie', 'zjadłem banana', '200 g mleka', '50 g płatków i 100 g czegoś', 'banan -5 g', 'banan 5,5,5 g', 'jogurt truskawkowy 150 g', 'śniadanie banan 100 g i obiad mleko 100 ml', 'banan 120 g i', 'banan 120 g oraz']) {
+      await a.analyze(text);
+      assert.equal(await disabled(), true, text);
+      assert.equal(await a.evaluate("document.getElementById('meal-proposal-summary').hidden"), true, text);
+      assert.ok(await a.evaluate("document.getElementById('meal-text-error').textContent"), text);
+      assert.equal(await a.evaluate("document.getElementById('meal-text').value"), text);
+      await a.accept();
+      assert.equal(await a.raw(KEY), raw, text);
+    }
+  });
+
+  await t.test('poprawienie tekstu i ponowna analiza odblokowują prawidłową propozycję', async () => {
+    const raw = await a.raw(KEY);
+    await a.analyze('50,5 g płatków i 200 ml mleka');
+    assert.equal(await disabled(), false);
+    assert.equal(await a.evaluate("document.getElementById('meal-text').getAttribute('aria-invalid')"), 'false');
+    assert.deepEqual(await a.outputs('proposal'), ['286,85', '13,37', '7,54', '39,9']);
+    assert.equal(await a.raw(KEY), raw);
+  });
+
+  await t.test('zmiana tekstu, daty lub domyślnego posiłku unieważnia stary podgląd', async () => {
+    const raw = await a.raw(KEY);
+    await a.evaluate("document.getElementById('meal-text').value='banan 120 g'; document.getElementById('meal-text').dispatchEvent(new Event('input'))");
+    assert.equal(await disabled(), true);
+    assert.equal(await a.evaluate("document.getElementById('meal-proposal').hidden"), true);
+    await a.analyze(example); await a.date(DAY);
+    assert.equal(await disabled(), true);
+    await a.analyze('banan 120 g');
+    await a.evaluate("document.getElementById('nutrition-meal').value='snack'; document.getElementById('nutrition-meal').dispatchEvent(new Event('change'))");
+    assert.equal(await disabled(), true);
+    // Zmiany programowe bez zdarzenia także nie mogą zatwierdzić starego podglądu.
+    for (const [id, value] of [['meal-text', 'mleko 300 ml'], ['date', OTHER_DAY], ['nutrition-meal', 'lunch']]) {
+      await a.analyze(example);
+      await a.evaluate(`document.getElementById(${JSON.stringify(id)}).value=${JSON.stringify(value)}`);
+      await a.accept();
+      assert.equal(await disabled(), true);
+      assert.equal(await a.raw(KEY), raw);
+      await a.date(DAY);
+    }
+  });
+
+  await t.test('brak daty blokuje analizę z czytelnym błędem i fokusem', async () => {
+    const raw = await a.raw(KEY);
+    await a.date(''); await a.analyze(example);
+    assert.equal(await disabled(), true);
+    assert.equal(await a.evaluate('document.activeElement.id'), 'date');
+    assert.ok(await a.evaluate("document.getElementById('date-error').textContent"));
+    assert.equal(await a.raw(KEY), raw);
+    await a.date(DAY);
+  });
+
+  await t.test('błąd setItem nie zapisuje części zestawu; ponowienie zapisuje całość', async () => {
+    await a.analyze(three);
+    const raw = await a.raw(KEY), before = await a.visible(), totals = await a.outputs('total');
+    await a.evaluate(`window.__quotaSetItem=Storage.prototype.setItem; window.__failedWrites=0; Storage.prototype.setItem=function(key,value) { if(key==='${KEY}') { window.__failedWrites++; throw new DOMException('Test quota','QuotaExceededError'); } return window.__quotaSetItem.call(this,key,value); };`);
+    await a.accept();
+    assert.equal(await a.evaluate('window.__failedWrites'), 1);
+    assert.equal(await a.raw(KEY), raw);
+    assert.deepEqual(await a.visible(), before);
+    assert.deepEqual(await a.outputs('total'), totals);
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"), three);
+    assert.equal(await disabled(), false);
+    assert.ok(await a.evaluate("document.getElementById('nutrition-storage-message').textContent.includes('Nie udało się zapisać')"));
+    assert.ok(!(await a.evaluate("document.getElementById('meal-text-status').textContent")).includes('Dodano'));
+    await a.evaluate('Storage.prototype.setItem=window.__quotaSetItem');
+    await a.accept();
+    assert.equal((await a.saved()).length, JSON.parse(raw).length + 3);
+    assert.equal((await a.visible()).length, before.length + 3);
+  });
+
+  await t.test('uszkodzenie pamięci po analizie blokuje cały zapis i chroni dane', async () => {
+    const raw = await a.raw(KEY);
+    await a.analyze(example);
+    await a.setRaw(KEY, '{broken');
+    await a.accept();
+    assert.equal(await a.raw(KEY), '{broken');
+    assert.equal(await disabled(), true);
+    assert.ok(await a.evaluate("document.getElementById('nutrition-storage-message').textContent.includes('Nie można odczytać')"));
+    await a.setRaw(KEY, raw); await a.reload(); await a.date(DAY);
+  });
+
+  await t.test('zatwierdzenie propozycji zachowuje nowy wpis drugiej karty i synchronizuje obie', async () => {
+    const b = await browser.page(); await b.date(DAY);
+    const before = (await a.visible()).length;
+    await a.analyze(example);
+    await a.evaluate('window.__pauseStorageSync=true');
+    await b.choose('natural-yogurt', '150', 'snack'); await b.submit();
+    const id = (await b.saved()).at(-1).id;
+    assert.equal((await a.visible()).length, before);
+    await a.accept();
+    await waitCount(a, before + 3); await waitCount(b, before + 3);
+    assert.ok((await a.saved()).some(entry => entry.id === id));
+    assert.deepEqual(await a.outputs('total'), await b.outputs('total'));
+    await a.evaluate('window.__pauseStorageSync=false');
+  });
+
+  await t.test('zapis wielu pozycji działa bez crypto.randomUUID', async () => {
+    const before = (await a.saved()).length;
+    await a.evaluate("Object.defineProperty(crypto,'randomUUID',{value:undefined,configurable:true})");
+    await a.analyze(example); await a.accept();
+    const added = (await a.saved()).slice(before);
+    assert.equal(added.length, 2);
+    assert.equal(new Set(added.map(entry => entry.id)).size, 2);
+    for (const entry of added) assert.match(entry.id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    await a.reload(); await a.date(DAY);
+  });
+
+  await t.test('awaria tworzenia drugiego ID nie zapisuje pierwszej pozycji', async () => {
+    await a.analyze(three);
+    const raw = await a.raw(KEY);
+    await a.evaluate("window.__uuid=crypto.randomUUID; window.__uuidCount=0; Object.defineProperty(crypto,'randomUUID',{configurable:true,value:function(){if(++window.__uuidCount===2) throw new Error('Test ID failure'); return window.__uuid.call(crypto);}})");
+    await a.accept();
+    assert.equal(await a.raw(KEY), raw);
+    assert.ok(await a.evaluate("document.getElementById('meal-text-error').textContent"));
+    await a.evaluate("Object.defineProperty(crypto,'randomUUID',{configurable:true,value:window.__uuid})");
+    await a.accept();
+    assert.equal((await a.saved()).length, JSON.parse(raw).length + 3);
+  });
+
+  await t.test('zapis zachowuje dokładnie metadane i makro pokazane do akceptacji', async () => {
+    await a.analyze('50 g płatków owsianych');
+    await a.evaluate("(async()=>{const {PRODUCTS}=await import('./nutrition.js'); const p=PRODUCTS[0]; window.__oldProduct={name:p.name,unit:p.unit,kcal:p.per100.kcal}; p.name='Zmieniony katalog'; p.unit='ml'; p.per100.kcal=9999;})()");
+    await a.accept();
+    const entry = (await a.saved()).at(-1);
+    assert.equal(entry.productName, 'Płatki owsiane');
+    assert.equal(entry.unit, 'g');
+    assert.deepEqual(entry.nutrition, { kcal: 185, protein: 6.5, fat: 3.5, carbs: 30 });
+    await a.evaluate("(async()=>{const {PRODUCTS}=await import('./nutrition.js'); const p=PRODUCTS[0]; p.name=window.__oldProduct.name; p.unit=window.__oldProduct.unit; p.per100.kcal=window.__oldProduct.kcal;})()");
+  });
+
+  await t.test('przepełnienie porcji lub sumy i HTML w tekście nie prowadzą do zapisu', async () => {
+    const raw = await a.raw(KEY);
+    for (const text of [`${'1' + '0'.repeat(308)} g płatków`, `${'3' + '0'.repeat(307)} g płatków i ${'3' + '0'.repeat(307)} g płatków`, '<img src=x onerror=alert(1)> banan 120 g']) {
+      await a.analyze(text);
+      assert.equal(await disabled(), true);
+      assert.equal(await a.raw(KEY), raw);
+      assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal img').length"), 0);
+      assert.ok(await a.evaluate("document.getElementById('meal-text-error').textContent"));
+    }
+  });
+
+  await t.test('nowy formularz ma etykietę, komunikaty i focus; widoki 320/390 px bez poziomego scrolla', async () => {
+    await a.analyze(three);
+    assert.ok(await a.evaluate("Boolean(document.querySelector('label[for=\"meal-text\"]'))"));
+    assert.equal(await a.evaluate("document.getElementById('meal-text-error').getAttribute('role')"), 'alert');
+    assert.equal(await a.evaluate("document.getElementById('meal-text-status').getAttribute('role')"), 'status');
+    for (const width of [320, 390]) {
+      await a.send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true });
+      assert.ok(await a.evaluate('document.documentElement.scrollWidth<=innerWidth'));
+      await a.analyze(`${'1' + '0'.repeat(100)} g płatków`);
+      assert.equal(await disabled(), false);
+      assert.ok(await a.evaluate('document.documentElement.scrollWidth<=innerWidth'), 'Długa ilość musi zawijać się na telefonie.');
+      await a.analyze(three);
+    }
+    await a.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+    for (const id of ['analyze-meal', 'save-meal-proposal']) {
+      const style = await a.evaluate(`(()=>{const b=document.getElementById('${id}'); b.focus(); const s=getComputedStyle(b); return {color:s.color,background:s.backgroundColor,height:b.getBoundingClientRect().height,outline:s.outlineStyle,width:parseFloat(s.outlineWidth)};})()`);
+      assert.ok(contrast(style.color, style.background)>=4.5);
+      assert.ok(style.height>=48);
+      assert.equal(style.outline, 'solid'); assert.ok(style.width>=2);
+    }
+    if (process.env.BENGER_TEXT_SCREENSHOT_PATH) {
+      const { data } = await a.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+      await writeFile(process.env.BENGER_TEXT_SCREENSHOT_PATH, Buffer.from(data, 'base64'));
+    }
+  });
+
+  await t.test('konsola, serwer i importy bez błędów; bez zewnętrznych żądań', async () => {
     assert.deepEqual(browser.errors, []);
     assert.equal(browser.serverErrors(), '');
     assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !url.startsWith(browser.base + '/')), []);
