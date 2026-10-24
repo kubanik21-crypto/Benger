@@ -4,6 +4,7 @@ import { parseMealText } from './meal-parser.js';
 import { getLocalProducts } from './product-providers/local.js';
 import { copyProduct } from './product-model.js';
 import { initProductSearch } from './product-search-ui.js';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 
 const $ = id => document.getElementById(id);
 const MEAL_LABELS = {
@@ -13,7 +14,7 @@ const MEAL_LABELS = {
   snack: 'Przekąska',
 };
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
-const nutritionStorageKey = 'benger.nutrition.v1';
+const nutritionStorageKey = NUTRITION_STORAGE_KEY;
 const formatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
 const amountFormatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 20 });
 const dateInput = $('date');

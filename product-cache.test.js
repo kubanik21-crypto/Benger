@@ -137,3 +137,17 @@ test('czyszczenie ponownie sprawdza ochronę ostatnich/ulubionych przed usunięc
   assert.ok(await cache.getProduct(a.id)); assert.ok(await cache.getProduct(b.id));
   assert.equal(await cache.getProduct(c.id), null);
 });
+
+test('cache sprzed aktualizacji providera pozostaje offline, ale nie blokuje pobrania API 3.6', async () => {
+  const { cache, storage, now } = setup();
+  const p = product(1);
+  await storage.mutate('products', p.id, () => ({ key: p.id, product: p, fetchedAt: now() }));
+  await storage.mutate('searches', 'produkt', () => ({ key: 'produkt', ids: [p.id], fetchedAt: now() }));
+  assert.equal((await cache.getProduct(p.id)).fresh, false);
+  assert.equal((await cache.allProducts())[0].id, p.id);
+  assert.equal(await cache.getSearch('produkt'), null);
+  await cache.setFavorite(p, true); await cache.markUsed([p]);
+  assert.equal((await cache.getProduct(p.id)).fresh, false);
+  assert.deepEqual(await cache.favoriteIds(), [p.id]);
+  await cache.putProducts([p]); assert.equal((await cache.getProduct(p.id)).fresh, true);
+});

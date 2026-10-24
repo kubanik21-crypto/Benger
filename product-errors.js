@@ -16,6 +16,7 @@ export function productErrorMessage(error) {
     timeout: 'Open Food Facts nie odpowiedziało na czas. Pokazuję produkty zapisane lokalnie.',
     offline: 'Brak połączenia. Pokazuję produkty zapisane lokalnie.',
     network: 'Nie można połączyć się z Open Food Facts. Pokazuję produkty zapisane lokalnie.',
+    forbidden: 'Open Food Facts odmówiło dostępu (403). Pokazuję produkty zapisane lokalnie. Nie ponawiaj zapytań wielokrotnie.',
     server: 'Open Food Facts jest chwilowo niedostępne. Pokazuję produkty zapisane lokalnie.',
     response: 'Nie udało się odczytać danych Open Food Facts. Pokazuję produkty zapisane lokalnie.',
     cancelled: 'Wyszukiwanie zostało anulowane.',

@@ -104,7 +104,7 @@ test('provider ogranicza fields i liczbę wyników, używa właściwego full-tex
   assert.equal(products.length, 20);
   assert.equal(captured.url.pathname, '/cgi/search.pl');
   assert.equal(captured.url.searchParams.get('search_terms'), 'mleko łaciate 2%');
-  assert.equal(captured.url.searchParams.get('api_version'), '3.5');
+  assert.equal(captured.url.searchParams.get('api_version'), '3.6');
   assert.equal(captured.url.searchParams.get('page_size'), '20');
   assert.equal(captured.url.searchParams.get('fields'), OFF_FIELDS.join(','));
   assert.equal(captured.options.headers['X-User-Agent'], OFF_APP_ID);
@@ -128,7 +128,7 @@ test('puste wyniki i brak makro są poprawnym pustym wynikiem, błędny JSON daj
 
 test('barcode lookup, 404, niepełny produkt i sprzeczny kod odpowiedzi', async () => {
   const provider = createOpenFoodFactsProvider({ fetchImpl: async url => {
-    assert.equal(new URL(url).pathname, '/api/v3.5/product/5901234123457');
+    assert.equal(new URL(url).pathname, '/api/v3.6/product/5901234123457');
     return response({ product: sample() });
   } });
   assert.equal((await provider.getProductByBarcode('5901234123457')).unit, 'ml');
@@ -167,4 +167,32 @@ test('nieprawidłowe zapytanie i kod nie wykonują fetch; anulowanie nie jest wy
   controller.abort();
   await assert.rejects(pending, error => error.code === 'cancelled');
   assert.equal(count, 1);
+});
+
+test('API 3.6: marka z lokalizowanego pola, bez wyświetlania stratnych ID ani technicznego brands', () => {
+  const raw = sample();
+  raw.brands = 'Niepoprawna stara marka'; raw.brands_tags = ['xx:normalized-brand'];
+  raw.brands_tags_pl = ['Łaciate', 'Mlekpol', 'Łaciate', null, ''];
+  raw.tags_sources = { brands: { packaging: { tags: ['xx:brand'] } } };
+  assert.equal(normalizeOffProduct(raw).brand, 'Łaciate, Mlekpol');
+  raw.brands_tags_pl = [];
+  assert.equal(normalizeOffProduct(raw).brand, null);
+  raw.brands_tags_pl = { invalid: true };
+  assert.equal(normalizeOffProduct(raw).brand, null);
+});
+
+test('żądania 3.6 nie zależą od brands_hierarchy ani brands_lc usuniętych w nowym schemacie', async () => {
+  let target;
+  const provider = createOpenFoodFactsProvider({ fetchImpl: async url => { target = new URL(url); return response({ product: sample() }); } });
+  const product = await provider.getProductByBarcode('5901234123457');
+  assert.equal(target.pathname, '/api/v3.6/product/5901234123457');
+  const fields = target.searchParams.get('fields').split(',');
+  assert.ok(fields.includes('brands_tags_pl'));
+  for (const old of ['brands', 'brands_hierarchy', 'brands_lc', 'nutriments']) assert.ok(!fields.includes(old));
+  assert.deepEqual(product.per100, { kcal: 50, protein: 3.4, fat: 2, carbs: 4.8 });
+});
+
+test('rzeczywista odpowiedź HTTP 403 jest odróżniana od błędu schematu i sieci', async () => {
+  const provider = createOpenFoodFactsProvider({ fetchImpl: async () => response({}, 403) });
+  await assert.rejects(provider.search('mleko 2%'), error => error.code === 'forbidden');
 });

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23174d3c'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='46' fill='%23fffef8'%3Eb%3C/text%3E%3C/svg%3E">
+  <title>Benger · Diagnostyka Open Food Facts</title>
+</head>
+<body>
+  <main>
+    <a href="./" class="brand">benger<span>●</span></a>
+    <h1>Połączenie z OFF</h1>
+    <p>Ręczny test rzeczywistego API. Wykona jedno wyszukiwanie „mleko 2%” oraz odczyt kodu 3017620422003 (Nutella). Korzysta z tego samego providera co aplikacja, bez mocków i bez zapisywania wpisów w dzienniku.</p>
+    <button id="run-off-diagnostics" class="button-primary" type="button">Uruchom test API</button>
+    <p id="diagnostic-status" role="status"></p>
+    <pre id="diagnostic-report" style="white-space:pre-wrap;overflow-wrap:anywhere" aria-label="Raport testu"></pre>
+    <button id="download-off-report" class="button-secondary" type="button" disabled>Pobierz raport JSON</button>
+    <p class="fine">Brak odczytywalnej odpowiedzi nie pozwala JavaScriptowi odróżnić CORS od blokady sieci. Szczegóły są w zakładkach Console i Network przeglądarki. Test nie gwarantuje poprawności danych etykiety.</p>
+    <p class="fine">Dane: <a href="https://world.openfoodfacts.org/">Open Food Facts i współtwórcy</a> · <a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL</a> · <a href="https://opendatacommons.org/licenses/dbcl/1-0/">DbCL</a> · zdjęcia <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</p>
+  </main>
+  <script type="module" src="./off-diagnostics.js"></script>
+</body>
+</html>

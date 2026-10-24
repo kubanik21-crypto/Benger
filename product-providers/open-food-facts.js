@@ -2,9 +2,10 @@ import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } fr
 import { ProductError } from '../product-errors.js';
 
 export const OFF_BASE_URL = 'https://world.openfoodfacts.org';
+export const OFF_API_VERSION = '3.6';
 export const OFF_REQUEST_TIMEOUT_MS = 10_000;
 export const OFF_APP_ID = 'Benger/0.3 (https://github.com/kubanik21-crypto/Benger)';
-const COMMON_FIELDS = ['code', 'product_name', 'product_name_pl', 'brands', 'quantity', 'image_front_small_url', 'last_modified_t'];
+const COMMON_FIELDS = ['code', 'product_name', 'product_name_pl', 'brands_tags_pl', 'quantity', 'image_front_small_url', 'last_modified_t'];
 export const OFF_FIELDS = [
   ...COMMON_FIELDS, 'nutrition.aggregated_set.per', 'nutrition.aggregated_set.preparation',
   ...['energy-kcal', 'proteins', 'fat', 'carbohydrates'].map(key => `nutrition.aggregated_set.nutrients.${key}`),
@@ -20,7 +21,7 @@ function number(value) {
 
 const text = (value, max) => typeof value === 'string' ? value.trim().slice(0, max) : '';
 
-// v3.5: jawna podstawa aggregated_set; starsze odpowiedzi: wyłącznie znormalizowane *_100g.
+// v3.6: jawna podstawa aggregated_set; starsze odpowiedzi: wyłącznie znormalizowane *_100g.
 // Nie wyliczamy kcal z kJ ani gęstości z wielkości opakowania.
 export function normalizeOffProduct(raw) {
   if (!raw || typeof raw !== 'object') return null;
@@ -49,7 +50,11 @@ export function normalizeOffProduct(raw) {
   const date = modified !== null && modified > 0 ? new Date(modified * 1000) : null;
   const product = {
     id: `off:${barcodeKey(barcode) ?? sourceId}`, source: 'openfoodfacts', sourceId, barcode,
-    name, brand: text(raw.brands, 240) || null, unit, basis, estimated, per100,
+    // Lokalizowane nazwy wyświetla serwer OFF. Nie używamy stratnych brands_tags jako etykiety.
+    name, brand: Array.isArray(raw.brands_tags_pl)
+      ? [...new Set(raw.brands_tags_pl.map(value => text(value, 240)).filter(Boolean))].join(', ').slice(0, 240) || null
+      : raw.brands_tags_pl === undefined ? text(raw.brands, 240) || null : null,
+    unit, basis, estimated, per100,
     imageUrl: safeImageUrl(raw.image_front_small_url), quantity: text(raw.quantity, 120) || null,
     updatedAt: date && Number.isFinite(date.getTime()) ? date.toISOString() : null,
   };
@@ -79,6 +84,7 @@ export function createOpenFoodFactsProvider({ fetchImpl = globalThis.fetch, time
           headers: { Accept: 'application/json', 'X-User-Agent': OFF_APP_ID }, signal: controller.signal,
         });
         if (response.status === 429) throw new ProductError('rate-limit', retryDelay(response.headers.get('Retry-After')));
+        if (response.status === 403) throw new ProductError('forbidden');
         if (response.status >= 500) throw new ProductError('server');
         if (response.status === 404) return null;
         if (!response.ok) throw new ProductError('response');
@@ -111,7 +117,7 @@ export function createOpenFoodFactsProvider({ fetchImpl = globalThis.fetch, time
       if (term.length < 3 || term.length > 120) throw new ProductError('query');
       // Oficjalne CGI obsługuje pełny tekst i api_version; /api/v2/search nie obsługuje search_terms.
       const target = url('/cgi/search.pl');
-      for (const [key, value] of Object.entries({ search_terms: term, search_simple: 1, action: 'process', json: 1, api_version: '3.5', page: 1, page_size: 20 })) target.searchParams.set(key, value);
+      for (const [key, value] of Object.entries({ search_terms: term, search_simple: 1, action: 'process', json: 1, api_version: OFF_API_VERSION, page: 1, page_size: 20 })) target.searchParams.set(key, value);
       const data = await getJson(target, signal);
       if (!data || !Array.isArray(data.products)) throw new ProductError('response');
       return data.products.slice(0, 20).map(normalizeOffProduct).filter(Boolean);
@@ -119,7 +125,7 @@ export function createOpenFoodFactsProvider({ fetchImpl = globalThis.fetch, time
     async getProductByBarcode(value, { signal } = {}) {
       const code = normalizeBarcode(value);
       if (!code) throw new ProductError('barcode');
-      const data = await getJson(url(`/api/v3.5/product/${code}`), signal);
+      const data = await getJson(url(`/api/v${OFF_API_VERSION}/product/${code}`), signal);
       if (data === null || data?.status === 0 || data?.result?.id === 'product_not_found') return null;
       if (!data || typeof data !== 'object' || !data.product) throw new ProductError('response');
       const product = normalizeOffProduct(data.product);

@@ -1,7 +1,10 @@
 import { copyProduct, isProduct, normalizeText } from './product-model.js';
+import { PRODUCT_DB_NAME } from './app-storage.js';
 
 export const PRODUCT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const SEARCH_TTL_MS = 15 * 60 * 1000;
+// Rev 2: nazwy marek z API 3.6. Starsze kopie pozostają dostępne offline, ale nie są świeże.
+export const PRODUCT_CACHE_REVISION = 2;
 const STORES = ['products', 'usage', 'searches', 'meta'];
 function availableIndexedDB() {
   try { return globalThis.indexedDB; } catch { return null; }
@@ -13,7 +16,7 @@ const recentUsage = records => records.filter(validUsage).filter(record => recor
 const protectedIds = records => new Set([...recentUsage(records).map(record => record.key), ...records.filter(validUsage).filter(record => record.favorite).map(record => record.key)]);
 
 // Produkty OFF są oddzielnym zbiorem. usage przechowuje tylko referencje i preferencje użytkownika.
-export function createProductStorage({ indexedDBFactory = availableIndexedDB(), name = 'BengerDB' } = {}) {
+export function createProductStorage({ indexedDBFactory = availableIndexedDB(), name = PRODUCT_DB_NAME } = {}) {
   const memory = Object.fromEntries(STORES.map(store => [store, new Map()]));
   let pendingDb;
   let persistent = false;
@@ -123,6 +126,7 @@ export function createProductStorage({ indexedDBFactory = availableIndexedDB(), 
 
 export function createProductCache({ storage = createProductStorage(), now = () => Date.now(), maxProducts = 300 } = {}) {
   const fresh = (timestamp, ttl) => Number.isFinite(timestamp) && now() - timestamp >= 0 && now() - timestamp < ttl;
+  const freshProduct = record => record.revision === PRODUCT_CACHE_REVISION && fresh(record.fetchedAt, PRODUCT_TTL_MS);
   const validRecord = record => record && Number.isFinite(record.fetchedAt) && record.fetchedAt >= 0
     && isProduct(record.product) && record.product.source === 'openfoodfacts' && record.key === record.product.id;
   const getRecord = async id => {
@@ -151,9 +155,9 @@ export function createProductCache({ storage = createProductStorage(), now = () 
       if (normalized.source !== 'openfoodfacts') continue;
       await storage.mutate('products', normalized.id, previous => {
         // Nie zastępujemy jawnej podstawy 100 ml starszą odpowiedzią bez tej informacji.
-        if (validRecord(previous) && fresh(previous.fetchedAt, PRODUCT_TTL_MS)
+        if (validRecord(previous) && freshProduct(previous)
             && previous.product.basis === 'declared' && normalized.basis === 'legacy') return previous;
-        return { key: normalized.id, product: normalized, fetchedAt };
+        return { key: normalized.id, product: normalized, fetchedAt, revision: PRODUCT_CACHE_REVISION };
       });
     }
     if (shouldPrune) await prune();
@@ -176,18 +180,18 @@ export function createProductCache({ storage = createProductStorage(), now = () 
   return {
     ready: storage.ready, persistent: storage.persistent, close: storage.close,
     putProducts,
-    async getProduct(id) { const record = await getRecord(id); return record ? { product: copyProduct(record.product), fetchedAt: record.fetchedAt, fresh: fresh(record.fetchedAt, PRODUCT_TTL_MS) } : null; },
+    async getProduct(id) { const record = await getRecord(id); return record ? { product: copyProduct(record.product), fetchedAt: record.fetchedAt, fresh: freshProduct(record) } : null; },
     async allProducts() { return (await storage.read('products')).filter(validRecord).map(record => copyProduct(record.product)); },
     async getSearch(query) {
       const record = await storage.read('searches', normalizeText(query));
-      if (!record || !Array.isArray(record.ids) || !fresh(record.fetchedAt, SEARCH_TTL_MS)) return null;
+      if (!record || record.revision !== PRODUCT_CACHE_REVISION || !Array.isArray(record.ids) || !fresh(record.fetchedAt, SEARCH_TTL_MS)) return null;
       const records = await Promise.all(record.ids.map(getRecord));
-      if (records.some(record => !record || !fresh(record.fetchedAt, PRODUCT_TTL_MS))) return null;
+      if (records.some(record => !record || !freshProduct(record))) return null;
       return records.map(record => copyProduct(record.product));
     },
     async putSearch(query, products) {
       const key = normalizeText(query);
-      await storage.mutate('searches', key, () => ({ key, ids: products.map(product => product.id), fetchedAt: now() }));
+      await storage.mutate('searches', key, () => ({ key, ids: products.map(product => product.id), fetchedAt: now(), revision: PRODUCT_CACHE_REVISION }));
       await prune();
     },
     recentIds,
