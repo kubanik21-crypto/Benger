@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta name="benger-storage-namespace" content="preview-etap-3">
+  <meta name="benger-build" content="a2a482ef499f68c9320eb3e25c933bd774ef2866">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174d3c">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23174d3c'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='46' fill='%23fffef8'%3Eb%3C/text%3E%3C/svg%3E">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./style.css">
+  <title>Benger · Dziennik żywieniowy</title>
+</head>
+<body>
+<aside style="padding:16px;background:#174d3c;color:white;font:14px/1.6 system-ui">Podgląd Etapu 3 · a2a482e · Oddzielne dane lokalne. <a style="color:white" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:white" href="../../">Wersja główna</a></aside>
+  <main>
+    <header class="site-header">
+      <a href="./" class="brand" aria-label="Benger — strona główna">benger<span aria-hidden="true">●</span></a>
+      <span class="header-note">TWÓJ DZIENNIK. TWOJE TEMPO.</span>
+    </header>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">MAŁE KROKI, DOBRE NAWYKI</p>
+      <h1 id="page-title">Twój dzień,<br>na talerzu.</h1>
+      <p>Wybierz produkt, wpisz porcję i zapisz posiłek.<br>Dziennik zostaje w tej przeglądarce.</p>
+    </section>
+    <div class="date-bar">
+      <div>
+        <label for="date">Dzień dziennika</label>
+        <p class="field-help">Data dotyczy nowych wpisów, listy i podsumowania.</p>
+      </div>
+      <div>
+        <input type="date" id="date" form="nutrition-form" required aria-describedby="date-error" aria-invalid="false">
+        <p id="date-error" class="field-error" role="alert"></p>
+      </div>
+    </div>
+    <p id="nutrition-storage-message" class="field-error storage-error" role="alert"></p>
+    <section class="panel text-meal" aria-labelledby="text-meal-title">
+      <p class="eyebrow">OPISZ SWÓJ POSIŁEK</p>
+      <h2 id="text-meal-title">Dodaj z tekstu</h2>
+      <form id="meal-text-form" novalidate>
+        <label for="meal-text">Co i ile zjadłeś?</label>
+        <textarea id="meal-text" rows="3" aria-describedby="meal-text-help meal-text-error" aria-invalid="false" placeholder="Na śniadanie zjadłem 50 g płatków owsianych i 200 ml mleka 2%"></textarea>
+        <p id="meal-text-help" class="field-help">Podaj ilości w g lub ml. Produkty oddziel przecinkiem lub słowem „i”. Bez nazwy posiłku użyjemy wyboru z formularza ręcznego poniżej. Przed zapisem sprawdzisz propozycję.</p>
+        <p id="meal-text-error" class="field-error" role="alert"></p>
+        <button id="analyze-meal" class="button-primary" type="submit">Analizuj posiłek</button>
+      </form>
+      <p id="meal-text-status" class="success-message" role="status"></p>
+      <section id="meal-proposal" aria-labelledby="meal-proposal-title" hidden>
+        <h3 id="meal-proposal-title" tabindex="-1">Sprawdź przed zapisaniem</h3>
+        <p id="meal-proposal-context" class="field-help"></p>
+        <div id="meal-proposal-items"></div>
+        <ul id="meal-proposal-issues" class="field-error"></ul>
+        <div id="meal-proposal-summary" class="portion-preview" hidden>
+          <h4 class="preview-label">SUMA CAŁEJ PROPOZYCJI</h4>
+          <dl class="nutrition-grid">
+            <div><dt>Energia</dt><dd><output id="proposal-kcal"></output> <span>kcal</span></dd></div>
+            <div><dt>Białko</dt><dd><output id="proposal-protein"></output> <span>g</span></dd></div>
+            <div><dt>Tłuszcz</dt><dd><output id="proposal-fat"></output> <span>g</span></dd></div>
+            <div><dt>Węglowodany</dt><dd><output id="proposal-carbs"></output> <span>g</span></dd></div>
+          </dl>
+        </div>
+        <button id="save-meal-proposal" class="button-primary" type="button" disabled>Dodaj wszystko do dziennika</button>
+      </section>
+      <p class="fine">Rozpoznajemy tylko cztery produkty przykładowe z lokalnego katalogu; wyszukiwarka internetowa poniżej działa oddzielnie. Popraw tekst i ponów analizę, jeśli czegoś brakuje. Na tym etapie analizuje go prosty parser, bez AI.</p>
+    </section>
+    <section id="product-catalog" class="panel product-catalog" aria-labelledby="catalog-title">
+      <p class="eyebrow">ZNAJDŹ SWÓJ PRODUKT</p>
+      <h2 id="catalog-title">Katalog produktów</h2>
+      <form id="product-search-form" class="catalog-search" role="search" novalidate>
+        <label for="product-search">Szukaj produktu po nazwie lub marce</label>
+        <div class="search-line">
+          <input id="product-search" type="search" maxlength="120" placeholder="np. mleko łaciate 2%" aria-describedby="search-help catalog-message" autocomplete="off">
+          <button id="search-products" type="submit" class="button-secondary">Szukaj</button>
+        </div>
+        <p id="search-help" class="field-help">Minimum 3 znaki. Szukamy dopiero po kliknięciu lub Enter. Maksymalnie 20 wyników.</p>
+      </form>
+      <details class="barcode-lookup">
+        <summary>Masz kod kreskowy?</summary>
+        <form id="barcode-form" novalidate>
+          <label for="barcode">Kod kreskowy EAN / UPC</label>
+          <div class="search-line">
+            <input id="barcode" type="text" inputmode="numeric" maxlength="24" placeholder="np. 5901234123457" autocomplete="off" aria-describedby="catalog-message">
+            <button id="find-barcode" class="button-secondary" type="submit">Znajdź</button>
+          </div>
+        </form>
+      </details>
+      <p id="catalog-connection" class="field-help" role="status"></p>
+      <p id="catalog-storage-message" class="field-error" role="status"></p>
+      <p id="catalog-message" class="catalog-message" role="status" aria-live="polite"></p>
+      <ul id="search-results" class="product-list search-results" aria-label="Wyniki wyszukiwania" aria-busy="false"></ul>
+      <div class="saved-catalogs">
+        <section aria-labelledby="recent-title"><h3 id="recent-title">Ostatnio używane</h3><ul id="recent-products" class="product-list"></ul></section>
+        <section aria-labelledby="favorites-title"><h3 id="favorites-title">Ulubione</h3><p class="field-help">20 ostatnio oznaczonych. Pozostałe znajdziesz przez wyszukiwanie lokalne.</p><ul id="favorite-products" class="product-list"></ul></section>
+      </div>
+      <details class="basic-catalog" open>
+        <summary>Podstawowy katalog Bengera · 4 przykłady</summary>
+        <p class="fine">Dane edukacyjne, bez wskazania marki. Nie zastępują etykiety produktu.</p>
+        <ul id="basic-products" class="product-list"></ul>
+      </details>
+      <p class="fine">Dane społeczności Open Food Facts mogą zawierać błędy. Sprawdź produkt i etykietę przed dodaniem. B/T/W to gramy białka, tłuszczu i węglowodanów.</p>
+    </section>
+    <div class="workspace">
+      <section class="panel calculator" aria-labelledby="calculator-title">
+        <p class="eyebrow">DODAJ COŚ DOBREGO</p>
+        <h2 id="calculator-title">Nowa porcja</h2>
+        <form id="nutrition-form" novalidate>
+          <label for="nutrition-meal">Posiłek</label>
+          <select id="nutrition-meal" aria-describedby="nutrition-meal-error" aria-invalid="false"></select>
+          <p id="nutrition-meal-error" class="field-error" role="alert"></p>
+          <p id="selected-product-label" class="field-label">Wybrany produkt</p>
+          <div id="product" class="selected-product" role="group" tabindex="-1" aria-labelledby="selected-product-label" aria-describedby="product-error" aria-invalid="false"></div>
+          <p id="product-error" class="field-error" role="alert"></p>
+          <label for="amount">Ilość</label>
+          <div class="amount-field">
+            <input id="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="np. 50 lub 50,5" aria-describedby="amount-unit amount-help amount-error" aria-invalid="false">
+            <span id="amount-unit"></span>
+          </div>
+          <p id="amount-help" class="field-help">Możesz użyć przecinka lub kropki.</p>
+          <p id="amount-error" class="field-error" role="alert"></p>
+          <div id="portion-preview" class="portion-preview" aria-live="polite" hidden>
+            <p class="preview-label">W TWOJEJ PORCJI</p>
+            <dl class="nutrition-grid">
+              <div><dt>Energia</dt><dd><output id="portion-kcal"></output> <span>kcal</span></dd></div>
+              <div><dt>Białko</dt><dd><output id="portion-protein"></output> <span>g</span></dd></div>
+              <div><dt>Tłuszcz</dt><dd><output id="portion-fat"></output> <span>g</span></dd></div>
+              <div><dt>Węglowodany</dt><dd><output id="portion-carbs"></output> <span>g</span></dd></div>
+            </dl>
+          </div>
+          <button id="add-nutrition" class="button-primary" type="submit">Dodaj do dziennika <span aria-hidden="true">+</span></button>
+          <p id="calculator-message" class="success-message" role="status"></p>
+        </form>
+        <p class="fine">Wartości historyczne są zapisywane jako kopia. Aktualizacja katalogu nie zmieni Twoich wcześniejszych wpisów.</p>
+      </section>
+      <section class="day-diary" aria-labelledby="nutrition-title">
+        <h2 id="nutrition-title" tabindex="-1">Twój wybrany dzień</h2>
+        <section id="day-summary" class="panel day-summary" aria-labelledby="summary-title" hidden>
+          <h3 id="summary-title">Podsumowanie dnia</h3>
+          <dl class="nutrition-grid" aria-live="polite" aria-atomic="true">
+            <div><dt>Energia</dt><dd><output id="total-kcal"></output> <span>kcal</span></dd></div>
+            <div><dt>Białko</dt><dd><output id="total-protein"></output> <span>g</span></dd></div>
+            <div><dt>Tłuszcz</dt><dd><output id="total-fat"></output> <span>g</span></dd></div>
+            <div><dt>Węglowodany</dt><dd><output id="total-carbs"></output> <span>g</span></dd></div>
+          </dl>
+        </section>
+        <p id="summary-error" class="field-error" role="alert"></p>
+        <p id="diary-message" class="success-message" role="status"></p>
+        <div id="nutrition-entries"></div>
+      </section>
+    </div>
+    <details class="legacy panel">
+      <summary>Notatki głosowe — eksperymentalne</summary>
+      <p>Oddzielny notatnik z pierwszego prototypu. Nie dodaje produktów i nie zmienia podsumowania żywieniowego.</p>
+      <button id="mic" type="button" class="button-secondary" aria-label="Rozpocznij dyktowanie">Dyktuj notatkę</button>
+      <p id="status" role="status">Dotknij i opowiedz.</p>
+      <p id="hint" class="field-help">Możesz też wpisać tekst poniżej.</p>
+      <label for="words">Twoja notatka</label>
+      <textarea id="words" rows="3" placeholder="Co chcesz zapamiętać?"></textarea>
+      <label for="meal">Posiłek dla notatki</label>
+      <select id="meal"><option>Śniadanie</option><option>Obiad</option><option>Kolacja</option><option>Przekąska</option></select>
+      <button id="save" type="button" class="button-secondary">Zapisz notatkę</button>
+      <h3>Notatki z wybranego dnia</h3>
+      <div id="entries"></div>
+      <button id="export" type="button" class="button-secondary">Eksportuj notatki tekstowe ↓</button>
+      <p class="fine">Dyktowanie wymaga obsługiwanej przeglądarki, zgody na mikrofon i bezpiecznego połączenia. Dźwięk może być przetwarzany przez dostawcę przeglądarki.</p>
+    </details>
+    <aside class="data-attribution fine" aria-label="Źródła i licencje danych">
+      Dane: <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener noreferrer">Open Food Facts i współtwórcy</a>.
+      Baza: <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener noreferrer">ODbL 1.0</a>;
+      zawartość: <a href="https://opendatacommons.org/licenses/dbcl/1-0/" target="_blank" rel="noopener noreferrer">DbCL 1.0</a>;
+      zdjęcia: <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>, autorzy na karcie produktu. Zdjęcia bez zmian, ładowane ze źródła.
+      Katalog Bengera jest oddzielnym zbiorem demonstracyjnym.
+    </aside>
+    <footer>Wpisy są zapisane tylko w tej przeglądarce i pod tym adresem strony. Wyczyszczenie jej danych usunie dziennik. Eksport powyżej obejmuje wyłącznie notatki tekstowe.</footer>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
