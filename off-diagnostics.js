@@ -1,6 +1,7 @@
 import { createOpenFoodFactsProvider, OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js';
 import { createProductCache } from './product-cache.js';
 import { productErrorMessage, ProductError } from './product-errors.js';
+import { initSearchDiagnostics } from './off-search-diagnostics.js';
 
 const $ = id => document.getElementById(id);
 let report = null;
@@ -63,3 +64,4 @@ $('download-off-report').addEventListener('click', () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 document.documentElement.dataset.diagnosticsReady = 'true';
+initSearchDiagnostics();
