@@ -17,7 +17,8 @@ function thumbnail(product) {
   const box = element('span', 'product-thumbnail');
   box.setAttribute('aria-hidden', 'true');
   box.textContent = '◻';
-  if (product.imageUrl) {
+  // Offline nie inicjujemy nowych żądań obrazków przy odświeżaniu list.
+  if (product.imageUrl && navigator.onLine !== false) {
     const image = document.createElement('img');
     image.alt = ''; image.width = 56; image.height = 64;
     image.loading = 'lazy'; image.referrerPolicy = 'no-referrer';
