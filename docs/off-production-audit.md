@@ -25,6 +25,7 @@ Sprawdzono także oficjalny [SDK JS, commit 9abd3cb](https://github.com/openfood
 - Search-a-licious **istnieje**, a SDK obsługuje `GET /search` i `POST /search`. Zwraca inny schemat `hits`; dokumentacja Product Opener nadal wymienia legacy CGI jako dostępny full-text. Nie deklarujemy, że Search-a-licious jest niedostępny ani niestabilny. Nie ma potrzeby migracji przed potwierdzeniem kompletności nutrition i działania usługi na żywo.
 - Pola: kod, nazwy, `brands_tags_pl`, ilość opakowania, mała miniaturka, data zmiany oraz tylko podstawa i cztery nutrimenty agregatu. Brak pełnego produktu i `input_sets`.
 - Wartości `energy-kcal`, `proteins`, `fat`, `carbohydrates` pochodzą z `.value` i mają wymagane jednostki `kcal`/`g`. Używamy tylko `as_sold` i `100g`/`100ml`. Braki, NaN, nierówności i inne jednostki nie stają się zerami. Nie liczymy gęstości.
+- Offline nowe listy/wybór nie inicjują żądań miniatur; pokazują placeholder. Dane, ostatnie, ulubione i dziennik pozostają dostępne.
 - Rewizja cache 2 nie uznaje dawnych rekordów/query za świeże. Zachowuje je jako fallback offline, podobnie jak ulubione i ostatnie. Wpisy dziennika nie są migrowane ani przeliczane.
 - Rzeczywiste HTTP 403 ma osobny komunikat. Nie oznacza tego samego co brak odpowiedzi spowodowany blokadą proxy/CORS.
 

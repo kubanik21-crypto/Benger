@@ -61,6 +61,8 @@ try {
     const product = await page.evaluate("(async()=>{const {createProductCache}=await import('./product-cache.js');const cache=createProductCache();const product=(await cache.allProducts()).find(product=>product.barcode==='3017620422003');await cache.close();return product;})()");
     assert.ok(product, await page.evaluate("document.getElementById('catalog-message').textContent"));
     assert.ok(product.brand);
+    await page.evaluate(`[...document.querySelectorAll('#search-results [data-product-id]')].find(button=>button.dataset.productId===${JSON.stringify(product.id)}).click()`);
+    if (product.imageUrl) await waitFor(page, "document.querySelector('#product img')?.naturalWidth > 0");
     return { product };
   });
   if (selected) await step('offline: cache, ostatnie, ulubione, dziennik', async () => {

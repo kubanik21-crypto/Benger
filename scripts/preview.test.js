@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { preparePreview } from './prepare-preview.mjs';
+import { preparePreview, safeAssetSource } from './prepare-preview.mjs';
 import { PUBLIC_ASSETS } from './public-assets.mjs';
 
 test('artefakt zawiera wyłącznie publiczne pliki, komplet modułów i izolację pamięci', async t => {
@@ -33,4 +33,16 @@ test('nieprawidłowy SHA i katalog obejmujący repozytorium są odrzucane przed 
 test('publikacja nie uruchamia się bez jawnego --push', () => {
   const result = spawnSync(process.execPath, [fileURLToPath(new URL('./publish-preview.mjs', import.meta.url))], { encoding: 'utf8' });
   assert.equal(result.status, 1); assert.match(result.stderr, /wymaga jawnego/);
+});
+
+test('builder nie kopiuje dowiązań ani plików spoza katalogu projektu', async t => {
+  const container = await mkdtemp(join(tmpdir(), 'benger-preview-path-'));
+  t.after(() => rm(container, { recursive: true, force: true }));
+  const root = join(container, 'project'); await mkdir(root);
+  await writeFile(join(root, 'public.js'), 'public');
+  await writeFile(join(container, 'private.js'), 'private');
+  await symlink(join(container, 'private.js'), join(root, 'linked.js'));
+  assert.equal(await safeAssetSource(root, 'public.js'), join(root, 'public.js'));
+  await assert.rejects(safeAssetSource(root, 'linked.js'), /bez dowiązań/);
+  await assert.rejects(safeAssetSource(root, '../private.js'), /wewnątrz/);
 });

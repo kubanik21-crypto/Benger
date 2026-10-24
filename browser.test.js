@@ -728,9 +728,11 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     await search('mleko'); assert.match(await message(), /Brak połączenia/);
     assert.ok(await resultCount() >= 2);
     await a.evaluate("document.querySelector('#favorite-products [data-product-id]').click(); document.getElementById('amount').value='50,5'; document.getElementById('amount').dispatchEvent(new Event('input'))");
+    assert.equal(await a.evaluate("document.querySelector('#product img') === null"), true);
     await a.submit(); assert.equal((await a.saved()).length, 2);
     assert.equal((await a.saved())[1].amount, 50.5);
     await barcode('5901234123457'); assert.equal(await resultCount(), 1);
+    assert.equal(await a.evaluate("document.querySelector('#search-results img') === null"), true);
     assert.equal(apiRequests().length, before);
     await a.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
     await waitFor(a, 'navigator.onLine === true');
