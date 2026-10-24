@@ -169,3 +169,12 @@ test('naturalne wprowadzenia dla jedzenia i picia nie zmieniają ilości', () =>
   assert.deepEqual(result.issues, []);
   assert.deepEqual(result.items.map(item => item.amount), [50, 200]);
 });
+
+test('parser przyjmuje dostarczony katalog bez requestów, zachowując istniejące aliasy', () => {
+  const products = [{ id: 'oat-flakes', name: 'Płatki z katalogu dostawcy', unit: 'g' }];
+  const result = parseMealText('200 g płatków owsianych', { defaultMeal: 'breakfast', products });
+  assert.equal(result.items[0].productId, 'oat-flakes');
+  assert.equal(result.items[0].status, 'recognized');
+  const absent = parseMealText('200 g płatków owsianych', { defaultMeal: 'breakfast', products: [] });
+  assert.equal(absent.items[0].status, 'needs-review');
+});
