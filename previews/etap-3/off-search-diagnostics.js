@@ -1,6 +1,7 @@
-import { createOpenFoodFactsProvider, OFF_API_VERSION } from './product-providers/open-food-facts.js';
-import { createProductCache } from './product-cache.js';
-import { ProductError, productErrorMessage } from './product-errors.js';
+import { OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { createCgiSearchProvider } from './product-providers/off-search.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { createProductCache } from './product-cache.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { ProductError, productErrorMessage } from './product-errors.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
 
 export const SEARCHALICIOUS_URL = 'https://search.openfoodfacts.org/search';
 export function searchaliciousDiagnosticUrl() {
@@ -15,7 +16,7 @@ export function searchaliciousDiagnosticUrl() {
 export async function compareSearchTransports({ fetchImpl = globalThis.fetch, reserve = async () => {}, onRateLimit = async () => {}, onProgress = () => {}, timeoutMs = 10000 } = {}) {
   const report = { checkedAt: new Date().toISOString(), apiVersion: OFF_API_VERSION, query: 'mleko 2%', comparisons: [] };
   for (const [variant, headers, preflightRequired] of [
-    ['A: CGI + X-User-Agent', null, true],
+    ['A: CGI + X-User-Agent', { Accept: 'application/json', 'X-User-Agent': OFF_APP_ID }, true],
     ['B: CGI simple GET', {}, false],
     ['C: CGI + Accept', { Accept: 'application/json' }, false],
     ['D: Search-a-licious simple GET', {}, false],
@@ -56,8 +57,8 @@ export async function compareSearchTransports({ fetchImpl = globalThis.fetch, re
           throw error;
         } finally { clearTimeout(timer); }
       } else {
-        const provider = createOpenFoodFactsProvider({ fetchImpl: transport, timeoutMs });
-        const products = await provider.search('mleko 2%');
+        const provider = createCgiSearchProvider({ fetchImpl: transport, timeoutMs });
+        const products = await provider.searchProducts('mleko 2%');
         entry.count = products.length; entry.products = products.slice(0, 3);
       }
       entry.ok = entry.http === 200 && entry.corsReadable && entry.count > 0;

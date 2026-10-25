@@ -1,10 +1,10 @@
-import { calculatePortion, sumNutrition } from './nutrition.js';
-import { initLegacyNotes } from './legacy.js';
-import { parseMealText } from './meal-parser.js';
-import { getLocalProducts } from './product-providers/local.js';
-import { copyProduct } from './product-model.js';
-import { initProductSearch } from './product-search-ui.js';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { initLegacyNotes } from './legacy.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { parseMealText } from './meal-parser.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { getLocalProducts } from './product-providers/local.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { copyProduct } from './product-model.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { initProductSearch } from './product-search-ui.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
 
 const $ = id => document.getElementById(id);
 const MEAL_LABELS = {

@@ -1,6 +1,7 @@
-import { copyProduct } from './product-model.js';
-import { createProductRepository } from './product-repository.js';
-import { productErrorMessage } from './product-errors.js';
+import { copyProduct } from './product-model.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { createProductRepository } from './product-repository.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { productErrorMessage } from './product-errors.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { createProductResolver } from './product-resolver.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
@@ -45,6 +46,8 @@ export function initProductSearch({ onSelect, repository = createProductReposito
   let favoriteIds = new Set();
   let results = [];
   let chosen = null;
+  let resultsPhrase = null;
+  const resolver = createProductResolver({ repository });
   let busy = false;
   let revision = 0;
   let refreshRevision = 0;
@@ -75,10 +78,14 @@ export function initProductSearch({ onSelect, repository = createProductReposito
     return button;
   }
 
-  function select(product, focus = true) {
+  function select(product, focus = true, phrase = null) {
     chosen = copyProduct(product);
     renderSelected();
     onSelect(copyProduct(chosen));
+    // Uczymy wyłącznie jawnego kliknięcia użytkownika; resolve() nigdy sam nie uczy.
+    if (phrase) void resolver.rememberUserChoice(phrase, chosen.id).catch(() => {
+      $('catalog-storage-message').textContent = 'Nie udało się zapamiętać dopasowania. Wybrany produkt nadal można dodać do dziennika.';
+    });
     if (focus) $('amount').focus();
   }
 
@@ -92,7 +99,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
       choose.type = 'button'; choose.dataset.productId = product.id;
       choose.setAttribute('aria-label', `Wybierz ${product.name}${product.brand ? `, ${product.brand}` : ''}`);
       choose.append(thumbnail(product), details(product));
-      choose.addEventListener('click', () => select(product));
+      choose.addEventListener('click', () => select(product, true, id === 'search-results' ? resultsPhrase : null));
       row.append(choose, favoriteButton(product));
       container.append(row);
     }
@@ -146,9 +153,15 @@ export function initProductSearch({ onSelect, repository = createProductReposito
     $('search-results').setAttribute('aria-busy', 'true');
     $('catalog-message').textContent = 'Szukam produktów…';
     try {
-      const result = byBarcode ? await repository.getProductByBarcode(value) : await repository.search(value);
+      const result = byBarcode ? await repository.getProductByBarcode(value) : await repository.searchProducts(value);
       if (version !== revision) return;
       results = byBarcode ? (result.product ? [result.product] : []) : result.products;
+      resultsPhrase = byBarcode ? null : value.trim();
+      if (!byBarcode) {
+        const resolution = await resolver.resolve({ query: value }, { allowExternal: false });
+        if (version !== revision) return;
+        if (resolution.product) results = [resolution.product, ...results.filter(product => product.id !== resolution.product.id)].slice(0, 20);
+      }
       renderList('search-results', results, 'Brak pasujących produktów z kompletem wartości odżywczych. Spróbuj innej nazwy lub kodu.');
       $('catalog-message').textContent = result.error ? productErrorMessage(result.error)
         : results.length ? `Znalezione produkty: ${results.length}.${result.status === 'cached' ? ' Wyniki z pamięci.' : ''} Wybierz produkt i sprawdź porcję.`
