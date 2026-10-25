@@ -1,6 +1,6 @@
 # Audyt produkcyjny OFF i preview PR #3
 
-Weryfikacja: 2026-10-24. Kod pozostaje na `etap-3-katalog-produktow`. Nie scalono PR #3. Audyt rozróżnia zgodność ze źródłami, testy z mockami i wynik rzeczywistej sieci.
+Aktualizacja: 2026-10-25. Gałąź `etap-3-katalog-produktow`, PR #3 bez merge. Oddzielamy źródła oficjalne, pomiar użytkownika na Pages oraz mockowane testy aplikacji.
 
 ## Ponownie sprawdzone źródła oficjalne
 
@@ -19,58 +19,88 @@ Sprawdzono także oficjalny [SDK JS, commit 9abd3cb](https://github.com/openfood
 
 Źródła odczytano przez Git. Dokumentacja/API po HTTP są objęte blokadą proxy tego środowiska. Zapisana odpowiedź integracyjna OFF v3.6 potwierdza strukturę agregatu; nie jest dowodem aktualnej odpowiedzi produkcyjnej.
 
-## Decyzje integracyjne
+## Produkcyjny pomiar A/B/C/D
 
-- Product API: `/api/v3.6/product/{barcode}`. Search: `/cgi/search.pl?...&api_version=3.6`, 20 wyników, bez search-as-you-type.
-- Search-a-licious **istnieje**, a SDK obsługuje `GET /search` i `POST /search`. Zwraca inny schemat `hits`; dokumentacja Product Opener nadal wymienia legacy CGI jako dostępny full-text. Nie deklarujemy, że Search-a-licious jest niedostępny ani niestabilny. Nie ma potrzeby migracji przed potwierdzeniem kompletności nutrition i działania usługi na żywo.
-- Pola: kod, nazwy, `brands_tags_pl`, ilość opakowania, mała miniaturka, data zmiany oraz tylko podstawa i cztery nutrimenty agregatu. Brak pełnego produktu i `input_sets`.
-- Wartości `energy-kcal`, `proteins`, `fat`, `carbohydrates` pochodzą z `.value` i mają wymagane jednostki `kcal`/`g`. Używamy tylko `as_sold` i `100g`/`100ml`. Braki, NaN, nierówności i inne jednostki nie stają się zerami. Nie liczymy gęstości.
-- Offline nowe listy/wybór nie inicjują żądań miniatur; pokazują placeholder. Dane, ostatnie, ulubione i dziennik pozostają dostępne.
-- Rewizja cache 2 nie uznaje dawnych rekordów/query za świeże. Zachowuje je jako fallback offline, podobnie jak ulubione i ostatnie. Wpisy dziennika nie są migrowane ani przeliczane.
-- Rzeczywiste HTTP 403 ma osobny komunikat. Nie oznacza tego samego co brak odpowiedzi spowodowany blokadą proxy/CORS.
+Źródło: raport przekazany przez właściciela po uruchomieniu diagnostyki na GitHub Pages; `checkedAt: 2026-10-24T17:15:20.754Z`. Zapytanie: `mleko 2%`. A/B/C mają identyczny URL CGI, te same pola i schemat 3.6; zmieniają nagłówki.
 
-## Identyfikacja, CORS i proxy — zakres potwierdzenia
+| Wariant | Nagłówki aplikacji | HTTP dostępne dla JS | Czytelny CORS | Preflight wymagany przez nagłówki |
+| --- | --- | --- | --- | --- |
+| A, CGI | Accept + X-User-Agent | brak | nie | tak |
+| B, CGI | brak dodatkowych | brak | nie | nie |
+| C, CGI | tylko Accept: application/json | **200, 19 produktów** | **tak** | nie |
+| D, Search-a-licious | brak dodatkowych | brak | nie | nie |
 
-**Statyczna aplikacja może wykonywać bezpośrednie odczyty OFF:** oficjalny SDK dopuszcza `window.fetch`, a konfiguracja serwera obsługuje CORS dla zewnętrznych aplikacji. Nie ma technicznej przesłanki, by dodawać backend tylko z powodu GitHub Pages.
+Raport nie zawiera statusu OPTIONS. Brak HTTP oznacza odrzucony fetch, nie dowodzi konkretnego statusu serwera. **Nie ma podstaw, by uznać sam preflight za udowodnioną przyczynę**, ponieważ B także zawiódł. Standardowy Accept zmienia negocjację treści; pomiar wskazuje skuteczny wariant transportu, ale pojedyncza sekwencja nie wyklucza chwilowej awarii, filtrowania lub różnic cache serwera. Nie deklarujemy potwierdzenia takich hipotez bez dodatkowego pomiaru.
 
-Pozostaje `X-User-Agent: Benger/0.3 (https://github.com/kubanik21-crypto/Benger)`, `credentials: omit`, standardowy preflight. Nie ma sekretu ani nadpisywania natywnego nagłówka `User-Agent`.
+Oficjalny `cgi/search.pl` obsługuje OPTIONS; Nginx dodaje CORS także w `/cgi/`. Dlatego zdanie „legacy CGI nie implementuje OPTIONS” byłoby niezgodne z kodem źródłowym. Kod źródłowy nie gwarantuje aktualnej konfiguracji produkcji.
 
-Trzeba rozróżnić dwie rzeczy:
+Wcześniejszy raport tego samego właściciela potwierdził `/api/v3.6/product/3017620422003`: **HTTP 200, czytelny CORS, znormalizowana Nutella, makro i działające zdjęcie**. W obecnym raporcie A/B/C/D nie podano ponownie jej wartości odżywczych, więc ich nie dopisujemy.
 
-1. **Oficjalnie obsługiwany:** tak, nagłówek jest w allowliście i w oficjalnym teście `options-api-v2-x-user-agent`. Nie opieramy tej decyzji wyłącznie na mockach Bengera. Nginx odczytuje go również w regule konkretnego klienta Intake24; nie twierdzimy, że każdy `X-User-Agent` jest w ten sposób priorytetyzowany lub traktowany jak custom `User-Agent`.
-2. **Ogólnie rekomendowany zamiennik browserowego User-Agent w przewodniku READ:** nie znaleziono takiego zalecenia. Ogólny przewodnik rekomenduje custom `User-Agent`; parametr o tej nazwie opisano w metadanych operacji WRITE. Nie rozszerzamy go bez dowodu na GET product/search. SDK JS sam ustawia `User-Agent`, co nie gwarantuje wysłania go przez Chromium.
+### Rzeczywiste produkty z raportu C
 
-Dlatego utrzymujemy wspierany transport browser → OFF, z jawnym opisem tych ograniczeń i wymaganiem rejestracji zastosowania. **Nie potwierdzono jeszcze rzeczywistego CORS i akceptacji aplikacji na produkcji.** Brak potwierdzenia nie uzasadnia automatycznego stawiania proxy, które też wymagałoby wdrożenia, kontaktu i ograniczania współdzielonego IP. Jeśli OFF wyraźnie zażąda nagłówka HTTP `User-Agent` po stronie serwera lub zmieni CORS, adapter transportu można zastąpić małym Workerem z allowlistą dwóch endpointów, walidacją, limitami i bez arbitralnego URL klienta. Nie utworzono otwartego proxy ani dodatkowego backendu.
+Dane poniżej pochodzą z OFF i jego współtwórców, nie z fikcyjnych fixture CI ani z nowego lokalnego katalogu. Wartości: kcal / białko / tłuszcz / węglowodany na 100 wskazanej jednostki.
 
-## Rzeczywisty test w tym środowisku
+| Produkt | Marka | Barcode | Jednostka | kcal / B / T / W | Miniaturka OFF |
+| --- | --- | --- | --- | --- | --- |
+| ALPSKO mleko | LJUBLJANSKE MLEKARNE | 3838800040578 | ml | 64 / 3,3 / 3,5 / 4,7 | [zdjęcie](https://images.openfoodfacts.org/images/products/383/880/004/0578/front_en.35.200.jpg) |
+| Mleko wiejskie świeże 2% | Piątnica | 5901939000770 | ml | 50 / 3,2 / 2 / 4,8 | [zdjęcie](https://images.openfoodfacts.org/images/products/590/193/900/0770/front_pl.15.200.jpg) |
+| Müller Müllermilch Bananowy Napój Mleczny 400 G | Müller | 4025500135614 | g | 74 / 3,1 / 1,4 / 12,2 | [zdjęcie](https://images.openfoodfacts.org/images/products/402/550/013/5614/front_pl.6.200.jpg) |
 
-Uruchomiono `node scripts/off-live-test.mjs --local --report /tmp/benger-off-live-local.json` w prawdziwym Chromium z natywnym fetch, **bez mocków**, z proxy skonfigurowanym przez środowisko. Test dotyczył wyszukania `mleko 2%` i znanego kodu Nutelli `3017620422003`.
+Raport dowodzi obecności URL zdjęć, nie testuje osobno pobrania każdej z tych trzech miniaturek. Wyniki full-text są szerokie: ALPSKO nie ma 2% w nazwie, a napój bananowy jest innym produktem. Resolver nie wylicza wariantu z zawartości tłuszczu ani nie traktuje wszystkich wyników search jako równoważnych.
 
-Wynik: **FAIL na warstwie sieci**. Chrome zgłosił `net::ERR_TUNNEL_CONNECTION_FAILED`; `corsErrorStatus` było puste, nie otrzymano odpowiedzi HTTP z OFF. Osobny curl pokazał `CONNECT tunnel failed, response 403`. Ponowne udzielenie narzędziu dostępu sieciowego nie usunęło blokady proxy. API GitHub, GitHub Pages i formularz Google również są blokowane w tym środowisku.
+Dla wybranego mleka Piątnica **200 ml = 100 kcal, B 6,4 g, T 4 g, W 9,6 g**. To oczekiwane wartości do końcowego testu interfejsu, nie oświadczenie o wykonaniu zapisu na produkcji przez Codexa.
 
-Nie można na tej podstawie podać prawdziwych makro, marki lub zdjęcia ani ogłosić poprawnego CORS. Nie wyłączano proxy, TLS, nie stosowano alternatywnych hostów ani tuneli. Nie przedstawiamy testów z mockami jako udanego testu produkcyjnego.
+## Search-a-licious: stan i decyzja
 
-Po odblokowaniu sieci pełny test:
+Sprawdzany endpoint: `GET https://search.openfoodfacts.org/search?q=mleko+2%25&langs=pl,en&page=1&page_size=5&fields=...`. Schemat odpowiedzi to `hits`, odmienny od `products` CGI. Wariant D w przeglądarce właściciela zakończył się błędem sieci bez czytelnej odpowiedzi. Nie można z tego odczytać jego struktury produktów ani świeżości indeksu.
+
+Zweryfikowano publiczne, oficjalne zgłoszenia projektu (stan odczytu 24.10.2026):
+
+- [#427: CORS przy dostępie do /search](https://github.com/openfoodfacts/search-a-licious/issues/427), otwarte. Zgłaszający opisuje GET 200 bez Access-Control-Allow-Origin oraz OPTIONS 400 „Disallowed CORS origin”. To jego pomiary, nie nasz własny status OPTIONS. Kod `main` ma middleware CORS, co nie dowodzi wdrożenia tej wersji w produkcji.
+- [#469: produkcyjny indeks zatrzymał aktualizacje po 2024-12-18](https://github.com/openfoodfacts/search-a-licious/issues/469), otwarte. Zgłaszający porównuje produkcję/staging/Product API i podaje przykłady brakujących nowych produktów. Nie potwierdzamy samodzielnie dokładnej daty zatrzymania; zgłoszenie wskazuje nierozwiązane ryzyko świeżości.
+- [#465: CORS blokuje autocomplete Hunger Games](https://github.com/openfoodfacts/search-a-licious/issues/465), otwarte, dodatkowe zgłoszenie integracyjne.
+
+Nie uznajemy obecnego produkcyjnego Search-a-licious za potwierdzone rozwiązanie dla Bengera. Nie migrujemy do niego ani nie obchodzimy problemu przez publiczny CORS proxy. Data `last_modified_t` produktu nie jest datą odświeżenia indeksu.
+
+## Wybór transportu i identyfikacja
+
+**Wybrano bezpośredni CGI GET z samym Accept dla search. Proxy nie jest obecnie potrzebny.** Odczyt barcode pozostaje na sprawdzonym API v3.6 z X-User-Agent. Koszt usług integracji: brak płatnego API/nowego backendu, z zastrzeżeniem limitów OFF i hostingu.
+
+Search i lookup są niezależnymi adapterami repozytorium. CGI ma `searchProducts(query, {signal})`, identyfikator `off-cgi-v3.6-accept` i limit 20. Lookup ma `getProductByBarcode(barcode, {signal})`. Klucze cache wyszukiwań zawierają identyfikator backendu. Zmiana search nie dotyka UI, parsera ani historycznych wpisów.
+
+Oba endpointy mają `credentials: omit`, CORS i deadline 10 s obejmujący JSON. Rezerwacje IndexedDB ograniczają ruch między kartami, 429 blokuje kolejne zapytania, błędy pozostawiają katalog/cache lokalny. Nie dodano automatycznych retry, search-as-you-type ani zapytań dla każdej części zdania.
+
+**X-User-Agent nie jest przedstawiany jako ogólnie rekomendowany browserowy zamiennik User-Agent.** Oficjalna konfiguracja i testy pozwalają go wysłać; ogólna instrukcja rekomenduje custom User-Agent, którego browser nie może niezawodnie nadpisać. W search brak teraz dodatkowej identyfikacji Benger: pozostają natywny UA przeglądarki i standardowe Origin/Referer. Accept nie identyfikuje aplikacji. Nie znaleziono podstaw, by dopisywać do READ parametr User-Agent opisany dla WRITE. Właściciel powinien zgłosić integrację i browserowe ograniczenia formularzem poniżej. Nie deklarujemy formalnej akceptacji przez OFF.
+
+Jeżeli OFF zażąda własnego User-Agent po stronie serwera albo zablokuje browserowy CGI, osobny adapter umożliwi minimalny proxy wyłącznie search: stały host/endpoint upstream, walidacja query i rozmiaru strony, limity, brak arbitralnego URL oraz sekretów w kliencie. Nie utworzono takiego backendu, bo produkcyjny wariant C działa.
+
+## Normalizacja i ochrona danych
+
+API 3.6: tylko `nutrition.aggregated_set`, `preparation: as_sold`, jawne `100g` / `100ml`, nutrient `.value` i wymagane jednostki. Nazwy marek z `brands_tags_pl`. Pobierane są tylko potrzebne pola. Nie przyjmujemy niepełnych makro, NaN, nierówności ani przypadkowej podstawy ml; nie liczymy gęstości. Legacy ma osobno oznaczoną podstawę g.
+
+Rewizja cache 2 zachowuje stare dane jako fallback, bez uznawania ich za świeże. Wersja bazy IndexedDB 2 dodaje pamięć wyborów bez czyszczenia starych store. Snapshot dziennika nadal zawiera historyczne wartości i nie jest przeliczany po zmianie OFF. Nazwy produktów są tekstem, adres zdjęcia ma allowlistę, brak obrazka oznacza placeholder. OFF nie otrzymuje dziennika ani pamięci dopasowań.
+
+## Testy, preview i zakres potwierdzenia
+
+Testy automatyczne 25.10.2026 na Node 22: **164/164 Node, 73/73 Chromium**, plus `git diff --check`. Testy OFF są mockowane: obejmują header Accept-only, v3.6, błędy, IndexedDB, pamięć, migrację v1→v2, dwie karty, flow dziennika i artefakt pod `/Benger/previews/etap-3/`. Nie odtwarzają statusu produkcyjnego OFF.
+
+Actions dla poprawki `0dd26ac` zakończyły się sukcesem: [Tests — push](https://github.com/kubanik21-crypto/Benger/actions/runs/40171269329), [Tests — PR #3](https://github.com/kubanik21-crypto/Benger/actions/runs/40171271486), [Stage 3 preview](https://github.com/kubanik21-crypto/Benger/actions/runs/40171269303). Po kolejnych commitach wymagany jest wynik dla najnowszego SHA.
+
+Ponowny curl z tego środowiska: OFF i Pages blokowane przez proxy na CONNECT, HTTP 403 proxy przed dotarciem do usługi. Poprzednia próba w prawdziwym Chromium z proxy: `ERR_TUNNEL_CONNECTION_FAILED`. Nie jest to dowód błędu CORS OFF. Publiczne strony github.com (PR, Actions, issues) można odczytać po HTML; api.github.com pozostaje zablokowane. Nie obchodzimy ograniczeń sieci.
+
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-3/**. Diagnostyka: [off-diagnostics.html](https://kubanik21-crypto.github.io/Benger/previews/etap-3/off-diagnostics.html). Porównanie A/B/C/D nie startuje samoczynnie i respektuje limity. HTTP OPTIONS sprawdzamy w DevTools/CDP, nie zgadujemy go z wyjątku fetch.
+
+Builder kopiuje allowlistę assetów i nadaje jeden SHA odwołaniom HTML oraz importom ES modules. Nie miesza świeżego indexu ze starymi modułami Pages. Preview ma oddzielne klucze localStorage i `BengerDB-preview-etap-3`; sam podkatalog nie izoluje pamięci. Publikacja dotyka wyłącznie `gh-pages/previews/etap-3/`, bez zmiany root, nowego brancha lub force push. Workflow uruchamia testy, zachowuje artefakt, sprawdza aktualną konfigurację Pages i w razie zmiany zleca build.
+
+Pełny test z normalnej sieci, poza CI:
 
 ```sh
 npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-3/ --report /tmp/benger-off-live-preview.json
 ```
 
-Powinien sprawdzić wybrany produkt, obrazek, porcję 200 w jawnej jednostce, snapshot, sumę, reload, ostatnie, ulubione, barcode i przejście offline. Używa jednorazowego profilu Chromium, więc nie dotyka danych właściciela. Nie jest uruchamiany w standardowym CI. Przerywa lub raportuje FAIL przy rzeczywistym problemie.
+Ręcznie: wyszukaj mleko 2%, wybierz OFF Piątnica, wpisz 200 ml, dodaj, sprawdź sumę, reload i ostatnie; zaznacz gwiazdkę i ponów reload; sprawdź barcode Nutelli. Następnie w już otwartej aplikacji przełącz offline i sprawdź cache, ostatnie, ulubione oraz dziennik. **Nie ma service workera ani gwarancji zimnego startu/reload offline.**
 
-Alternatywa ręczna dostępna na tym samym preview: [diagnostyka OFF](https://kubanik21-crypto.github.io/Benger/previews/etap-3/off-diagnostics.html). Nie wykonuje requestów przy wejściu. Kliknięcie przycisku uruchamia dwa odczyty z normalnym CORS, raportuje HTTP/normalizację/zdjęcia i pozwala pobrać JSON; nie zapisuje posiłków.
-
-## Preview i aktualizowanie postępu
-
-Adres: **https://kubanik21-crypto.github.io/Benger/previews/etap-3/**.
-
-`scripts/prepare-preview.mjs` kopiuje allowlistę publicznych assetów i dodaje SHA oraz namespace pamięci. Manifest, CSS i wszystkie importy pozostają względne. Nie ma service workera. Podgląd ma własne klucze localStorage i bazę `BengerDB-preview-etap-3`; root nadal korzysta ze starych kluczy.
-
-`scripts/publish-preview.mjs` wymaga czystej gałęzi Etapu 3, używa tymczasowego detached worktree istniejącego `gh-pages`, czyści wyłącznie `previews/etap-3`, sprawdza zmienione ścieżki i wykonuje zwykły push. Nie tworzy branchy, nie scala, nie zmienia root i nie stosuje force. Wyścig z inną publikacją powoduje odrzucenie push zamiast nadpisania zmian.
-
-Workflow `Stage 3 preview` działa tylko po push zaufanej gałęzi tego repozytorium. Uruchamia testy, zachowuje pobieralny artefakt, weryfikuje istniejącą konfigurację Pages `legacy` / `gh-pages` / `/`, publikuje podkatalog i jawnie zleca build przez API Pages. To ostatnie jest konieczne: commit wykonany przez `GITHUB_TOKEN` sam nie uruchamia kolejnego builda. Nie zmienia ustawień Pages ani nie publikuje z forkowych PR.
-
-Publikacja plików przez Git nie potwierdza sama w sobie statusu HTTP wdrożenia. Dopóki dostęp do Pages/API jest blokowany, nie deklarujemy sprawdzenia gotowego zdalnego adresu ani zielonego workflow.
+Pomiar użytkownika potwierdził produkcyjne wyszukiwanie i barcode. Po publikacji poprawki `0dd26ac` właściciel otrzymał instrukcję sprawdzenia porcji/zapisu/reload/ostatnich/ulubionych i odpowiedział „wygląda okej”. To ogólna akceptacja preview, bez szczegółowego logu poszczególnych kroków lub offline. Pełny zestaw tych scenariuszy sprawdzono lokalnie z mockami; nie przedstawiamy go jako pomiaru sieci produkcyjnej. Przed scaleniem należy sprawdzić zielone Actions dla aktualnego SHA. Nie wykonujemy merge.
 
 ## Rejestracja API
 
@@ -86,9 +116,3 @@ Aktualny link z oficjalnego `docs/api/index.md`: [formularz zastosowania API](ht
 Przykładowy opis:
 
 > Benger is a local-first personal nutrition diary built with static HTML, CSS and JavaScript. It uses read-only Open Food Facts API v3.6 product lookup and explicit full-text searches to display product names, brands, nutrition per 100 g/ml and thumbnails. There are no writes, bulk downloads or search-as-you-type requests. Normalized data is cached locally for seven days and search results for fifteen minutes. The interface credits Open Food Facts contributors and links to ODbL, DbCL and image licenses. The project is currently a small personal prototype without user accounts or cloud storage.
-
-## Bramki przed merge
-
-Testy mockowane są podstawą CI i nie wymagają dostępności OFF. Obejmują również API 3.6, marki, 403, zachowanie starego cache, artefakt preview i brak dostępu preview do produkcyjnych danych. Self-review obejmuje cały diff względem main.
-
-Do produkcyjnej akceptacji pozostają wymagane: udane realne wyszukanie i kod, brak błędów sieci/konsoli na zdalnym preview oraz zielone Actions. **Nie należy oznaczać PR #3 jako gotowego do merge wyłącznie na podstawie lokalnych mocków.**

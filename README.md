@@ -18,7 +18,7 @@ Pliki i katalogi zaczynające się od `.`, `server.js`, `package.json`, pliki `*
 
 ## Hosting statyczny i przygotowanie PWA
 
-Frontend działa również bez `server.js`: potrzebne są `index.html`, `style.css`, `app.js`, `nutrition.js`, `meal-parser.js`, `legacy.js`, `manifest.webmanifest`, `app-storage.js`, `off-diagnostics.html`, `off-diagnostics.js`, `product-model.js`, `product-errors.js`, `product-cache.js`, `product-repository.js`, `product-search-ui.js` oraz `product-providers/local.js` i `product-providers/open-food-facts.js`. Zachowaj strukturę podkatalogów. Względne ścieżki działają zarówno pod `/`, jak i pod `/Benger/`. Przy hostowaniu w katalogu adres powinien kończyć się ukośnikiem.
+Frontend działa również bez `server.js`. Komplet publicznych plików definiuje `PUBLIC_ASSETS` w `scripts/public-assets.mjs`; zachowaj strukturę podkatalogów. Builder `scripts/prepare-preview.mjs` przygotowuje gotowy artefakt z tej listy, bez serwera, testów i dokumentacji. Względne ścieżki działają zarówno pod `/`, jak i pod `/Benger/`. Przy hostowaniu w katalogu adres powinien kończyć się ukośnikiem.
 
 Lokalny `npm start` nadal serwuje aplikację pod `/`. Hosting pod `/Benger/` jest symulowany w testach jako osobny serwer statyczny; nie dodano takiej trasy do serwera deweloperskiego.
 
@@ -46,14 +46,14 @@ Wartości produktów w `nutrition.js` są **przykładowe, edukacyjne**. Nie opis
 - Minimum 3 znaki, maksymalnie 20 wyników. Nie ma requestów przy wpisywaniu każdego znaku. Wyniki łączą katalog lokalny, cache i Open Food Facts, pokazują nazwę, markę, miniaturkę, wartości na 100 g/ml i źródło.
 - Pole „Kod kreskowy” obsługuje ręczne EAN-8, UPC-A, EAN-13, GTIN-14 z poprawną cyfrą kontrolną. Nie uruchamia kamery.
 - „Ostatnio używane” zawiera 20 unikalnych produktów z udanych zapisów dziennika. Gwiazdka zapisuje ulubione niezależnie od dziennika. Sekcja pokazuje 20 ostatnio oznaczonych; inne zapisane produkty można wyszukać lokalnie.
-- Cache IndexedDB `BengerDB` zawiera znormalizowane produkty OFF (7 dni świeżości), wyniki wyszukiwań (15 minut), referencje ostatnich/ulubionych oraz limiter współdzielony między kartami. Nie przechowujemy pełnych odpowiedzi API ani zdjęć base64. Ulubienie/użycie nie odnawia wieku danych.
+- Cache IndexedDB `BengerDB` zawiera znormalizowane produkty OFF (7 dni świeżości), wyniki wyszukiwań (15 minut), referencje ostatnich/ulubionych, pamięć jawnych wyborów produktów oraz limiter współdzielony między kartami. Wersja bazy 2 dodaje store `selections`, zachowując istniejące dane. Nie przechowujemy pełnych odpowiedzi API ani zdjęć base64. Ulubienie/użycie nie odnawia wieku danych.
 - Bez internetu lub podczas awarii OFF dostępne pozostają dane zapisane lokalnie. Niedostępny IndexedDB uruchamia pamięć tylko na czas działania karty z ostrzeżeniem. Dziennik ma własną pamięć i nie jest kasowany.
 - Limity: minimum 6,5 s między wyszukiwaniami, 4,5 s między odczytami kodów. 429 daje co najmniej minutę przerwy. Nie ma automatycznych ponowień. Request ma timeout 10 s; błędy są przedstawiane zwykłym komunikatem.
 - Jedynie jawne dane OFF na **100 ml** pozwalają wybrać ml. Dane na 100 g pozostają w g; starsze odpowiedzi bez jednoznacznej podstawy dostają ostrzeżenie. Wielkość opakowania nie służy do zgadywania gęstości. Zawsze porównaj wynik z etykietą.
 
-Bezpośredni frontend → OFF używa CORS i wspieranego przez oficjalną konfigurację `X-User-Agent: Benger/0.3 (https://github.com/kubanik21-crypto/Benger)`. Nie zmienia `User-Agent` przeglądarki i nie potrzebuje klucza ani proxy. Używa pełnotekstowego CGI ze schematem API 3.6 oraz odczytu `/api/v3.6/product/{barcode}`. Szczegóły i źródła w dokumencie architektury.
+Bezpośredni frontend → OFF nie potrzebuje klucza ani proxy. Osobny adapter `off-search.js` wykonuje CGI GET ze schematem 3.6 i **samym `Accept: application/json`**, bez custom headerów. Provider barcode nadal używa `/api/v3.6/product/{barcode}` i `X-User-Agent: Benger/0.3 (https://github.com/kubanik21-crypto/Benger)`. Nie nadpisujemy browserowego `User-Agent` ani nie wymyślamy parametru identyfikacyjnego GET. Search ma standardowy UA przeglądarki i Origin/Referer; nie wysyła własnego identyfikatora Benger. Oficjalny przewodnik rekomenduje identyfikację aplikacji: właściciel powinien zgłosić integrację i jej browserowe ograniczenia przez formularz OFF. Szczegóły w [audycie](docs/off-production-audit.md).
 
-**Weryfikacja połączenia:** proxy środowiska odrzuca zestawienie tunelu do OFF (CONNECT 403 / Chromium `ERR_TUNNEL_CONNECTION_FAILED`), zanim dotrze do API. Nie jest to potwierdzona odpowiedź 403 z OFF ani diagnoza CORS. Schemat zweryfikowano w oficjalnym kodzie/OpenAPI i zapisanych odpowiedziach integracyjnych; testy używają mocków, a nie zapytań produkcyjnych. Przed wdrożeniem potrzebny jest test wyszukiwania i kodu w normalnej przeglądarce oraz rejestracja aplikacji w formularzu API OFF przez właściciela.
+**Pomiar produkcyjny z przeglądarki właściciela, 24.10.2026:** dla `mleko 2%` wariant z samym Accept zwrócił HTTP 200, czytelny CORS i 19 poprawnych produktów. Warianty z X-User-Agent i bez Accept zawiodły; bez statusu OPTIONS nie dowodzi to samego błędu preflight. Barcode Nutelli także działał w tej przeglądarce. Search-a-licious nie zwrócił czytelnej odpowiedzi; jego otwarte problemy CORS i indeksu opisano w audycie. Środowisko Codexa nadal blokuje połączenia do OFF/Pages na etapie CONNECT. Testy automatyczne mockują OFF; nie zastępują końcowego testu całego przepływu na HTTPS.
 
 Aplikacja już załadowana działa bez sieci; nie ma jeszcze service workera gwarantującego uruchomienie/odświeżenie offline. Wyszukiwane frazy/kody i żądania miniatur są wysyłane do OFF. Dziennik i notatki nie są wysyłane.
 
@@ -62,6 +62,14 @@ Aplikacja już załadowana działa bez sieci; nie ma jeszcze service workera gwa
 Dane: **[Open Food Facts i współtwórcy](https://world.openfoodfacts.org/)**. Baza: [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/), zawartość: [DbCL 1.0](https://opendatacommons.org/licenses/dbcl/1-0/). Zdjęcia: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), autorzy na karcie produktu dostępnej przy jego wyborze. Miniaturki są wyświetlane bez zmian ze źródła; nie kopiujemy ich do repozytorium. Zawierają też oznaczenia opakowań podlegające własnym prawom.
 
 Cache OFF i demonstracyjny katalog Bengera są oddzielnymi zbiorami. Ich połączenie odbywa się w pamięci na potrzeby wyników. Przyszła redystrybucja/łączenie baz wymaga uwzględnienia ODbL i share-alike. Przykłady w `tests/fixtures` są fikcyjne i służą wyłącznie testom.
+
+## Fundament pod dodawanie głosem
+
+`product-resolver.js` dopasowuje ustrukturyzowaną intencję `{query, amount, unit}` do istniejącego Product. Preferuje wcześniejszy jawny wybór, ostatnie, ulubione i cache; internet jest opcjonalny i domyślnie wyłączony. Wyszukiwarka promuje zapamiętany produkt, ale nie wybiera go za użytkownika. Kliknięcie wyniku uczy dopasowania fraza → productId; samo wnioskowanie niczego nie uczy.
+
+Confidence jest regułą dopasowania, nie prawdopodobieństwem: dokładny barcode lub powtarzalny dominujący wybór daje HIGH, pojedynczy wybór/jedyny zgodny produkt MEDIUM, niejednoznaczność LOW i do pięciu alternatyw. Każdy wynik nadal wymaga weryfikacji. Nie przeliczamy g/ml ani nie odgadujemy makro.
+
+`meal-resolution.js` przygotowuje propozycję z wielu intencji i pozwala potwierdzić tylko niepewną pozycję, zachowując pozostałe. To moduł bez nowego ekranu i mikrofonu. Dotychczasowy formularz tekstowy nadal używa ograniczonego parsera Etapu 2 opisanego niżej. [Kontrakty i przepływ voice-first](docs/voice-first-architecture.md).
 
 ## Dodawanie z tekstu
 
@@ -176,7 +184,7 @@ Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-3/**
 
 Jest przygotowywane po push gałęzi `etap-3-katalog-produktow` przez workflow `Stage 3 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
 
-Pasek podglądu pokazuje SHA. Preview używa `benger.preview-etap-3.nutrition.v1`, `benger.preview-etap-3.meals.v1` oraz IndexedDB `BengerDB-preview-etap-3`. Dane wersji głównej nie są kopiowane ani zmieniane.
+Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-3.nutrition.v1`, `benger.preview-etap-3.meals.v1` oraz IndexedDB `BengerDB-preview-etap-3`. Dane wersji głównej nie są kopiowane ani zmieniane.
 
 Ręczna publikacja z czystej gałęzi Etapu 3: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
 
@@ -190,4 +198,4 @@ npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/preview
 
 Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.
 
-Ogólna dokumentacja OFF rekomenduje custom `User-Agent`. Browser nie może go niezawodnie ustawić; `X-User-Agent` jest jawnie dopuszczony i testowany w oficjalnej konfiguracji CORS OFF, ale nie opisujemy go jako ogólnie zalecanego zamiennika w przewodniku API. Nie dodajemy nieudokumentowanego parametru READ ani niepotrzebnego proxy. Szczegóły, aktualny formularz rejestracji i pozostałe bramki przed merge: [audyt produkcyjny](docs/off-production-audit.md).
+Diagnostyka zawiera też porównanie A/B/C/D: CGI z X-User-Agent, CGI bez dodatkowych nagłówków, CGI z samym Accept oraz Search-a-licious. Pokazuje rzeczywiste wyniki fetch; status OPTIONS wymaga DevTools Network/CDP. Respektuje odstępy i blokadę 429. Szczegóły pomiaru, aktualny formularz rejestracji i bramki przed merge: [audyt produkcyjny](docs/off-production-audit.md).

@@ -24,9 +24,11 @@ $('run-off-diagnostics').addEventListener('click', async () => {
   if (button.disabled) return;
   button.disabled = true; $('download-off-report').disabled = true;
   $('diagnostic-status').textContent = 'Sprawdzam prawdziwe odpowiedzi Open Food Facts…';
-  report = { checkedAt: new Date().toISOString(), page: location.href, apiVersion: OFF_API_VERSION, identification: OFF_APP_ID, requests: [], search: null, barcode: null, passed: false };
+  report = { checkedAt: new Date().toISOString(), page: location.href, apiVersion: OFF_API_VERSION,
+    identification: { search: 'Native browser User-Agent; Accept only', barcode: OFF_APP_ID },
+    requests: [], search: null, barcode: null, passed: false };
   const captureFetch = async (url, options) => {
-    const entry = { url, http: null, corsReadable: false };
+    const entry = { url, requestHeaders: { ...options.headers }, http: null, corsReadable: false };
     report.requests.push(entry);
     try { const response = await fetch(url, options); entry.http = response.status; entry.corsReadable = response.type === 'cors'; return response; }
     catch { entry.networkError = true; throw new ProductError('network'); }

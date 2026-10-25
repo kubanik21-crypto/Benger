@@ -11,7 +11,7 @@ export function searchaliciousDiagnosticUrl() {
   return url;
 }
 
-// Porównanie transportów, bez zmiany identyfikacji używanej w aplikacji.
+// Porównanie transportów nie przełącza aktywnego adaptera ani jego konfiguracji.
 // JavaScript nie dostaje odpowiedzi OPTIONS. Jej faktyczny status sprawdza CDP/DevTools.
 export async function compareSearchTransports({ fetchImpl = globalThis.fetch, reserve = async () => {}, onRateLimit = async () => {}, onProgress = () => {}, timeoutMs = 10000 } = {}) {
   const report = { checkedAt: new Date().toISOString(), apiVersion: OFF_API_VERSION, query: 'mleko 2%', comparisons: [] };

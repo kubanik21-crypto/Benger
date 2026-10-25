@@ -11,15 +11,16 @@ product-search-ui.js (wyszukiwanie, wybór, gwiazdki)
         ↓
 product-repository.js (łączenie wyników, offline, limity)
         ├── product-providers/local.js → nutrition.js / PRODUCTS
-        ├── product-providers/open-food-facts.js → publiczne API OFF
-        └── product-cache.js → IndexedDB BengerDB v1
+        ├── product-providers/open-food-facts.js → lookup OFF API v3.6
+        ├── product-providers/off-search.js → full-text CGI, wymienny adapter
+        └── product-cache.js → IndexedDB BengerDB v2
 ```
 
-`product-model.js` waliduje i kopiuje produkty oraz deduplikuje wyniki. `product-errors.js` przekłada błędy na komunikaty. Wyłącznie provider OFF wykonuje zewnętrzny `fetch`. UI nie zna formatu odpowiedzi OFF, a dziennik nie pobiera produktu przy renderowaniu historii.
+`product-model.js` waliduje i kopiuje produkty oraz deduplikuje wyniki. `product-errors.js` przekłada błędy na komunikaty. Wyłącznie adaptery OFF używają wspólnego klienta `off-http.js` do zewnętrznego `fetch`. UI nie zna formatu odpowiedzi OFF, a dziennik nie pobiera produktu przy renderowaniu historii.
 
-Provider zwraca znormalizowane produkty przez `search(query, {signal})` i `getProductByBarcode(barcode, {signal})`. Lokalny provider udostępnia również `list()` i `getById(id)`. Repozytorium zwraca `{products, status, error}` lub `{product, status, error}` i udostępnia ostatnie/ulubione. `status`: `online`, `cached`, `offline`, `fallback`. Błąd internetu nie usuwa lokalnych wyników.
+Lookup provider udostępnia `getProductByBarcode(barcode, {signal})`. Niezależny search provider ma `{id, searchProducts(query, {signal})}`. Oba zwracają wyłącznie model Bengera i można je osobno wstrzyknąć do fabryki repozytorium. UI korzysta z `repository.searchProducts()` / `getProductByBarcode()`, nie z endpointu. Klucz cache zapytania zawiera ID adaptera, więc przyszła zmiana wyszukiwarki nie użyje świeżych wyników innego backendu.
 
-Kolejny provider można wstrzyknąć do fabryki repozytorium. Nowe źródło wymaga osobnego adaptera i analizy jego licencji; nie należy łączyć surowych baz w jeden trwały zbiór.
+Lokalny provider ma `list()` i `getById(id)`. Repozytorium zwraca `{products, status, error}` lub `{product, status, error}`; `status`: `online`, `cached`, `offline`, `fallback`. Udostępnia także ostatnie, ulubione, odczyt produktu po ID i pamięć jawnych wyborów. Błąd internetu nie usuwa lokalnych wyników. Nowe źródło wymaga adaptera i analizy licencji, bez mieszania surowych baz.
 
 ## Kanoniczny produkt
 
@@ -56,7 +57,7 @@ Weryfikacja: 2026-10-24, oficjalny `openfoodfacts/openfoodfacts-server`, commit 
 - [Różnice wyszukiwania](https://github.com/openfoodfacts/openfoodfacts-server/blob/54ea7c917eca14077b907ac7ad0cbbd63b5e3d02/docs/api/ref-cheatsheet.md).
 - [Schemat nutrition v3](https://github.com/openfoodfacts/openfoodfacts-server/blob/54ea7c917eca14077b907ac7ad0cbbd63b5e3d02/docs/api/ref/schemas/product_nutrition_v3.yaml).
 
-Wyszukiwanie po nazwie używa oficjalnego `/cgi/search.pl`, parametrów `search_terms`, `search_simple=1`, `action=process`, `json=1`, `api_version=3.6`, `lc=pl`, `page=1`, `page_size=20`. CGI nadal obsługuje pełny tekst i wybór schematu `api_version`; `/api/v2/search` i `/api/v3/search` nie zastępują go jako wyszukiwarka pełnotekstowa. Nie używamy nieudokumentowanego `search_terms` na tych endpointach. CGI jest nadal udokumentowaną drogą pełnotekstową. Search-a-licious ma już własny endpoint i SDK, ale inny schemat `hits`; nie migrujemy do niego bez potwierdzenia kompletności danych żywieniowych i testu live.
+Wyszukiwanie po nazwie używa oficjalnego `/cgi/search.pl`, parametrów `search_terms`, `search_simple=1`, `action=process`, `json=1`, `api_version=3.6`, `lc=pl`, `page=1`, `page_size=20`. CGI nadal obsługuje pełny tekst i wybór schematu `api_version`; `/api/v2/search` i `/api/v3/search` nie zastępują go jako wyszukiwarka pełnotekstowa. Nie używamy nieudokumentowanego `search_terms` na tych endpointach. CGI jest nadal udokumentowaną drogą pełnotekstową. Search-a-licious ma endpoint `/search` i inny schemat `hits`. W pomiarze właściciela nie zwrócił czytelnej odpowiedzi; otwarte zgłoszenia #427 (CORS) i #469 (aktualność indeksu) dodatkowo przemawiają za pozostawieniem CGI. Źródła i zakres potwierdzenia opisuje audyt produkcyjny.
 
 Pojedynczy kod: `GET /api/v3.6/product/{barcode}`. Wersja 3.6 jest bieżącą rekomendacją OFF dla nowych integracji. Używamy `brands_tags_pl` generowanego przez serwer dla nazw marek; nie wymagamy usuniętych `brands_hierarchy`/`brands_lc` ani technicznego pola `brands`. Stare odpowiedzi z `brands` są tolerowane jedynie przez adapter kompatybilności. Nie zakładamy automatycznej zgodności przyszłych zmian API.
 
@@ -73,25 +74,24 @@ Dla v3 wymagamy `per: 100g | 100ml`, `preparation: as_sold`, wartości `.value` 
 
 **Jednostki:** tylko jawne `100ml` oznacza ml. Starsza odpowiedź bez tej informacji oznacza g i dostaje ostrzeżenie `legacy`. Opakowanie „1 l”, nazwa „mleko” i `nutrition_data_per` nie stanowią dowodu gęstości. Nie przyjmujemy 100 ml = 100 g i nie mieszamy danych `prepared` z `as_sold`.
 
-Proxy tego środowiska odrzuca CONNECT kodem 403, zanim połączy się z OFF. Chromium z tym samym proxy zwraca `ERR_TUNNEL_CONNECTION_FAILED`; to nie jest odpowiedź HTTP 403 z produkcyjnego OFF ani potwierdzony błąd CORS. Schemat sprawdzono ponownie w oficjalnym OpenAPI, kodzie CGI i zapisanych odpowiedziach integracyjnych OFF v3.6; **nie wykonano udanego zapytania do produkcyjnego API**. Fikcyjne fixture w `tests/fixtures` odwzorowują ten schemat, nie są nowym katalogiem żywności. Przed publikacją tej gałęzi potrzebny jest test produkcyjnego wyszukiwania/kodu z normalnej przeglądarki.
+Pomiar w przeglądarce właściciela z GitHub Pages, 24.10.2026: CGI Accept-only zwróciło 19 znormalizowanych produktów, HTTP 200 i czytelny CORS. Odczyt kodu `3017620422003` także zadziałał. To rzeczywiste dane z raportu użytkownika, oddzielne od fikcyjnych fixture CI. Środowisko Codexa nadal otrzymuje CONNECT 403 przed połączeniem z OFF; nie może samodzielnie potwierdzić pełnego przepływu produkcyjnego.
 
 ## CORS i identyfikacja aplikacji
 
-Bezpośredni browser → OFF, bez proxy i klucza. `fetch` używa `mode: cors`, `credentials: omit`, `Accept: application/json` i:
+Bezpośredni browser → OFF, bez kluczy, proxy i płatnych usług. Każdy fetch ma `mode: cors`, `credentials: omit`, `Accept: application/json`.
 
-```text
-X-User-Agent: Benger/0.3 (https://github.com/kubanik21-crypto/Benger)
-```
+- **CGI search:** tylko Accept, bez custom headera. To CORS-safelisted request, który sam nie wymaga preflight. W produkcyjnym porównaniu A/B/C/D jedynie ten wariant zwrócił produkty. Nie jest to gwarancja dostępności legacy usługi.
+- **Barcode v3.6:** dodatkowo `X-User-Agent: Benger/0.3 (https://github.com/kubanik21-crypto/Benger)`, z preflight. Ten transport był udany w realnym teście właściciela i pozostaje bez zmian.
 
-Nie nadpisujemy natywnego nagłówka `User-Agent`. Oficjalna konfiguracja [CORS](https://github.com/openfoodfacts/openfoodfacts-server/blob/54ea7c917eca14077b907ac7ad0cbbd63b5e3d02/conf/nginx/snippets/cors-headers.include) dopuszcza `X-User-Agent`, a konfiguracja [priorytetów wybranych klientów](https://github.com/openfoodfacts/openfoodfacts-server/blob/54ea7c917eca14077b907ac7ad0cbbd63b5e3d02/conf/nginx/snippets/productopener-mappings.include) odczytuje go dla konkretnego klienta Intake24. Oficjalny test `tests/integration/cors.t` (`options-api-v2-x-user-agent`) potwierdza akceptację nagłówka. Ogólna instrukcja OFF zaleca custom `User-Agent`; nie nazywamy `X-User-Agent` jej udokumentowanym, rekomendowanym zamiennikiem. Jest oficjalnie dopuszczonym nagłówkiem CORS. Parametr `User-Agent` opisano dla operacji WRITE, więc nie zakładamy, że identyfikuje również READ/CGI. Oficjalny SDK JS wspiera browserowy fetch, ale ustawia `User-Agent`, który Chromium może pominąć — nie kopiujemy tego zachowania. Nie znaleziono przesłanki technicznej wymagającej proxy dla odczytu z przeglądarki. Ten nagłówek powoduje standardowy preflight OPTIONS; nie obchodzimy zabezpieczeń przeglądarki.
+Oficjalna [konfiguracja CORS](https://github.com/openfoodfacts/openfoodfacts-server/blob/54ea7c917eca14077b907ac7ad0cbbd63b5e3d02/conf/nginx/snippets/cors-headers.include) dopuszcza X-User-Agent, a oficjalny test sprawdza OPTIONS na API v2. Kod CGI także ma obsługę OPTIONS. Nie dowodzi to sprawności każdego wdrożenia/endpointu. Wariant bez żadnych dodatkowych nagłówków również zawiódł, więc nie przypisujemy awarii wyłącznie preflightowi bez pomiaru OPTIONS.
 
-Test Chromium przechwytuje wyłącznie ruch OFF przez CDP i odpowiada nagłówkami CORS; sam `window.fetch` pozostaje natywny. Nie dowodzi to bieżącej konfiguracji produkcyjnej OFF. Gdyby dostawca zmienił CORS/politykę, mały proxy może zastąpić transport w providerze; UI i dziennik nie wymagają przebudowy. Nie należy wkładać sekretów proxy do frontendu.
+Ogólny przewodnik OFF rekomenduje custom User-Agent; nie znaleziono ogólnego zalecenia, że X-User-Agent go zastępuje w browserowym READ. Parametr User-Agent opisany dla WRITE nie jest przenoszony na GET. Search korzysta ze standardowego UA przeglądarki oraz Origin/Referer; nie zawiera osobnego identyfikatora Benger. Nie nazywamy samego Accept identyfikacją aplikacji. Właściciel powinien zgłosić integrację przez formularz OFF i opisać to ograniczenie. Nie wysłano formularza w jego imieniu. Jeżeli dostawca zażąda custom UA serwera, niezależny adapter search umożliwi mały ograniczony proxy; obecny udany odczyt nie uzasadnia nowego backendu.
 
-OFF prosi o rejestrację zastosowania API przez swój formularz. Właściciel powinien wykonać ją przed publicznym wdrożeniem integracji. Nie wysyłano żadnego formularza ani danych właściciela w jego imieniu.
+Mocki Chromium używają natywnego fetch i kontrolowanych odpowiedzi CORS przez CDP. Sprawdzają zachowanie aplikacji, nie bieżący CORS produkcyjnego OFF. Pełny raport, źródła i status Search-a-licious: [off-production-audit.md](off-production-audit.md).
 
 ## Cache, ostatnie i ulubione
 
-IndexedDB `BengerDB`, wersja 1:
+IndexedDB `BengerDB`, wersja 2. Upgrade dodaje store, bez usuwania rekordów wersji 1:
 
 | Store | Zawartość |
 | --- | --- |
@@ -99,16 +99,27 @@ IndexedDB `BengerDB`, wersja 1:
 | `usage` | Referencja `key` do produktu, `favorite`, `favoriteAt`, `lastUsedAt`, `order`. Nie drugi katalog. |
 | `searches` | Znormalizowany query, ID produktów OFF, `fetchedAt`. Pusta lista też jest wynikiem. |
 | `meta` | Rezerwacje limitów zapytań i licznik kolejności użycia. |
+| `selections` | Znormalizowana fraza → lista `{productId, count, lastUsedAt}`, bez dziennika i surowych odpowiedzi API. |
 
 Rewizja cache 2 unieważnia świeżość kopii z poprzedniego providera 3.5 i wcześniejszych zapytań, bez usuwania produktów, referencji ani historii. Produkty są świeże przez **7 dni**, wyniki zapytania przez **15 minut**. Kod kreskowy korzysta ze świeżego produktu także wtedy, gdy pochodzi on z wcześniejszego wyszukiwania. Ulubienie i użycie **nie odnawiają** daty pobrania. Przeterminowane kopie są nadal użyteczne w trybie offline i podczas błędów; nowy odczyt kodu online próbuje je odświeżyć. Czas z przyszłości nie jest uznawany za świeży.
 
-Maksymalnie 300 zwykłych produktów OFF, 50 zapytań; ulubione oraz ostatnie 20 są chronione przed usunięciem przez limit cache. Ulubione mogą zwiększać rozmiar pamięci. UI pokazuje do 20 ostatnich i 20 ostatnio oznaczonych ulubionych; pozostałe ulubione można odnaleźć przez wyszukiwanie lokalne. Nie pobieramy pełnych obrazów ani base64: tylko URL miniaturki.
+Maksymalnie 300 zwykłych produktów OFF, 50 zapytań; ulubione, ostatnie 20 oraz produkty z pamięci wyborów są chronione przed usunięciem przez limit cache. Ulubione mogą zwiększać rozmiar pamięci. UI pokazuje do 20 ostatnich i 20 ostatnio oznaczonych ulubionych; pozostałe ulubione można odnaleźć przez wyszukiwanie lokalne. Nie pobieramy pełnych obrazów ani base64: tylko URL miniaturki.
 
 Ostatnie są aktualizowane dopiero po udanym zapisie do dziennika. Kolejność rozstrzyga czas i transakcyjny licznik (także przy dwóch wpisach w tej samej milisekundzie). Starszy dziennik może jednorazowo zasilić referencje ostatnich lokalnymi produktami, bez przepisywania historii. Gwiazdki nie dodają wpisów do dziennika. Po odświeżeniu i po powrocie do karty odczytywane są bieżące preferencje.
 
 Produkty Bengera pozostają wyłącznie w oddzielnym providerze kodowym, a zbiór OFF w `products`. Połączona lista UI jest tworzona w pamięci. Nie zapisujemy mieszanej bazy katalogowej. Deduplikacja wykorzystuje równoważny GTIN albo parę `source + sourceId`; samo podobieństwo nazwy nie wystarcza do scalenia marek/wariantów.
 
 Niedostępne/zablokowane IndexedDB daje pamięć awaryjną tylko w bieżącej karcie i jawne ostrzeżenie. Limiter w takim trybie działa tylko dla tej instancji. Dziennik nadal niezależnie używa localStorage. Uszkodzone rekordy cache są pomijane, nie kasujemy całej bazy. Brak miejsca nie usuwa dziennika.
+
+## Pamięć wyborów i ProductResolver
+
+`normalizeFoodQuery()` ujednolica wielkość liter, polskie znaki, odstępy i `2 procent` / `2,0%` → `2%`. Dopasowanie bez pamięci używa pełnych tokenów nazwy i marki: `Pilos` nie pasuje do `Superpilos`, a `2%` do `12%`. Nie wnioskuje procentu z makro.
+
+`createProductResolver({repository}).resolve(intent, {allowExternal: false})` zwraca `{product, confidence, alternatives, reason, requiresConfirmation}`. Najpierw sprawdza barcode, potem wcześniejszy wybór frazy, ostatnie, ulubione i katalog/cache. Dopiero jawne `allowExternal: true` może użyć repozytorium search. Jednostka musi się zgadzać. HIGH oznacza dokładny kod lub dominujący wybór (co najmniej 2 wybory i 75% zgodnej historii); MEDIUM to jeden wcześniejszy wybór albo jedyny zgodny wynik; LOW pozostawia produkt pusty i zwraca do 5 alternatyw. Każdy wynik wymaga zatwierdzenia. To reguły priorytetu, nie statystyczna pewność etykiety.
+
+Wyszukiwarka promuje wskazany produkt na liście bez automatycznego wyboru. `rememberUserChoice(query, productId)` odczytuje prawdziwy Product i dopiero wtedy zapisuje pamięć. UI uczy po jawnym kliknięciu wyniku; `resolve()` nie uczy i nie zmienia dziennika. Pamięć obejmuje najwyżej 200 fraz po 5 produktów. Liczniki są transakcyjne w IndexedDB także między kartami. Powiązany produkt jest chroniony przed czyszczeniem zwykłego cache; nauczenie frazy nie odnawia jego TTL.
+
+`meal-resolution.js` przetwarza do 20 gotowych intencji, zachowuje osobne wiersze i pozwala potwierdzić tylko jeden. Domyślnie nie łączy się z siecią; opcjonalny budżet to najwyżej jeden zewnętrzny search na propozycję. Makro pochodzi wyłącznie z Product i `calculatePortion()` / `sumNutrition()`. Nie przyjmuje makro parsera. Moduł nie jest jeszcze nowym interfejsem tekstowym ani mikrofonem. Kontrakty: [voice-first-architecture.md](voice-first-architecture.md).
 
 ## Rate limits i błędy
 
@@ -146,7 +157,7 @@ Aplikacja ma atrybucję, odnośniki do licencji i kartę wybranego produktu. Min
 
 Separacja zbiorów nie znosi obowiązków licencyjnych. Przyszłe publiczne eksporty, redystrybucja/zmodyfikowane bazy i mieszanie źródeł wymagają ponownej oceny atrybucji, ODbL i share-alike. Ten etap nie publikuje nowej zbiorczej bazy. Oficjalny [poradnik cache](https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/tutorials/creating-a-local-cache-of-the-open-food-facts-database/) omawia oddzielne przechowywanie OFF.
 
-OFF otrzymuje wyszukiwaną frazę/kod, standardowe dane połączenia oraz identyfikację aplikacji; serwer zdjęć otrzymuje zapytania o miniaturki. Nie przesyłamy dziennika ani notatek. Brak sekretów i płatnych usług; pozostają koszty/ograniczenia ewentualnego przyszłego hostingu.
+OFF otrzymuje wyszukiwaną frazę/kod i standardowe dane połączenia; odczyt barcode zawiera ponadto X-User-Agent Bengera; serwer zdjęć otrzymuje zapytania o miniaturki. Nie przesyłamy dziennika ani notatek. Brak sekretów i płatnych usług; pozostają koszty/ograniczenia ewentualnego przyszłego hostingu.
 
 ## Weryfikacja i następne źródła
 
@@ -154,7 +165,7 @@ OFF otrzymuje wyszukiwaną frazę/kod, standardowe dane połączenia oraz identy
 
 `npm run test:browser`: prawdziwy Chromium, natywny fetch z odpowiedziami CDP, rzeczywiste IndexedDB, / i /Benger/, wybór/porcja/dziennik, reload/offline, gwiazdki, barcode, timeout/429/5xx/bad JSON, brak IndexedDB, dwie karty, uszkodzony cache, XSS i layout 320–1440 px. Nie używa produkcyjnego OFF ani danych użytkownika.
 
-Kolejne źródła (USDA, polska baza, katalog użytkownika) powinny mieć własną przestrzeń ID, adapter, testy jednostek i analizę licencji. Kamera może korzystać z istniejącego `getProductByBarcode`, a przyszła interpretacja tekstu z repozytorium. Żadnej z tych funkcji nie implementuje Etap 3.
+Kolejne źródła (USDA, polska baza, katalog użytkownika) powinny mieć własną przestrzeń ID, adapter, testy jednostek i analizę licencji. Kamera może korzystać z istniejącego `getProductByBarcode`, a przyszła interpretacja tekstu z ProductResolver i modułu propozycji. Żadnej z tych funkcji nie implementuje Etap 3.
 
 
 Ponowny audyt produkcyjny, źródła dotyczące identyfikacji i procedura preview/live: [off-production-audit.md](off-production-audit.md).

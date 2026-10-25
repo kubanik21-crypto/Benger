@@ -894,6 +894,10 @@ test('Preview Etapu 3 — osobna pamięć i kompletny artefakt w zagnieżdżonym
   await diagnostic.evaluate("document.getElementById('run-off-diagnostics').click()");
   await waitFor(diagnostic, "!document.getElementById('run-off-diagnostics').disabled", 15000);
   const result = await diagnostic.evaluate("JSON.parse(document.getElementById('diagnostic-report').textContent)");
+  const searchRequest = result.requests.find(request => new URL(request.url).pathname === '/cgi/search.pl');
+  const lookupRequest = result.requests.find(request => new URL(request.url).pathname.startsWith('/api/v3.6/product/'));
+  assert.deepEqual(searchRequest.requestHeaders, { Accept: 'application/json' });
+  assert.match(lookupRequest.requestHeaders['X-User-Agent'], /^Benger\/0.3/);
   assert.equal(result.passed, true); assert.equal(result.apiVersion, '3.6');
   assert.equal(result.requests.length, 2); assert.ok(result.requests.every(request => request.http === 200 && request.corsReadable));
   assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
