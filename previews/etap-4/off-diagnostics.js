@@ -1,8 +1,8 @@
-import { createOpenFoodFactsProvider, OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=09731f6618d7b18d78835fa687c59c12091ef55d';
-import { createProductCache } from './product-cache.js?v=09731f6618d7b18d78835fa687c59c12091ef55d';
-import { productErrorMessage, ProductError } from './product-errors.js?v=09731f6618d7b18d78835fa687c59c12091ef55d';
-import { createCgiSearchProvider } from './product-providers/off-search.js?v=09731f6618d7b18d78835fa687c59c12091ef55d';
-import { initSearchDiagnostics } from './off-search-diagnostics.js?v=09731f6618d7b18d78835fa687c59c12091ef55d';
+import { createOpenFoodFactsProvider, OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=000ba974c39ca2be53060bb980b1500c80201f9e';
+import { createProductCache } from './product-cache.js?v=000ba974c39ca2be53060bb980b1500c80201f9e';
+import { productErrorMessage, ProductError } from './product-errors.js?v=000ba974c39ca2be53060bb980b1500c80201f9e';
+import { createCgiSearchProvider } from './product-providers/off-search.js?v=000ba974c39ca2be53060bb980b1500c80201f9e';
+import { initSearchDiagnostics } from './off-search-diagnostics.js?v=000ba974c39ca2be53060bb980b1500c80201f9e';
 
 const $ = id => document.getElementById(id);
 let report = null;
