@@ -112,3 +112,15 @@ test('posiłek zachowuje rozpoznane pozycje; potwierdzenie jednego wiersza nie z
   assert.equal(confirmed.items[1].portion.nutrition.kcal, 125);
   await assert.rejects(confirmMealItem(proposal, 'milk', skyr.id, { repository }), /Jednostki/);
 });
+
+test('brak ilości zachowuje rozpoznaną tożsamość, ale nie tworzy porcji', async () => {
+  const { resolver } = await setup();
+  const proposal = await resolveMealIntents([{ query: 'banan', amount: null, unit: null }], { resolver });
+  assert.equal(proposal.items[0].resolution.product.id, 'peeled-banana');
+  assert.equal(proposal.items[0].portion, null);
+});
+test('pięć nowych produktów zużywa najwyżej jeden zewnętrzny search na analizę', async () => {
+  const { resolver, calls } = await setup([]);
+  const proposal = await resolveMealIntents(Array.from({length:5}, (_,i)=>({ query: `nieznany produkt ${i}`, amount: 100, unit: 'g' })), { resolver, allowExternal: true });
+  assert.equal(proposal.items.length, 5); assert.equal(calls(), 1);
+});
