@@ -11,19 +11,18 @@ function setup({ search = async () => products, lookup = async () => products[0]
   let time = 1700000000000, online = true, searches = 0, lookups = 0;
   const cache = createProductCache({ storage: createProductStorage({ indexedDBFactory: null }), now: () => time });
   const remote = {
-    search: async (...args) => { searches++; return search(...args); },
     getProductByBarcode: async (...args) => { lookups++; return lookup(...args); },
   };
-  const repository = createProductRepository({ cache, remote, isOnline: () => online });
+  const repository = createProductRepository({ cache, remote, searchProvider: { id: 'mock-search', searchProducts: async (...args) => { searches++; return search(...args); } }, isOnline: () => online });
   return { repository, cache, tick: ms => { time += ms; }, offline: () => { online = false; }, counts: () => ({ searches, lookups }) };
 }
 
 test('łączy lokalne i OFF, deduplikuje i ponownie używa wyników bez requestu', async () => {
   const { repository, counts } = setup();
-  const result = await repository.search('mleko');
+  const result = await repository.searchProducts('mleko');
   assert.equal(result.products[0].id, 'milk-2-percent');
   assert.ok(result.products.some(product => product.source === 'openfoodfacts'));
-  const again = await repository.search(' MLEKO ');
+  const again = await repository.searchProducts(' MLEKO ');
   assert.equal(again.status, 'cached');
   assert.equal(new Set(again.products.map(product => product.id)).size, again.products.length);
   assert.deepEqual(counts(), { searches: 1, lookups: 0 });
@@ -32,7 +31,7 @@ test('łączy lokalne i OFF, deduplikuje i ponownie używa wyników bez requestu
 test('identyczne zapytania równoległe współdzielą request', async () => {
   let resolve;
   const { repository, counts } = setup({ search: () => new Promise(done => { resolve = done; }) });
-  const first = repository.search('mleko'), second = repository.search('mleko');
+  const first = repository.searchProducts('mleko'), second = repository.searchProducts('mleko');
   await new Promise(done => setImmediate(done));
   assert.equal(counts().searches, 1);
   resolve(products);
@@ -41,18 +40,18 @@ test('identyczne zapytania równoległe współdzielą request', async () => {
 
 test('nowy query jest ograniczony, pusty wynik zapamiętany, bez automatycznego retry', async () => {
   const { repository, tick, counts } = setup({ search: async () => [] });
-  assert.equal((await repository.search('nieistniejący')).products.length, 0);
-  assert.equal((await repository.search('nieistniejący')).status, 'cached');
-  assert.equal((await repository.search('inny produkt')).error.code, 'throttle');
+  assert.equal((await repository.searchProducts('nieistniejący')).products.length, 0);
+  assert.equal((await repository.searchProducts('nieistniejący')).status, 'cached');
+  assert.equal((await repository.searchProducts('inny produkt')).error.code, 'throttle');
   assert.equal(counts().searches, 1);
   tick(SEARCH_INTERVAL_MS);
-  await repository.search('inny produkt');
+  await repository.searchProducts('inny produkt');
   assert.equal(counts().searches, 2);
 });
 
 test('barcode korzysta ze świeżego produktu, także z cache wyszukiwania', async () => {
   const { repository, counts } = setup();
-  await repository.search('mleko');
+  await repository.searchProducts('mleko');
   assert.equal((await repository.getProductByBarcode(products[0].barcode)).product.id, products[0].id);
   assert.equal(counts().lookups, 0);
   await assert.rejects(repository.getProductByBarcode('abc'), error => error.code === 'barcode');
@@ -75,17 +74,17 @@ test('wygasły produkt odświeża się po kodzie, a offline nadal ma kopię', as
 test('po TTL query nowa odpowiedź nie jest zasłaniana starą wersją z cache', async () => {
   let response = products;
   const { repository, tick } = setup({ search: async () => response });
-  await repository.search('mleko');
+  await repository.searchProducts('mleko');
   response = [{ ...products[0], per100: { ...products[0].per100, kcal: 51 } }];
   tick(16 * 60 * 1000);
-  const result = await repository.search('mleko');
+  const result = await repository.searchProducts('mleko');
   assert.equal(result.products.find(product => product.id === products[0].id).per100.kcal, 51);
 });
 
 test('offline pokazuje lokalne i cached bez próby wywołania OFF', async () => {
   const { repository, cache, offline, counts } = setup();
   await cache.putProducts(products); offline();
-  const result = await repository.search('mleko');
+  const result = await repository.searchProducts('mleko');
   assert.equal(result.status, 'offline');
   assert.ok(result.products.some(product => product.source === 'benger'));
   assert.ok(result.products.some(product => product.source === 'openfoodfacts'));
@@ -94,7 +93,7 @@ test('offline pokazuje lokalne i cached bez próby wywołania OFF', async () => 
 
 test('429 blokuje kolejne typy zapytań; timeout/5xx zachowują fallback', async () => {
   const { repository, counts, tick } = setup({ search: async () => { throw new ProductError('rate-limit', 120000); } });
-  assert.equal((await repository.search('mleko')).error.code, 'rate-limit');
+  assert.equal((await repository.searchProducts('mleko')).error.code, 'rate-limit');
   assert.equal((await repository.getProductByBarcode(products[0].barcode)).error.code, 'throttle');
   assert.deepEqual(counts(), { searches: 1, lookups: 0 });
   tick(120000);
@@ -102,7 +101,7 @@ test('429 blokuje kolejne typy zapytań; timeout/5xx zachowują fallback', async
   assert.equal(counts().lookups, 1);
   for (const code of ['timeout', 'server', 'response', 'network']) {
     const setupCase = setup({ search: async () => { throw new ProductError(code); } });
-    const result = await setupCase.repository.search('mleko');
+    const result = await setupCase.repository.searchProducts('mleko');
     assert.equal(result.error.code, code);
     assert.ok(result.products.some(product => product.id === 'milk-2-percent'));
   }

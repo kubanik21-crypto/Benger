@@ -676,7 +676,8 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /Marka testowa/);
     assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /100 ml/);
     const request = apiRequests()[0];
-    assert.match(Object.entries(request.headers).find(([key]) => key.toLowerCase() === 'x-user-agent')[1], /^Benger\/0.3/);
+    assert.equal(Object.entries(request.headers).some(([key]) => key.toLowerCase() === 'x-user-agent'), false);
+    assert.equal(Object.entries(request.headers).find(([key]) => key.toLowerCase() === 'accept')[1], 'application/json');
     assert.equal(new URL(request.url).searchParams.get('page_size'), '20');
     // Natywny fetch przeszedł kontrolę CORS Chromium; test nie podmienia window.fetch.
     assert.equal(await a.evaluate('fetch.toString().includes("[native code]")'), true);
@@ -693,6 +694,8 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     assert.equal(entry.barcode, '5901234123457'); assert.equal(entry.nutrition.kcal, 100);
     assert.ok(!Object.hasOwn(entry, 'nutriments')); assert.ok(!Object.hasOwn(entry, 'imageUrl'));
     await waitFor(a, "document.querySelector('#recent-products [data-product-id]')?.dataset.productId.startsWith('off:')");
+    await waitFor(a, `(async()=>{const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();const memory=await repo.selectionMemory('mleko 2 procent');await repo.close();return memory.length>0;})()`);
+    assert.equal(await a.evaluate(`(async()=>{const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();const memory=await repo.selectionMemory('mleko 2%');await repo.close();return memory[0].count;})()`), 1);
     assert.deepEqual(await a.outputs('total'), ['100', '6,8', '4', '9,6']);
   });
   await t.test('ulubione i cache są trwałe po odświeżeniu; produkt i świeży query bez kolejnego fetch', async () => {
@@ -895,5 +898,37 @@ test('Preview Etapu 3 — osobna pamięć i kompletny artefakt w zagnieżdżonym
   assert.equal(result.requests.length, 2); assert.ok(result.requests.every(request => request.http === 200 && request.corsReadable));
   assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
   assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
+  assert.deepEqual(browser.errors, []);
+});
+
+test('Migracja IndexedDB v1 → v2 i pamięć wyborów w dwóch kartach', { timeout: 120000 }, async t => {
+  const browser = await startBrowser({ staticPrefix: '/Benger/', mockOFF: true });
+  t.after(() => browser.close());
+  const initial = await browser.page(new URL('off-diagnostics.html', browser.base).href, { diagnostic: true });
+  const raw = JSON.parse(await readFile(new URL('./tests/fixtures/off-products.json', import.meta.url))).products[0];
+  const { normalizeOffProduct } = await import('./product-providers/open-food-facts.js');
+  const product = normalizeOffProduct(raw);
+  await initial.evaluate(`new Promise((resolve,reject)=>{
+    const request=indexedDB.open('BengerDB',1);
+    request.onupgradeneeded=()=>{for(const name of ['products','usage','searches','meta'])request.result.createObjectStore(name,{keyPath:'key'});};
+    request.onerror=()=>reject(request.error);
+    request.onsuccess=()=>{
+      const db=request.result;const tx=db.transaction(['products','usage'],'readwrite');
+      tx.objectStore('products').put({key:${JSON.stringify(product.id)},product:${JSON.stringify(product)},fetchedAt:Date.now(),revision:2});
+      tx.objectStore('usage').put({key:${JSON.stringify(product.id)},favorite:true,favoriteAt:Date.now(),lastUsedAt:null,order:0});
+      tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>reject(tx.error);
+    };
+  })`);
+  const a = await browser.page(), b = await browser.page();
+  assert.equal(await a.evaluate("(async()=> (await indexedDB.databases()).find(db=>db.name==='BengerDB').version)()"), 2);
+  assert.equal(await a.evaluate("document.querySelector('#favorite-products [data-product-id]').dataset.productId"), product.id);
+  const remember = `(async()=>{const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();await repo.rememberSelection('mleko 2 procent',await repo.getProductById(${JSON.stringify(product.id)}));await repo.close();})()`;
+  await Promise.all([a.evaluate(remember), b.evaluate(remember)]);
+  await a.reload();
+  const preference = await a.evaluate(`(async()=>{
+    const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();const memory=await repo.selectionMemory('MLEKO 2%');await repo.close();return memory;
+  })()`);
+  assert.equal(preference.length, 1); assert.equal(preference[0].count, 2);
+  assert.equal(browser.off.requests.filter(request => new URL(request.url).hostname === 'world.openfoodfacts.org').length, 0, 'Migracja i pamięć nie wywołują API.');
   assert.deepEqual(browser.errors, []);
 });

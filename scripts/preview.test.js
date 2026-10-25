@@ -22,6 +22,8 @@ test('artefakt zawiera wyłącznie publiczne pliki, komplet modułów i izolacj�
     assert.ok(html.includes('Oddzielne dane lokalne'));
   }
   assert.match(await readFile(join(directory, 'app.js'), 'utf8'), /\.\/app-storage\.js/);
+  assert.ok((await readFile(join(directory, 'index.html'), 'utf8')).includes(`src="./app.js?v=${revision}"`));
+  assert.ok((await readFile(join(directory, 'product-repository.js'), 'utf8')).includes(`./product-cache.js?v=${revision}`));
   assert.match(await readFile(join(directory, 'product-providers/open-food-facts.js'), 'utf8'), /OFF_API_VERSION = '3.6'/);
 });
 

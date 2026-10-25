@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createOpenFoodFactsProvider, normalizeOffProduct, OFF_FIELDS, OFF_APP_ID } from './open-food-facts.js';
+import { createCgiSearchProvider } from './off-search.js';
 import { isProduct } from '../product-model.js';
+
+const createTestProvider = options => ({ ...createOpenFoodFactsProvider(options), search: createCgiSearchProvider(options).searchProducts });
 
 const fixtures = JSON.parse(await readFile(new URL('../tests/fixtures/off-products.json', import.meta.url)));
 const sample = () => structuredClone(fixtures.products[0]);
@@ -94,9 +97,9 @@ test('nie konwertuje kJ ani nie przyjmuje prepared_100g jako danych as sold', ()
   assert.equal(normalizeOffProduct(raw), null);
 });
 
-test('provider ogranicza fields i liczbę wyników, używa właściwego full-text endpointu i X-User-Agent', async () => {
+test('search ogranicza fields i wyniki oraz używa simple GET z samym Accept, bez X-User-Agent', async () => {
   let captured;
-  const provider = createOpenFoodFactsProvider({ fetchImpl: async (url, options) => {
+  const provider = createTestProvider({ fetchImpl: async (url, options) => {
     captured = { url: new URL(url), options };
     return response({ products: Array.from({ length: 25 }, sample) });
   } });
@@ -107,7 +110,7 @@ test('provider ogranicza fields i liczbę wyników, używa właściwego full-tex
   assert.equal(captured.url.searchParams.get('api_version'), '3.6');
   assert.equal(captured.url.searchParams.get('page_size'), '20');
   assert.equal(captured.url.searchParams.get('fields'), OFF_FIELDS.join(','));
-  assert.equal(captured.options.headers['X-User-Agent'], OFF_APP_ID);
+  assert.deepEqual(captured.options.headers, { Accept: 'application/json' });
   assert.equal(Object.hasOwn(captured.options.headers, 'User-Agent'), false);
   assert.equal(captured.options.credentials, 'omit');
   assert.equal(captured.options.mode, 'cors');
@@ -115,28 +118,29 @@ test('provider ogranicza fields i liczbę wyników, używa właściwego full-tex
 
 test('puste wyniki i brak makro są poprawnym pustym wynikiem, błędny JSON daje błąd', async () => {
   for (const products of [[], [{}], [{ product_name: 'Bez makro', code: '5901234123457' }]]) {
-    const provider = createOpenFoodFactsProvider({ fetchImpl: async () => response({ products }) });
+    const provider = createTestProvider({ fetchImpl: async () => response({ products }) });
     assert.deepEqual(await provider.search('mleko'), []);
   }
   for (const body of [null, {}, { products: 'wrong' }]) {
-    const provider = createOpenFoodFactsProvider({ fetchImpl: async () => response(body) });
+    const provider = createTestProvider({ fetchImpl: async () => response(body) });
     await assert.rejects(provider.search('mleko'), error => error.code === 'response');
   }
-  const invalid = createOpenFoodFactsProvider({ fetchImpl: async () => new Response('invalid JSON') });
+  const invalid = createTestProvider({ fetchImpl: async () => new Response('invalid JSON') });
   await assert.rejects(invalid.search('mleko'), error => error.code === 'response');
 });
 
 test('barcode lookup, 404, niepełny produkt i sprzeczny kod odpowiedzi', async () => {
-  const provider = createOpenFoodFactsProvider({ fetchImpl: async url => {
+  const provider = createTestProvider({ fetchImpl: async (url, options) => {
     assert.equal(new URL(url).pathname, '/api/v3.6/product/5901234123457');
+    assert.equal(options.headers['X-User-Agent'], OFF_APP_ID);
     return response({ product: sample() });
   } });
   assert.equal((await provider.getProductByBarcode('5901234123457')).unit, 'ml');
   for (const value of [null, { status: 0 }]) {
-    const missing = createOpenFoodFactsProvider({ fetchImpl: async () => response(value, value === null ? 404 : 200) });
+    const missing = createTestProvider({ fetchImpl: async () => response(value, value === null ? 404 : 200) });
     assert.equal(await missing.getProductByBarcode('5901234123457'), null);
   }
-  const invalid = createOpenFoodFactsProvider({ fetchImpl: async () => response({ product: fixtures.products[1] }) });
+  const invalid = createTestProvider({ fetchImpl: async () => response({ product: fixtures.products[1] }) });
   await assert.rejects(invalid.getProductByBarcode('5901234123457'), error => error.code === 'response');
 });
 
@@ -148,14 +152,14 @@ test('429 respektuje Retry-After, 5xx, offline i timeout są rozróżniane', asy
     [async () => new Promise(() => {}), 'timeout'],
   ];
   for (const [fetchImpl, code] of cases) {
-    const provider = createOpenFoodFactsProvider({ fetchImpl, timeoutMs: 10 });
+    const provider = createTestProvider({ fetchImpl, timeoutMs: 10 });
     await assert.rejects(provider.search('mleko'), error => error.code === code && (code !== 'rate-limit' || error.retryAfterMs === 120000));
   }
 });
 
 test('nieprawidłowe zapytanie i kod nie wykonują fetch; anulowanie nie jest wyciszane', async () => {
   let count = 0;
-  const provider = createOpenFoodFactsProvider({ fetchImpl: async (_, { signal }) => {
+  const provider = createTestProvider({ fetchImpl: async (_, { signal }) => {
     count++;
     return new Promise((resolve, reject) => signal.addEventListener('abort', () => reject(signal.reason), { once: true }));
   } });
@@ -183,7 +187,7 @@ test('API 3.6: marka z lokalizowanego pola, bez wyświetlania stratnych ID ani t
 
 test('żądania 3.6 nie zależą od brands_hierarchy ani brands_lc usuniętych w nowym schemacie', async () => {
   let target;
-  const provider = createOpenFoodFactsProvider({ fetchImpl: async url => { target = new URL(url); return response({ product: sample() }); } });
+  const provider = createTestProvider({ fetchImpl: async url => { target = new URL(url); return response({ product: sample() }); } });
   const product = await provider.getProductByBarcode('5901234123457');
   assert.equal(target.pathname, '/api/v3.6/product/5901234123457');
   const fields = target.searchParams.get('fields').split(',');
@@ -193,6 +197,6 @@ test('żądania 3.6 nie zależą od brands_hierarchy ani brands_lc usuniętych w
 });
 
 test('rzeczywista odpowiedź HTTP 403 jest odróżniana od błędu schematu i sieci', async () => {
-  const provider = createOpenFoodFactsProvider({ fetchImpl: async () => response({}, 403) });
+  const provider = createTestProvider({ fetchImpl: async () => response({}, 403) });
   await assert.rejects(provider.search('mleko 2%'), error => error.code === 'forbidden');
 });

@@ -1,6 +1,7 @@
 import { createOpenFoodFactsProvider, OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js';
 import { createProductCache } from './product-cache.js';
 import { productErrorMessage, ProductError } from './product-errors.js';
+import { createCgiSearchProvider } from './product-providers/off-search.js';
 import { initSearchDiagnostics } from './off-search-diagnostics.js';
 
 const $ = id => document.getElementById(id);
@@ -24,12 +25,14 @@ $('run-off-diagnostics').addEventListener('click', async () => {
   button.disabled = true; $('download-off-report').disabled = true;
   $('diagnostic-status').textContent = 'Sprawdzam prawdziwe odpowiedzi Open Food Facts…';
   report = { checkedAt: new Date().toISOString(), page: location.href, apiVersion: OFF_API_VERSION, identification: OFF_APP_ID, requests: [], search: null, barcode: null, passed: false };
-  const provider = createOpenFoodFactsProvider({ fetchImpl: async (url, options) => {
+  const captureFetch = async (url, options) => {
     const entry = { url, http: null, corsReadable: false };
     report.requests.push(entry);
     try { const response = await fetch(url, options); entry.http = response.status; entry.corsReadable = response.type === 'cors'; return response; }
     catch { entry.networkError = true; throw new ProductError('network'); }
-  } });
+  };
+  const provider = createOpenFoodFactsProvider({ fetchImpl: captureFetch });
+  const searchProvider = createCgiSearchProvider({ fetchImpl: captureFetch });
   async function run(kind, interval, operation) {
     try {
       const delay = await cache.reserveRequest(kind, interval);
@@ -43,7 +46,7 @@ $('run-off-diagnostics').addEventListener('click', async () => {
     }
   }
   try {
-    report.search = await run('search', 6500, () => provider.search('mleko 2%'));
+    report.search = await run('search', 6500, () => searchProvider.searchProducts('mleko 2%'));
     report.barcode = await run('product', 4500, () => provider.getProductByBarcode('3017620422003'));
     report.passed = report.search.ok && report.barcode.ok
       && Boolean(report.search.product?.brand) && Boolean(report.barcode.product?.brand)

@@ -27,7 +27,12 @@ export async function preparePreview(destination, revision) {
       html = html.replace('<head>', `<head>\n  <meta name="benger-storage-namespace" content="preview-etap-3">\n  <meta name="benger-build" content="${revision}">`);
       const banner = `<aside style="padding:16px;background:#174d3c;color:white;font:14px/1.6 system-ui">Podgląd Etapu 3 · ${revision.slice(0, 7)} · Oddzielne dane lokalne. <a style="color:white" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:white" href="../../">Wersja główna</a></aside>`;
       html = html.replace('<body>', `<body>\n${banner}`);
+      html = html.replace(/((?:src|href)="\.\/[^"?]+\.(?:js|css|webmanifest))"/g, `$1?v=${revision}"`);
       await writeFile(target, html);
+    } else if (file.endsWith('.js')) {
+      // Cały graf ES modules ma ten sam SHA; świeży index nie miesza się ze starym cache Pages.
+      const javascript = (await readFile(source, 'utf8')).replace(/(\bfrom\s+['"])(\.\.?\/[^'"]+\.js)(['"])/g, `$1$2?v=${revision}$3`);
+      await writeFile(target, javascript);
     } else await copyFile(source, target);
   }
   await writeFile(resolve(output, '.nojekyll'), '');

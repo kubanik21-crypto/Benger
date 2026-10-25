@@ -1,5 +1,6 @@
 import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } from '../product-model.js';
 import { ProductError } from '../product-errors.js';
+import { createOffJsonClient } from './off-http.js';
 
 export const OFF_BASE_URL = 'https://world.openfoodfacts.org';
 export const OFF_API_VERSION = '3.6';
@@ -61,49 +62,8 @@ export function normalizeOffProduct(raw) {
   return isProduct(product) ? copyProduct(product) : null;
 }
 
-function retryDelay(value) {
-  if (value === null) return 60_000;
-  const seconds = Number(value);
-  if (Number.isFinite(seconds) && seconds >= 0) return Math.max(60_000, Math.min(Number.MAX_SAFE_INTEGER - Date.now(), seconds * 1000));
-  const date = Date.parse(value);
-  return Number.isFinite(date) ? Math.max(60_000, date - Date.now()) : 60_000;
-}
-
 export function createOpenFoodFactsProvider({ fetchImpl = globalThis.fetch, timeoutMs = OFF_REQUEST_TIMEOUT_MS, baseUrl = OFF_BASE_URL } = {}) {
-  async function getJson(url, signal) {
-    if (signal?.aborted) throw new ProductError('cancelled');
-    const controller = new AbortController();
-    let timedOut = false;
-    const cancel = () => controller.abort();
-    signal?.addEventListener('abort', cancel, { once: true });
-    let timer;
-    try {
-      const operation = (async () => {
-        const response = await fetchImpl(url.href, {
-          method: 'GET', mode: 'cors', credentials: 'omit',
-          headers: { Accept: 'application/json', 'X-User-Agent': OFF_APP_ID }, signal: controller.signal,
-        });
-        if (response.status === 429) throw new ProductError('rate-limit', retryDelay(response.headers.get('Retry-After')));
-        if (response.status === 403) throw new ProductError('forbidden');
-        if (response.status >= 500) throw new ProductError('server');
-        if (response.status === 404) return null;
-        if (!response.ok) throw new ProductError('response');
-        try { return await response.json(); } catch { throw new ProductError('response'); }
-      })();
-      const deadline = new Promise((_, reject) => {
-        timer = setTimeout(() => { timedOut = true; controller.abort(); reject(new ProductError('timeout')); }, timeoutMs);
-      });
-      return await Promise.race([operation, deadline]);
-    } catch (error) {
-      if (timedOut) throw new ProductError('timeout');
-      if (signal?.aborted) throw new ProductError('cancelled');
-      if (error instanceof ProductError) throw error;
-      throw new ProductError('network');
-    } finally {
-      clearTimeout(timer);
-      signal?.removeEventListener('abort', cancel);
-    }
-  }
+  const getJson = createOffJsonClient({ fetchImpl, timeoutMs, headers: { Accept: 'application/json', 'X-User-Agent': OFF_APP_ID } });
   function url(path) {
     const target = new URL(path, baseUrl);
     target.searchParams.set('fields', OFF_FIELDS.join(','));
@@ -112,16 +72,6 @@ export function createOpenFoodFactsProvider({ fetchImpl = globalThis.fetch, time
   }
   return {
     source: 'openfoodfacts',
-    async search(query, { signal } = {}) {
-      const term = typeof query === 'string' ? query.trim().replace(/\s+/g, ' ') : '';
-      if (term.length < 3 || term.length > 120) throw new ProductError('query');
-      // Oficjalne CGI obsługuje pełny tekst i api_version; /api/v2/search nie obsługuje search_terms.
-      const target = url('/cgi/search.pl');
-      for (const [key, value] of Object.entries({ search_terms: term, search_simple: 1, action: 'process', json: 1, api_version: OFF_API_VERSION, page: 1, page_size: 20 })) target.searchParams.set(key, value);
-      const data = await getJson(target, signal);
-      if (!data || !Array.isArray(data.products)) throw new ProductError('response');
-      return data.products.slice(0, 20).map(normalizeOffProduct).filter(Boolean);
-    },
     async getProductByBarcode(value, { signal } = {}) {
       const code = normalizeBarcode(value);
       if (!code) throw new ProductError('barcode');

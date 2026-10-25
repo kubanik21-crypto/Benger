@@ -151,3 +151,22 @@ test('cache sprzed aktualizacji providera pozostaje offline, ale nie blokuje pob
   assert.deepEqual(await cache.favoriteIds(), [p.id]);
   await cache.putProducts([p]); assert.equal((await cache.getProduct(p.id)).fresh, true);
 });
+
+test('pamięć fraz normalizuje procenty, liczy wybory i chroni produkt przed usunięciem', async () => {
+  const { cache, storage } = setup(1);
+  const p = product(1);
+  await cache.putProducts([p]);
+  await Promise.all([cache.rememberSelection('mleko 2%', p), cache.rememberSelection('MLEKO 2 PROCENT', p)]);
+  const choices = await cache.selectionMemory('mleko 2,0 procent');
+  assert.equal(choices.length, 1); assert.equal(choices[0].count, 2);
+  await storage.removeUnprotectedProducts([p.id]); assert.ok(await cache.getProduct(p.id));
+  choices[0].count = 999;
+  assert.equal((await cache.selectionMemory('mleko 2%'))[0].count, 2);
+});
+
+test('uszkodzone dopasowanie nie jest traktowane jako wiedza użytkownika', async () => {
+  const { cache, storage } = setup();
+  await storage.mutate('selections', 'mleko', () => ({ key: 'mleko', choices: [{ productId: 'bad', count: '100', lastUsedAt: Date.now() }] }));
+  assert.deepEqual(await cache.selectionMemory('mleko'), []);
+  await assert.rejects(cache.rememberSelection('', product(1)));
+});

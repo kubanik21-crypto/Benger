@@ -1,11 +1,12 @@
 import { copyProduct, isProduct, normalizeText } from './product-model.js';
 import { PRODUCT_DB_NAME } from './app-storage.js';
+import { normalizeFoodQuery } from './food-query.js';
 
 export const PRODUCT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const SEARCH_TTL_MS = 15 * 60 * 1000;
 // Rev 2: nazwy marek z API 3.6. Starsze kopie pozostają dostępne offline, ale nie są świeże.
 export const PRODUCT_CACHE_REVISION = 2;
-const STORES = ['products', 'usage', 'searches', 'meta'];
+const STORES = ['products', 'usage', 'searches', 'meta', 'selections'];
 function availableIndexedDB() {
   try { return globalThis.indexedDB; } catch { return null; }
 }
@@ -13,7 +14,15 @@ const validUsage = record => record && typeof record.key === 'string' && typeof 
   && (record.lastUsedAt === null || Number.isFinite(record.lastUsedAt)) && Number.isFinite(record.order);
 const recentUsage = records => records.filter(validUsage).filter(record => record.lastUsedAt !== null)
   .sort((a, b) => b.lastUsedAt - a.lastUsedAt || b.order - a.order).slice(0, 20);
-const protectedIds = records => new Set([...recentUsage(records).map(record => record.key), ...records.filter(validUsage).filter(record => record.favorite).map(record => record.key)]);
+const validSelection = record => record && typeof record.key === 'string' && record.key.length >= 3 && record.key.length <= 120
+  && normalizeFoodQuery(record.key) === record.key && Array.isArray(record.choices) && record.choices.length > 0 && record.choices.length <= 5
+  && record.choices.every(choice => choice && typeof choice.productId === 'string' && choice.productId.length > 0 && choice.productId.length <= 240
+    && Number.isSafeInteger(choice.count) && choice.count > 0 && Number.isFinite(choice.lastUsedAt) && choice.lastUsedAt >= 0)
+  && new Set(record.choices.map(choice => choice.productId)).size === record.choices.length;
+const protectedIds = (records, selections = []) => new Set([
+  ...recentUsage(records).map(record => record.key), ...records.filter(validUsage).filter(record => record.favorite).map(record => record.key),
+  ...selections.filter(validSelection).flatMap(record => record.choices.map(choice => choice.productId)),
+]);
 
 // Produkty OFF są oddzielnym zbiorem. usage przechowuje tylko referencje i preferencje użytkownika.
 export function createProductStorage({ indexedDBFactory = availableIndexedDB(), name = PRODUCT_DB_NAME } = {}) {
@@ -31,7 +40,7 @@ export function createProductStorage({ indexedDBFactory = availableIndexedDB(), 
       };
       const timer = setTimeout(() => finish(null), 3000);
       try {
-        const request = indexedDBFactory.open(name, 1);
+        const request = indexedDBFactory.open(name, 2);
         request.onupgradeneeded = () => {
           for (const store of STORES) if (!request.result.objectStoreNames.contains(store)) request.result.createObjectStore(store, { keyPath: 'key' });
         };
@@ -99,21 +108,26 @@ export function createProductStorage({ indexedDBFactory = availableIndexedDB(), 
       try {
         removed = await new Promise((resolve, reject) => {
           // Sprawdzenie preferencji i usuwanie w jednej transakcji: inna karta nie utraci ulubionego.
-          const tx = db.transaction(['products', 'usage'], 'readwrite');
+          const tx = db.transaction(['products', 'usage', 'selections'], 'readwrite');
           const request = tx.objectStore('usage').getAll();
+          const selectionRequest = tx.objectStore('selections').getAll();
+          let usage, selections;
           let deleted = [];
-          request.onsuccess = () => {
-            const pinned = protectedIds(request.result);
+          const remove = () => {
+            if (!usage || !selections) return;
+            const pinned = protectedIds(usage, selections);
             deleted = keys.filter(key => !pinned.has(key));
             for (const key of deleted) tx.objectStore('products').delete(key);
           };
+          request.onsuccess = () => { usage = request.result; remove(); };
+          selectionRequest.onsuccess = () => { selections = selectionRequest.result; remove(); };
           tx.oncomplete = () => resolve(deleted);
           tx.onerror = tx.onabort = () => reject(tx.error);
         });
       } catch { degrade(); }
     }
     if (!persistent) {
-      const pinned = protectedIds([...memory.usage.values()]);
+      const pinned = protectedIds([...memory.usage.values()], [...memory.selections.values()]);
       removed = keys.filter(key => !pinned.has(key));
     }
     for (const key of removed) memory.products.delete(key);
@@ -141,7 +155,7 @@ export function createProductCache({ storage = createProductStorage(), now = () 
   }
   async function prune() {
     const records = (await storage.read('products')).filter(validRecord);
-    const pinned = new Set([...(await recentIds()), ...(await usage()).filter(record => record.favorite).map(record => record.key)]);
+    const pinned = protectedIds(await usage(), await storage.read('selections'));
     const ordinary = records.filter(record => !pinned.has(record.key)).sort((a, b) => a.fetchedAt - b.fetchedAt);
     await storage.removeUnprotectedProducts(ordinary.slice(0, Math.max(0, ordinary.length - maxProducts)).map(record => record.key));
     const searches = await storage.read('searches');
@@ -197,6 +211,28 @@ export function createProductCache({ storage = createProductStorage(), now = () 
     recentIds,
     async favoriteIds() { return (await usage()).filter(record => record.favorite).sort((a, b) => (b.favoriteAt ?? 0) - (a.favoriteAt ?? 0)).map(record => record.key); },
     setFavorite,
+    async selectionMemory(query) {
+      const record = await storage.read('selections', normalizeFoodQuery(query));
+      return validSelection(record) ? structuredClone(record.choices).sort((a, b) => b.count - a.count || b.lastUsedAt - a.lastUsedAt || a.productId.localeCompare(b.productId)) : [];
+    },
+    async rememberSelection(query, product) {
+      const key = normalizeFoodQuery(query);
+      if (key.length < 3 || key.length > 120) throw new TypeError('Nieprawidłowa fraza dopasowania.');
+      copyProduct(product);
+      await storage.mutate('selections', key, previous => {
+        const choices = validSelection(previous) ? structuredClone(previous.choices) : [];
+        const choice = choices.find(item => item.productId === product.id);
+        if (choice) { choice.count = Math.min(choice.count + 1, 1000000); choice.lastUsedAt = now(); }
+        else choices.push({ productId: product.id, count: 1, lastUsedAt: now() });
+        choices.sort((a, b) => b.count - a.count || b.lastUsedAt - a.lastUsedAt || a.productId.localeCompare(b.productId));
+        return { key, choices: choices.slice(0, 5) };
+      });
+      await ensureProducts([product]);
+      const records = (await storage.read('selections')).filter(validSelection).sort((a, b) =>
+        Math.max(...b.choices.map(choice => choice.lastUsedAt)) - Math.max(...a.choices.map(choice => choice.lastUsedAt)));
+      for (const record of records.slice(200)) await storage.mutate('selections', record.key, () => null);
+      await prune();
+    },
     async markUsed(products, usedAt = now()) {
       products.forEach(copyProduct);
       for (const product of products) {

@@ -3,11 +3,12 @@ import { createLocalProvider } from './product-providers/local.js';
 import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js';
 import { createProductCache } from './product-cache.js';
 import { ProductError } from './product-errors.js';
+import { defaultSearchProvider } from './product-providers/off-search.js';
 
 export const SEARCH_INTERVAL_MS = 6500; // poniżej 10 wyszukiwań/minutę
 export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minutę
 
-export function createProductRepository({ local = createLocalProvider(), remote = createOpenFoodFactsProvider(), cache = createProductCache(), isOnline = () => globalThis.navigator?.onLine !== false } = {}) {
+export function createProductRepository({ local = createLocalProvider(), remote = createOpenFoodFactsProvider(), searchProvider = defaultSearchProvider(), cache = createProductCache(), isOnline = () => globalThis.navigator?.onLine !== false } = {}) {
   const inFlight = new Map();
   const fromCache = async id => local.getById(id) ?? (await cache.getProduct(id))?.product ?? null;
   const localMatches = async query => searchProducts([...local.list(), ...(await cache.allProducts())], query);
@@ -35,18 +36,21 @@ export function createProductRepository({ local = createLocalProvider(), remote 
   return {
     ready: cache.ready,
     localProducts: local.list,
+    async allCachedProducts() { return deduplicateProducts([...local.list(), ...(await cache.allProducts())]); },
+    getProductById: fromCache,
     persistent: cache.persistent,
-    async search(query, options = {}) {
+    async searchProducts(query, options = {}) {
       const term = typeof query === 'string' ? query.trim().replace(/\s+/g, ' ') : '';
       if (term.length < 3 || term.length > 120) throw new ProductError('query');
       const available = await localMatches(term);
       if (!isOnline()) return { products: available, status: 'offline', error: new ProductError('offline') };
-      const cached = await cache.getSearch(term);
+      const searchKey = `${searchProvider.id ?? 'custom'}:${term}`;
+      const cached = await cache.getSearch(searchKey);
       if (cached !== null) return { products: merge([...available, ...cached]), status: 'cached', error: null };
       try {
-        const products = await request(`search:${normalizeText(term)}`, 'search', () => remote.search(term, options));
+        const products = await request(`search:${normalizeText(searchKey)}`, 'search', () => searchProvider.searchProducts(term, options));
         await cache.putProducts(products);
-        await cache.putSearch(term, products);
+        await cache.putSearch(searchKey, products);
         const normalized = await productsFor(products.map(product => product.id));
         return { products: merge([...(await localMatches(term)), ...normalized]), status: 'online', error: null };
       } catch (error) {
@@ -70,10 +74,12 @@ export function createProductRepository({ local = createLocalProvider(), remote 
       }
     },
     async recentProducts() { return productsFor(await cache.recentIds()); },
-    async favoriteProducts() { return productsFor((await cache.favoriteIds()).slice(0, 20)); },
+    async favoriteProducts({ limit = 20 } = {}) { return productsFor((await cache.favoriteIds()).slice(0, limit)); },
     favoriteIds: cache.favoriteIds,
     setFavorite: cache.setFavorite,
     markUsed: cache.markUsed,
+    selectionMemory: cache.selectionMemory,
+    rememberSelection: cache.rememberSelection,
     async seedRecentFromDiary(entries) {
       if ((await cache.recentIds()).length) return;
       // Starsze wpisy Etapu 2 mogą wskazywać wyłącznie katalog lokalny.
