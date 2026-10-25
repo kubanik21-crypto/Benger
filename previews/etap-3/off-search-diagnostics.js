@@ -1,7 +1,7 @@
-import { OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
-import { createCgiSearchProvider } from './product-providers/off-search.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
-import { createProductCache } from './product-cache.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
-import { ProductError, productErrorMessage } from './product-errors.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
+import { createCgiSearchProvider } from './product-providers/off-search.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
+import { createProductCache } from './product-cache.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
+import { ProductError, productErrorMessage } from './product-errors.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
 
 export const SEARCHALICIOUS_URL = 'https://search.openfoodfacts.org/search';
 export function searchaliciousDiagnosticUrl() {
@@ -11,7 +11,7 @@ export function searchaliciousDiagnosticUrl() {
   return url;
 }
 
-// Porównanie transportów, bez zmiany identyfikacji używanej w aplikacji.
+// Porównanie transportów nie przełącza aktywnego adaptera ani jego konfiguracji.
 // JavaScript nie dostaje odpowiedzi OPTIONS. Jej faktyczny status sprawdza CDP/DevTools.
 export async function compareSearchTransports({ fetchImpl = globalThis.fetch, reserve = async () => {}, onRateLimit = async () => {}, onProgress = () => {}, timeoutMs = 10000 } = {}) {
   const report = { checkedAt: new Date().toISOString(), apiVersion: OFF_API_VERSION, query: 'mleko 2%', comparisons: [] };

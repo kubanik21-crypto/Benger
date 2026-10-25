@@ -1,8 +1,8 @@
-import { createOpenFoodFactsProvider, OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
-import { createProductCache } from './product-cache.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
-import { productErrorMessage, ProductError } from './product-errors.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
-import { createCgiSearchProvider } from './product-providers/off-search.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
-import { initSearchDiagnostics } from './off-search-diagnostics.js?v=0dd26ac7e3d5bd2730a15f6f4680b1b2cf734d65';
+import { createOpenFoodFactsProvider, OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
+import { createProductCache } from './product-cache.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
+import { productErrorMessage, ProductError } from './product-errors.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
+import { createCgiSearchProvider } from './product-providers/off-search.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
+import { initSearchDiagnostics } from './off-search-diagnostics.js?v=91447d0038b127b18d80268fa403a0b6de5bf77e';
 
 const $ = id => document.getElementById(id);
 let report = null;
@@ -24,9 +24,11 @@ $('run-off-diagnostics').addEventListener('click', async () => {
   if (button.disabled) return;
   button.disabled = true; $('download-off-report').disabled = true;
   $('diagnostic-status').textContent = 'Sprawdzam prawdziwe odpowiedzi Open Food Facts…';
-  report = { checkedAt: new Date().toISOString(), page: location.href, apiVersion: OFF_API_VERSION, identification: OFF_APP_ID, requests: [], search: null, barcode: null, passed: false };
+  report = { checkedAt: new Date().toISOString(), page: location.href, apiVersion: OFF_API_VERSION,
+    identification: { search: 'Native browser User-Agent; Accept only', barcode: OFF_APP_ID },
+    requests: [], search: null, barcode: null, passed: false };
   const captureFetch = async (url, options) => {
-    const entry = { url, http: null, corsReadable: false };
+    const entry = { url, requestHeaders: { ...options.headers }, http: null, corsReadable: false };
     report.requests.push(entry);
     try { const response = await fetch(url, options); entry.http = response.status; entry.corsReadable = response.type === 'cors'; return response; }
     catch { entry.networkError = true; throw new ProductError('network'); }
