@@ -27,10 +27,14 @@ jobs:
           node-version: '22'
           package-manager-cache: false
       - name: Tests
+        shell: bash
         run: |
-          npm test
-          CHROMIUM_PATH=/usr/bin/google-chrome npm run test:browser
+          npm test 2>&1 | tee "$RUNNER_TEMP/benger-node-tests.log"
+          CHROMIUM_PATH=/usr/bin/google-chrome npm run test:browser 2>&1 | tee "$RUNNER_TEMP/benger-browser-tests.log"
           git diff --check
+      - name: Raport testów
+        if: always()
+        run: node scripts/ci-test-report.mjs "$RUNNER_TEMP/benger-node-tests.log" "$RUNNER_TEMP/benger-browser-tests.log"
       - name: Prepare public artifact
         run: node scripts/prepare-preview.mjs /tmp/benger-preview "$GITHUB_SHA"
       - uses: actions/upload-artifact@v4
