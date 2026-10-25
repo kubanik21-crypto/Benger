@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, etap-3-katalog-produktow]
+    branches: [main, etap-3-katalog-produktow, etap-4-voice-first]
 
 permissions:
   contents: read
