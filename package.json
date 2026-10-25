@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test nutrition.test.js meal-parser.test.js server.test.js",
-    "test:browser": "node --test browser.test.js"
+    "test": "node --test nutrition.test.js meal-parser.test.js server.test.js product-model.test.js product-cache.test.js product-repository.test.js product-providers/*.test.js scripts/preview.test.js off-search-diagnostics.test.js product-resolver.test.js",
+    "test:browser": "node --test browser.test.js",
+    "test:off:live": "node scripts/off-live-test.mjs",
+    "preview:publish": "node scripts/publish-preview.mjs --push"
   }
 }

@@ -58,7 +58,43 @@
         </div>
         <button id="save-meal-proposal" class="button-primary" type="button" disabled>Dodaj wszystko do dziennika</button>
       </section>
-      <p class="fine">Rozpoznajemy tylko produkty z lokalnego katalogu. Popraw tekst i ponów analizę, jeśli czegoś brakuje. Na tym etapie analizuje go prosty parser, bez AI.</p>
+      <p class="fine">Rozpoznajemy tylko cztery produkty przykładowe z lokalnego katalogu; wyszukiwarka internetowa poniżej działa oddzielnie. Popraw tekst i ponów analizę, jeśli czegoś brakuje. Na tym etapie analizuje go prosty parser, bez AI.</p>
+    </section>
+    <section id="product-catalog" class="panel product-catalog" aria-labelledby="catalog-title">
+      <p class="eyebrow">ZNAJDŹ SWÓJ PRODUKT</p>
+      <h2 id="catalog-title">Katalog produktów</h2>
+      <form id="product-search-form" class="catalog-search" role="search" novalidate>
+        <label for="product-search">Szukaj produktu po nazwie lub marce</label>
+        <div class="search-line">
+          <input id="product-search" type="search" maxlength="120" placeholder="np. mleko łaciate 2%" aria-describedby="search-help catalog-message" autocomplete="off">
+          <button id="search-products" type="submit" class="button-secondary">Szukaj</button>
+        </div>
+        <p id="search-help" class="field-help">Minimum 3 znaki. Szukamy dopiero po kliknięciu lub Enter. Maksymalnie 20 wyników.</p>
+      </form>
+      <details class="barcode-lookup">
+        <summary>Masz kod kreskowy?</summary>
+        <form id="barcode-form" novalidate>
+          <label for="barcode">Kod kreskowy EAN / UPC</label>
+          <div class="search-line">
+            <input id="barcode" type="text" inputmode="numeric" maxlength="24" placeholder="np. 5901234123457" autocomplete="off" aria-describedby="catalog-message">
+            <button id="find-barcode" class="button-secondary" type="submit">Znajdź</button>
+          </div>
+        </form>
+      </details>
+      <p id="catalog-connection" class="field-help" role="status"></p>
+      <p id="catalog-storage-message" class="field-error" role="status"></p>
+      <p id="catalog-message" class="catalog-message" role="status" aria-live="polite"></p>
+      <ul id="search-results" class="product-list search-results" aria-label="Wyniki wyszukiwania" aria-busy="false"></ul>
+      <div class="saved-catalogs">
+        <section aria-labelledby="recent-title"><h3 id="recent-title">Ostatnio używane</h3><ul id="recent-products" class="product-list"></ul></section>
+        <section aria-labelledby="favorites-title"><h3 id="favorites-title">Ulubione</h3><p class="field-help">20 ostatnio oznaczonych. Pozostałe znajdziesz przez wyszukiwanie lokalne.</p><ul id="favorite-products" class="product-list"></ul></section>
+      </div>
+      <details class="basic-catalog" open>
+        <summary>Podstawowy katalog Bengera · 4 przykłady</summary>
+        <p class="fine">Dane edukacyjne, bez wskazania marki. Nie zastępują etykiety produktu.</p>
+        <ul id="basic-products" class="product-list"></ul>
+      </details>
+      <p class="fine">Dane społeczności Open Food Facts mogą zawierać błędy. Sprawdź produkt i etykietę przed dodaniem. B/T/W to gramy białka, tłuszczu i węglowodanów.</p>
     </section>
     <div class="workspace">
       <section class="panel calculator" aria-labelledby="calculator-title">
@@ -68,8 +104,8 @@
           <label for="nutrition-meal">Posiłek</label>
           <select id="nutrition-meal" aria-describedby="nutrition-meal-error" aria-invalid="false"></select>
           <p id="nutrition-meal-error" class="field-error" role="alert"></p>
-          <label for="product">Produkt</label>
-          <select id="product" aria-describedby="product-error" aria-invalid="false"></select>
+          <p id="selected-product-label" class="field-label">Wybrany produkt</p>
+          <div id="product" class="selected-product" role="group" tabindex="-1" aria-labelledby="selected-product-label" aria-describedby="product-error" aria-invalid="false"></div>
           <p id="product-error" class="field-error" role="alert"></p>
           <label for="amount">Ilość</label>
           <div class="amount-field">
@@ -90,7 +126,7 @@
           <button id="add-nutrition" class="button-primary" type="submit">Dodaj do dziennika <span aria-hidden="true">+</span></button>
           <p id="calculator-message" class="success-message" role="status"></p>
         </form>
-        <p class="fine">Katalog zawiera dane przykładowe do celów edukacyjnych. Wartości nie opisują konkretnych marek.</p>
+        <p class="fine">Wartości historyczne są zapisywane jako kopia. Aktualizacja katalogu nie zmieni Twoich wcześniejszych wpisów.</p>
       </section>
       <section class="day-diary" aria-labelledby="nutrition-title">
         <h2 id="nutrition-title" tabindex="-1">Twój wybrany dzień</h2>
@@ -124,6 +160,13 @@
       <button id="export" type="button" class="button-secondary">Eksportuj notatki tekstowe ↓</button>
       <p class="fine">Dyktowanie wymaga obsługiwanej przeglądarki, zgody na mikrofon i bezpiecznego połączenia. Dźwięk może być przetwarzany przez dostawcę przeglądarki.</p>
     </details>
+    <aside class="data-attribution fine" aria-label="Źródła i licencje danych">
+      Dane: <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener noreferrer">Open Food Facts i współtwórcy</a>.
+      Baza: <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener noreferrer">ODbL 1.0</a>;
+      zawartość: <a href="https://opendatacommons.org/licenses/dbcl/1-0/" target="_blank" rel="noopener noreferrer">DbCL 1.0</a>;
+      zdjęcia: <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>, autorzy na karcie produktu. Zdjęcia bez zmian, ładowane ze źródła.
+      Katalog Bengera jest oddzielnym zbiorem demonstracyjnym.
+    </aside>
     <footer>Wpisy są zapisane tylko w tej przeglądarce i pod tym adresem strony. Wyczyszczenie jej danych usunie dziennik. Eksport powyżej obejmuje wyłącznie notatki tekstowe.</footer>
   </main>
   <script type="module" src="./app.js"></script>

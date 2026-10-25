@@ -1,6 +1,6 @@
 import { PRODUCTS } from './nutrition.js';
 
-// To wyłącznie aliasy językowe. Produkty, jednostki i makro pochodzą z PRODUCTS.
+// To wyłącznie aliasy językowe. Produkty i jednostki pochodzą z przekazanego katalogu (domyślnie PRODUCTS).
 const PRODUCT_ALIASES = {
   'oat-flakes': ['płatki owsiane', 'płatków owsianych', 'płatki', 'płatków'],
   'peeled-banana': ['banan', 'banana', 'banany'],
@@ -32,7 +32,7 @@ const mealPattern = new RegExp(`\\b(?:na\\s+)?(${Object.keys(MEAL_ALIASES).join(
 const quantityPattern = /(?<![a-z0-9.,+\-])([+\-]?[\d.,]+)\s*(mililitrow|mililitry|mililitra|mililitr|ml|gramow|gramy|grama|gram|g)(?![a-z0-9])/g;
 const introPattern = /^(?:(?:zjadlem|zjadlam|wypilem|wypilam|jadlem|jadlam|dzis|dzisiaj)\b[\s:]*|[\s:])+/;
 
-function parseItem(source, itemIndex) {
+function parseItem(source, itemIndex, products) {
   const issues = [];
   const issue = (code, message) => issues.push({ code, message, itemIndex });
   const foundProducts = [];
@@ -48,7 +48,7 @@ function parseItem(source, itemIndex) {
   }).trim();
 
   const product = foundProducts.length === 1
-    ? PRODUCTS.find(candidate => candidate.id === foundProducts[0]) : undefined;
+    ? products.find(candidate => candidate.id === foundProducts[0]) : undefined;
   if (foundProducts.length > 1) {
     issue('ambiguous-product', 'Oddziel produkty przecinkiem lub słowem „i”, aby ich ilości były jednoznaczne.');
   } else if (!product) {
@@ -86,7 +86,7 @@ function parseItem(source, itemIndex) {
 
 // Czysta funkcja: nie oblicza makro, nie korzysta z DOM ani localStorage.
 // issues z itemIndex odnoszą się do pozycji; pozostałe dotyczą całej propozycji.
-export function parseMealText(text, { defaultMeal } = {}) {
+export function parseMealText(text, { defaultMeal, products = PRODUCTS } = {}) {
   const issues = [];
   const items = [];
   const validMeals = Object.values(MEAL_ALIASES);
@@ -116,7 +116,7 @@ export function parseMealText(text, { defaultMeal } = {}) {
     .split(/(?<!\d),|,(?!\d)|;|\b(?:i|oraz)\b/)
     .map(segment => segment.trim()).filter(Boolean);
   for (const source of segments) {
-    const parsed = parseItem(source, items.length);
+    const parsed = parseItem(source, items.length, products);
     items.push(parsed.item);
     issues.push(...parsed.issues);
   }

@@ -1,6 +1,10 @@
-import { PRODUCTS, calculatePortion, sumNutrition } from './nutrition.js';
+import { calculatePortion, sumNutrition } from './nutrition.js';
 import { initLegacyNotes } from './legacy.js';
 import { parseMealText } from './meal-parser.js';
+import { getLocalProducts } from './product-providers/local.js';
+import { copyProduct } from './product-model.js';
+import { initProductSearch } from './product-search-ui.js';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 
 const $ = id => document.getElementById(id);
 const MEAL_LABELS = {
@@ -10,11 +14,11 @@ const MEAL_LABELS = {
   snack: 'Przekąska',
 };
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
-const nutritionStorageKey = 'benger.nutrition.v1';
+const nutritionStorageKey = NUTRITION_STORAGE_KEY;
 const formatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
 const amountFormatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 20 });
 const dateInput = $('date');
-const productSelect = $('product');
+let selectedProduct = null;
 const amountInput = $('amount');
 const mealSelect = $('nutrition-meal');
 const addButton = $('add-nutrition');
@@ -54,7 +58,7 @@ function showError(error, focus = false) {
 }
 
 function readPortionInput() {
-  const product = PRODUCTS.find(item => item.id === productSelect.value);
+  const product = selectedProduct;
   if (!product) throw fieldError('Wybierz produkt.', 'product');
   const rawAmount = amountInput.value.trim();
   if (rawAmount === '') throw fieldError('Podaj ilość produktu.', 'amount');
@@ -81,13 +85,13 @@ function updatePortionPreview(showEmptyError = false) {
   clearFieldError('product');
   clearFieldError('amount');
   $('calculator-message').textContent = '';
-  $('amount-unit').textContent = PRODUCTS.find(item => item.id === productSelect.value)?.unit ?? '';
+  $('amount-unit').textContent = selectedProduct?.unit ?? '';
   try {
     const { nutrition } = readPortionInput();
     writeNutritionFields('portion', nutrition);
     $('portion-preview').hidden = false;
   } catch (error) {
-    if (amountInput.value.trim() !== '' || showEmptyError || error.fieldId === 'product') showError(error);
+    if (amountInput.value.trim() !== '' || showEmptyError) showError(error);
   }
 }
 
@@ -111,6 +115,7 @@ function isValidNutritionEntry(entry) {
     && typeof entry.meal === 'string' && Object.hasOwn(MEAL_LABELS, entry.meal)
     && typeof entry.productId === 'string' && entry.productId.trim() !== ''
     && typeof entry.productName === 'string' && entry.productName.trim() !== ''
+    && ['brand', 'source', 'sourceId', 'barcode'].every(key => entry[key] === undefined || entry[key] === null || typeof entry[key] === 'string')
     && Number.isFinite(entry.amount) && entry.amount > 0
     && ['g', 'ml'].includes(entry.unit)
     && entry.nutrition !== null && typeof entry.nutrition === 'object'
@@ -185,6 +190,12 @@ function createPortionArticle(entry) {
   values.className = 'entry-nutrition';
   values.textContent = `${formatter.format(entry.nutrition.kcal)} kcal · Białko: ${formatter.format(entry.nutrition.protein)} g · Tłuszcz: ${formatter.format(entry.nutrition.fat)} g · Węglowodany: ${formatter.format(entry.nutrition.carbs)} g`;
   article.append(name, amount, values);
+  if (entry.brand || entry.source) {
+    const provenance = document.createElement('p');
+    provenance.className = 'entry-source';
+    provenance.textContent = [entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Benger · przykład' : entry.source].filter(Boolean).join(' · ');
+    article.append(provenance);
+  }
   return article;
 }
 
@@ -252,10 +263,16 @@ function appendNutritionPortions(portions, meal, date) {
   // Cały zestaw przygotowujemy przed zapisem. Jeden błąd oznacza brak zapisu.
   const entries = portions.map(({ product, amount, nutrition }) => ({
     id: createEntryId(), date, createdAt, meal,
-    productId: product.id, productName: product.name, amount, unit: product.unit,
+    productId: product.id, productName: product.name, brand: product.brand, source: product.source,
+    sourceId: product.sourceId, barcode: product.barcode, amount, unit: product.unit,
     nutrition: { ...nutrition },
   }));
-  return updateNutritionEntries(current => [...current, ...entries]);
+  const saved = updateNutritionEntries(current => [...current, ...entries]);
+  // Awaria cache nie cofa poprawnego zapisu dziennika ani nie powoduje ponownego dodania.
+  if (saved) void productSearch.recordUsed(portions.map(portion => portion.product)).catch(() => {
+    $('catalog-storage-message').textContent = 'Wpis zapisany. Nie udało się zaktualizować ostatnich produktów.';
+  });
+  return saved;
 }
 
 function addNutritionEntry(event) {
@@ -319,7 +336,8 @@ function analyzeMealText(event) {
   clearFieldError('date');
   let date;
   try { date = readDiaryDate(); } catch (error) { showError(error, true); return; }
-  const result = parseMealText(textInput.value, { defaultMeal: mealSelect.value });
+  const products = getLocalProducts();
+  const result = parseMealText(textInput.value, { defaultMeal: mealSelect.value, products });
   if (result.items.length === 0) {
     showError(fieldError(result.issues.map(issue => issue.message).join(' '), 'meal-text'), true);
     return;
@@ -328,11 +346,11 @@ function analyzeMealText(event) {
   const portions = [];
   for (const [itemIndex, item] of result.items.entries()) {
     if (item.status === 'recognized') {
-      const product = PRODUCTS.find(candidate => candidate.id === item.productId);
+      const product = products.find(candidate => candidate.id === item.productId);
       try {
         const nutrition = calculatePortion(product, item.amount);
         // Kopiujemy metadane i wartości widoczne przy akceptacji, bez przeliczania przy zapisie.
-        portions.push({ product: { id: product.id, name: product.name, unit: product.unit }, amount: item.amount, nutrition });
+        portions.push({ product: copyProduct(product), amount: item.amount, nutrition });
         $('meal-proposal-items').append(createPortionArticle({ productName: product.name, amount: item.amount, unit: product.unit, nutrition }));
         continue;
       } catch {
@@ -397,9 +415,11 @@ function removeNutritionEntry(id) {
 
 const now = new Date();
 dateInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-populateSelect(productSelect, PRODUCTS.map(product => [product.id, product.name]));
 populateSelect(mealSelect, Object.entries(MEAL_LABELS));
-productSelect.addEventListener('change', () => updatePortionPreview());
+const productSearch = initProductSearch({ onSelect(product) {
+  selectedProduct = product;
+  updatePortionPreview();
+} });
 amountInput.addEventListener('input', () => updatePortionPreview());
 mealSelect.addEventListener('change', () => {
   clearFieldError('nutrition-meal');
@@ -425,4 +445,5 @@ window.addEventListener('storage', event => {
 updatePortionPreview();
 loadNutritionEntries();
 renderNutritionEntries();
+void productSearch.seedRecent(nutritionEntries).catch(() => {});
 initLegacyNotes({ dateInput, createEntryId });

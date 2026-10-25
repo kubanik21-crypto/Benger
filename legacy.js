@@ -1,7 +1,9 @@
+import { NOTES_STORAGE_KEY } from './app-storage.js';
+
 // Oddzielny notatnik pierwszego prototypu. Nie odczytuje ani nie zapisuje produktów.
 export function initLegacyNotes({ dateInput, createEntryId }) {
   const $ = id => document.getElementById(id);
-  const key = 'benger.meals.v1';
+  const key = NOTES_STORAGE_KEY;
   let entries = [];
   let storageOK = true;
   try {

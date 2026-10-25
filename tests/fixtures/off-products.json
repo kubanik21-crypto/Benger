@@ -1,0 +1,72 @@
+{
+  "_comment": "Fikcyjne dane do testów; format zweryfikowany z oficjalnym OpenAPI i fixtures OFF API v3.6. To nie jest katalog produktów aplikacji.",
+  "products": [
+    {
+      "code": "5901234123457",
+      "product_name": "Test milk",
+      "product_name_pl": "Mleko 2% — test",
+      "quantity": "1 l",
+      "last_modified_t": 1760000000,
+      "image_front_small_url": "https://images.openfoodfacts.org/images/products/590/123/412/3457/front_pl.200.jpg",
+      "nutrition": {
+        "aggregated_set": {
+          "per": "100ml",
+          "preparation": "as_sold",
+          "nutrients": {
+            "energy-kcal": {
+              "value": 50,
+              "unit": "kcal"
+            },
+            "proteins": {
+              "value": 3.4,
+              "unit": "g"
+            },
+            "fat": {
+              "value": 2,
+              "unit": "g"
+            },
+            "carbohydrates": {
+              "value": 4.8,
+              "unit": "g"
+            }
+          }
+        }
+      },
+      "brands_tags_pl": [
+        "Marka testowa"
+      ]
+    },
+    {
+      "code": "5901234123464",
+      "product_name": "Jogurt naturalny — test",
+      "quantity": "150 g",
+      "nutrition": {
+        "aggregated_set": {
+          "per": "100g",
+          "preparation": "as_sold",
+          "nutrients": {
+            "energy-kcal": {
+              "value": 60,
+              "unit": "kcal"
+            },
+            "proteins": {
+              "value": 4,
+              "unit": "g"
+            },
+            "fat": {
+              "value": 2,
+              "unit": "g"
+            },
+            "carbohydrates": {
+              "value": 6,
+              "unit": "g"
+            }
+          }
+        }
+      },
+      "brands_tags_pl": [
+        "Druga marka"
+      ]
+    }
+  ]
+}

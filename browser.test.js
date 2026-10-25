@@ -1,208 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { createServer } from 'node:net';
-import { createServer as createHttpServer } from 'node:http';
-
+import { startBrowser, startStaticHost } from './tests/browser-harness.mjs';
+import { PUBLIC_ASSETS as STATIC_ASSETS } from './scripts/public-assets.mjs';
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
-const CHROMIUM_STARTUP_TIMEOUT_MS = 45_000;
 const DAY = '2026-10-22';
 const OTHER_DAY = '2026-10-23';
 const KEY = 'benger.nutrition.v1';
 const NOTE_KEY = 'benger.meals.v1';
-const STATIC_ASSETS = ['index.html', 'app.js', 'nutrition.js', 'meal-parser.js', 'legacy.js', 'style.css', 'manifest.webmanifest'];
-
-// Osobny hosting wyłącznie plików publicznych, bez uruchamiania server.js.
-// Przy /Benger/ nie ma zasobów pod root domeny, które mogłyby zamaskować błędne ścieżki.
-async function startStaticHost(prefix) {
-  const directory = await mkdtemp(join(tmpdir(), 'benger-static-host-'));
-  let server;
-  try {
-    for (const name of STATIC_ASSETS) await copyFile(new URL(name, import.meta.url), join(directory, name));
-    const types = { js: 'text/javascript', css: 'text/css', html: 'text/html', webmanifest: 'application/manifest+json' };
-    server = createHttpServer(async (request, response) => {
-      const pathname = new URL(request.url, 'http://localhost').pathname;
-      if (prefix !== '/' && pathname === prefix.slice(0, -1)) {
-        response.writeHead(301, { Location: prefix }); response.end(); return;
-      }
-      const file = pathname.startsWith(prefix) ? pathname.slice(prefix.length) || 'index.html' : null;
-      if (!STATIC_ASSETS.includes(file)) { response.writeHead(404); response.end(); return; }
-      try {
-        response.setHeader('Content-Type', `${types[file.split('.').at(-1)]}; charset=utf-8`);
-        response.end(await readFile(join(directory, file)));
-      } catch {
-        response.writeHead(500); response.end();
-      }
-    });
-    await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
-    return {
-      base: `http://127.0.0.1:${server.address().port}${prefix}`,
-      close: async () => {
-        await new Promise(resolve => server.close(resolve));
-        await rm(directory, { recursive: true, force: true });
-      },
-    };
-  } catch (error) {
-    if (server?.listening) await new Promise(resolve => server.close(resolve));
-    await rm(directory, { recursive: true, force: true });
-    throw error;
-  }
-}
-
-async function startBrowser({ staticPrefix } = {}) {
-  const profile = await mkdtemp(join(tmpdir(), 'benger-browser-test-'));
-  const processes = [];
-  let staticSite;
-  let socket;
-  const errors = [];
-  const requests = [];
-  const responses = [];
-  const pending = new Map();
-  async function close() {
-    if (socket) socket.close();
-    for (const request of pending.values()) clearTimeout(request.timer);
-    pending.clear();
-    for (const child of processes.reverse()) {
-      if (child.exitCode !== null) continue;
-      const exited = new Promise(resolve => child.once('exit', resolve));
-      child.kill('SIGTERM');
-      await Promise.race([exited, pause(2000)]);
-      if (child.exitCode === null) { child.kill('SIGKILL'); await exited; }
-    }
-    if (staticSite) await staticSite.close();
-    await rm(profile, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
-  }
-  try {
-    let serverErrors = '';
-    let base;
-    if (staticPrefix === undefined) {
-      const probe = createServer();
-      await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
-      const port = probe.address().port;
-      await new Promise(resolve => probe.close(resolve));
-      const app = spawn(process.execPath, ['server.js'], {
-        cwd: import.meta.dirname, env: { ...process.env, PORT: String(port) }, stdio: ['ignore', 'ignore', 'pipe'],
-      });
-      processes.push(app);
-      app.stderr.on('data', data => { serverErrors += data; });
-      base = `http://127.0.0.1:${port}`;
-    } else {
-      staticSite = await startStaticHost(staticPrefix);
-      base = staticSite.base;
-    }
-    let ready = false;
-    for (let i = 0; i < 50; i++) {
-      try { if ((await fetch(base)).status === 200) { ready = true; break; } } catch {}
-      await pause(100);
-    }
-    assert.ok(ready, `Serwer nie wystartował: ${serverErrors}`);
-    const chrome = spawn(process.env.CHROMIUM_PATH || 'chromium', [
-      '--headless', '--no-sandbox', '--disable-dev-shm-usage', '--no-first-run',
-      '--disable-background-networking', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank',
-    ], { stdio: ['ignore', 'ignore', 'pipe'] });
-    processes.push(chrome);
-    const endpoint = await new Promise((resolve, reject) => {
-      let output = '';
-      const timer = setTimeout(() => reject(new Error(`Chromium timeout: ${output}`)), CHROMIUM_STARTUP_TIMEOUT_MS);
-      chrome.on('error', error => { clearTimeout(timer); reject(error); });
-      chrome.on('exit', code => { clearTimeout(timer); reject(new Error(`Chromium zakończył pracę: ${code}`)); });
-      chrome.stderr.on('data', data => {
-        output += data;
-        const match = output.match(/DevTools listening on (ws:\/\/[^\s]+)/);
-        if (match) { clearTimeout(timer); resolve(match[1]); }
-      });
-    });
-    socket = new WebSocket(endpoint);
-    await new Promise((resolve, reject) => { socket.onopen = resolve; socket.onerror = reject; });
-    let nextId = 0;
-    socket.onmessage = ({ data }) => {
-      const message = JSON.parse(data);
-      if (message.method === 'Runtime.exceptionThrown') errors.push(message.params.exceptionDetails);
-      if (message.method === 'Log.entryAdded' && message.params.entry.level === 'error') errors.push(message.params.entry);
-      if (message.method === 'Runtime.consoleAPICalled' && message.params.type === 'error') errors.push(message.params.args);
-      if (message.method === 'Network.requestWillBeSent') requests.push(message.params.request.url);
-      if (message.method === 'Network.responseReceived') responses.push({ url: message.params.response.url, status: message.params.response.status });
-      const request = pending.get(message.id);
-      if (request) {
-        clearTimeout(request.timer);
-        pending.delete(message.id);
-        if (message.error) request.reject(new Error(JSON.stringify(message.error)));
-        else request.resolve(message.result);
-      }
-    };
-    function command(method, params = {}, sessionId) {
-      return new Promise((resolve, reject) => {
-        const id = ++nextId;
-        const timer = setTimeout(() => { pending.delete(id); reject(new Error(`Timeout: ${method}`)); }, 10000);
-        pending.set(id, { resolve, reject, timer });
-        socket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
-      });
-    }
-    async function page(url = base) {
-      const { targetId } = await command('Target.createTarget', { url: 'about:blank' });
-      const { sessionId } = await command('Target.attachToTarget', { targetId, flatten: true });
-      const send = (method, params) => command(method, params, sessionId);
-      async function evaluate(expression) {
-        const result = await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
-        if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails));
-        return result.result.value;
-      }
-      for (const domain of ['Page', 'Runtime', 'Log', 'Network']) await send(`${domain}.enable`);
-      await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-      await send('Page.addScriptToEvaluateOnNewDocument', { source: `
-        window.__documentId = crypto.randomUUID();
-        window.__pauseStorageSync = false;
-        window.addEventListener('storage', event => { if (window.__pauseStorageSync) event.stopImmediatePropagation(); }, true);
-        window.confirm = () => true;
-        window.SpeechRecognition = class {
-          start() { this.onstart?.(); this.onresult?.({ results: [[{ transcript: 'Podyktowana notatka' }]] }); this.onend?.(); }
-          stop() { this.onend?.(); }
-        };
-      ` });
-      async function waitReady(previous) {
-        for (let i = 0; i < 100; i++) {
-          try {
-            if (await evaluate(`window.__documentId !== ${JSON.stringify(previous)} && document.getElementById('nutrition-meal')?.options.length === 4 && Boolean(document.getElementById('date')?.value) && document.getElementById('entries').textContent !== ''`)) return;
-          } catch {}
-          await pause(100);
-        }
-        throw new Error('Aplikacja nie zakończyła inicjalizacji.');
-      }
-      async function reload() {
-        const previous = await evaluate('window.__documentId');
-        await send('Page.reload');
-        await waitReady(previous);
-      }
-      async function navigate(nextUrl) {
-        const previous = await evaluate('window.__documentId');
-        await send('Page.navigate', { url: nextUrl });
-        await waitReady(previous);
-      }
-      async function date(value) {
-        await evaluate(`document.getElementById('date').value = ${JSON.stringify(value)}; document.getElementById('date').dispatchEvent(new Event('change'));`);
-      }
-      async function choose(product, amount, meal = 'breakfast') {
-        await evaluate(`document.getElementById('product').value = ${JSON.stringify(product)}; document.getElementById('product').dispatchEvent(new Event('change')); document.getElementById('amount').value = ${JSON.stringify(amount)}; document.getElementById('amount').dispatchEvent(new Event('input')); document.getElementById('nutrition-meal').value = ${JSON.stringify(meal)};`);
-      }
-      const submit = () => evaluate("document.getElementById('nutrition-form').requestSubmit()");
-      const raw = key => evaluate(`localStorage.getItem(${JSON.stringify(key)})`);
-      const setRaw = (key, value) => evaluate(`localStorage.setItem(${JSON.stringify(key)}, ${JSON.stringify(value)})`);
-      const saved = async () => JSON.parse(await raw(KEY) || '[]');
-      const visible = () => evaluate("[...document.querySelectorAll('#nutrition-entries article')].map(article => ({ id: article.dataset.entryId, text: article.textContent }))");
-      const outputs = prefix => evaluate(`['kcal', 'protein', 'fat', 'carbs'].map(key => document.getElementById(${JSON.stringify(prefix)} + '-' + key).textContent)`);
-      const remove = id => evaluate(`[...document.querySelectorAll('#nutrition-entries article')].find(article => article.dataset.entryId === ${JSON.stringify(id)}).querySelector('button').click()`);
-      const analyze = text => evaluate(`document.getElementById('meal-text').value = ${JSON.stringify(text)}; document.getElementById('meal-text').dispatchEvent(new Event('input')); document.getElementById('analyze-meal').click();`);
-      const accept = () => evaluate("document.getElementById('save-meal-proposal').click()");
-      await send('Page.navigate', { url });
-      await waitReady(null);
-      return { send, evaluate, reload, navigate, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
-    }
-    return { base, page, errors, requests, responses, close, serverErrors: () => serverErrors };
-  } catch (error) { await close(); throw error; }
-}
 
 async function waitCount(page, count) {
   for (let i = 0; i < 100; i++) {
@@ -235,7 +41,8 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
       assert.equal((await fetch(browser.base + path)).status, 200, path);
     }
     assert.equal((await fetch(browser.base + '/missing')).status, 404);
-    assert.deepEqual(await a.evaluate("[...document.getElementById('product').options].map(option => option.textContent)"), ['Płatki owsiane', 'Banan bez skórki', 'Jogurt naturalny', 'Mleko 2%']);
+    assert.deepEqual(await a.evaluate("[...document.querySelectorAll('#basic-products .product-name')].map(node => node.textContent)"), ['Płatki owsiane', 'Banan bez skórki', 'Jogurt naturalny', 'Mleko 2%']);
+    assert.equal(await a.evaluate("document.getElementById('product-error').textContent"), '');
   });
   await t.test('podgląd: 50 g płatków, 120 g banana, 200 ml mleka i 50,5 g', async () => {
     for (const [product, amount, unit, expected] of [
@@ -281,7 +88,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
     assert.deepEqual(await a.evaluate("[...document.querySelectorAll('.meal-group')].map(group => group.dataset.meal)"), ['breakfast', 'lunch', 'dinner', 'snack']);
     assert.deepEqual(await a.outputs('total'), ['451,8', '18,62', '9,86', '72,96']);
     const entry = (await a.saved())[0];
-    assert.deepEqual(Object.keys(entry).sort(), ['id', 'date', 'createdAt', 'meal', 'productId', 'productName', 'amount', 'unit', 'nutrition'].sort());
+    assert.deepEqual(Object.keys(entry).sort(), ['id', 'date', 'createdAt', 'meal', 'productId', 'productName', 'amount', 'unit', 'nutrition', 'brand', 'source', 'sourceId', 'barcode'].sort());
     assert.equal(new Date(entry.createdAt).toISOString(), entry.createdAt);
     assert.match(entry.id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     assert.deepEqual(entry.nutrition, { kcal: 185, protein: 6.5, fat: 3.5, carbs: 30 });
@@ -384,7 +191,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
     }
     const ids = await a.evaluate("[...document.querySelectorAll('[id]')].map(element => element.id)");
     assert.equal(new Set(ids).size, ids.length);
-    for (const id of ['product', 'amount', 'nutrition-meal', 'date']) {
+    for (const id of ['amount', 'nutrition-meal', 'date']) {
       assert.ok(await a.evaluate(`Boolean(document.querySelector('label[for="${id}"]'))`));
     }
   });
@@ -443,7 +250,7 @@ for (const prefix of ['/', '/Benger/']) {
       }
       assert.equal(await a.evaluate("document.querySelector('link[rel=stylesheet]').href"), new URL('style.css', browser.base).href);
       assert.equal(await a.evaluate('getComputedStyle(document.body).margin'), '0px');
-      assert.equal(await a.evaluate("document.getElementById('product').options.length"), 4);
+      assert.equal(await a.evaluate("document.querySelectorAll('#basic-products [data-product-id]').length"), 4);
     });
 
     await t.test('importy, ręczne dodawanie i propozycja tekstowa korzystają ze wspólnego dziennika', async () => {
@@ -829,4 +636,303 @@ test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, a
     assert.equal(browser.serverErrors(), '');
     assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !url.startsWith(browser.base + '/')), []);
   });
+});
+
+async function waitFor(page, expression, timeout = 5000) {
+  const end = Date.now() + timeout;
+  do {
+    if (await page.evaluate(expression)) return;
+    await pause(25);
+  } while (Date.now() < end);
+  assert.fail(`Warunek nie został spełniony: ${expression}`);
+}
+
+test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { timeout: 150000 }, async t => {
+  const browser = await startBrowser({ staticPrefix: '/Benger/', mockOFF: true });
+  t.after(() => browser.close());
+  const a = await browser.page();
+  await a.date(DAY);
+  const apiRequests = () => browser.off.requests.filter(request => request.method === 'GET' && new URL(request.url).hostname === 'world.openfoodfacts.org');
+  const advance = (ms = 6500) => a.evaluate(`window.__advanceClock(${ms})`);
+  async function search(query) {
+    await a.evaluate(`document.getElementById('product-search').value = ${JSON.stringify(query)}; document.getElementById('product-search').dispatchEvent(new Event('input')); document.getElementById('product-search-form').requestSubmit()`);
+    await waitFor(a, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'", 13000);
+  }
+  async function barcode(code) {
+    await a.evaluate(`document.querySelector('.barcode-lookup').open = true; document.getElementById('barcode').value = ${JSON.stringify(code)}; document.getElementById('barcode-form').requestSubmit()`);
+    await waitFor(a, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'", 13000);
+  }
+  const resultCount = () => a.evaluate("document.querySelectorAll('#search-results [data-product-id]').length");
+  const message = () => a.evaluate("document.getElementById('catalog-message').textContent");
+  const chooseOFF = () => a.evaluate("[...document.querySelectorAll('#search-results [data-product-id]')].find(button => button.dataset.productId.startsWith('off:')).click()");
+
+  await t.test('nie wysyła requestów przy pisaniu; minimum 3 znaki; wyszukiwanie przez Enter i identyfikacja CORS', async () => {
+    await a.evaluate("document.getElementById('product-search').value='mleko 2%'; document.getElementById('product-search').dispatchEvent(new Event('input'))");
+    assert.equal(apiRequests().length, 0);
+    await search('ab'); assert.match(await message(), /3 znaki/); assert.equal(apiRequests().length, 0);
+    await search('mleko 2%');
+    assert.equal(apiRequests().length, 1);
+    assert.ok(await resultCount() >= 2);
+    assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /Marka testowa/);
+    assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /100 ml/);
+    const request = apiRequests()[0];
+    assert.equal(Object.entries(request.headers).some(([key]) => key.toLowerCase() === 'x-user-agent'), false);
+    assert.equal(Object.entries(request.headers).find(([key]) => key.toLowerCase() === 'accept')[1], 'application/json');
+    assert.equal(new URL(request.url).searchParams.get('page_size'), '20');
+    // Natywny fetch przeszedł kontrolę CORS Chromium; test nie podmienia window.fetch.
+    assert.equal(await a.evaluate('fetch.toString().includes("[native code]")'), true);
+  });
+  await t.test('wybór OFF, 200 ml, wspólne obliczenia i snapshot w dzienniku', async () => {
+    await chooseOFF();
+    await waitFor(a, "document.querySelector('#product img')?.naturalWidth > 0");
+    await a.evaluate("document.getElementById('amount').value='200'; document.getElementById('amount').dispatchEvent(new Event('input'))");
+    assert.equal(await a.evaluate("document.getElementById('amount-unit').textContent"), 'ml');
+    assert.deepEqual(await a.outputs('portion'), ['100', '6,8', '4', '9,6']);
+    await a.submit();
+    const entry = (await a.saved())[0];
+    assert.equal(entry.source, 'openfoodfacts'); assert.equal(entry.brand, 'Marka testowa');
+    assert.equal(entry.barcode, '5901234123457'); assert.equal(entry.nutrition.kcal, 100);
+    assert.ok(!Object.hasOwn(entry, 'nutriments')); assert.ok(!Object.hasOwn(entry, 'imageUrl'));
+    await waitFor(a, "document.querySelector('#recent-products [data-product-id]')?.dataset.productId.startsWith('off:')");
+    await waitFor(a, `(async()=>{const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();const memory=await repo.selectionMemory('mleko 2 procent');await repo.close();return memory.length>0;})()`);
+    assert.equal(await a.evaluate(`(async()=>{const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();const memory=await repo.selectionMemory('mleko 2%');await repo.close();return memory[0].count;})()`), 1);
+    assert.deepEqual(await a.outputs('total'), ['100', '6,8', '4', '9,6']);
+  });
+  await t.test('ulubione i cache są trwałe po odświeżeniu; produkt i świeży query bez kolejnego fetch', async () => {
+    await a.evaluate("document.querySelector('#product .favorite-product').click()");
+    await waitFor(a, "document.querySelector('#favorite-products .favorite-product')?.getAttribute('aria-pressed') === 'true'");
+    await a.reload(); await a.date(DAY);
+    assert.equal(await a.evaluate("document.querySelectorAll('#favorite-products [data-product-id]').length"), 1);
+    const before = apiRequests().length;
+    await search('MLEKO 2%'); assert.equal(apiRequests().length, before);
+    await barcode('5901234123457'); assert.equal(apiRequests().length, before);
+    assert.equal(await resultCount(), 1);
+    const stored = await a.evaluate(`(async () => {
+      const {createProductStorage}=await import('./product-cache.js'); const storage=createProductStorage();
+      const products=await storage.read('products'); await storage.close(); return products;
+    })()`);
+    assert.equal(stored.length, 2); assert.equal(stored[0].product.source, 'openfoodfacts');
+    assert.ok(Number.isFinite(stored[0].fetchedAt)); assert.ok(!Object.hasOwn(stored[0].product, 'nutrition'));
+  });
+  await t.test('usunięcie ulubionego nie usuwa ostatnich ani dziennika', async () => {
+    const diary = await a.raw(KEY);
+    await a.evaluate("document.querySelector('#favorite-products .favorite-product').click()");
+    await waitFor(a, "document.querySelectorAll('#favorite-products [data-product-id]').length === 0");
+    assert.equal(await a.raw(KEY), diary);
+    assert.equal(await a.evaluate("document.querySelectorAll('#recent-products [data-product-id]').length"), 1);
+    await chooseOFF();
+    await a.evaluate("document.querySelector('#product .favorite-product').click()");
+    await waitFor(a, "document.querySelectorAll('#favorite-products [data-product-id]').length === 1");
+  });
+  await t.test('offline: wyszukiwanie lokalne, ostatnie, ulubione, barcode i zapis bez sieci', async () => {
+    await a.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
+    const before = apiRequests().length;
+    await waitFor(a, 'navigator.onLine === false');
+    await search('mleko'); assert.match(await message(), /Brak połączenia/);
+    assert.ok(await resultCount() >= 2);
+    await a.evaluate("document.querySelector('#favorite-products [data-product-id]').click(); document.getElementById('amount').value='50,5'; document.getElementById('amount').dispatchEvent(new Event('input'))");
+    assert.equal(await a.evaluate("document.querySelector('#product img') === null"), true);
+    await a.submit(); assert.equal((await a.saved()).length, 2);
+    assert.equal((await a.saved())[1].amount, 50.5);
+    await barcode('5901234123457'); assert.equal(await resultCount(), 1);
+    assert.equal(await a.evaluate("document.querySelector('#search-results img') === null"), true);
+    assert.equal(apiRequests().length, before);
+    await a.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+    await waitFor(a, 'navigator.onLine === true');
+  });
+  await t.test('puste wyniki i brak makro są czytelne; puste wyniki mają cache', async () => {
+    browser.off.mode = 'empty'; await advance(); await search('nieznany produkt');
+    assert.equal(await resultCount(), 0); assert.match(await message(), /Brak wyników/);
+    const before = apiRequests().length; await search('nieznany produkt'); assert.equal(apiRequests().length, before);
+    browser.off.mode = 'invalid'; await advance(); await search('produkt bez danych'); assert.equal(await resultCount(), 0);
+  });
+  await t.test('429 i szybkie kolejne query nie spamują API', async () => {
+    browser.off.mode = '429'; await advance(); await search('nowy produkt');
+    assert.match(await message(), /ogranicza liczbę zapytań/);
+    const before = apiRequests().length;
+    await search('jeszcze inny'); assert.match(await message(), /Odczekaj/);
+    assert.equal(apiRequests().length, before);
+    await barcode('5901234123464'); // świeży cache jest nadal dostępny podczas blokady
+    assert.equal(await resultCount(), 1); assert.equal(apiRequests().length, before);
+    await advance(60000);
+  });
+  await t.test('timeout, błędny JSON i 5xx pokazują fallback bez błędu JavaScript', async () => {
+    browser.off.mode = 'timeout'; await advance();
+    const before = apiRequests().length;
+    await a.evaluate("document.getElementById('product-search').value='mleko timeout';document.getElementById('product-search-form').requestSubmit();document.getElementById('product-search-form').requestSubmit()");
+    assert.equal(await a.evaluate("document.getElementById('search-products').disabled && document.getElementById('find-barcode').disabled"), true);
+    await waitFor(a, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'", 13000);
+    assert.equal(apiRequests().length - before, 1); assert.match(await message(), /na czas/);
+    for (const [mode, expected] of [['json', /odczytać danych/], ['500', /chwilowo niedostępne/]]) {
+      browser.off.mode = mode; await advance(); await search(`mleko ${mode}`);
+      assert.match(await message(), expected);
+    }
+  });
+  await t.test('barcode lookup z sieci oraz brak produktu i niepoprawny kod', async () => {
+    browser.off.mode = 'ok'; await advance(8 * 24 * 60 * 60 * 1000);
+    await barcode('5901234123464'); assert.equal(await resultCount(), 1);
+    assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /Jogurt/);
+    assert.ok(apiRequests().some(request => new URL(request.url).pathname === '/api/v3.6/product/5901234123464'));
+    browser.off.mode = 'empty'; await advance(); await barcode('4006381333931');
+    assert.equal(await resultCount(), 0); assert.match(await message(), /Brak wyników/);
+    const before = apiRequests().length; await barcode('123'); assert.match(await message(), /prawidłowy kod/); assert.equal(apiRequests().length, before);
+  });
+  await t.test('XSS z API jest tekstem, nie kodem; snapshot nie zmienia się po aktualizacji OFF', async () => {
+    const before = await a.raw(KEY);
+    browser.off.mode = 'ok'; browser.off.products[0].product_name_pl = '<img src=x onerror="window.__xss=true">';
+    browser.off.products[0].nutrition.aggregated_set.nutrients['energy-kcal'].value = 51;
+    await advance(); await search('nazwa testowa');
+    assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /<img src=x/);
+    assert.equal(await a.evaluate("Boolean(window.__xss) || Boolean(document.querySelector('#search-results img[src=x]'))"), false);
+    assert.equal(await a.raw(KEY), before);
+    browser.off.products[0].product_name_pl = 'Mleko 2% — test';
+  });
+  await t.test('odpowiedź starego query nie zastępuje wyników po zmianie pola; brak zdjęcia ma placeholder', async () => {
+    browser.off.mode = 'hold'; await advance();
+    const previousResults = await a.evaluate("document.getElementById('search-results').textContent");
+    await a.evaluate("document.getElementById('product-search').value='poprzednia fraza';document.getElementById('product-search-form').requestSubmit()");
+    for (let i = 0; i < 100 && !browser.off.release; i++) await pause(20);
+    assert.equal(typeof browser.off.release, 'function');
+    await a.evaluate("document.getElementById('product-search').value='nowa fraza';document.getElementById('product-search').dispatchEvent(new Event('input'))");
+    browser.off.mode = 'ok'; browser.off.release();
+    await waitFor(a, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'");
+    assert.equal(await a.evaluate("document.getElementById('search-results').textContent"), previousResults);
+    assert.match(await message(), /Zapytanie zmienione/);
+    await advance(); await search('nowa fraza'); await chooseOFF();
+    await waitFor(a, "document.querySelector('#product img')?.complete === true");
+    await a.evaluate("document.querySelector('#product img').dispatchEvent(new Event('error'))");
+    assert.equal(await a.evaluate("document.querySelector('#product img') === null && Boolean(document.querySelector('#product .product-thumbnail'))"), true);
+  });
+  await t.test('uszkodzony cache nie psuje dziennika ani lokalnego katalogu', async () => {
+    await a.evaluate(`(async () => {
+      const {createProductStorage}=await import('./product-cache.js'); const storage=createProductStorage();
+      await storage.mutate('products','broken',()=>({key:'broken',product:{name:'bad'},fetchedAt:Date.now()}));
+      await storage.mutate('usage','broken',()=>({key:'broken',favorite:'oops'})); await storage.close();
+    })()`);
+    const before = await a.raw(KEY); await a.reload(); await a.date(DAY);
+    assert.equal(await a.raw(KEY), before);
+    assert.equal(await a.evaluate("document.querySelectorAll('#basic-products [data-product-id]').length"), 4);
+    assert.equal((await a.visible()).length, 2);
+    const oldEntries = JSON.parse(before).map(({ brand, source, sourceId, barcode, ...entry }) => entry);
+    await a.setRaw(KEY, JSON.stringify(oldEntries)); await a.reload(); await a.date(DAY);
+    assert.equal((await a.visible()).length, 2); assert.equal(await a.outputs('total').then(values => values[0]), '125,25');
+    await a.setRaw(KEY, before); await a.reload(); await a.date(DAY);
+  });
+  await t.test('niedostępne IndexedDB uruchamia jawny fallback; dziennik nadal działa', async () => {
+    const isolated = await browser.page();
+    const { identifier } = await isolated.send('Page.addScriptToEvaluateOnNewDocument', {
+      source: "Object.defineProperty(window,'indexedDB',{get(){throw new DOMException('Blocked','SecurityError')}})",
+    });
+    await isolated.reload();
+    assert.match(await isolated.evaluate("document.getElementById('catalog-storage-message').textContent"), /tylko do zamknięcia tej karty/);
+    const before = (await isolated.saved()).length;
+    await isolated.choose('peeled-banana', '120'); await isolated.submit();
+    assert.equal((await isolated.saved()).length, before + 1);
+    await isolated.send('Page.removeScriptToEvaluateOnNewDocument', { identifier });
+  });
+  await t.test('w dwóch kartach limiter IndexedDB jest wspólny; ostatnie odświeżają się po powrocie', async () => {
+    const b = await browser.page();
+    const offset = await a.evaluate("sessionStorage.getItem('test-clock-offset')");
+    await b.evaluate(`sessionStorage.setItem('test-clock-offset', ${JSON.stringify(offset)})`);
+    await advance(); await b.evaluate('window.__advanceClock(6500)');
+    const before = apiRequests().length;
+    await Promise.all([
+      a.evaluate("document.getElementById('product-search').value='karta pierwsza';document.getElementById('product-search-form').requestSubmit()"),
+      b.evaluate("document.getElementById('product-search').value='karta druga';document.getElementById('product-search-form').requestSubmit()"),
+    ]);
+    await waitFor(a, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'");
+    await waitFor(b, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'");
+    assert.equal(apiRequests().length - before, 1);
+    await b.evaluate("window.dispatchEvent(new Event('focus'))");
+    await waitFor(b, "document.querySelectorAll('#recent-products [data-product-id]').length > 0");
+  });
+  await t.test('wyszukiwarka i wyniki mieszczą się na mobile i desktop; etykiety i touch targety', async () => {
+    for (const width of [320, 390, 768, 1024, 1440]) {
+      await a.send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 720 });
+      assert.ok(await a.evaluate('document.documentElement.scrollWidth <= innerWidth'), `${width}px`);
+    }
+    for (const id of ['product-search', 'barcode', 'amount']) assert.ok(await a.evaluate(`Boolean(document.querySelector('label[for="${id}"]'))`));
+    assert.ok(await a.evaluate("[...document.querySelectorAll('.choose-product,.favorite-product,#search-products,#find-barcode')].every(button=>button.getBoundingClientRect().height>=48)"));
+    if (process.env.BENGER_CATALOG_SCREENSHOT_PATH) {
+      await a.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
+      const screenshot = await a.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+      await writeFile(process.env.BENGER_CATALOG_SCREENSHOT_PATH, Buffer.from(screenshot.data, 'base64'));
+    }
+  });
+  await t.test('brak wyjątków aplikacji; błędy sieciowe wystąpiły tylko w kontrolowanych scenariuszach OFF', async () => {
+    assert.deepEqual(browser.errors.filter(error => !(error.source === 'network' && error.url?.startsWith('https://world.openfoodfacts.org/'))), []);
+    assert.equal(browser.serverErrors(), '');
+    assert.ok(browser.requests.filter(url=>/^https?:/.test(url)).every(url=>url.startsWith(new URL(browser.base).origin+'/') || /^https:\/\/(world|images)\.openfoodfacts\.org\//.test(url)));
+  });
+});
+
+test('Preview Etapu 3 — osobna pamięć i kompletny artefakt w zagnieżdżonym katalogu', { timeout: 120000 }, async t => {
+  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-3/', previewBuild: true, mockOFF: true });
+  t.after(() => browser.close());
+  const a = await browser.page();
+  await a.setRaw(KEY, 'oryginalny dziennik produkcyjny');
+  await a.setRaw(NOTE_KEY, 'oryginalne notatki produkcyjne');
+  await a.reload(); await a.date(DAY);
+  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-build]').content"), 'a'.repeat(40));
+  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-3');
+  assert.equal(await a.evaluate("document.getElementById('nutrition-storage-message').textContent"), '');
+  for (const file of STATIC_ASSETS) assert.equal((await fetch(new URL(file, browser.base))).status, 200, file);
+  await a.choose('oat-flakes', '50'); await a.submit();
+  assert.equal((await a.saved()).length, 1);
+  assert.equal((await a.saved())[0].nutrition.kcal, 185);
+  await a.evaluate("document.getElementById('words').value='Notatka preview';document.getElementById('save').click()");
+  assert.equal(JSON.parse(await a.raw('benger.preview-etap-3.meals.v1')).length, 1);
+  assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
+  assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
+  await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 1);
+  const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(db=>db.name))()');
+  assert.ok(names.includes('BengerDB-preview-etap-3')); assert.ok(!names.includes('BengerDB'));
+  const before = browser.off.requests.length;
+  const diagnostic = await browser.page(new URL('off-diagnostics.html', browser.base).href, { diagnostic: true });
+  assert.equal(browser.off.requests.length, before);
+  browser.off.products.push({ ...browser.off.products[0], code: '3017620422003', product_name_pl: 'Produkt diagnostyczny — test' });
+  await diagnostic.evaluate("document.getElementById('run-off-diagnostics').click()");
+  await waitFor(diagnostic, "!document.getElementById('run-off-diagnostics').disabled", 15000);
+  const result = await diagnostic.evaluate("JSON.parse(document.getElementById('diagnostic-report').textContent)");
+  const searchRequest = result.requests.find(request => new URL(request.url).pathname === '/cgi/search.pl');
+  const lookupRequest = result.requests.find(request => new URL(request.url).pathname.startsWith('/api/v3.6/product/'));
+  assert.deepEqual(searchRequest.requestHeaders, { Accept: 'application/json' });
+  assert.match(lookupRequest.requestHeaders['X-User-Agent'], /^Benger\/0.3/);
+  assert.equal(result.passed, true); assert.equal(result.apiVersion, '3.6');
+  assert.equal(result.requests.length, 2); assert.ok(result.requests.every(request => request.http === 200 && request.corsReadable));
+  assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
+  assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
+  assert.deepEqual(browser.errors, []);
+});
+
+test('Migracja IndexedDB v1 → v2 i pamięć wyborów w dwóch kartach', { timeout: 120000 }, async t => {
+  const browser = await startBrowser({ staticPrefix: '/Benger/', mockOFF: true });
+  t.after(() => browser.close());
+  const initial = await browser.page(new URL('off-diagnostics.html', browser.base).href, { diagnostic: true });
+  const raw = JSON.parse(await readFile(new URL('./tests/fixtures/off-products.json', import.meta.url))).products[0];
+  const { normalizeOffProduct } = await import('./product-providers/open-food-facts.js');
+  const product = normalizeOffProduct(raw);
+  await initial.evaluate(`new Promise((resolve,reject)=>{
+    const request=indexedDB.open('BengerDB',1);
+    request.onupgradeneeded=()=>{for(const name of ['products','usage','searches','meta'])request.result.createObjectStore(name,{keyPath:'key'});};
+    request.onerror=()=>reject(request.error);
+    request.onsuccess=()=>{
+      const db=request.result;const tx=db.transaction(['products','usage'],'readwrite');
+      tx.objectStore('products').put({key:${JSON.stringify(product.id)},product:${JSON.stringify(product)},fetchedAt:Date.now(),revision:2});
+      tx.objectStore('usage').put({key:${JSON.stringify(product.id)},favorite:true,favoriteAt:Date.now(),lastUsedAt:null,order:0});
+      tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>reject(tx.error);
+    };
+  })`);
+  const a = await browser.page(), b = await browser.page();
+  assert.equal(await a.evaluate("(async()=> (await indexedDB.databases()).find(db=>db.name==='BengerDB').version)()"), 2);
+  assert.equal(await a.evaluate("document.querySelector('#favorite-products [data-product-id]').dataset.productId"), product.id);
+  const remember = `(async()=>{const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();await repo.rememberSelection('mleko 2 procent',await repo.getProductById(${JSON.stringify(product.id)}));await repo.close();})()`;
+  await Promise.all([a.evaluate(remember), b.evaluate(remember)]);
+  await a.reload();
+  const preference = await a.evaluate(`(async()=>{
+    const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();const memory=await repo.selectionMemory('MLEKO 2%');await repo.close();return memory;
+  })()`);
+  assert.equal(preference.length, 1); assert.equal(preference[0].count, 2);
+  assert.equal(browser.off.requests.filter(request => new URL(request.url).hostname === 'world.openfoodfacts.org').length, 0, 'Migracja i pamięć nie wywołują API.');
+  assert.deepEqual(browser.errors, []);
 });
