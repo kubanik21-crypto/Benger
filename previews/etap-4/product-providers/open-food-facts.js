@@ -1,6 +1,6 @@
-import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } from '../product-model.js?v=000ba974c39ca2be53060bb980b1500c80201f9e';
-import { ProductError } from '../product-errors.js?v=000ba974c39ca2be53060bb980b1500c80201f9e';
-import { createOffJsonClient } from './off-http.js?v=000ba974c39ca2be53060bb980b1500c80201f9e';
+import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } from '../product-model.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
+import { ProductError } from '../product-errors.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
+import { createOffJsonClient } from './off-http.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
 
 export const OFF_BASE_URL = 'https://world.openfoodfacts.org';
 export const OFF_API_VERSION = '3.6';
