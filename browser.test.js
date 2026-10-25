@@ -370,8 +370,8 @@ for (const prefix of ['/', '/Benger/']) {
   });
 }
 
-test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, async t => {
-  const browser = await startBrowser();
+test('Tekst — regresje wspólnego dziennika po integracji voice-first', { timeout: 120000 }, async t => {
+  const browser = await startBrowser({ mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page();
   await a.date(DAY);
@@ -467,7 +467,8 @@ test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, a
     for (const text of ['', 'to zupełnie nieznane jedzenie', 'zjadłem banana', '200 g mleka', '50 g płatków i 100 g czegoś', 'banan -5 g', 'banan 5,5,5 g', 'jogurt truskawkowy 150 g', 'śniadanie banan 100 g i obiad mleko 100 ml', 'banan 120 g i', 'banan 120 g oraz']) {
       await a.analyze(text);
       assert.equal(await disabled(), true, text);
-      assert.equal(await a.evaluate("document.getElementById('meal-proposal-summary').hidden"), true, text);
+      // Etap 4 pokazuje sumę poprawnych wierszy również przy niepełnym posiłku.
+      if (await a.evaluate("document.getElementById('meal-proposal').hidden")) assert.equal(await a.evaluate("document.getElementById('meal-proposal-summary').hidden"), true, text);
       assert.ok(await a.evaluate("document.getElementById('meal-text-error').textContent"), text);
       assert.equal(await a.evaluate("document.getElementById('meal-text').value"), text);
       await a.accept();
@@ -477,7 +478,7 @@ test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, a
 
   await t.test('poprawienie tekstu i ponowna analiza odblokowują prawidłową propozycję', async () => {
     const raw = await a.raw(KEY);
-    await a.analyze('50,5 g płatków i 200 ml mleka');
+    await a.analyze('50,5 g płatków i 200 ml mleka 2%');
     assert.equal(await disabled(), false);
     assert.equal(await a.evaluate("document.getElementById('meal-text').getAttribute('aria-invalid')"), 'false');
     assert.deepEqual(await a.outputs('proposal'), ['286,85', '13,37', '7,54', '39,9']);
@@ -631,10 +632,12 @@ test('Etap 2 — tekst, sprawdzenie i wspólny dziennik', { timeout: 120000 }, a
     }
   });
 
-  await t.test('konsola, serwer i importy bez błędów; bez zewnętrznych żądań', async () => {
+  await t.test('konsola, serwer i importy bez błędów; ruch OFF jest mockowany i ograniczony', async () => {
     assert.deepEqual(browser.errors, []);
     assert.equal(browser.serverErrors(), '');
-    assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !url.startsWith(browser.base + '/')), []);
+    const allowed = new Set([new URL(browser.base).hostname, 'world.openfoodfacts.org', 'images.openfoodfacts.org']);
+    assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !allowed.has(new URL(url).hostname)), []);
+    assert.ok(browser.off.requests.filter(request => new URL(request.url).pathname === '/cgi/search.pl').length <= 1);
   });
 });
 
@@ -866,27 +869,29 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
   });
 });
 
-test('Preview Etapu 3 — osobna pamięć i kompletny artefakt w zagnieżdżonym katalogu', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-3/', previewBuild: true, mockOFF: true });
+test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym katalogu', { timeout: 120000 }, async t => {
+  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-4/', previewBuild: true, mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page();
   await a.setRaw(KEY, 'oryginalny dziennik produkcyjny');
   await a.setRaw(NOTE_KEY, 'oryginalne notatki produkcyjne');
+  await a.setRaw('benger.preview-etap-3.nutrition.v1', 'dziennik starego preview');
   await a.reload(); await a.date(DAY);
   assert.equal(await a.evaluate("document.querySelector('meta[name=benger-build]').content"), 'a'.repeat(40));
-  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-3');
+  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-4');
   assert.equal(await a.evaluate("document.getElementById('nutrition-storage-message').textContent"), '');
   for (const file of STATIC_ASSETS) assert.equal((await fetch(new URL(file, browser.base))).status, 200, file);
   await a.choose('oat-flakes', '50'); await a.submit();
   assert.equal((await a.saved()).length, 1);
   assert.equal((await a.saved())[0].nutrition.kcal, 185);
   await a.evaluate("document.getElementById('words').value='Notatka preview';document.getElementById('save').click()");
-  assert.equal(JSON.parse(await a.raw('benger.preview-etap-3.meals.v1')).length, 1);
+  assert.equal(JSON.parse(await a.raw('benger.preview-etap-4.meals.v1')).length, 1);
   assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
   assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
+  assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), 'dziennik starego preview');
   await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 1);
   const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(db=>db.name))()');
-  assert.ok(names.includes('BengerDB-preview-etap-3')); assert.ok(!names.includes('BengerDB'));
+  assert.ok(names.includes('BengerDB-preview-etap-4')); assert.ok(!names.includes('BengerDB'));
   const before = browser.off.requests.length;
   const diagnostic = await browser.page(new URL('off-diagnostics.html', browser.base).href, { diagnostic: true });
   assert.equal(browser.off.requests.length, before);
@@ -902,6 +907,7 @@ test('Preview Etapu 3 — osobna pamięć i kompletny artefakt w zagnieżdżonym
   assert.equal(result.requests.length, 2); assert.ok(result.requests.every(request => request.http === 200 && request.corsReadable));
   assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
   assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
+  assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), 'dziennik starego preview');
   assert.deepEqual(browser.errors, []);
 });
 

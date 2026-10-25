@@ -4,5 +4,6 @@ export const PUBLIC_ASSETS = [
   'manifest.webmanifest', 'product-model.js', 'product-errors.js', 'product-cache.js',
   'product-repository.js', 'product-search-ui.js', 'product-providers/local.js',
   'product-providers/open-food-facts.js', 'product-providers/off-http.js', 'product-providers/off-search.js',
+  'speech-recognition.js', 'polish-numbers.js', 'meal-understanding.js', 'meal-proposal-ui.js', 'voice-entry.js',
   'food-query.js', 'product-resolver.js', 'meal-resolution.js', 'off-diagnostics.html', 'off-diagnostics.js', 'off-search-diagnostics.js',
 ];

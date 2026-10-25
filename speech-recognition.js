@@ -84,6 +84,7 @@ export function createSpeechRecognitionAdapter({ Recognition = speechRecognition
       try { recognition.start(); return true; }
       catch (error) {
         finish(current, error.name === 'NotAllowedError' ? 'permission-denied' : 'service-error');
+        try { recognition.abort?.(); } catch { /* Nie zostawiaj aktywnej usługi po nieudanym starcie. */ }
         return false;
       }
     },

@@ -17,8 +17,8 @@
     </header>
     <section class="intro" aria-labelledby="page-title">
       <p class="eyebrow">MAŁE KROKI, DOBRE NAWYKI</p>
-      <h1 id="page-title">Twój dzień,<br>na talerzu.</h1>
-      <p>Wybierz produkt, wpisz porcję i zapisz posiłek.<br>Dziennik zostaje w tej przeglądarce.</p>
+      <h1 id="page-title">Powiedz. Sprawdź.<br>Zapisz posiłek.</h1>
+      <p>Powiedz, co zjadłeś. Razem sprawdzimy produkty i porcje.<br>Twój dziennik zostaje w tej przeglądarce.</p>
     </section>
     <div class="date-bar">
       <div>
@@ -31,24 +31,42 @@
       </div>
     </div>
     <p id="nutrition-storage-message" class="field-error storage-error" role="alert"></p>
-    <section class="panel text-meal" aria-labelledby="text-meal-title">
-      <p class="eyebrow">OPISZ SWÓJ POSIŁEK</p>
-      <h2 id="text-meal-title">Dodaj z tekstu</h2>
+    <section id="voice-entry" class="panel text-meal" aria-labelledby="text-meal-title">
+      <div class="voice-layout">
+      <div class="voice-input">
+      <p class="eyebrow">TWÓJ POSIŁEK, TWOIMI SŁOWAMI</p>
+      <h2 id="text-meal-title">Co zjadłeś?</h2>
+      <p class="field-help">Naciśnij i powiedz cały posiłek — produkty i ich ilości.</p>
+      <p id="speech-privacy" class="fine">Rozpoznawanie może wysyłać dźwięk do dostawcy przeglądarki. Benger nie zapisuje nagrań audio.</p>
+      <button id="voice-microphone" type="button" class="voice-microphone" aria-label="Rozpocznij rozpoznawanie posiłku" aria-describedby="speech-privacy speech-status" aria-pressed="false">🎙️ Powiedz posiłek</button>
+      <button id="cancel-speech" type="button" class="button-secondary" hidden>Anuluj rozpoznawanie</button>
+      <p id="speech-status" class="speech-status" role="status" aria-live="polite"></p>
+      <p id="live-transcript" class="live-transcript" aria-live="polite" aria-label="Transkrypcja na żywo"></p>
+      <div class="voice-secondary-actions">
+        <button id="use-text-entry" type="button" class="button-secondary">Dodaj z tekstu</button>
+        <button id="use-manual-entry" type="button" class="button-secondary">Dodaj ręcznie</button>
+      </div>
+          <label for="nutrition-meal">Posiłek</label>
+          <select id="nutrition-meal" form="nutrition-form" aria-describedby="nutrition-meal-error" aria-invalid="false"></select>
+          <p id="nutrition-meal-error" class="field-error" role="alert"></p>
       <form id="meal-text-form" novalidate>
-        <label for="meal-text">Co i ile zjadłeś?</label>
-        <textarea id="meal-text" rows="3" aria-describedby="meal-text-help meal-text-error" aria-invalid="false" placeholder="Na śniadanie zjadłem 50 g płatków owsianych i 200 ml mleka 2%"></textarea>
-        <p id="meal-text-help" class="field-help">Podaj ilości w g lub ml. Produkty oddziel przecinkiem lub słowem „i”. Bez nazwy posiłku użyjemy wyboru z formularza ręcznego poniżej. Przed zapisem sprawdzisz propozycję.</p>
+        <label for="meal-text">Transkrypcja / opis posiłku</label>
+        <textarea id="meal-text" rows="4" maxlength="2000" aria-describedby="meal-text-help meal-text-error" aria-invalid="false" placeholder="Na śniadanie zjadłem 50 g płatków owsianych i 200 ml mleka 2%"></textarea>
+        <p id="meal-text-help" class="field-help">Możesz poprawić tekst przed analizą. Podaj ilości w g lub ml; produkty oddziel „i”, „oraz” lub przecinkiem. Brakujące informacje uzupełnisz w propozycji. Bez nazwy posiłku użyjemy wyboru „Posiłek” powyżej.</p>
         <p id="meal-text-error" class="field-error" role="alert"></p>
-        <button id="analyze-meal" class="button-primary" type="submit">Analizuj posiłek</button>
+        <button id="analyze-meal" class="button-secondary" type="submit">Analizuj ponownie</button>
       </form>
       <p id="meal-text-status" class="success-message" role="status"></p>
+      </div>
+      <div class="proposal-pane">
+      <p id="proposal-empty" class="proposal-empty">Tutaj sprawdzisz produkty i porcje. Nic nie zapisze się bez Twojego potwierdzenia.</p>
       <section id="meal-proposal" aria-labelledby="meal-proposal-title" hidden>
         <h3 id="meal-proposal-title" tabindex="-1">Sprawdź przed zapisaniem</h3>
         <p id="meal-proposal-context" class="field-help"></p>
         <div id="meal-proposal-items"></div>
         <ul id="meal-proposal-issues" class="field-error"></ul>
         <div id="meal-proposal-summary" class="portion-preview" hidden>
-          <h4 class="preview-label">SUMA CAŁEJ PROPOZYCJI</h4>
+          <h4 id="proposal-summary-label" class="preview-label">SUMA CAŁEJ PROPOZYCJI</h4>
           <dl class="nutrition-grid">
             <div><dt>Energia</dt><dd><output id="proposal-kcal"></output> <span>kcal</span></dd></div>
             <div><dt>Białko</dt><dd><output id="proposal-protein"></output> <span>g</span></dd></div>
@@ -56,13 +74,15 @@
             <div><dt>Węglowodany</dt><dd><output id="proposal-carbs"></output> <span>g</span></dd></div>
           </dl>
         </div>
-        <button id="save-meal-proposal" class="button-primary" type="button" disabled>Dodaj wszystko do dziennika</button>
+        <button id="save-meal-proposal" class="button-primary" type="button" disabled>Dodaj cały posiłek</button>
       </section>
-      <p class="fine">Rozpoznajemy tylko cztery produkty przykładowe z lokalnego katalogu; wyszukiwarka internetowa poniżej działa oddzielnie. Popraw tekst i ponów analizę, jeśli czegoś brakuje. Na tym etapie analizuje go prosty parser, bez AI.</p>
+      </div>
+      </div>
+      <p class="fine">Najpierw korzystamy z Twoich wyborów i produktów zapisanych lokalnie. Niepewne dopasowania sprawdzisz osobno. Nie zgadujemy gramatury ani makro.</p>
     </section>
     <section id="product-catalog" class="panel product-catalog" aria-labelledby="catalog-title">
       <p class="eyebrow">ZNAJDŹ SWÓJ PRODUKT</p>
-      <h2 id="catalog-title">Katalog produktów</h2>
+      <h2 id="catalog-title">Dodaj ręcznie · katalog produktów</h2>
       <form id="product-search-form" class="catalog-search" role="search" novalidate>
         <label for="product-search">Szukaj produktu po nazwie lub marce</label>
         <div class="search-line">
@@ -101,9 +121,6 @@
         <p class="eyebrow">DODAJ COŚ DOBREGO</p>
         <h2 id="calculator-title">Nowa porcja</h2>
         <form id="nutrition-form" novalidate>
-          <label for="nutrition-meal">Posiłek</label>
-          <select id="nutrition-meal" aria-describedby="nutrition-meal-error" aria-invalid="false"></select>
-          <p id="nutrition-meal-error" class="field-error" role="alert"></p>
           <p id="selected-product-label" class="field-label">Wybrany produkt</p>
           <div id="product" class="selected-product" role="group" tabindex="-1" aria-labelledby="selected-product-label" aria-describedby="product-error" aria-invalid="false"></div>
           <p id="product-error" class="field-error" role="alert"></p>
