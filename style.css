@@ -153,7 +153,7 @@ footer { margin: 26px 0 10px; font-size: 12px; line-height: 1.7; }
 @keyframes listening-pulse { 50% { box-shadow: 0 0 0 9px #efd6ce; } }
 @media (prefers-reduced-motion: reduce) { .voice-microphone[aria-pressed="true"] { animation: none; } }
 @media (max-width: 900px) { .voice-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
-@media (max-width: 360px) { .proposal-fields { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); } .proposal-fields > div:last-child { grid-column: 1 / -1; } }
+@media (max-width: 360px) { .voice-microphone { font-size: 18px; } .proposal-fields { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); } .proposal-fields > div:last-child { grid-column: 1 / -1; } }
 .intro { padding: 20px 0 10px; }
 .intro h1 { font-size: clamp(32px, 4vw, 46px); margin: 12px 0; letter-spacing: -1.5px; }
 .intro > p:last-child { font-size: 14px; }
