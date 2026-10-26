@@ -264,7 +264,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
         }
         throw new Error('Analiza posiłku nie zakończyła się w limicie.');
       };
-      const accept = () => evaluate("document.getElementById('save-meal-proposal').click()");
+      const accept = async () => {await evaluate("document.getElementById('save-meal-proposal').click()");for(let i=0;i<200;i++){if(await evaluate("document.getElementById('meal-text-form').dataset.learningState!=='pending'"))return;await pause(20);}throw new Error('Nie zakończono zapisu pamięci wyboru.');};
       await send('Page.navigate', { url });
       await waitReady(null);
       if(seedProducts && !diagnostic) {

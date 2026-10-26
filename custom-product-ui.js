@@ -1,3 +1,4 @@
+import {storageErrorMessage} from './storage-health.js';
 import { HOUSEHOLD_UNITS } from './portion-model.js';
 export function initCustomProducts({repository,onChanged,onSelect}){
  const $=id=>document.getElementById(id);let editing=null;
@@ -32,7 +33,7 @@ export function initCustomProducts({repository,onChanged,onSelect}){
    input.quantity=null;
    input.portions=[...$('custom-portion-rows').children].map((row,index)=>({id:`custom-portion-${index}`,productId:editing??'pending',unit:row.querySelector('select').value,amount:1,normalizedAmount:numeric(row.querySelector('input').value),normalizedUnit:input.unit,source:'USER',description:row.querySelector('[data-portion-label]').value.trim()||`Własna porcja ${index+1}`}));
    const product=await repository.saveCustomProduct(input,editing);$('custom-dialog').close();await refresh();await onChanged();onSelect(product);
-  }catch(error){$('custom-error').textContent=error.message;}finally{$('custom-save').disabled=false;}
+  }catch(error){$('custom-error').textContent=storageErrorMessage(error);}finally{$('custom-save').disabled=false;}
  });
  $('export-custom').onclick=async()=>{try{const data={version:1,source:'custom',exportedAt:new Date().toISOString(),products:await repository.customProducts()};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='benger-custom-products.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch{$('catalog-message').textContent='Nie udało się wyeksportować produktów.';}};
  void refresh();return {open,refresh};

@@ -1,0 +1,793 @@
+[
+  {
+    "text": "Zjadłem 1 porcja mojego curry na śniadanie",
+    "name": "Moje curry",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem dwie porcje mojego curry",
+    "name": "Moje curry",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji mojego curry na kolację",
+    "name": "Moje curry",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem półtorej porcji mojego curry",
+    "name": "Moje curry",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji mojego curry na śniadanie",
+    "name": "Moje curry",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem 1,5 porcji mojego curry",
+    "name": "Moje curry",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g mojego curry na kolację",
+    "name": "Moje curry",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem 180 gram mojego curry",
+    "name": "Moje curry",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml mojego curry na śniadanie",
+    "name": "Moje curry",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem 200 mililitrów mojego curry",
+    "name": "Moje curry",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje mojego curry na kolację",
+    "name": "Moje curry",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja mojego rosołu na obiad",
+    "name": "Mój rosół",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem dwie porcje mojego rosołu",
+    "name": "Mój rosół",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji mojego rosołu na przekąskę",
+    "name": "Mój rosół",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem półtorej porcji mojego rosołu",
+    "name": "Mój rosół",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji mojego rosołu na obiad",
+    "name": "Mój rosół",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem 1,5 porcji mojego rosołu",
+    "name": "Mój rosół",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g mojego rosołu na przekąskę",
+    "name": "Mój rosół",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem 180 gram mojego rosołu",
+    "name": "Mój rosół",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml mojego rosołu na obiad",
+    "name": "Mój rosół",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem 200 mililitrów mojego rosołu",
+    "name": "Mój rosół",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje mojego rosołu na przekąskę",
+    "name": "Mój rosół",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja mojego bigosu na kolację",
+    "name": "Mój bigos",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem dwie porcje mojego bigosu",
+    "name": "Mój bigos",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji mojego bigosu na śniadanie",
+    "name": "Mój bigos",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem półtorej porcji mojego bigosu",
+    "name": "Mój bigos",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji mojego bigosu na kolację",
+    "name": "Mój bigos",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem 1,5 porcji mojego bigosu",
+    "name": "Mój bigos",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g mojego bigosu na śniadanie",
+    "name": "Mój bigos",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem 180 gram mojego bigosu",
+    "name": "Mój bigos",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml mojego bigosu na kolację",
+    "name": "Mój bigos",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem 200 mililitrów mojego bigosu",
+    "name": "Mój bigos",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje mojego bigosu na śniadanie",
+    "name": "Mój bigos",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja carbonary na przekąskę",
+    "name": "Carbonara",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem dwie porcje carbonary",
+    "name": "Carbonara",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji carbonary na obiad",
+    "name": "Carbonara",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem półtorej porcji carbonary",
+    "name": "Carbonara",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji carbonary na przekąskę",
+    "name": "Carbonara",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem 1,5 porcji carbonary",
+    "name": "Carbonara",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g carbonary na obiad",
+    "name": "Carbonara",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem 180 gram carbonary",
+    "name": "Carbonara",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml carbonary na przekąskę",
+    "name": "Carbonara",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem 200 mililitrów carbonary",
+    "name": "Carbonara",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje carbonary na obiad",
+    "name": "Carbonara",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja zapiekanki na śniadanie",
+    "name": "Zapiekanka",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem dwie porcje zapiekanki",
+    "name": "Zapiekanka",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji zapiekanki na kolację",
+    "name": "Zapiekanka",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem półtorej porcji zapiekanki",
+    "name": "Zapiekanka",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji zapiekanki na śniadanie",
+    "name": "Zapiekanka",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem 1,5 porcji zapiekanki",
+    "name": "Zapiekanka",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g zapiekanki na kolację",
+    "name": "Zapiekanka",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem 180 gram zapiekanki",
+    "name": "Zapiekanka",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml zapiekanki na śniadanie",
+    "name": "Zapiekanka",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem 200 mililitrów zapiekanki",
+    "name": "Zapiekanka",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje zapiekanki na kolację",
+    "name": "Zapiekanka",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja sałatki na obiad",
+    "name": "Sałatka",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem dwie porcje sałatki",
+    "name": "Sałatka",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji sałatki na przekąskę",
+    "name": "Sałatka",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem półtorej porcji sałatki",
+    "name": "Sałatka",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji sałatki na obiad",
+    "name": "Sałatka",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem 1,5 porcji sałatki",
+    "name": "Sałatka",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g sałatki na przekąskę",
+    "name": "Sałatka",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem 180 gram sałatki",
+    "name": "Sałatka",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml sałatki na obiad",
+    "name": "Sałatka",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem 200 mililitrów sałatki",
+    "name": "Sałatka",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje sałatki na przekąskę",
+    "name": "Sałatka",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja owsianki na kolację",
+    "name": "Owsianka",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem dwie porcje owsianki",
+    "name": "Owsianka",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji owsianki na śniadanie",
+    "name": "Owsianka",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem półtorej porcji owsianki",
+    "name": "Owsianka",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji owsianki na kolację",
+    "name": "Owsianka",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem 1,5 porcji owsianki",
+    "name": "Owsianka",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g owsianki na śniadanie",
+    "name": "Owsianka",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem 180 gram owsianki",
+    "name": "Owsianka",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml owsianki na kolację",
+    "name": "Owsianka",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem 200 mililitrów owsianki",
+    "name": "Owsianka",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje owsianki na śniadanie",
+    "name": "Owsianka",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja gulaszu na przekąskę",
+    "name": "Gulasz",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem dwie porcje gulaszu",
+    "name": "Gulasz",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji gulaszu na obiad",
+    "name": "Gulasz",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem półtorej porcji gulaszu",
+    "name": "Gulasz",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji gulaszu na przekąskę",
+    "name": "Gulasz",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem 1,5 porcji gulaszu",
+    "name": "Gulasz",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g gulaszu na obiad",
+    "name": "Gulasz",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem 180 gram gulaszu",
+    "name": "Gulasz",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml gulaszu na przekąskę",
+    "name": "Gulasz",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem 200 mililitrów gulaszu",
+    "name": "Gulasz",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje gulaszu na obiad",
+    "name": "Gulasz",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja kurczaka curry na śniadanie",
+    "name": "Kurczak curry",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem dwie porcje kurczaka curry",
+    "name": "Kurczak curry",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji kurczaka curry na kolację",
+    "name": "Kurczak curry",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem półtorej porcji kurczaka curry",
+    "name": "Kurczak curry",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji kurczaka curry na śniadanie",
+    "name": "Kurczak curry",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem 1,5 porcji kurczaka curry",
+    "name": "Kurczak curry",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g kurczaka curry na kolację",
+    "name": "Kurczak curry",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na przekąskę zjadłem 180 gram kurczaka curry",
+    "name": "Kurczak curry",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml kurczaka curry na śniadanie",
+    "name": "Kurczak curry",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na obiad zjadłem 200 mililitrów kurczaka curry",
+    "name": "Kurczak curry",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje kurczaka curry na kolację",
+    "name": "Kurczak curry",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 1 porcja zupy na obiad",
+    "name": "Zupa",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem dwie porcje zupy",
+    "name": "Zupa",
+    "amount": 2,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem pół porcji zupy na przekąskę",
+    "name": "Zupa",
+    "amount": 0.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem półtorej porcji zupy",
+    "name": "Zupa",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem ćwierć porcji zupy na obiad",
+    "name": "Zupa",
+    "amount": 0.25,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem 1,5 porcji zupy",
+    "name": "Zupa",
+    "amount": 1.5,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 250 g zupy na przekąskę",
+    "name": "Zupa",
+    "amount": 250,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Na śniadanie zjadłem 180 gram zupy",
+    "name": "Zupa",
+    "amount": 180,
+    "unit": "g",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem 450 ml zupy na obiad",
+    "name": "Zupa",
+    "amount": 450,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Na kolację zjadłem 200 mililitrów zupy",
+    "name": "Zupa",
+    "amount": 200,
+    "unit": "ml",
+    "ambiguous": false
+  },
+  {
+    "text": "Zjadłem trzy porcje zupy na przekąskę",
+    "name": "Zupa",
+    "amount": 3,
+    "unit": "serving",
+    "ambiguous": false
+  },
+  {
+    "text": "na obiad porcja curry i 200 ml mleka",
+    "name": "Curry",
+    "amount": 1,
+    "unit": "serving",
+    "mixed": true
+  },
+  {
+    "text": "porcja mojego dania",
+    "name": "Potrawa",
+    "amount": 1,
+    "unit": "serving",
+    "alias": "moje danie"
+  },
+  {
+    "text": "porcja curry",
+    "name": "Curry z kurczakiem",
+    "amount": 1,
+    "unit": "serving",
+    "ambiguous": true
+  }
+]

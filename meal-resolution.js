@@ -1,3 +1,4 @@
+import {resolveRecipePortion} from './recipe-portion-resolver.js';
 import { resolvePortion, portionLabel } from './portion-resolver.js';
 import { calculatePortion, sumNutrition } from './nutrition.js';
 import { copyProduct } from './product-model.js';
@@ -22,11 +23,12 @@ export function itemPortionResolution(item){return resolvePortion({product:item.
 export function updateMealItemPortion(item, patch) {
   const intent = { ...item.intent };
   for (const key of ['amount', 'unit', 'meal']) if (Object.hasOwn(patch, key)) intent[key] = patch[key];
+  if(item.kind==='RECIPE')return {...item,intent,portion:item.resolution.recipe?resolveRecipePortion(item.resolution.recipe,intent.amount,intent.unit).portion:null};
   return { ...item, intent, portion: portionFor(intent, item.resolution, item) };
 }
 
 // SpeechToText i parser dostarczą intents. Domyślnie nie ma requestu dla każdego fragmentu.
-export async function resolveMealIntents(intents, { resolver, allowExternal = false, signal, repository } = {}) {
+export async function resolveMealIntents(intents, { resolver, allowExternal = false, signal, repository, recipeResolver } = {}) {
   if (!Array.isArray(intents) || intents.length > 20) throw new TypeError('Posiłek może mieć najwyżej 20 pozycji.');
   if (intents.some(intent => !intent || typeof intent !== 'object')) throw new TypeError('Nieprawidłowa pozycja posiłku.');
   const ids = intents.map((intent, index) => intent.id ?? `food-${index + 1}`);
@@ -35,10 +37,17 @@ export async function resolveMealIntents(intents, { resolver, allowExternal = fa
   let externalBudget = allowExternal ? 1 : 0;
   for (const [index, intent] of intents.entries()) {
     if (signal?.aborted) throw signal.reason;
+    let localProductResolution;
+    if(recipeResolver&&!intent.barcode){const resolution=await recipeResolver.resolve(intent.query);
+      if(['personal-recipe-not-found','recipe-storage-unavailable'].includes(resolution.reason))localProductResolution=await resolver.resolve({query:intent.query,...(['g','ml'].includes(intent.unit)?{unit:intent.unit}:{})},{allowExternal:false,signal});
+      if(resolution.recipe||resolution.alternatives.length||['personal-recipe-not-found','recipe-storage-unavailable'].includes(resolution.reason)&&!localProductResolution?.product){
+        items.push({id:ids[index],kind:'RECIPE',intent:{...intent},resolution,portion:resolution.recipe?resolveRecipePortion(resolution.recipe,intent.amount,intent.unit).portion:null,confirmed:false});continue;
+      }
+    }
     // Brak/nieprawidłowa ilość nie blokuje rozpoznania tożsamości; nadal blokuje porcję.
     const identity = { query: intent.query, ...(intent.barcode ? { barcode: intent.barcode } : {}),
       ...(['g', 'ml'].includes(intent.unit) ? { unit: intent.unit } : {}) };
-    let resolution = await resolver.resolve(identity, { allowExternal: false, signal });
+    let resolution = localProductResolution??await resolver.resolve(identity, { allowExternal: false, signal });
     if (resolution.reason === 'not-found' && externalBudget > 0 && intent.amount > 0 && intent.unit && !intent.issues?.length) {
       externalBudget--; resolution = await resolver.resolve(identity, { allowExternal: true, signal });
     }
