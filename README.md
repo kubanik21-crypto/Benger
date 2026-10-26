@@ -174,20 +174,20 @@ GitHub Actions uruchamia testy także po push do `etap-6-pwa-catalog-scanner` (b
 
 ## Aktualny preview i ręczny test produkcyjnego OFF
 
-Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-9/**
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-10/**
 
-Jest przygotowywane po push gałęzi `etap-9-recipe-diary-hardening` przez workflow `Stage 9 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
+Jest przygotowywane po push gałęzi `etap-10-progress` przez workflow `Stage 10 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
 
-Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-9.nutrition.v1` oraz IndexedDB `BengerDB-preview-etap-9`. Dane wersji głównej nie są kopiowane ani zmieniane.
+Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-10.nutrition.v1` oraz IndexedDB `BengerDB-preview-etap-10`. Dane wersji głównej nie są kopiowane ani zmieniane.
 
-Ręczna publikacja z czystej gałęzi Etapu 9: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
+Ręczna publikacja z czystej gałęzi Etapu 10: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
 
 W preview kliknij „Sprawdź połączenie OFF”. Strona diagnostyczna uruchamia prawdziwe wyszukiwanie i barcode, zapisuje statusy HTTP, informację o czytelnej odpowiedzi CORS, znormalizowany produkt/makro i wynik ładowania zdjęcia. Nie dodaje wpisów do dziennika. Raport można pobrać jako JSON. Na tej stronie nic nie jest mockowane.
 
 Pełny test rzeczywistego przepływu w Chromium z tymczasowym profilem, poza standardowym CI:
 
 ```sh
-npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-9/ --report /tmp/benger-off-live.json
+npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-10/ --report /tmp/benger-off-live.json
 ```
 
 Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.
@@ -291,3 +291,12 @@ Możesz powiedzieć „porcja mojego curry i 200 ml mleka” albo dodać porcję
 - [Recipe Diagnostics](https://kubanik21-crypto.github.io/Benger/previews/etap-9/recipe-diagnostics.html)
 
 Pełne testy: `npm test`, `npm run test:browser`, `git diff --check`. Pomiary na izolowanym profilu: `node scripts/measure-release.mjs /tmp/benger-release.json`. Standardowe CI nie odpytuje prawdziwego OFF. Nie dodano płatnych usług ani bibliotek.
+
+## Progres — Etap 10
+
+Waga z trendem 7 dni, ciśnienie/tętno, 11 obwodów i lokalne sesje zdjęciowe przód/bok/tył z porównaniem. Zdjęcia są kompresowane i przechowywane jako Blob w osobnej IndexedDB; brak uploadu i synchronizacji. Wykresy SVG bez nowej biblioteki. Benger nie diagnozuje.
+
+- [Preview Etapu 10](https://kubanik21-crypto.github.io/Benger/previews/etap-10/#/progres)
+- [Architektura, limity, backup i 10 kroków na Samsungu](docs/progress.md)
+
+Backup v3 importuje również v1/v2. Lekka kopia zawiera pomiary; pełna kopia jest osobną opcją ze zdjęciami (transport JSON/base64, runtime Blob). Produkcja i poprzednie preview pozostają oddzielone.
