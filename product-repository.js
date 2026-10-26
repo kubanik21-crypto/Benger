@@ -1,3 +1,5 @@
+import { createUsdaProvider } from './product-providers/usda.js';
+import { createCustomProvider } from './product-providers/custom.js';
 import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js';
 import { createLocalProvider } from './product-providers/local.js';
 import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js';
@@ -8,10 +10,14 @@ import { defaultSearchProvider } from './product-providers/off-search.js';
 export const SEARCH_INTERVAL_MS = 6500; // poniżej 10 wyszukiwań/minutę
 export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minutę
 
-export function createProductRepository({ local = createLocalProvider(), remote = createOpenFoodFactsProvider(), searchProvider = defaultSearchProvider(), cache = createProductCache(), isOnline = () => globalThis.navigator?.onLine !== false } = {}) {
+export function createProductRepository({ local = createLocalProvider(), generic = createUsdaProvider(), custom = createCustomProvider(), remote = createOpenFoodFactsProvider(), searchProvider = defaultSearchProvider(), cache = createProductCache(), isOnline = () => globalThis.navigator?.onLine !== false } = {}) {
   const inFlight = new Map();
-  const fromCache = async id => local.getById(id) ?? (await cache.getProduct(id))?.product ?? null;
-  const localMatches = async query => searchProducts([...local.list(), ...(await cache.allProducts())], query);
+  const fromCache = async id => await custom.getById(id) ?? local.getById(id) ?? (await cache.getProduct(id))?.product ?? (id.startsWith('usda:') ? await generic.getById(id).catch(()=>null) : null);
+  const localMatches = async query => {
+    const [own, starred, used, cached, usda] = await Promise.all([custom.list(), productsFor(await cache.favoriteIds()), productsFor(await cache.recentIds()), cache.allProducts(), generic.search(query).catch(()=>[])]);
+    const alias = await cache.resolveAlias(query);
+    return deduplicateProducts([...(alias ? await productsFor([alias]) : []), ...searchProducts([...own,...starred,...used,...cached,...local.list()],query), ...usda]).slice(0,20);
+  };
   const merge = products => deduplicateProducts(products).slice(0, 20);
   async function request(key, kind, operation) {
     if (inFlight.has(key)) return inFlight.get(key);
@@ -35,24 +41,29 @@ export function createProductRepository({ local = createLocalProvider(), remote 
   }
   return {
     ready: cache.ready,
+    customProducts: custom.list,
+    saveCustomProduct: (input,id) => custom.save(input,id),
+    deleteCustomProduct: id => custom.remove(id),
+    genericMatches: query => generic.search(query).catch(()=>[]),
     localProducts: local.list,
-    async allCachedProducts() { return deduplicateProducts([...local.list(), ...(await cache.allProducts())]); },
+    async allCachedProducts() { return deduplicateProducts([...(await custom.list()), ...local.list(), ...(await cache.allProducts())]); },
     getProductById: fromCache,
     persistent: cache.persistent,
     async searchProducts(query, options = {}) {
       const term = typeof query === 'string' ? query.trim().replace(/\s+/g, ' ') : '';
       if (term.length < 3 || term.length > 120) throw new ProductError('query');
       const available = await localMatches(term);
+      if (available.some(p=>p.source==='usda') && !options.forceExternal) return {products:available,status:isOnline()?'local':'offline',error:isOnline()?null:new ProductError('offline')};
       if (!isOnline()) return { products: available, status: 'offline', error: new ProductError('offline') };
       const searchKey = `${searchProvider.id ?? 'custom'}:${term}`;
       const cached = await cache.getSearch(searchKey);
-      if (cached !== null) return { products: merge([...available, ...cached]), status: 'cached', error: null };
+      if (cached !== null) return { products: merge(options.forceExternal?[...cached,...available]:[...available,...cached]), status: 'cached', error: null };
       try {
         const products = await request(`search:${normalizeText(searchKey)}`, 'search', () => searchProvider.searchProducts(term, options));
         await cache.putProducts(products);
         await cache.putSearch(searchKey, products);
         const normalized = await productsFor(products.map(product => product.id));
-        return { products: merge([...(await localMatches(term)), ...normalized]), status: 'online', error: null };
+        return { products: merge(options.forceExternal?[...normalized,...(await localMatches(term))]:[...(await localMatches(term)),...normalized]), status: 'online', error: null };
       } catch (error) {
         return { products: available, status: 'fallback', error: failure(error) };
       }
@@ -60,6 +71,8 @@ export function createProductRepository({ local = createLocalProvider(), remote 
     async getProductByBarcode(value, options = {}) {
       const barcode = normalizeBarcode(value);
       if (!barcode) throw new ProductError('barcode');
+      const own=(await custom.list()).find(product=>barcodeKey(product.barcode)===barcodeKey(barcode));
+      if(own)return {product:own,status:'local',error:null};
       const records = await cache.allProducts();
       const existing = records.find(product => barcodeKey(product.barcode) === barcodeKey(barcode));
       const record = existing ? await cache.getProduct(existing.id) : null;
@@ -96,6 +109,6 @@ export function createProductRepository({ local = createLocalProvider(), remote 
         if (product) await cache.markUsed([product], Date.parse(entry.createdAt));
       }
     },
-    close: cache.close,
+    async close(){await Promise.all([cache.close(),custom.close()]);},
   };
 }

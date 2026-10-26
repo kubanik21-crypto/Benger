@@ -1,5 +1,12 @@
+import { readdirSync } from 'node:fs';
 // Jawna lista publikacji: bez serwera, testów, fixture, .git i konfiguracji.
 export const PUBLIC_ASSETS = [
+  'barcode-test-lab.html','catalog-diagnostics.html','pwa-diagnostics.html','stage6-diagnostics.js',
+  'backup.js','backup-ui.js',
+  'service-worker.js','sw-assets.js','pwa.js','barcode-scanner.js','barcode-utils.js','custom-product-ui.js',
+  'icons/icon-192.png','icons/icon-512.png','vendor/zxing/zxing-browser-0.2.1.min.js',
+  'product-providers/usda.js','product-providers/custom.js',
+  ...readdirSync(new URL('../data/usda/',import.meta.url)).filter(file=>file.endsWith('.json')).map(file=>'data/usda/'+file),
   'index.html', 'style.css', 'app.js', 'app-storage.js', 'nutrition.js', 'meal-parser.js', 'legacy.js',
   'manifest.webmanifest', 'product-model.js', 'product-errors.js', 'product-cache.js',
   'product-repository.js', 'product-search-ui.js', 'product-providers/local.js',

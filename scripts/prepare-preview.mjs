@@ -1,3 +1,4 @@
+import { writePwaAssets } from './build-pwa-assets.mjs';
 import { copyFile, mkdir, readFile, realpath, stat, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,17 +25,18 @@ export async function preparePreview(destination, revision) {
     await mkdir(dirname(target), { recursive: true });
     if (file.endsWith('.html')) {
       let html = await readFile(source, 'utf8');
-      html = html.replace('<head>', `<head>\n  <meta name="benger-storage-namespace" content="preview-etap-5">\n  <meta name="benger-build" content="${revision}">`);
-      const banner = `<aside style="padding:16px;background:#174d3c;color:white;font:14px/1.6 system-ui">Podgląd Etapu 5 · ${revision.slice(0, 7)} · Oddzielne dane lokalne. <a style="color:white" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:white" href="./speech-diagnostics.html">Speech diagnostics</a> · <a style="color:white" href="./voice-test-lab.html">Voice Test Lab</a> · <a style="color:white" href="../../">Wersja główna</a></aside>`;
+      html = html.replace('<head>', `<head>\n  <meta name="benger-storage-namespace" content="preview-etap-6">\n  <meta name="benger-build" content="${revision}">`);
+      const banner = `<aside style="padding:16px;background:#174d3c;color:white;font:14px/1.6 system-ui">Podgląd Etapu 6 · ${revision.slice(0, 7)} · Oddzielne dane lokalne. <a style="color:white" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:white" href="./speech-diagnostics.html">Speech diagnostics</a> · <a style="color:white" href="./voice-test-lab.html">Voice Test Lab</a> · <a style="color:white" href="./barcode-test-lab.html">Barcode Test Lab</a> · <a style="color:white" href="./catalog-diagnostics.html">Catalog Diagnostics</a> · <a style="color:white" href="./pwa-diagnostics.html">PWA Diagnostics</a> · <a style="color:white" href="../../">Wersja główna</a></aside>`;
       html = html.replace('<body>', `<body>\n${banner}`);
       html = html.replace(/((?:src|href)="\.\/[^"?]+\.(?:js|css|webmanifest))"/g, `$1?v=${revision}"`);
       await writeFile(target, html);
-    } else if (file.endsWith('.js')) {
+    } else if (file.endsWith('.js') && !file.startsWith('vendor/')) {
       // Cały graf ES modules ma ten sam SHA; świeży index nie miesza się ze starym cache Pages.
       const javascript = (await readFile(source, 'utf8')).replace(/(\bfrom\s+['"])(\.\.?\/[^'"]+\.js)(['"])/g, `$1$2?v=${revision}$3`);
       await writeFile(target, javascript);
     } else await copyFile(source, target);
   }
+  await writePwaAssets(output);
   await writeFile(resolve(output, '.nojekyll'), '');
 }
 

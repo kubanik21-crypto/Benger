@@ -31,6 +31,10 @@
       </div>
     </div>
     <p id="nutrition-storage-message" class="field-error storage-error" role="alert"></p>
+    <p id="connection-status" class="field-help" role="status"></p>
+    <p id="pwa-status" class="fine" role="status">Przygotowujemy tryb offline…</p>
+    <button id="install-app" class="button-secondary" type="button" hidden>Zainstaluj Benger</button>
+    <button id="update-app" class="button-secondary" type="button" hidden>Aktualizuj aplikację</button>
     <section id="voice-entry" class="panel text-meal" aria-labelledby="text-meal-title">
       <div class="voice-layout">
       <div class="voice-input">
@@ -43,6 +47,7 @@
       <p id="speech-status" class="speech-status" role="status" aria-live="polite"></p>
       <p id="live-transcript" class="live-transcript" aria-live="polite" aria-label="Transkrypcja na żywo"></p>
       <div class="voice-secondary-actions">
+        <button id="scan-barcode" type="button" class="button-secondary">Skanuj kod</button>
         <button id="use-text-entry" type="button" class="button-secondary">Dodaj z tekstu</button>
         <button id="use-manual-entry" type="button" class="button-secondary">Dodaj ręcznie</button>
       </div>
@@ -83,6 +88,9 @@
     <section id="product-catalog" class="panel product-catalog" aria-labelledby="catalog-title">
       <p class="eyebrow">ZNAJDŹ SWÓJ PRODUKT</p>
       <h2 id="catalog-title">Dodaj ręcznie · katalog produktów</h2>
+      <button id="create-custom" type="button" class="button-secondary">Utwórz własny produkt</button>
+      <button id="create-from-barcode" type="button" class="button-secondary" hidden>Dodaj produkt z tym kodem</button>
+      <label class="fine"><input id="search-internet" type="checkbox"> Uwzględnij wyniki Open Food Facts</label>
       <form id="product-search-form" class="catalog-search" role="search" novalidate>
         <label for="product-search">Szukaj produktu po nazwie lub marce</label>
         <div class="search-line">
@@ -120,7 +128,8 @@
       <section class="panel calculator" aria-labelledby="calculator-title">
         <p class="eyebrow">DODAJ COŚ DOBREGO</p>
         <h2 id="calculator-title">Nowa porcja</h2>
-        <form id="nutrition-form" novalidate>
+        <details><summary>Twoje produkty</summary><ul id="custom-products" class="product-list"></ul><button id="export-custom" type="button" class="button-secondary">Eksportuj własne produkty</button></details>
+      <form id="nutrition-form" novalidate>
           <p id="selected-product-label" class="field-label">Wybrany produkt</p>
           <div id="product" class="selected-product" role="group" tabindex="-1" aria-labelledby="selected-product-label" aria-describedby="product-error" aria-invalid="false"></div>
           <p id="product-error" class="field-error" role="alert"></p>
@@ -186,6 +195,39 @@
     </aside>
     <footer>Wpisy są zapisane tylko w tej przeglądarce i pod tym adresem strony. Wyczyszczenie jej danych usunie dziennik. Eksport powyżej obejmuje wyłącznie notatki tekstowe.</footer>
   </main>
+  <section class="panel" aria-labelledby="backup-title"><h2 id="backup-title">Dane i kopia zapasowa</h2>
+    <p>Dane są zapisane na tym urządzeniu. Backup pozwala przenieść dziennik, własne produkty, ulubione i skróty.</p>
+    <button id="backup-export" type="button" class="button-secondary">Eksportuj backup JSON</button>
+    <label for="backup-file">Wybierz backup (maks. 10 MiB)</label><input id="backup-file" type="file" accept=".json,application/json">
+    <label for="backup-mode">Tryb importu</label><select id="backup-mode"><option value="merge">Połącz z obecnymi danymi — zachowaj istniejące wpisy</option><option value="replace">Zastąp dziennik i dane produktów backupem</option></select>
+    <label><input id="backup-confirm" type="checkbox"> Potwierdzam import w wybranym trybie; zamknąłem inne karty Bengera.</label>
+    <button id="backup-import" type="button" class="button-secondary" disabled>Potwierdź i importuj</button>
+    <p id="backup-status" role="status"></p>
+  </section>
+  <section class="panel"><h2>Źródła danych</h2><p>Żywność ogólna: <a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a> — public domain / CC0. Produkty markowe: <a href="https://world.openfoodfacts.org/">Open Food Facts</a> — ODbL, zdjęcia CC BY-SA. Własne produkty pozostają lokalnie. Katalog demonstracyjny Bengera jest oznaczony jako przykład.</p></section>
+  <dialog id="scanner-dialog" aria-labelledby="scanner-title">
+    <h2 id="scanner-title">Skanuj kod produktu</h2>
+    <p>Używamy aparatu tylko do odczytu kodu. Nie zapisujemy ani nie wysyłamy wideo.</p>
+    <div class="camera-preview"><video id="scanner-video" muted playsinline></video><span class="scan-frame" aria-hidden="true"></span></div>
+    <p id="scanner-status" role="status">Umieść kod w ramce.</p>
+    <button id="cancel-scanner" type="button" class="button-secondary">Anuluj</button>
+  </dialog>
+  <dialog id="custom-dialog" aria-labelledby="custom-title">
+    <h2 id="custom-title">Własny produkt</h2><p>Przepisz wartości z etykiety na 100 g lub 100 ml.</p>
+    <form id="custom-form" novalidate>
+      <label for="custom-name">Nazwa</label><input id="custom-name" maxlength="240" required>
+      <label for="custom-brand">Marka (opcjonalnie)</label><input id="custom-brand" maxlength="240">
+      <label for="custom-barcode">Kod EAN / UPC (opcjonalnie)</label><input id="custom-barcode" inputmode="numeric" maxlength="24">
+      <label for="custom-unit">Wartości na 100</label><select id="custom-unit"><option value="g">g</option><option value="ml">ml</option></select>
+      <label for="custom-kcal">kcal</label><input id="custom-kcal" inputmode="decimal" maxlength="12">
+      <label for="custom-protein">Białko (g)</label><input id="custom-protein" inputmode="decimal" maxlength="12">
+      <label for="custom-fat">Tłuszcz (g)</label><input id="custom-fat" inputmode="decimal" maxlength="12">
+      <label for="custom-carbs">Węglowodany (g)</label><input id="custom-carbs" inputmode="decimal" maxlength="12">
+      <p id="custom-error" class="field-error" role="alert"></p>
+      <button id="custom-save" type="submit" class="button-primary">Zapisz produkt</button>
+      <button id="custom-cancel" type="button" class="button-secondary">Anuluj</button>
+    </form>
+  </dialog>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

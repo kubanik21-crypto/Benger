@@ -658,7 +658,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
   const apiRequests = () => browser.off.requests.filter(request => request.method === 'GET' && new URL(request.url).hostname === 'world.openfoodfacts.org');
   const advance = (ms = 6500) => a.evaluate(`window.__advanceClock(${ms})`);
   async function search(query) {
-    await a.evaluate(`document.getElementById('product-search').value = ${JSON.stringify(query)}; document.getElementById('product-search').dispatchEvent(new Event('input')); document.getElementById('product-search-form').requestSubmit()`);
+    await a.evaluate(`document.getElementById('search-internet').checked=true; document.getElementById('product-search').value = ${JSON.stringify(query)}; document.getElementById('product-search').dispatchEvent(new Event('input')); document.getElementById('product-search-form').requestSubmit()`);
     await waitFor(a, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'", 13000);
   }
   async function barcode(code) {
@@ -870,7 +870,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
 });
 
 test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym katalogu', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-5/', previewBuild: true, mockOFF: true });
+  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-6/', previewBuild: true, mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page();
   await a.setRaw(KEY, 'oryginalny dziennik produkcyjny');
@@ -878,20 +878,20 @@ test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym
   await a.setRaw('benger.preview-etap-3.nutrition.v1', 'dziennik starego preview');
   await a.reload(); await a.date(DAY);
   assert.equal(await a.evaluate("document.querySelector('meta[name=benger-build]').content"), 'a'.repeat(40));
-  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-5');
+  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-6');
   assert.equal(await a.evaluate("document.getElementById('nutrition-storage-message').textContent"), '');
   for (const file of STATIC_ASSETS) assert.equal((await fetch(new URL(file, browser.base))).status, 200, file);
   await a.choose('oat-flakes', '50'); await a.submit();
   assert.equal((await a.saved()).length, 1);
   assert.equal((await a.saved())[0].nutrition.kcal, 185);
   await a.evaluate("document.getElementById('words').value='Notatka preview';document.getElementById('save').click()");
-  assert.equal(JSON.parse(await a.raw('benger.preview-etap-5.meals.v1')).length, 1);
+  assert.equal(JSON.parse(await a.raw('benger.preview-etap-6.meals.v1')).length, 1);
   assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
   assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
   assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), 'dziennik starego preview');
   await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 1);
   const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(db=>db.name))()');
-  assert.ok(names.includes('BengerDB-preview-etap-5')); assert.ok(!names.includes('BengerDB'));
+  assert.ok(names.includes('BengerDB-preview-etap-6')); assert.ok(!names.includes('BengerDB'));
   const before = browser.off.requests.length;
   const diagnostic = await browser.page(new URL('off-diagnostics.html', browser.base).href, { diagnostic: true });
   assert.equal(browser.off.requests.length, before);

@@ -1,3 +1,4 @@
+import { productSourceLabel } from './product-model.js';
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
 import { MEAL_LABELS } from './meal-understanding.js';
 
@@ -19,7 +20,7 @@ export function updateProposalCard(card, item, message = '') {
   if (approximation) approximation.textContent = `ok. ${item.intent.amount ?? '…'} ${item.intent.unit ?? ''} — ilość przybliżona.`;
   card.querySelector('h4').textContent = product?.name ?? (item.intent.query || 'Produkt bez nazwy');
   card.querySelector('[data-provenance]').textContent = product
-    ? [product.brand, product.source === 'openfoodfacts' ? 'Open Food Facts' : 'Benger · przykład'].filter(Boolean).join(' · ') : '';
+    ? [product.brand, productSourceLabel(product)].filter(Boolean).join(' · ') : '';
   for (const option of card.querySelector('[data-unit]').options) option.disabled = Boolean(option.value && product && option.value !== product.unit);
   const ready = Boolean(item.portion && Object.hasOwn(MEAL_LABELS, item.intent.meal));
   card.dataset.ready = String(ready);

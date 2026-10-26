@@ -134,6 +134,15 @@ export function createProductStorage({ indexedDBFactory = availableIndexedDB(), 
   }
   return {
     read, mutate, removeUnprotectedProducts, ready: database, persistent: () => persistent,
+    async snapshot() {
+      const db=await database();if(!db)throw new Error('Backup wymaga dostępnej pamięci IndexedDB.');
+      return new Promise((resolve,reject)=>{const tx=db.transaction(STORES,'readonly'),result={};for(const name of STORES){const request=tx.objectStore(name).getAll();request.onsuccess=()=>{result[name]=request.result;};}tx.oncomplete=()=>resolve(result);tx.onerror=tx.onabort=()=>reject(tx.error);});
+    },
+    async replace(snapshot) {
+      const db=await database();if(!db)throw new Error('Import wymaga dostępnej pamięci IndexedDB.');
+      await new Promise((resolve,reject)=>{const tx=db.transaction(STORES,'readwrite');try{for(const name of STORES){const store=tx.objectStore(name);store.clear();for(const row of snapshot[name]??[])store.put(row);}}catch(error){tx.abort();reject(error);}tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(tx.error);});
+      for(const name of STORES)memory[name]=new Map((snapshot[name]??[]).map(row=>[row.key,structuredClone(row)]));
+    },
     async close() { const db = await pendingDb; db?.close(); pendingDb = null; persistent = false; },
   };
 }
@@ -142,7 +151,7 @@ export function createProductCache({ storage = createProductStorage(), now = () 
   const fresh = (timestamp, ttl) => Number.isFinite(timestamp) && now() - timestamp >= 0 && now() - timestamp < ttl;
   const freshProduct = record => record.revision === PRODUCT_CACHE_REVISION && fresh(record.fetchedAt, PRODUCT_TTL_MS);
   const validRecord = record => record && Number.isFinite(record.fetchedAt) && record.fetchedAt >= 0
-    && isProduct(record.product) && record.product.source === 'openfoodfacts' && record.key === record.product.id;
+    && isProduct(record.product) && ['openfoodfacts','usda'].includes(record.product.source) && record.key === record.product.id;
   const getRecord = async id => {
     const record = await storage.read('products', id);
     return validRecord(record) ? record : null;
@@ -166,7 +175,7 @@ export function createProductCache({ storage = createProductStorage(), now = () 
   async function putProducts(products, fetchedAt = now(), shouldPrune = true) {
     for (const product of products) {
       const normalized = copyProduct(product);
-      if (normalized.source !== 'openfoodfacts') continue;
+      if (!['openfoodfacts','usda'].includes(normalized.source)) continue;
       await storage.mutate('products', normalized.id, previous => {
         // Nie zastępujemy jawnej podstawy 100 ml starszą odpowiedzią bez tej informacji.
         if (validRecord(previous) && freshProduct(previous)
@@ -179,7 +188,7 @@ export function createProductCache({ storage = createProductStorage(), now = () 
   async function ensureProducts(products) {
     for (const product of products) {
       copyProduct(product);
-      if (product.source === 'openfoodfacts' && !(await getRecord(product.id))) await putProducts([product], now(), false);
+      if (['openfoodfacts','usda'].includes(product.source) && !(await getRecord(product.id))) await putProducts([product], now(), false);
     }
   }
   async function setFavorite(product, favorite) {

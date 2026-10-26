@@ -162,3 +162,15 @@ footer { margin: 26px 0 10px; font-size: 12px; line-height: 1.7; }
   .date-bar .field-help { display: none; }
   .date-bar input { width: 155px; }
 }
+
+/* Stage 6: camera and local product dialogs retain the voice-first main screen. */
+dialog { width:min(560px,calc(100% - 32px)); max-height:90dvh; overflow:auto; border:1px solid #cbd5c0; border-radius:20px; padding:24px; background:#fffef8; color:#203f34; }
+dialog::backdrop { background:rgb(15 35 28 / 65%); }
+dialog input,dialog select { display:block; width:100%; box-sizing:border-box; margin-bottom:12px; }
+.camera-preview { position:relative; background:#14251e; border-radius:12px; overflow:hidden; }
+.camera-preview video { display:block; width:100%; max-height:55dvh; object-fit:cover; }
+.scan-frame { position:absolute; inset:30% 10%; border:3px solid white; border-radius:8px; pointer-events:none; }
+.custom-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:12px 0; }
+.custom-row span { flex:1 1 180px; overflow-wrap:anywhere; }
+#connection-status:empty { display:none; }
+#search-internet { width:auto; min-height:24px; vertical-align:middle; }

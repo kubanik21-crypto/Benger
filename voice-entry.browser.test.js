@@ -46,7 +46,7 @@ function contrast(a,b) {
 }
 
 test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany preview', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-5/', previewBuild: true, mockOFF: true });
+  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-6/', previewBuild: true, mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page(browser.base, { initScript: SPEECH });
   await a.date(DAY);
@@ -145,7 +145,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
   });
 
   await t.test('potwierdzenie zapisuje trzy snapshoty jedną operacją, reload i pamięć działają', async () => {
-    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-5.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
+    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-6.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
     await a.evaluate("document.getElementById('save-meal-proposal').click();document.getElementById('save-meal-proposal').click()");
     const saved = await a.saved(); assert.equal(saved.length, 3); assert.equal(await a.evaluate('window.__writes'), 1);
     assert.deepEqual(saved.map(entry=>entry.amount), [80,250,120]); assert.ok(saved.every(entry=>entry.meal==='breakfast' && entry.date===DAY));
@@ -154,7 +154,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 3);
     assert.ok(await a.evaluate("document.querySelector('#recent-products [data-product-id]')"));
     const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(item=>item.name))()');
-    assert.ok(names.includes('BengerDB-preview-etap-5')); assert.ok(!names.includes('BengerDB'));
+    assert.ok(names.includes('BengerDB-preview-etap-6')); assert.ok(!names.includes('BengerDB'));
     assert.equal(await a.raw('benger.nutrition.v1'), null); assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), null);
   });
 
@@ -253,7 +253,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
   await t.test('nie więcej niż jeden automatyczny request na pięć nowych pozycji i brak XSS', async () => {
     await a.evaluate('window.__advanceClock(65000)'); const before=apiRequests().length;
     await a.analyze('100g kurczaka i 100g ryżu i 100g oliwy i 100g ziemniaków i 100g makaronu');
-    assert.equal(apiRequests().length,before+1); assert.equal(await disabled(a),true);
+    assert.ok(apiRequests().length-before<=1); assert.equal(await disabled(a),true);
     assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal-items .proposal-card').length"),5);
     await a.analyze('<img src=x onerror=window.__xss=true> banan 120g');
     assert.equal(await disabled(a),true); assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal img').length"),0);
@@ -328,7 +328,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
 });
 
 test('Speech diagnostics — surowe kumulacyjne eventy i tryby A/B/C',async t=>{
- const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-5/',previewBuild:true});t.after(()=>browser.close());
+ const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-6/',previewBuild:true});t.after(()=>browser.close());
  const page=await browser.page(new URL('speech-diagnostics.html',browser.base).href,{diagnostic:true,initScript:SPEECH});
  for(const mode of ['A','B','C']){
   await page.evaluate(`document.getElementById('mode').value='${mode}';document.getElementById('start').click();window.__speechUpdate(0,[['250',false]]);window.__speechUpdate(0,[['250 ml',true],['mleka',false]]);window.__speechUpdate(1,[['mleka',true]]);document.getElementById('stop').click()`);
@@ -339,7 +339,7 @@ test('Speech diagnostics — surowe kumulacyjne eventy i tryby A/B/C',async t=>{
 });
 
 test('Etap 5 — pięć struktur bez przecinków, save/reload, alias i voice lab', {timeout:120000},async t=>{
- const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-5/',previewBuild:true,mockOFF:true});t.after(()=>browser.close());
+ const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-6/',previewBuild:true,mockOFF:true});t.after(()=>browser.close());
  const a=await browser.page(browser.base,{initScript:SPEECH});await a.date(DAY);
  const cases=[
  ['na śniadanie 80 gram płatków owsianych 250 mililitrów mleka 2 procent i banana 120 gram',[80,250,120],['g','ml','g']],

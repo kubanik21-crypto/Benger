@@ -19,7 +19,7 @@ export async function startStaticHost(prefix, previewBuild = false) {
   try {
     if (previewBuild) await preparePreview(directory, 'a'.repeat(40));
     else for (const name of STATIC_ASSETS) { await mkdir(dirname(join(directory, name)), { recursive: true }); await copyFile(new URL(name, ROOT_URL), join(directory, name)); }
-    const types = { js: 'text/javascript', css: 'text/css', html: 'text/html', webmanifest: 'application/manifest+json' };
+    const types = { js: 'text/javascript', css: 'text/css', html: 'text/html', json: 'application/json', png: 'image/png', webmanifest: 'application/manifest+json' };
     server = createHttpServer(async (request, response) => {
       const pathname = new URL(request.url, 'http://localhost').pathname;
       if (prefix !== '/' && pathname === prefix.slice(0, -1)) {
