@@ -3,11 +3,11 @@ const units = { zero: 0, jeden: 1, jedna: 1, jedno: 1, dwa: 2, dwie: 2, trzy: 3,
 const teens = { dziesiec: 10, jedenascie: 11, dwanascie: 12, trzynascie: 13, czternascie: 14, pietnascie: 15, szesnascie: 16, siedemnascie: 17, osiemnascie: 18, dziewietnascie: 19 };
 const tens = { dwadziescia: 20, trzydziesci: 30, czterdziesci: 40, piecdziesiat: 50, szescdziesiat: 60, siedemdziesiat: 70, osiemdziesiat: 80, dziewiecdziesiat: 90 };
 const hundreds = { sto: 100, dwiescie: 200, trzysta: 300, czterysta: 400, piecset: 500, szescset: 600, siedemset: 700, osiemset: 800, dziewiecset: 900 };
-const values = { ...units, ...teens, ...tens, ...hundreds, tysiac:1000, tysiace:1000, pol:0.5, poltora:1.5, poltorej:1.5 };
+const values = { ...units, ...teens, ...tens, ...hundreds, tysiac:1000, tysiace:1000, pol:0.5, polowa:0.5, cwierc:0.25, poltora:1.5, poltorej:1.5 };
 
 function readNumber(words) {
   if (words.join(' ')==='jeden i pol' || words.join(' ')==='jedna i pol' || words.join(' ')==='jedno i pol') return 1.5;
-  if (words.length===1 && ['pol','poltora','poltorej'].includes(words[0])) return values[words[0]];
+  if (words.length===1 && ['pol','polowa','cwierc','poltora','poltorej'].includes(words[0])) return values[words[0]];
   const decimal = words.indexOf('przecinek');
   if(decimal>=0){ const whole=readNumber(words.slice(0,decimal)); const digits=words.slice(decimal+1);return whole!==null && digits.length && digits.every(word=>Object.hasOwn(units,word)) ? Number(`${whole}.${digits.map(word=>units[word]).join('')}`) : null; }
   let index = 0, value = 0;
@@ -34,7 +34,7 @@ export function replaceSpokenNumbers(text) {
     const group = words.slice(i, end + 1).filter(word => !/^\s+$/.test(word));
     const value = readNumber(group);
     const next = words.slice(end + 1).find(word => !/^\s+$/.test(word)) ?? '';
-    if (value !== null && /^(?:g|gram(?:a|y|ow)?|ml|mililitr(?:a|y|ow)?|mili|mil|sztuki|sztuk|sztuka|kromki|kromka|lyzka|lyzki|lyzeczka|lyzeczki|jajka|procent(?:a|y|ow)?|proc)\b/.test(next)) words.splice(i, end - i + 1, String(value));
+    if (value !== null && /^(?:g|gram(?:a|y|ow)?|ml|mililitr(?:a|y|ow)?|mili|mil|sztuki|sztuk|sztuka|kromki|kromka|kromek|plaster|plastry|plastrow|lyzka|lyzki|lyzek|lyzeczka|lyzeczki|lyzeczek|szklanka|szklanki|szklanek|kubek|kubka|kubki|kubkow|opakowanie|opakowania|opakowan|porcja|porcje|porcji|garsc|garsci|garscie|miarka|miarki|miarek|jajko|jajka|jajek|banan|banana|banany|bananow|jablko|jablka|jablek|bulka|bulke|bulki|bulek|procent(?:a|y|ow)?|proc)\b/.test(next)) words.splice(i, end - i + 1, String(value));
     else i = end;
   }
   return words.join('');

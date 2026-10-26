@@ -24,7 +24,11 @@ export function normalizeTranscript(rawTranscript) {
     return liquids.has(previousHead) ? `${amount} ml` : full;
   });
   text = text.replace(/\bmniej wiecej(?: tak)?\b/g,'okolo');
-  text = text.replace(/\b(\d+(?:[.,]\d+)?)\s+(?:sztuki|sztuk|sztuka)\b/g,'$1 piece').replace(/\b(\d+(?:[.,]\d+)?)\s+(?:kromki|kromka|kromek)\b/g,'$1 slice').replace(/\b(\d+(?:[.,]\d+)?)\s+(?:lyzki|lyzka)\b/g,'$1 tablespoon').replace(/\b(\d+(?:[.,]\d+)?)\s+(?:lyzeczki|lyzeczka)\b/g,'$1 teaspoon');
-  text = text.replace(/\b(\d+)\s+(jajka|jajek|jajko)\b/g,'$1 piece $2');
+  const household={piece:['sztuka','sztuki','sztuk'],slice:['kromka','kromki','kromek'],slab:['plaster','plastry','plastrow'],tablespoon:['lyzka','lyzki','lyzek','lyzke'],teaspoon:['lyzeczka','lyzeczki','lyzeczek','lyzeczke'],cup:['szklanka','szklanki','szklanek','szklanke'],mug:['kubek','kubki','kubkow','kubka'],package:['opakowanie','opakowania','opakowan'],serving:['porcja','porcje','porcji'],handful:['garsc','garsci','garscie'],scoop:['miarka','miarki','miarek']};
+  for(const [unit,forms]of Object.entries(household)){
+    const pattern=new RegExp('\\b('+forms.join('|')+')\\b','g');
+    text=text.replace(pattern,(_match,_word,offset,whole)=>/\d[.,\d]*\s*$/.test(whole.slice(0,offset))?unit:`1 ${unit}`);
+  }
+  text=text.replace(/\b(\d+(?:[.,]\d+)?)\s+(jajka|jajek|jajko|banan|banana|banany|bananow|jablko|jablka|jablek|bulka|bulki|bulek)\b/g,'$1 piece $2');
   return { rawTranscript, normalizedTranscript: text };
 }

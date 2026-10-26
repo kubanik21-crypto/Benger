@@ -1,3 +1,5 @@
+import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js';
+import { itemPortionResolution } from './meal-resolution.js';
 import { productSourceLabel } from './product-model.js';
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
 import { MEAL_LABELS } from './meal-understanding.js';
@@ -17,11 +19,11 @@ export function readProposalFields(card) {
 export function updateProposalCard(card, item, message = '') {
   const product = item.resolution.product;
   const approximation = card.querySelector('[data-approximation]');
-  if (approximation) approximation.textContent = `ok. ${item.intent.amount ?? '…'} ${item.intent.unit ?? ''} — ilość przybliżona.`;
+  if (approximation) approximation.textContent = `ok. ${item.intent.amount ?? '…'} ${householdUnitLabel(item.intent.unit,item.intent.amount)} — ilość przybliżona.`;
   card.querySelector('h4').textContent = product?.name ?? (item.intent.query || 'Produkt bez nazwy');
   card.querySelector('[data-provenance]').textContent = product
     ? [product.brand, productSourceLabel(product)].filter(Boolean).join(' · ') : '';
-  for (const option of card.querySelector('[data-unit]').options) option.disabled = Boolean(option.value && product && option.value !== product.unit);
+  for (const option of card.querySelector('[data-unit]').options) option.disabled = Boolean(option.value && product && ['g','ml'].includes(option.value) && option.value !== product.unit);
   const ready = Boolean(item.portion && Object.hasOwn(MEAL_LABELS, item.intent.meal));
   card.dataset.ready = String(ready);
   const status = card.querySelector('[data-status]');
@@ -31,6 +33,10 @@ export function updateProposalCard(card, item, message = '') {
         : !item.intent.amount ? '! Podaj ilość. Nie zgadujemy porcji.' : '! Sprawdź jednostkę i ilość. Nie przeliczamy gęstości.');
   card.querySelector('[data-values]').textContent = item.portion
     ? `${number.format(item.portion.nutrition.kcal)} kcal · Białko: ${number.format(item.portion.nutrition.protein)} g · Tłuszcz: ${number.format(item.portion.nutrition.fat)} g · Węglowodany: ${number.format(item.portion.nutrition.carbs)} g` : 'Wartości pojawią się po uzupełnieniu produktu i porcji.';
+  const detail=card.querySelector('[data-portion-detail]');
+  if(detail){const c=itemPortionResolution(item);detail.textContent=item.portion?.displayPortion?`${item.portion.displayPortion.label} · ${number.format(item.portion.amount)} ${product.unit} · ${c.source}: ${humanPortionDescription(c.description)}`:Object.hasOwn(HOUSEHOLD_UNITS,item.intent.unit)?c.description:'';}
+  const controls=card.querySelector('[data-portion-controls]');
+  if(controls&&card.portionHandlers)renderPortionControls(controls,item,card.portionHandlers);
   const amount = card.querySelector('[data-amount]');
   amount.setAttribute('aria-invalid', String(!item.intent.amount));
 }
@@ -45,7 +51,7 @@ export function renderProposalChoices(card, products, onChoose) {
     choices.append(button);
   }
 }
-export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose }) {
+export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose, onPortion }) {
   const card = node('article', 'food-entry proposal-card'); card.dataset.itemId = item.id;
   const title = node('h4', '', item.resolution.product?.name ?? (item.intent.query || 'Produkt bez nazwy'));
   card.append(title);
@@ -62,10 +68,10 @@ export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose 
     input.setAttribute('aria-describedby', status.id);
     if (key === 'amount') { input.type = 'text'; input.inputMode = 'decimal'; input.autocomplete = 'off'; input.maxLength = 32; input.value = item.intent.amount ?? ''; }
     else {
-      const options = key === 'meal' ? MEAL_LABELS : { '': 'Wybierz', g: 'g', ml: 'ml' };
+      const options = key === 'meal' ? MEAL_LABELS : { '': 'Wybierz', g: 'g', ml: 'ml', ...HOUSEHOLD_UNITS };
       for (const [value, label] of Object.entries(options)) {
         const option = node('option', '', label); option.value = value;
-        if (key === 'unit' && value && item.resolution.product && value !== item.resolution.product.unit) option.disabled = true;
+        if (key === 'unit' && value && item.resolution.product && ['g','ml'].includes(value) && value !== item.resolution.product.unit) option.disabled = true;
         input.append(option);
       }
       input.value = item.intent[key] ?? (key === 'unit' && !item.intent.amount ? item.resolution.product?.unit ?? '' : '');
@@ -85,8 +91,37 @@ export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose 
   query.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); onSearch(query.value); } });
   const choices = node('div', 'proposal-choices'); choices.dataset.choices = '';
   edit.append(searchLabel, query, search, choices);
-  card.append(status, fields, values, edit);
+  const detail=node('p','field-help');detail.dataset.portionDetail='';detail.setAttribute('aria-live','polite');
+  const controls=node('div','portion-controls');controls.dataset.portionControls='';card.portionHandlers={onPortion};
+  card.append(status, fields, detail, controls, values, edit);
   renderProposalChoices(card, item.resolution.alternatives, onChoose);
   updateProposalCard(card, item);
   return card;
+}
+
+function renderPortionControls(container,item,{onPortion}) {
+ container.replaceChildren();
+ const product=item.resolution.product,unit=item.intent.unit;
+ if(!product||!Object.hasOwn(HOUSEHOLD_UNITS,unit))return;
+ const conversion=itemPortionResolution(item);
+ const offer=(definition,title)=>{
+  const row=node('div','portion-choice');row.append(node('span','',title));
+  for(const [caption,remember]of [['Użyj raz',false],['Zapamiętaj dla tego produktu',true]]){
+   const button=node('button','button-secondary',caption);button.type='button';button.addEventListener('click',()=>void onPortion({...definition,source:remember?'USER':definition.source},remember));row.append(button);
+  }container.append(row);
+ };
+ if(conversion.alternatives.length)for(const def of conversion.alternatives)offer(def,`${humanPortionDescription(def.description)} — ${number.format(def.normalizedAmount/def.amount)} ${def.normalizedUnit} / ${HOUSEHOLD_UNITS[unit]}`);
+ const custom=node('details');custom.open=!item.portion&&!conversion.alternatives.length;
+ custom.append(node('summary','',item.portion?'Zmień definicję porcji':'Uzupełnij masę / objętość porcji'));
+ const label=node('label','',`Ile ${product.unit==='g'?'waży':'ma ml'} 1 ${HOUSEHOLD_UNITS[unit]} tego produktu? (${product.unit})`);
+ const input=node('input');input.id=`${item.id}-portion-weight`;input.type='text';input.inputMode='decimal';input.maxLength=12;input.dataset.portionWeight='';label.htmlFor=input.id;
+ const message=node('p','field-help');message.setAttribute('role','status');
+ custom.append(label,input,message);
+ for(const [caption,remember]of [['Użyj raz',false],['Zapamiętaj dla tego produktu',true]]){
+  const button=node('button','button-secondary',caption);button.type='button';button.dataset.portionRemember=String(remember);
+  button.addEventListener('click',()=>{const raw=input.value.trim(),value=/^\d+(?:[.,]\d+)?$/.test(raw)?Number(raw.replace(',','.')):NaN;
+   if(!Number.isFinite(value)||value<=0||value>100000){message.textContent='Podaj dodatnią wartość do 100 000.';input.setAttribute('aria-invalid','true');input.focus();return;}
+   void onPortion({id:`${product.id}:user:${unit}`,productId:product.id,unit,amount:1,normalizedAmount:value,normalizedUnit:product.unit,source:'USER',description:`Twoja definicja: 1 ${HOUSEHOLD_UNITS[unit]} = ${value} ${product.unit}`},remember);
+  });custom.append(button);
+ }container.append(custom);
 }

@@ -182,6 +182,15 @@
     <button id="backup-import" type="button" class="button-secondary" disabled>Potwierdź i importuj</button>
     <p id="backup-status" role="status"></p>
   </section>
+  <section class="panel" aria-labelledby="portion-settings-title"><details><summary id="portion-settings-title">Moje porcje i naczynia</summary>
+    <p>Porcje dotyczą konkretnego produktu. Zmiana definicji nie zmienia historii dziennika.</p>
+    <form id="portion-settings-form" novalidate>
+      <label for="portion-cup">Moja szklanka (ml, opcjonalnie)</label><input id="portion-cup" name="cupMl" inputmode="decimal" maxlength="12">
+      <label for="portion-mug">Mój kubek (ml, opcjonalnie)</label><input id="portion-mug" name="mugMl" inputmode="decimal" maxlength="12">
+      <button class="button-secondary" type="submit">Zapisz objętości</button>
+    </form><button id="portion-settings-refresh" class="button-secondary" type="button">Odśwież listę moich porcji</button>
+    <ul id="portion-memory-list"></ul><p id="portion-settings-status" role="status"></p>
+  </details></section>
   <section class="panel"><h2>Źródła danych</h2><p>Żywność ogólna: <a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a> — public domain / CC0. Produkty markowe: <a href="https://world.openfoodfacts.org/">Open Food Facts</a> — ODbL, zdjęcia CC BY-SA. Własne produkty pozostają lokalnie.</p><details><summary>Licencje skanera</summary><a href="./vendor/zxing/LICENSE-browser.txt">ZXing Browser — MIT</a> · <a href="./vendor/zxing/LICENSE-library.txt">ZXing Library — Apache-2.0</a> · <a href="./vendor/zxing/LICENSE-ts-custom-error.txt">ts-custom-error — MIT</a></details></section>
   <dialog id="scanner-dialog" aria-labelledby="scanner-title">
     <h2 id="scanner-title">Skanuj kod produktu</h2>
@@ -201,6 +210,11 @@
       <label for="custom-protein">Białko (g)</label><input id="custom-protein" inputmode="decimal" maxlength="12">
       <label for="custom-fat">Tłuszcz (g)</label><input id="custom-fat" inputmode="decimal" maxlength="12">
       <label for="custom-carbs">Węglowodany (g)</label><input id="custom-carbs" inputmode="decimal" maxlength="12">
+      <details><summary>Porcje domowe (opcjonalnie)</summary>
+        <label for="custom-package">Całe opakowanie (g/ml zgodnie z produktem)</label><input id="custom-package" inputmode="decimal" maxlength="12">
+        <p>Podaj masę lub objętość jednej porcji tego produktu. Nie zmienia to wartości na 100 g/ml.</p>
+        <div id="custom-portion-rows"></div><button id="custom-add-portion" class="button-secondary" type="button">+ Dodaj porcję</button>
+      </details>
       <p id="custom-error" class="field-error" role="alert"></p>
       <button id="custom-save" type="submit" class="button-primary">Zapisz produkt</button>
       <button id="custom-cancel" type="button" class="button-secondary">Anuluj</button>

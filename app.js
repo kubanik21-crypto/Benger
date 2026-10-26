@@ -1,3 +1,5 @@
+import { validPortionSnapshot, copyPortionSnapshot } from './portion-model.js';
+import { initPortionSettings } from './portion-settings-ui.js';
 import { recoverPendingImport } from './backup.js';
 import { initBackupUi } from './backup-ui.js';
 import { initPwa } from './pwa.js';
@@ -104,6 +106,7 @@ function readDiaryDate() {
 }
 
 function isValidNutritionEntry(entry) {
+  if(!validPortionSnapshot(entry))return false;
   return entry !== null && typeof entry === 'object'
     && typeof entry.id === 'string' && entry.id.trim() !== ''
     && isValidDiaryDate(entry.date)
@@ -182,7 +185,7 @@ function createPortionArticle(entry) {
   name.textContent = entry.productName;
   const amount = document.createElement('p');
   amount.className = 'entry-amount';
-  amount.textContent = `${amountFormatter.format(entry.amount)} ${entry.unit}`;
+  amount.textContent = `${entry.displayPortion?.label ? entry.displayPortion.label+' · ' : ''}${amountFormatter.format(entry.amount)} ${entry.unit}`;
   const values = document.createElement('p');
   values.className = 'entry-nutrition';
   values.textContent = `${formatter.format(entry.nutrition.kcal)} kcal · Białko: ${formatter.format(entry.nutrition.protein)} g · Tłuszcz: ${formatter.format(entry.nutrition.fat)} g · Węglowodany: ${formatter.format(entry.nutrition.carbs)} g`;
@@ -258,11 +261,12 @@ function appendNutritionPortions(portions, meal, date) {
   if (!portions.length || portions.some(portion => !Object.hasOwn(MEAL_LABELS, portion.meal ?? meal))) throw fieldError('Wybierz posiłek.', 'nutrition-meal');
   const createdAt = new Date().toISOString();
   // Cały zestaw przygotowujemy przed zapisem. Jeden błąd oznacza brak zapisu.
-  const entries = portions.map(({ product, amount, nutrition, meal: rowMeal }) => ({
+  const entries = portions.map(({ product, amount, nutrition, meal: rowMeal, displayPortion, portionConversion }) => ({
     id: createEntryId(), date, createdAt, meal: rowMeal ?? meal,
     productId: product.id, productName: product.name, brand: product.brand, source: product.source,
     sourceId: product.sourceId, barcode: product.barcode, amount, unit: product.unit,
     nutrition: { ...nutrition },
+    ...copyPortionSnapshot({displayPortion,portionConversion,productId:product.id,amount,unit:product.unit}),
   }));
   if (!entries.every(isValidNutritionEntry) || new Set(entries.map(entry => entry.id)).size !== entries.length) throw new Error('Nie można przygotować poprawnych wpisów. Żadna pozycja nie została zapisana.');
   const saved = updateNutritionEntries(current => {
@@ -316,6 +320,7 @@ const now = new Date();
 dateInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 populateSelect(mealSelect, Object.entries(MEAL_LABELS));
 const productRepository = createProductRepository();
+initPortionSettings(productRepository);
 const productSearch = initProductSearch({ repository: productRepository, onSelect(product) {
   selectedProduct = product;
   updatePortionPreview();

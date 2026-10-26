@@ -1,5 +1,6 @@
+import { HOUSEHOLD_UNITS } from './portion-model.js';
 import { canonicalWord, FOOD_HEADS } from './food-language.js';
-const units=new Set(['g','ml','piece','slice','tablespoon','teaspoon']);
+const units=new Set(['g','ml','piece','slice','tablespoon','teaspoon',...Object.keys(HOUSEHOLD_UNITS)]);
 export function tokenizeFood(text){
  return [...text.matchAll(/[-+]?\d[\d.,]*%?|[a-z]+(?:-[a-z]+)*|[^\s]/g)].map(match=>{
  const value=match[0], normalized=canonicalWord(value);

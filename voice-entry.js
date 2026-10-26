@@ -2,7 +2,7 @@ import { recordAnalysis } from './analysis-history.js';
 import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js';
 import { understandMeal, MEAL_LABELS } from './meal-understanding.js';
 import { createProductResolver } from './product-resolver.js';
-import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal } from './meal-resolution.js';
+import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal, portionFor } from './meal-resolution.js';
 import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js';
 import { productErrorMessage } from './product-errors.js';
 
@@ -62,6 +62,15 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   }
   function drawRow(item) {
     return createProposalCard(item, {
+      onPortion: async (definition,remember) => {
+        const row=findItem(item.id);if(!row||!row.resolution.product)return;
+        const version=revision,rowVersion=nextRowVersion(item.id);
+        try {if(remember)await repository.portions.remember({...definition,source:'USER'});
+          if(revision!==version||rowVersions.get(item.id)!==rowVersion)return;
+          const changed={...findItem(item.id),definitionId:definition.id,portionDefinitions:[definition,...(findItem(item.id).portionDefinitions??[]).filter(d=>d.id!==definition.id)]};
+          changed.portion=portionFor(changed.intent,changed.resolution,changed);replaceItem(item.id,changed);updateProposalCard(findCard(item.id),changed);summary();findCard(item.id).querySelector('[data-amount]').focus();
+        }catch(failure){updateProposalCard(findCard(item.id),findItem(item.id),failure.message);}
+      },
       onInput: patch => {
         if (!findItem(item.id)) return;
         nextRowVersion(item.id);
@@ -86,8 +95,8 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     try {
       const product = await repository.getProductById(productId);
       if (!product) throw new Error('Produkt nie jest już dostępny w pamięci. Wyszukaj go ponownie.');
-      const mismatch = current.intent.unit && current.intent.unit !== product.unit;
-      const edited = await editMealItem({ items: [current] }, id, { productId, unit: product.unit, ...(mismatch ? { amount: null } : {}) }, { repository });
+      const mismatch = ['g','ml'].includes(current.intent.unit) && current.intent.unit !== product.unit;
+      const edited = await editMealItem({ items: [current] }, id, { productId, unit: current.intent.unit && !['g','ml'].includes(current.intent.unit)?current.intent.unit:product.unit, ...(mismatch ? { amount: null } : {}) }, { repository });
       if (revision !== version || rowVersions.get(id) !== rowVersion) return;
       const row = { ...edited.items[0], learned: false };
       // Rejestrujemy uczenie przed odblokowaniem zapisu, aby szybki klik nie policzył go dwa razy.
@@ -132,7 +141,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     const version = revision, request = new AbortController(); controller = request;
     form.dataset.analysisState = 'processing'; $('analyze-meal').disabled = true; $('meal-text-status').textContent = 'Dopasowuję produkty…';
     try {
-      const resolved = await resolveMealIntents(understood.intents, { resolver, allowExternal: !understood.issues.length, signal: request.signal });
+      const resolved = await resolveMealIntents(understood.intents, { resolver, allowExternal: !understood.issues.length, signal: request.signal, repository });
       if (revision !== version) return;
       recordAnalysis(understood,resolved.items.filter(item=>!item.portion).length);
       proposal = { ...resolved, rawTranscript:understood.rawTranscript, normalizedTranscript:understood.normalizedTranscript, source, defaultMeal, date, meal: understood.meal, issues: understood.issues };

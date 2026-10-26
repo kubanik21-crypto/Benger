@@ -35,7 +35,7 @@ export const VOICE_CORPUS = [
 ['mleko dwa proc 250 ml',[['mleko 2%',250,'ml']]],
 ['jogurt 0 procent 200 g',[['jogurt 0%',200,'g']]],
 ['Coca-Cola Zero 200 ml',[['coca-cola zero',200,'ml']]],
-['łyżeczka cukru',[['lyzeczka cukier',null,null]]],
+['łyżeczka cukru',[['cukier',1,'teaspoon']]],
 ['1 łyżka oliwy',[['oliwa',1,'tablespoon']]],
 ['2 kromki chleba',[['chleb',2,'slice']]],
 ['mleko 250 mil',[['mleko',250,'ml']]],
