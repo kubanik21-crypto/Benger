@@ -1,17 +1,17 @@
-import { initNavigation, navigate } from './navigation.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { initRecipes } from './recipe-ui.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { renderDiaryHistory } from './diary-history.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { validPortionSnapshot, copyPortionSnapshot } from './portion-model.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { initPortionSettings } from './portion-settings-ui.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { recoverPendingImport } from './backup.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { initBackupUi } from './backup-ui.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { initPwa } from './pwa.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { calculatePortion, sumNutrition } from './nutrition.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { MEAL_LABELS } from './meal-understanding.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { initVoiceEntry } from './voice-entry.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProductRepository } from './product-repository.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { initProductSearch } from './product-search-ui.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { initNavigation, navigate } from './navigation.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { initRecipes } from './recipe-ui.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { renderDiaryHistory } from './diary-history.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { validPortionSnapshot, copyPortionSnapshot } from './portion-model.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { initPortionSettings } from './portion-settings-ui.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { recoverPendingImport } from './backup.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { initBackupUi } from './backup-ui.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { initPwa } from './pwa.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { MEAL_LABELS } from './meal-understanding.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { initVoiceEntry } from './voice-entry.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProductRepository } from './product-repository.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { initProductSearch } from './product-search-ui.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
 
 initNavigation();
 await recoverPendingImport();
@@ -367,4 +367,4 @@ void productSearch.seedRecent(nutritionEntries).catch(() => {});
 
 void initPwa();
 
-initBackupUi();
+initBackupUi({beforeRead:()=>recipesUI.flush()});

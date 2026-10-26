@@ -1,10 +1,10 @@
-import { VOICE_CORPUS } from './voice-corpus.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { understandMeal } from './meal-understanding.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProductRepository } from './product-repository.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProductResolver } from './product-resolver.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { resolveMealIntents } from './meal-resolution.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { recordAnalysis, readAnalysisHistory, clearAnalysisHistory } from './analysis-history.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { VOICE_CORPUS } from './voice-corpus.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { understandMeal } from './meal-understanding.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProductRepository } from './product-repository.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProductResolver } from './product-resolver.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { resolveMealIntents } from './meal-resolution.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { recordAnalysis, readAnalysisHistory, clearAnalysisHistory } from './analysis-history.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
 const $=id=>document.getElementById(id),repository=createProductRepository(),resolver=createProductResolver({repository});
 let revision=0,last=null;
 VOICE_CORPUS.forEach(([sentence],index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=`${index+1}. ${sentence}`;$('scenario').append(option);});

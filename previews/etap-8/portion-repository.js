@@ -1,7 +1,7 @@
-import { loadPortionReference } from './portion-references.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProductStorage } from './product-cache.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createUsdaPortionProvider } from './product-providers/usda-portions.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { copyPortionDefinition, isPortionDefinition, samePortionUnit } from './portion-model.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { loadPortionReference } from './portion-references.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProductStorage } from './product-cache.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createUsdaPortionProvider } from './product-providers/usda-portions.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { copyPortionDefinition, isPortionDefinition, samePortionUnit } from './portion-model.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
 const keyFor=(productId,unit)=>`portion:${productId}:${unit}`;
 export function validPortionSettings(value){return value&&typeof value==='object'&&Object.keys(value).every(key=>['cupMl','mugMl'].includes(key)&&typeof value[key]==='number'&&Number.isFinite(value[key])&&value[key]>0&&value[key]<=2000);}
 export function createPortionRepository({storage=createProductStorage(),usda=createUsdaPortionProvider()}={}) {

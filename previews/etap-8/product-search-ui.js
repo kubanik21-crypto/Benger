@@ -1,10 +1,10 @@
-import { navigate } from './navigation.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createBarcodeScanner } from './barcode-scanner.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { initCustomProducts } from './custom-product-ui.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { copyProduct, productSourceLabel } from './product-model.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProductRepository } from './product-repository.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { productErrorMessage } from './product-errors.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProductResolver } from './product-resolver.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { navigate } from './navigation.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createBarcodeScanner } from './barcode-scanner.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { initCustomProducts } from './custom-product-ui.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { copyProduct, productSourceLabel } from './product-model.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProductRepository } from './product-repository.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { productErrorMessage } from './product-errors.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProductResolver } from './product-resolver.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
@@ -200,6 +200,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
   $('barcode-form').addEventListener('submit', event => lookup(event, true));
   window.addEventListener('offline', updateConnection);
   window.addEventListener('online', updateConnection);
+  window.addEventListener('benger:route',event=>{if(event.detail.route==='produkty')void refresh();});
   window.addEventListener('focus', () => { void refresh(); });
   updateConnection();
   const ready = (async () => { await repository.ready(); await refresh(); $('product-catalog').dataset.ready = 'true'; })();

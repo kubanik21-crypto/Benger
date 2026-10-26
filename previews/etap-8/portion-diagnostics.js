@@ -1,8 +1,8 @@
-import { createProductRepository } from './product-repository.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProductResolver } from './product-resolver.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { understandMeal } from './meal-understanding.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { resolvePortion } from './portion-resolver.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { HOUSEHOLD_UNITS } from './portion-model.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { createProductRepository } from './product-repository.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProductResolver } from './product-resolver.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { understandMeal } from './meal-understanding.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { resolvePortion } from './portion-resolver.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { HOUSEHOLD_UNITS } from './portion-model.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
 const repository=createProductRepository(),$=id=>document.getElementById(id);
 const show=(id,value)=>{$(id).textContent=JSON.stringify(value,null,2);};
 const options=(select,products)=>{select.replaceChildren();for(const product of products){const option=document.createElement('option');option.value=product.id;option.textContent=`${product.name} · ${product.id}`;select.append(option);}};

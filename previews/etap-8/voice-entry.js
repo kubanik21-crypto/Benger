@@ -1,11 +1,11 @@
-import { navigate } from './navigation.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { recordAnalysis } from './analysis-history.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { understandMeal, MEAL_LABELS } from './meal-understanding.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProductResolver } from './product-resolver.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal, portionFor } from './meal-resolution.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
-import { productErrorMessage } from './product-errors.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { navigate } from './navigation.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { recordAnalysis } from './analysis-history.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { understandMeal, MEAL_LABELS } from './meal-understanding.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProductResolver } from './product-resolver.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal, portionFor } from './meal-resolution.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
+import { productErrorMessage } from './product-errors.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });

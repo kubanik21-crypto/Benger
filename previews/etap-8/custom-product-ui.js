@@ -1,4 +1,4 @@
-import { HOUSEHOLD_UNITS } from './portion-model.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { HOUSEHOLD_UNITS } from './portion-model.js?v=b98f657a88540d02b511d24f17f335a1f3b979f0';
 export function initCustomProducts({repository,onChanged,onSelect}){
  const $=id=>document.getElementById(id);let editing=null;
  function addPortion(definition=null){
