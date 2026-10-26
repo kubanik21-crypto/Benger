@@ -24,7 +24,7 @@ async function step(name, operation) {
 }
 try {
   // Respektuje proxy środowiska; nie usuwa ograniczeń sieci ani weryfikacji TLS.
-  browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-4/', previewBuild: true, respectProxy: true });
+  browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-5/', previewBuild: true, respectProxy: true });
   const page = await browser.page(target ?? browser.base);
   let selected;
   await step('live search: mleko 2%', async () => {

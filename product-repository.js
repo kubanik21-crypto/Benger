@@ -78,6 +78,11 @@ export function createProductRepository({ local = createLocalProvider(), remote 
     favoriteIds: cache.favoriteIds,
     setFavorite: cache.setFavorite,
     markUsed: cache.markUsed,
+    selectionHistory: cache.selectionHistory,
+    async createAlias(query,productId){const product=await fromCache(productId);if(!product)throw new TypeError('Produkt nie istnieje w katalogu.');await cache.createAlias(query,product);},
+    resolveAlias: cache.resolveAlias,
+    listAliases: cache.listAliases,
+    removeAlias: cache.removeAlias,
     selectionMemory: cache.selectionMemory,
     rememberSelection: cache.rememberSelection,
     async seedRecentFromDiary(entries) {

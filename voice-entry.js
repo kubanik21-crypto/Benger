@@ -1,3 +1,4 @@
+import { recordAnalysis } from './analysis-history.js';
 import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js';
 import { understandMeal, MEAL_LABELS } from './meal-understanding.js';
 import { createProductResolver } from './product-resolver.js';
@@ -133,7 +134,8 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     try {
       const resolved = await resolveMealIntents(understood.intents, { resolver, allowExternal: !understood.issues.length, signal: request.signal });
       if (revision !== version) return;
-      proposal = { ...resolved, source, defaultMeal, date, meal: understood.meal, issues: understood.issues };
+      recordAnalysis(understood,resolved.items.filter(item=>!item.portion).length);
+      proposal = { ...resolved, rawTranscript:understood.rawTranscript, normalizedTranscript:understood.normalizedTranscript, source, defaultMeal, date, meal: understood.meal, issues: understood.issues };
       $('meal-proposal-items').replaceChildren(...proposal.items.map(drawRow));
       $('meal-proposal-issues').replaceChildren(...proposal.issues.map(issue => node('li', '', issue.message)));
       $('meal-proposal').hidden = false; $('proposal-empty').hidden = true;

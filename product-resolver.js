@@ -1,3 +1,4 @@
+import { variantCompatible, phraseSimilarity } from './product-variants.js';
 import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js';
 import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js';
 
@@ -6,7 +7,7 @@ function validIntent(intent) {
     && (intent.amount === undefined || (typeof intent.amount === 'number' && Number.isFinite(intent.amount) && intent.amount > 0))
     && (intent.unit === undefined || ['g', 'ml'].includes(intent.unit));
 }
-const compatible = (product, intent) => (!intent.unit || product.unit === intent.unit) && !hasPercentageConflict(product, intent.query ?? '');
+const compatible = (product, intent) => (!intent.unit || product.unit === intent.unit) && !hasPercentageConflict(product, intent.query ?? '') && variantCompatible(product, intent.query ?? '');
 const result = (product, confidence, alternatives, reason, extra = {}) => ({
   product: product ? copyProduct(product) : null, confidence,
   alternatives: deduplicateProducts(alternatives).filter(item => item.id !== product?.id).slice(0, 5),
@@ -18,6 +19,8 @@ export function createProductResolver({ repository }) {
   async function resolve(intent, { allowExternal = false, signal } = {}) {
     if (!validIntent(intent)) return result(null, 'LOW', [], 'invalid-intent');
     const query = typeof intent.query === 'string' ? intent.query.trim() : '';
+    const aliasId=await repository.resolveAlias?.(query);
+    if(aliasId){const product=await repository.getProductById(aliasId);if(product && compatible(product,intent))return result(product,'HIGH',[],'explicit-user-alias');}
     const barcode = normalizeBarcode(intent.barcode ?? query);
     if (intent.barcode !== undefined && !barcode) return result(null, 'LOW', [], 'invalid-barcode');
     if (barcode) {
@@ -33,16 +36,20 @@ export function createProductResolver({ repository }) {
       repository.selectionMemory(phrase), repository.recentProducts(), repository.favoriteProducts({ limit: Infinity }), repository.allCachedProducts(),
     ]);
     const preferred = (await Promise.all(memory.map(choice => repository.getProductById(choice.productId)))).filter(Boolean);
-    const all = deduplicateProducts([...preferred, ...recent, ...favorites, ...cached]);
+    const all = deduplicateProducts([...preferred, ...favorites, ...recent, ...cached]);
     const remembered = memory.filter(choice => all.some(product => product.id === choice.productId && compatible(product, intent)));
     const firstChoice = remembered[0];
     if (firstChoice) {
       const product = all.find(item => item.id === firstChoice.productId);
       const total = remembered.reduce((sum, choice) => sum + choice.count, 0);
       const dominant = firstChoice.count >= 2 && firstChoice.count / total >= 0.75;
-      if (dominant || remembered.length === 1) return result(product, dominant ? 'HIGH' : 'MEDIUM',
+      if (dominant || remembered.length === 1) return result(product, dominant && matchesFoodQuery(product,query) ? 'HIGH' : 'MEDIUM',
         all.filter(item => compatible(item, intent) && matchesFoodQuery(item, query)), dominant ? 'repeated-user-choice' : 'previous-user-choice');
     }
+    const history=await repository.selectionHistory?.() ?? [];
+    const similar=history.filter(record=>record.key!==phrase && !record.key.startsWith('alias ') && phraseSimilarity(record.key,phrase)>=2/3).flatMap(record=>record.choices.filter(choice=>choice.count>=2).map(choice=>({choice,score:phraseSimilarity(record.key,phrase)}))).sort((a,b)=>b.score-a.score || b.choice.count-a.choice.count);
+    const related=deduplicateProducts((await Promise.all(similar.map(row=>repository.getProductById(row.choice.productId)))).filter(product=>product && compatible(product,intent) && matchesFoodQuery(product,query)));
+    if(related.length===1)return result(related[0],'MEDIUM',[],'similar-confirmed-phrase');
     const eligible = all.filter(product => compatible(product, intent) && matchesFoodQuery(product, query));
     if (eligible.length === 1) {
       const product = eligible[0];

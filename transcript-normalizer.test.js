@@ -24,3 +24,6 @@ test('normalizacja zachowuje brak ilości i odrzuca wejście ponad limit', () =>
   assert.throws(() => normalizeTranscript(null), TypeError);
   assert.throws(() => normalizeTranscript('a'.repeat(2001)), RangeError);
 });
+test('mili nie dziedziczy kontekstu płynu przez nazwę kolejnego produktu',()=>{
+ assert.equal(normalizeTranscript('mleko 200 ml płatki 250 mili').normalizedTranscript,'mleko 200 ml platki 250 mili');
+});

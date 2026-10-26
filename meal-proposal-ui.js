@@ -47,7 +47,7 @@ export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose 
   const title = node('h4', '', item.resolution.product?.name ?? (item.intent.query || 'Produkt bez nazwy'));
   card.append(title);
   const provenance = node('p', 'field-help'); provenance.dataset.provenance = ''; card.append(provenance);
-  if (item.intent.amountApproximate) card.append(node('p', 'field-help', 'Ilość przybliżona — zgodnie z wypowiedzią.'));
+  if (item.intent.amountApproximate) card.append(node('p', 'field-help', `ok. ${item.intent.amount ?? '…'} ${item.intent.unit ?? ''} — ilość przybliżona.`));
   const status = node('p', 'proposal-row-status'); status.dataset.status = ''; status.id = `${item.id}-status`; status.setAttribute('role', 'status');
   const fields = node('div', 'proposal-fields');
   for (const [key, label] of [['amount', 'Ilość'], ['unit', 'Jednostka'], ['meal', 'Posiłek']]) {
