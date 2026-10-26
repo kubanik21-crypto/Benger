@@ -242,7 +242,7 @@ export function createProductCache({ storage = createProductStorage(), now = () 
         return { key, choices: choices.slice(0, 5) };
       });
       await ensureProducts([product]);
-      const records = (await storage.read('selections')).filter(validSelection).sort((a, b) =>
+      const records = (await storage.read('selections')).filter(validSelection).filter(record=>!record.key.startsWith('alias ')).sort((a, b) =>
         Math.max(...b.choices.map(choice => choice.lastUsedAt)) - Math.max(...a.choices.map(choice => choice.lastUsedAt)));
       for (const record of records.slice(200)) await storage.mutate('selections', record.key, () => null);
       await prune();

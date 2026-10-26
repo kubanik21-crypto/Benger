@@ -16,3 +16,18 @@ test('generowane kombinacje nie gubią produktu ani nie przenoszą ilości',()=>
  assert.deepEqual(result.intents.map(i=>[i.query,i.amount,i.unit]),[[query,amount,unit],['banan',150,'g']],one+separator);
  }
 });
+test('niezależna pewność struktury i niepełna przybliżona ilość bez zgadywania jednostki',()=>{
+ const read=text=>understandMeal(text,{defaultMeal:'breakfast'}).intents[0];
+ assert.equal(read('80 gram płatków').structureConfidence,'HIGH');
+ assert.equal(read('płatki około 80 gram').structureConfidence,'MEDIUM');
+ const uncertain=read('płatki chyba z osiemdziesiąt');
+ assert.equal(uncertain.amount,80);assert.equal(uncertain.unit,null);assert.equal(uncertain.query,'platki owsiane');
+ assert.equal(uncertain.structureConfidence,'MEDIUM');assert.equal(uncertain.issues[0].code,'missing-unit');
+ assert.equal(read('banan').structureConfidence,'LOW');
+ assert.equal(read('2 jajka').structureConfidence,'HIGH');
+});
+test('częściowe odzyskanie zachowuje trzy produkty oraz nierozpoznany fragment',()=>{
+ const result=understandMeal('80 gram płatków 250 ml mleka coś tam dziwnego banan 120 gram',{defaultMeal:'breakfast'});
+ assert.deepEqual(result.intents.map(i=>[i.query,i.amount,i.unit]),[['platki owsiane',80,'g'],['mleko',250,'ml'],['cos tam dziwnego',null,null],['banan',120,'g']]);
+ assert.equal(result.intents[2].structureConfidence,'LOW');
+});

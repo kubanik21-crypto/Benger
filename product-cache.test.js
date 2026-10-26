@@ -170,3 +170,18 @@ test('uszkodzone dopasowanie nie jest traktowane jako wiedza użytkownika', asyn
   assert.deepEqual(await cache.selectionMemory('mleko'), []);
   await assert.rejects(cache.rememberSelection('', product(1)));
 });
+test('stare klucze odmienionych fraz pozostają pamięcią po kanonizacji bez migracji', async()=>{
+ const {cache,storage,now}=setup();const p=product(1);await cache.putProducts([p]);
+ await storage.mutate('selections','platkow owsianych',()=>({choices:[{productId:p.id,count:3,lastUsedAt:now()}]}));
+ assert.equal((await cache.selectionMemory('płatki owsiane'))[0].count,3);
+ await cache.rememberSelection('płatki owsiane',p);
+ assert.equal((await cache.selectionMemory('płatków owsianych'))[0].count,4);
+});
+test('alias chroni produkt mimo czyszczenia 200 zwykłych fraz i usuwa własny pin',async()=>{
+ const {cache,storage}=setup();const p=product(1);await cache.createAlias('moj produkt',p);
+ for(let i=0;i<205;i++)await cache.rememberSelection(`fraza ${i}`,p);
+ assert.equal(await cache.resolveAlias('mój produkt'),p.id);
+ assert.ok((await storage.read('selections','alias moj produkt')));
+ await cache.removeAlias('mój produkt');assert.equal(await cache.resolveAlias('moj produkt'),null);
+ assert.equal(await storage.read('selections','alias moj produkt'),undefined);
+});
