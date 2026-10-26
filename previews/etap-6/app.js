@@ -1,13 +1,12 @@
-import { recoverPendingImport } from './backup.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { initBackupUi } from './backup-ui.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { initPwa } from './pwa.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { calculatePortion, sumNutrition } from './nutrition.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { initLegacyNotes } from './legacy.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { MEAL_LABELS } from './meal-understanding.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { initVoiceEntry } from './voice-entry.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { createProductRepository } from './product-repository.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { initProductSearch } from './product-search-ui.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { recoverPendingImport } from './backup.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { initBackupUi } from './backup-ui.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { initPwa } from './pwa.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { MEAL_LABELS } from './meal-understanding.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { initVoiceEntry } from './voice-entry.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { createProductRepository } from './product-repository.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { initProductSearch } from './product-search-ui.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
 
 await recoverPendingImport();
 
@@ -346,7 +345,6 @@ updatePortionPreview();
 loadNutritionEntries();
 renderNutritionEntries();
 void productSearch.seedRecent(nutritionEntries).catch(() => {});
-initLegacyNotes({ dateInput, createEntryId });
 
 void initPwa();
 

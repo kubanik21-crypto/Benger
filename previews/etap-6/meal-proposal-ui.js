@@ -1,6 +1,6 @@
-import { productSourceLabel } from './product-model.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { productSourceLabel } from './product-model.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
-import { MEAL_LABELS } from './meal-understanding.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { MEAL_LABELS } from './meal-understanding.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
 
 export function node(tag, className, text) {
   const element = document.createElement(tag);

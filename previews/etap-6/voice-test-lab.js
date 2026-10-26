@@ -1,10 +1,10 @@
-import { VOICE_CORPUS } from './voice-corpus.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { understandMeal } from './meal-understanding.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { createProductRepository } from './product-repository.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { createProductResolver } from './product-resolver.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { resolveMealIntents } from './meal-resolution.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
-import { recordAnalysis, readAnalysisHistory, clearAnalysisHistory } from './analysis-history.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { VOICE_CORPUS } from './voice-corpus.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { understandMeal } from './meal-understanding.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { createProductRepository } from './product-repository.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { createProductResolver } from './product-resolver.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { resolveMealIntents } from './meal-resolution.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { recordAnalysis, readAnalysisHistory, clearAnalysisHistory } from './analysis-history.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
 const $=id=>document.getElementById(id),repository=createProductRepository(),resolver=createProductResolver({repository});
 let revision=0,last=null;
 VOICE_CORPUS.forEach(([sentence],index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=`${index+1}. ${sentence}`;$('scenario').append(option);});
