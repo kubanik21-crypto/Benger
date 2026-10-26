@@ -1,0 +1,21 @@
+import { VOICE_CORPUS } from './voice-corpus.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { understandMeal } from './meal-understanding.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { createProductRepository } from './product-repository.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { createProductResolver } from './product-resolver.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { resolveMealIntents } from './meal-resolution.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+import { recordAnalysis, readAnalysisHistory, clearAnalysisHistory } from './analysis-history.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f';
+const $=id=>document.getElementById(id),repository=createProductRepository(),resolver=createProductResolver({repository});
+let revision=0,last=null;
+VOICE_CORPUS.forEach(([sentence],index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=`${index+1}. ${sentence}`;$('scenario').append(option);});
+$('scenario').onchange=()=>{revision++;$('raw').value=VOICE_CORPUS[Number($('scenario').value)][0];$('verdict').textContent='Gotowe do analizy.';};
+$('raw').value=VOICE_CORPUS[0][0];
+function history(){$('history').textContent=JSON.stringify(readAnalysisHistory(),null,2);}
+async function aliases(){const list=await repository.listAliases();$('aliases').replaceChildren();for(const alias of list){const li=document.createElement('li');li.append(document.createTextNode(`${alias.phrase} → ${alias.productId} `));const remove=document.createElement('button');remove.textContent='Usuń skrót';remove.type='button';remove.onclick=async()=>{try{await repository.removeAlias(alias.phrase);await aliases();}catch{$('status').textContent='Nie udało się usunąć skrótu.';}};li.append(remove);$('aliases').append(li);}}
+async function analyze(){const version=++revision;try{const understood=understandMeal($('raw').value,{defaultMeal:'breakfast'});const resolved=await resolveMealIntents(understood.intents,{resolver});if(version!==revision)return;const expected=VOICE_CORPUS[Number($('scenario').value)][1],actual=understood.intents.map(i=>[i.query,i.amount,i.unit]);const same=JSON.stringify(expected)===JSON.stringify(actual);$('verdict').textContent=same?(understood.intents.some(i=>i.issues.length)?'REVIEW':'PASS'):'REVIEW — struktura różni się od oczekiwanej';last={expected,...understood,resolutions:resolved.items.map(i=>i.resolution),buildSha:document.querySelector('meta[name=benger-build]')?.content??'local'};$('result').textContent=JSON.stringify(last,null,2);recordAnalysis(understood,resolved.items.filter(i=>!i.portion).length);history();}catch(error){$('verdict').textContent='FAIL: '+error.message;}}
+const speech=createSpeechRecognitionAdapter({onTranscript:({text})=>{$('raw').value=text;},onComplete:text=>{$('raw').value=text;void analyze();},onState:({state,message})=>{$('status').textContent=message;$('record').disabled=['listening','processing','unsupported'].includes(state);}});
+$('record').disabled=!speech.supported;$('record').onclick=()=>speech.start();$('finish').onclick=()=>speech.stop();$('analyze').onclick=()=>void analyze();$('raw').oninput=()=>{revision++;};
+$('clear').onclick=()=>{try{clearAnalysisHistory();history();}catch{$('status').textContent='Pamięć diagnostyki jest niedostępna.';}};
+$('save-alias').onclick=async()=>{try{await repository.createAlias($('alias').value,$('product-id').value);await aliases();$('status').textContent='Skrót zapisany lokalnie.';}catch(error){$('status').textContent=error.message;}};
+$('download').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({analysis:last,history:readAnalysisHistory()},null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='benger-voice-lab.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+window.addEventListener('pagehide',()=>{speech.dispose();void repository.close();});history();void aliases().catch(()=>{$('status').textContent='Pamięć skrótów jest niedostępna.';});document.documentElement.dataset.diagnosticsReady='true';

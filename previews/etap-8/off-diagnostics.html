@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta name="benger-storage-namespace" content="preview-etap-8">
+  <meta name="benger-build" content="3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="./style.css?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23174d3c'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='46' fill='%23fffef8'%3Eb%3C/text%3E%3C/svg%3E">
+  <title>Benger · Diagnostyka Open Food Facts</title>
+</head>
+<body>
+<aside style="padding:16px;background:#174d3c;color:white;font:14px/1.6 system-ui">Podgląd Etapu 8 · 3237a7e · Oddzielne dane lokalne. <details><summary>Narzędzia diagnostyczne</summary><a style="color:white" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:white" href="./speech-diagnostics.html">Speech diagnostics</a> · <a style="color:white" href="./voice-test-lab.html">Voice Test Lab</a> · <a style="color:white" href="./barcode-test-lab.html">Barcode Test Lab</a> · <a style="color:white" href="./catalog-diagnostics.html">Catalog Diagnostics</a> · <a style="color:white" href="./pwa-diagnostics.html">PWA Diagnostics</a> · <a style="color:white" href="./portion-diagnostics.html">Portion Diagnostics</a> · <a style="color:white" href="./portion-test-lab.html">Portion Test Lab</a> · <a style="color:white" href="./recipe-test-lab.html">Recipe Test Lab</a> · <a style="color:white" href="./recipe-diagnostics.html">Recipe Diagnostics</a></details><a style="color:white" href="../../">Wersja główna</a></aside>
+  <main>
+    <a href="./" class="brand">benger<span>●</span></a>
+    <h1>Połączenie z OFF</h1>
+    <p>Ręczny test rzeczywistego API. Wykona jedno wyszukiwanie „mleko 2%” oraz odczyt kodu 3017620422003 (Nutella). Korzysta z tego samego providera co aplikacja, bez mocków i bez zapisywania wpisów w dzienniku.</p>
+    <button id="run-off-diagnostics" class="button-primary" type="button">Uruchom test API</button>
+    <p id="diagnostic-status" role="status"></p>
+    <pre id="diagnostic-report" style="white-space:pre-wrap;overflow-wrap:anywhere" aria-label="Raport testu"></pre>
+    <button id="download-off-report" class="button-secondary" type="button" disabled>Pobierz raport JSON</button>
+    <h2>Dlaczego wyszukiwanie nie działa?</h2>
+    <p>Porównaj ten sam CGI GET z X-User-Agent, bez własnych nagłówków i z samym Accept, a następnie Search-a-licious. Test nie zmienia konfiguracji aplikacji. Potrwa około 30–60 sekund, z przerwami respektującymi limity.</p>
+    <button id="compare-off-search" class="button-secondary" type="button">Porównaj wyszukiwarki A/B/C/D</button>
+    <p id="search-diagnostic-status" role="status"></p>
+    <pre id="search-diagnostic-report" style="white-space:pre-wrap;overflow-wrap:anywhere" aria-label="Porównanie wyszukiwarek"></pre>
+    <p class="fine">A wymaga preflight OPTIONS. B i C są prostymi GET bez preflight wymuszonego nagłówkami. Zobacz faktyczny OPTIONS w DevTools → Network. Brak odpowiedzi nadal może oznaczać CORS, timeout lub błąd serwera.</p>
+    <p class="fine">Brak odczytywalnej odpowiedzi nie pozwala JavaScriptowi odróżnić CORS od blokady sieci. Szczegóły są w zakładkach Console i Network przeglądarki. Test nie gwarantuje poprawności danych etykiety.</p>
+    <p class="fine">Dane: <a href="https://world.openfoodfacts.org/">Open Food Facts i współtwórcy</a> · <a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL</a> · <a href="https://opendatacommons.org/licenses/dbcl/1-0/">DbCL</a> · zdjęcia <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>.</p>
+  </main>
+  <script type="module" src="./off-diagnostics.js?v=3237a7e4b07e427a84a0c5ceb0b38ee3e5cee08f"></script>
+</body>
+</html>
