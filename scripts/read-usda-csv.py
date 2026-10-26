@@ -10,11 +10,11 @@ with zipfile.ZipFile(sys.argv[1]) as archive:
     # Survey uses WWEIA categories in separate association tables.
     survey_categories={}
     for row in rows('wweia_food_category.csv'):
-        code=[key for key in row if 'code' in key.lower()]
+        code=[key for key in row if 'code' in key.lower()] or [key for key in row if 'description' not in key.lower()]
         description=[key for key in row if 'description' in key.lower()]
         if len(code)==1 and len(description)==1: survey_categories[row[code[0]]]=row[description[0]]
     for row in rows('survey_fndds_food.csv'):
-        code=[key for key in row if 'wweia' in key.lower() and 'code' in key.lower()]
+        code=[key for key in row if 'wweia' in key.lower() and 'description' not in key.lower()]
         if len(code)==1 and row.get('fdc_id') in foods and row[code[0]] in survey_categories:
             foods[row['fdc_id']]['foodCategory']=survey_categories[row[code[0]]]
     # Nutrient IDs: protein=1003, fat=1004, carbohydrate=1005, kcal=1008;
@@ -30,5 +30,5 @@ with zipfile.ZipFile(sys.argv[1]) as archive:
         if nutrient_id in wanted and row['fdc_id'] in foods:
             foods[row['fdc_id']]['foodNutrients'].append({'nutrient':{'id':int(nutrient_id)},'amount':row.get('amount')})
     first=next(iter(foods.values()))
-    first['importDiagnostics']={'nutrientIds':observed,'firstNutrientRow':sample,'surveyCategoryRows':len(survey_categories),'tables':list(names)}
+    first['importDiagnostics']={'nutrientIds':observed,'firstNutrientRow':sample,'surveyCategoryRows':len(survey_categories),'categoryExample':next(rows('wweia_food_category.csv'),None),'surveyExample':next(rows('survey_fndds_food.csv'),None),'tables':list(names)}
     print(json.dumps(list(foods.values()),ensure_ascii=False))
