@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PRODUCTS, calculatePortion, sumNutrition } from './nutrition.js';
+import { calculatePortion, sumNutrition } from './nutrition.js';
+import { TEST_PRODUCTS } from './tests/fixtures/nutrition-products.mjs';
 
-const oats = PRODUCTS.find(product => product.id === 'oat-flakes');
-const milk = PRODUCTS.find(product => product.id === 'milk-2-percent');
-const banana = PRODUCTS.find(product => product.id === 'peeled-banana');
+const oats = TEST_PRODUCTS.find(product => product.id === 'custom:test-oats');
+const milk = TEST_PRODUCTS.find(product => product.id === 'custom:test-milk');
+const banana = TEST_PRODUCTS.find(product => product.id === 'custom:test-banana');
 
 function assertNutritionClose(actual, expected) {
   assert.deepEqual(Object.keys(actual).sort(), Object.keys(expected).sort());
@@ -16,10 +17,10 @@ function assertNutritionClose(actual, expected) {
   }
 }
 
-test('katalog zawiera cztery produkty o unikalnych identyfikatorach i poprawnych danych', () => {
-  assert.equal(PRODUCTS.length, 4);
-  assert.equal(new Set(PRODUCTS.map(product => product.id)).size, 4);
-  for (const product of PRODUCTS) {
+test('fixtures własnych produktów mają poprawny kontrakt i unikalne ID', () => {
+  assert.equal(TEST_PRODUCTS.length, 4);
+  assert.equal(new Set(TEST_PRODUCTS.map(product => product.id)).size, 4);
+  for (const product of TEST_PRODUCTS) {
     assert.equal(typeof product.id, 'string');
     assert.ok(product.id.length > 0);
     assert.equal(typeof product.name, 'string');

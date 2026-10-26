@@ -10,7 +10,8 @@ index.html + app.js (porcja i dziennik)
 product-search-ui.js (wyszukiwanie, wybór, gwiazdki)
         ↓
 product-repository.js (łączenie wyników, offline, limity)
-        ├── product-providers/local.js → nutrition.js / PRODUCTS
+        ├── product-providers/usda.js → statyczny katalog USDA
+        ├── product-providers/custom.js → własne produkty
         ├── product-providers/open-food-facts.js → lookup OFF API v3.6
         ├── product-providers/off-search.js → full-text CGI, wymienny adapter
         └── product-cache.js → IndexedDB BengerDB v2
@@ -169,3 +170,5 @@ Kolejne źródła (USDA, polska baza, katalog użytkownika) powinny mieć własn
 
 
 Ponowny audyt produkcyjny, źródła dotyczące identyfikacji i procedura preview/live: [off-production-audit.md](off-production-audit.md).
+
+Aktualizacja Etapu 6: dawny provider i cztery produkty demonstracyjne zostały usunięte. Aktualny opis: [product-catalog.md](product-catalog.md). Dawne ID pozostają tylko referencjami zgodności; dziennik korzysta z własnych snapshotów.

@@ -129,7 +129,6 @@ export function initProductSearch({ onSelect, repository = createProductReposito
     renderList('search-results', results, 'Wyniki pojawią się po wyszukaniu.');
     renderList('recent-products', recent, 'Dodane produkty znajdziesz tutaj.');
     renderList('favorite-products', favorites, 'Gwiazdka zapisuje produkt w ulubionych.');
-    renderList('basic-products', repository.localProducts(), '');
     renderSelected();
     $('catalog-storage-message').textContent = repository.persistent() ? '' : 'Pamięć produktów jest niedostępna. Katalog, własne produkty, skróty, ostatnie i ulubione działają tylko do zamknięcia tej karty. Dziennik korzysta z oddzielnej pamięci.';
   }

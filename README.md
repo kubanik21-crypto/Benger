@@ -35,13 +35,13 @@ Manifest ma względne `id`, `start_url` i `scope`, ikony PNG 192/512 i offline s
 ## Dziennik produktów
 
 1. Wybierz dzień nad formularzem — dotyczy on dodawania, listy i podsumowania.
-2. Wyszukaj produkt po nazwie/marce i kliknij „Szukaj” (lub Enter). Możesz też użyć kodu kreskowego, ostatnich, ulubionych lub czterech produktów przykładowych. Wybierz wynik, a następnie posiłek.
+2. Wyszukaj produkt po nazwie/marce i kliknij „Szukaj” (lub Enter). Możesz też użyć kodu kreskowego, ostatnich, ulubionych lub własnych produktów. Wybierz wynik, a następnie posiłek.
 3. Wpisz ilość w jednostce produktu: g albo ml. Działa kropka i polski przecinek, np. `50,5`.
 4. Sprawdź kcal, białko, tłuszcz i węglowodany w podglądzie.
 5. Dodaj pozycję do dziennika. Ilość zostanie wyczyszczona, a komunikat potwierdzi zapis.
 6. Wpisy są podzielone na posiłki. Przycisk „Usuń” usuwa wyłącznie wskazany wpis i aktualizuje sumę dnia.
 
-Wartości produktów w `nutrition.js` są **przykładowe, edukacyjne**. Nie opisują konkretnych marek i nie są podstawą zaleceń dietetycznych. Nie przeliczamy mililitrów na gramy. Obliczenia wykonują wyłącznie `calculatePortion()` i `sumNutrition()`. Dane są zaokrąglane dopiero na ekranie.
+`nutrition.js` zawiera wyłącznie funkcje obliczeniowe. Produkty pochodzą z USDA, OFF, własnych danych i cache. Katalog demonstracyjny został usunięty. Nie przeliczamy mililitrów na gramy. Obliczenia wykonują wyłącznie `calculatePortion()` i `sumNutrition()`. Dane są zaokrąglane dopiero na ekranie.
 
 ## Wyszukiwarka, ostatnie i ulubione
 
@@ -63,7 +63,7 @@ Aplikacja już załadowana działa bez sieci; nie ma jeszcze service workera gwa
 
 Dane: **[Open Food Facts i współtwórcy](https://world.openfoodfacts.org/)**. Baza: [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/), zawartość: [DbCL 1.0](https://opendatacommons.org/licenses/dbcl/1-0/). Zdjęcia: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), autorzy na karcie produktu dostępnej przy jego wyborze. Miniaturki są wyświetlane bez zmian ze źródła; nie kopiujemy ich do repozytorium. Zawierają też oznaczenia opakowań podlegające własnym prawom.
 
-Cache OFF i demonstracyjny katalog Bengera są oddzielnymi zbiorami. Ich połączenie odbywa się w pamięci na potrzeby wyników. Przyszła redystrybucja/łączenie baz wymaga uwzględnienia ODbL i share-alike. Przykłady w `tests/fixtures` są fikcyjne i służą wyłącznie testom.
+Cache OFF, statyczny katalog USDA i własne produkty są oddzielnymi zbiorami. Ich połączenie odbywa się w pamięci na potrzeby wyników. Przyszła redystrybucja/łączenie baz wymaga uwzględnienia ODbL i share-alike. Przykłady w `tests/fixtures` są fikcyjne i służą wyłącznie testom.
 
 ## Dodawanie głosem i tekstem
 
@@ -243,3 +243,7 @@ Backup w sekcji „Dane i kopia zapasowa” zawiera także własne produkty, ulu
 7. Przy kolejnej wersji zapisz edycję, zaakceptuj aktualizację i sprawdź, że dane pozostały.
 
 Testy syntetycznej kamery i headless Chromium nie zastępują instalacji ani prawdziwego aparatu na Samsungu. Nie utworzono PR ani nie scalono Etapu 6.
+
+### Usunięcie katalogu demonstracyjnego
+
+Nie publikujemy czterech przykładowych produktów ani providera lokalnego. Wyszukiwanie i resolver korzystają tylko z USDA/OFF/custom/cache. Historyczne wpisy nadal pokazują zapisane nazwy i snapshoty makro; stare ID są zachowane wyłącznie jako referencje zgodności backupów i preferencji, bez odtwarzania produktów. Źródło dawnych wpisów jest oznaczone jako archiwalne. Testowe produkty custom są wyłącznie w niepublikowanych fixtures.

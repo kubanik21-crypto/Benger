@@ -1,3 +1,4 @@
+import { TEST_PRODUCTS } from './fixtures/nutrition-products.mjs';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { copyFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
@@ -50,7 +51,7 @@ export async function startStaticHost(prefix, previewBuild = false) {
   }
 }
 
-export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild = false, respectProxy = false } = {}) {
+export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild = false, respectProxy = false, seedProducts = false } = {}) {
   const profile = await mkdtemp(join(tmpdir(), 'benger-browser-test-'));
   const processes = [];
   let staticSite;
@@ -242,7 +243,9 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
         await evaluate(`document.getElementById('date').value = ${JSON.stringify(value)}; document.getElementById('date').dispatchEvent(new Event('change'));`);
       }
       async function choose(product, amount, meal = 'breakfast') {
-        await evaluate(`[...document.querySelectorAll('#basic-products [data-product-id]')].find(button => button.dataset.productId === ${JSON.stringify(product)}).click(); document.getElementById('amount').value = ${JSON.stringify(amount)}; document.getElementById('amount').dispatchEvent(new Event('input')); document.getElementById('nutrition-meal').value = ${JSON.stringify(meal)};`);
+        await evaluate(`document.getElementById('search-internet').checked=false;document.getElementById('product-search').value=${JSON.stringify(TEST_PRODUCTS.find(p=>p.id===product)?.name??product)};document.getElementById('product-search-form').requestSubmit();`);
+        for(let i=0;i<200;i++){if(await evaluate("document.getElementById('search-results').getAttribute('aria-busy')==='false'"))break;await pause(20);}
+        await evaluate(`[...document.querySelectorAll('#search-results [data-product-id]')].find(button => button.dataset.productId === ${JSON.stringify(product)}).click(); document.getElementById('amount').value = ${JSON.stringify(amount)}; document.getElementById('amount').dispatchEvent(new Event('input')); document.getElementById('nutrition-meal').value = ${JSON.stringify(meal)};`);
       }
       const submit = () => evaluate("document.getElementById('nutrition-form').requestSubmit()");
       const raw = key => evaluate(`localStorage.getItem(${JSON.stringify(key)})`);
@@ -262,6 +265,9 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       const accept = () => evaluate("document.getElementById('save-meal-proposal').click()");
       await send('Page.navigate', { url });
       await waitReady(null);
+      if(seedProducts && !diagnostic) {
+        await evaluate(`(async()=>{const {createProductStorage}=await import('./product-cache.js');const s=createProductStorage();for(const p of ${JSON.stringify(TEST_PRODUCTS)}){if(!await s.read('meta',p.id))await s.mutate('meta',p.id,()=>({product:p}));}await s.close();window.dispatchEvent(new Event('focus'));})()`);
+      }
       return { send, evaluate, reload, navigate, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
     }
     return { staticDirectory:staticSite?.directory, base, page, errors, requests, responses, failures, off, close, serverErrors: () => serverErrors };

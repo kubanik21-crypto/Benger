@@ -89,7 +89,7 @@ export function searchProducts(products, query, limit = 20) {
     .slice(0, limit).map(item => item.product);
 }
 
-export const productSourceLabel = product => ({openfoodfacts:'Open Food Facts',benger:'Benger · przykład',usda:'USDA · żywność ogólna',custom:'Własny produkt'})[product.source] ?? product.source;
+export const productSourceLabel = product => ({openfoodfacts:'Open Food Facts',benger:'Archiwalny produkt',usda:'USDA · żywność ogólna',custom:'Własny produkt'})[product.source] ?? product.source;
 
 export function nutritionCompleteness(product){
  const count=NUTRIENTS.filter(key=>typeof product?.per100?.[key]==='number'&&Number.isFinite(product.per100[key])&&product.per100[key]>=0).length;

@@ -191,7 +191,7 @@ function createPortionArticle(entry) {
   if (entry.brand || entry.source) {
     const provenance = document.createElement('p');
     provenance.className = 'entry-source';
-    provenance.textContent = [entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Benger · przykład' : entry.source].filter(Boolean).join(' · ');
+    provenance.textContent = [entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Archiwalny produkt' : entry.source].filter(Boolean).join(' · ');
     article.append(provenance);
   }
   return article;

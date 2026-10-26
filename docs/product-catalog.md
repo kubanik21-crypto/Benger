@@ -2,7 +2,7 @@
 
 ## Wspólny kontrakt
 
-UI i dziennik nadal używają jednego Product i nutrition.js. ProductRepository agreguje provider lokalnego katalogu demonstracyjnego, USDA, własne produkty, cache i runtime OFF. Produkty mają stabilne id, source/sourceId, opcjonalny barcode, nazwę/markę, g/ml i per100 kcal/protein/fat/carbs. USDA dodatkowo zachowuje description, category i dataType; nazwa i opis są ograniczone do 240 znaków. To adaptery, a nie app.js, znają strukturę odpowiedzi zewnętrznej.
+UI i dziennik nadal używają jednego Product i nutrition.js. ProductRepository agreguje USDA, własne produkty, cache i runtime OFF. Produkty mają stabilne id, source/sourceId, opcjonalny barcode, nazwę/markę, g/ml i per100 kcal/protein/fat/carbs. USDA dodatkowo zachowuje description, category i dataType; nazwa i opis są ograniczone do 240 znaków. To adaptery, a nie app.js, znają strukturę odpowiedzi zewnętrznej.
 
 `nutritionCompleteness()` rozróżnia COMPLETE/PARTIAL/INSUFFICIENT na podstawie rzeczywistych wartości. Do obliczenia i dziennika dopuszczany jest tylko kompletny walidowany Product. Brak nutrientu nie jest zerem. Wszystkie historyczne wpisy nadal mają snapshot.
 
@@ -48,3 +48,7 @@ Pełny formularz: nazwa, opcjonalna marka/barcode, jednostka g/ml, cztery warto�
 Lokalnie, Node 22 z wymuszonym GC: indeks i LRU po wyszukiwaniu zajęły około 8,4 MB dodatkowego heap. Wyszukanie pierwsze ok. 52 ms; mediana 100 kolejnych ok. 2,9 ms, p95 ok. 5 ms. Katalog po uwzględnieniu kategorii i indeksu głównych nazw: ok. 8,82 MB, suma gzip ok. 0,95 MB. Cały precache ok. 9,6 MB, shell bez danych i vendora ok. 263 KB. To pomiar localhost, nie gwarancja czasu na telefonie.
 
 Self-review naprawił: stare numery nutrientów FNDDS, osobną tabelę kategorii WWEIA, dopasowanie `raw` wewnątrz `strawberry`, zbyt wysoką pozycję produktów pochodnych (np. rice milk zamiast ryżu), błędne utożsamianie 100 ml ze 100 g w walidacji custom, porównywanie barcode z zerami, stare dane USDA w ponownie wybieranym produkcie i zbyt szeroką publikację plików JSON. `data/usda` nie jest dowolnym publicznym katalogiem JSON: serwer i allowlista obsługują konkretne nazwy katalogu.
+
+## Zgodność po usunięciu demo
+
+Cztery produkty demonstracyjne nie istnieją w katalogu ani rankingu. `nutrition.js` nie eksportuje listy produktów. Historyczne snapshoty i source benger pozostają w dzienniku bez przeliczania. `legacy-product-references.js` zawiera jedynie cztery stare ID potrzebne do zachowania referencji w backupie — bez nazw i wartości odżywczych. Stare preferencje mogą być nierozwiązywalne, ale nie są kasowane; nie generujemy dla nich ponownie demonstracyjnego produktu.

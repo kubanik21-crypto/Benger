@@ -19,7 +19,7 @@ test('Etap 6 — PWA, offline katalog, aparat, backup i bezpieczny update',{time
   assert.equal(await a.evaluate("navigator.serviceWorker.getRegistration(new URL('/Benger/',location.href).href).then(Boolean)"),false);
   const manifest=await a.evaluate("fetch('./manifest.webmanifest').then(r=>r.json())");assert.equal(manifest.display,'standalone');assert.equal(manifest.icons.length,2);
   assert.equal(await a.evaluate('window.__cameraStarts'),0);assert.equal(await a.evaluate('typeof window.ZXingBrowser'),'undefined');
-  await a.choose('oat-flakes','50','breakfast');await a.submit();assert.equal((await a.saved()).length,1);
+  await search(a,'płatki owsiane');await a.evaluate("document.querySelector('#search-results [data-product-id^=\"usda:\"]').click();document.getElementById('amount').value='50';document.getElementById('amount').dispatchEvent(new Event('input'));document.getElementById('nutrition-meal').value='breakfast'");await a.submit();assert.equal((await a.saved()).length,1);
   await a.evaluate("caches.open('benger-shell:/Benger/:production-sentinel')");
  });
  await t.test('USDA po polsku, bez OFF i z poprawnymi wartościami na porcję',async()=>{
@@ -102,4 +102,15 @@ test('ZXing real bundled decoder reads EAN13 pixels and works without CDN',{time
  await wait(page,"document.getElementById('barcode').value==='3017620422003'",25000);await wait(page,"!document.getElementById('scanner-dialog').open");
  assert.equal(await page.evaluate('typeof window.ZXingBrowser.BrowserMultiFormatReader'),'function');assert.ok(await page.evaluate('window.__cameraStops>=1'));
  assert.equal(browser.requests.filter(r=>/unpkg|jsdelivr/.test(r.url)).length,0);assert.deepEqual(browser.errors,[]);
+});
+
+test('archiwalne snapshoty pozostają identyczne; demo nie trafia do UI/rankingu',{timeout:60000},async t=>{
+ const b=await startBrowser({staticPrefix:prefix,previewBuild:true,mockOFF:true});t.after(()=>b.close());const p=await b.page(b.base);await p.date(DAY);
+ const entries=[['oat-flakes','Płatki owsiane',185,6.5,3.5,30],['peeled-banana','Banan',106.8,1.32,.36,27.36],['natural-yogurt','Jogurt',60,4,2,6],['milk-2-percent','Mleko 2%',100,6.8,4,9.6]].map(([id,name,kcal,protein,fat,carbs],i)=>({id:`historical-${i}`,date:DAY,createdAt:'2026-10-20T10:00:00Z',meal:'breakfast',productId:id,productName:name,source:'benger',amount:100,unit:'g',nutrition:{kcal,protein,fat,carbs}}));
+ const raw=JSON.stringify(entries),notes=JSON.stringify([{id:'note-old',date:DAY,meal:'Śniadanie',text:'Moja stara notatka'}]);
+ await p.setRaw('benger.preview-etap-6.nutrition.v1',raw);await p.setRaw('benger.preview-etap-6.meals.v1',notes);await p.reload();await p.date(DAY);
+ assert.equal((await p.visible()).length,4);assert.equal(await p.raw('benger.preview-etap-6.nutrition.v1'),raw);assert.equal(await p.raw('benger.preview-etap-6.meals.v1'),notes);
+ assert.deepEqual(await p.outputs('total'),['451,8','18,62','9,86','72,96']);assert.equal(await p.evaluate("document.body.textContent.includes('Benger · przykład')"),false);assert.equal(await p.evaluate("document.getElementById('basic-products')"),null);
+ await search(p,'banan');const results=await p.evaluate("[...document.querySelectorAll('#search-results [data-product-id]')].map(n=>n.dataset.productId)");assert.ok(results.length);assert.ok(results.every(id=>id.startsWith('usda:')));
+ const backup=await p.evaluate("(async()=>{const{exportBackup}=await import('./backup.js');return exportBackup()})()");assert.deepEqual(backup.data.diary,entries);assert.equal(await p.raw('benger.preview-etap-6.nutrition.v1'),raw);assert.deepEqual(b.errors,[]);
 });

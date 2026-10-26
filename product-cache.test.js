@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createProductCache, createProductStorage, PRODUCT_TTL_MS, SEARCH_TTL_MS } from './product-cache.js';
 import { normalizeOffProduct } from './product-providers/open-food-facts.js';
-import { getLocalProducts } from './product-providers/local.js';
+import { getTestProducts } from './tests/fixtures/nutrition-products.mjs';
 
 const raw = JSON.parse(await readFile(new URL('./tests/fixtures/off-products.json', import.meta.url))).products[0];
 const product = n => ({ ...normalizeOffProduct(raw), id: `off:test-${n}`, sourceId: String(n), barcode: null, name: `Produkt ${n}` });
@@ -17,7 +17,7 @@ function setup(maxProducts = 300) {
 test('cache zapisuje wyłącznie znormalizowane dane OFF i zwraca niezależne kopie', async () => {
   const { cache } = setup();
   const p = product(1);
-  await cache.putProducts([{ ...p, rawResponse: { huge: true } }, ...getLocalProducts()]);
+  await cache.putProducts([{ ...p, rawResponse: { huge: true } }, ...getTestProducts()]);
   const cached = await cache.getProduct(p.id);
   assert.equal(cached.fresh, true);
   assert.equal(Object.hasOwn(cached.product, 'rawResponse'), false);
@@ -76,7 +76,7 @@ test('ostatnie 20 unikalnych ID, najnowsze pierwsze, również przy tym samym cz
 
 test('ulubione są niezależne od ostatnich i od instancji repozytorium', async () => {
   const { cache, storage, now } = setup();
-  const p = product(1), local = getLocalProducts()[0];
+  const p = product(1), local = getTestProducts()[0];
   await cache.setFavorite(p, true); await cache.setFavorite(local, true);
   assert.equal((await cache.recentIds()).length, 0);
   const reloaded = createProductCache({ storage, now });
