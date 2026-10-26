@@ -36,6 +36,16 @@ Domyślny język: `pl-PL`, opcja fabryki pozwala go zmienić bez nowego UI. Wykr
 
 Stany: gotowy, słucham, przetwarzam, zakończono, anulowano, brak uprawnień, brak mowy, timeout, błąd usługi, brak obsługi. Status ma `aria-live`, przyciski są klawiaturowe, mikrofon ma co najmniej 88 px wysokości i widoczny focus. Animacja respektuje prefers-reduced-motion. Druga sesja nie może wystartować podczas pierwszej. Handlery i timery są usuwane przy każdym zakończeniu, błędzie i anulowaniu; pagehide również przerywa pracę.
 
+## Kumulacyjne wyniki i jedno źródło transkrypcji
+
+Kontrakt zweryfikowany 26.10.2026 w [MDN results](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognitionEvent/results) i [MDN resultIndex](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognitionEvent/resultIndex): results zawiera wszystkie finalne wyniki sesji oraz aktualne interim. resultIndex wskazuje pierwszy zmieniony indeks. Interim może zostać zastąpiony, sfinalizowany albo usunięty z końca listy; final według specyfikacji pozostaje stabilny.
+
+Adapter przechowuje osobne kopie `{text, isFinal}` pod indeksami wyników, bez referencji do mutowalnych obiektów browsera. Aktualizuje ogon od resultIndex, zachowuje niezmieniony prefiks i skraca listę, gdy browser wycofuje interim. Pierwszy event z indeksem większym od zera uzupełnia brakujący prefiks; brak lub niepoprawny resultIndex jest traktowany jako pełna migawka od zera. Jeżeli dostawca nietypowo deklaruje zmianę starego segmentu od jego indeksu, zastępujemy ten wpis zamiast dopisywać tekst. Niezadeklarowana mutacja wcześniejszych obiektów nie zmienia już zapisanej kopii prefiksu.
+
+`onTranscript({text, final, interim})` przekazuje gotowy tekst w kolejności segmentów. UI wyłącznie zastępuje nim wartość pola oraz podgląd na żywo. Po end oba widoki otrzymują wyłącznie final. Nie ma append między eventami, deduplikacji słów/liczb ani zmian parsera. Prawdziwe powtórzenie „250 ml mleka i 250 ml kefiru” musi pozostać bez zmian.
+
+Sama standardowa sekwencja kumulacyjnych eventów z raportu działała także przed poprawką; stary kod zerował bufor w każdym evencie, ale ponownie czytał całą listę bez resultIndex. Dodane testy obejmują również nieoczekiwaną mutację wcześniejszego obiektu, korektę zadeklarowaną od indeksu 0, kilka final, dłuższe wypowiedzi, puste segmenty i reset sesji. Bez surowych eventów z fizycznego Samsunga nie przypisujemy jego konkretnego błędnego ciągu jednej niepotwierdzonej postaci payloadu. Ponowny test urządzenia pozostaje weryfikacją zachowania rzeczywistej usługi mowy.
+
 ## Kompatybilność i prywatność
 
 Źródła odczytane 25.10.2026: [MDN SpeechRecognition](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition), [MDN Browser Compatibility Data](https://github.com/mdn/browser-compat-data/blob/main/api/SpeechRecognition.json), [specyfikacja](https://webaudio.github.io/web-speech-api/#speechreco-section).

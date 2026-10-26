@@ -6,16 +6,26 @@ import { startBrowser } from './tests/browser-harness.mjs';
 const SPEECH = `
   window.__speechInstances = [];
   window.SpeechRecognition = class {
-    constructor() { window.__speechInstances.push(this); }
-    start() { this.started = true; this.onstart?.(); }
+    constructor() { this.results = []; window.__speechInstances.push(this); }
+    start() { this.results = []; this.started = true; this.onstart?.(); }
     stop() { this.stopped = true; this.onend?.(); }
     abort() { this.aborted = true; this.onend?.(); }
   };
+  // Zmienia ogon od resultIndex, ale event zawsze udostępnia całą kumulacyjną listę sesji.
+  window.__speechUpdate = (resultIndex, changes, length = resultIndex + changes.length) => {
+    const recognition = window.__speechInstances.at(-1);
+    changes.forEach(([transcript,isFinal],offset)=> {
+      recognition.results[resultIndex+offset] = Object.assign([{transcript}],{isFinal});
+    });
+    recognition.results.length = length;
+    const results = Object.assign({length}, recognition.results);
+    recognition.onresult?.({resultIndex,results});
+  };
   window.__speechResult = (final, interim='') => {
-    const results = [];
-    if(final) results.push(Object.assign([{transcript:final}],{isFinal:true}));
-    if(interim) results.push(Object.assign([{transcript:interim}],{isFinal:false}));
-    window.__speechInstances.at(-1).onresult?.({results});
+    const changes = [];
+    if(final) changes.push([final,true]);
+    if(interim) changes.push([interim,false]);
+    window.__speechUpdate(0,changes);
   };
 `;
 const DAY = '2026-10-25';
@@ -55,7 +65,67 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     }
   });
 
+  await t.test('Samsung: kumulacyjne 250 → 250 ml + mleka → dwa final daje dokładnie 250 ml mleka', async () => {
+    const before = await a.saved(), requests = apiRequests().length;
+    await click(a, 'voice-microphone');
+    await a.evaluate("window.__speechUpdate(0,[['250',false]])");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'250');
+    await a.evaluate("window.__speechUpdate(0,[['250 ml',true],['mleka',false]])");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'250 ml mleka');
+    await a.evaluate("window.__speechUpdate(1,[['mleka',true]])");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'250 ml mleka');
+    assert.equal(await a.evaluate("document.getElementById('live-transcript').textContent"),'250 ml mleka');
+    assert.equal(await a.evaluate("document.getElementById('meal-proposal').hidden"),true);
+    await click(a,'voice-microphone');
+    await wait(a,"document.getElementById('meal-text-form').dataset.analysisState==='complete'");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'250 ml mleka');
+    assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal-items [data-item-id]').length"),1);
+    assert.equal(await a.evaluate("document.querySelector('#meal-proposal [data-amount]').value"),'250');
+    assert.deepEqual(await a.saved(),before); assert.equal(apiRequests().length,requests);
+  });
+
+  await t.test('pełne śniadanie z kilku kumulacyjnych final/interim nie powtarza żadnego fragmentu', async () => {
+    const sentence='Na śniadanie 80 gram płatków owsianych i 250 ml mleka 2%';
+    await click(a,'voice-microphone');
+    await a.evaluate("window.__speechUpdate(0,[['Na śniadanie 80',false]])");
+    await a.evaluate("window.__speechUpdate(0,[['Na śniadanie 80 gram płatków owsianych',true],['i 250',false]])");
+    await a.evaluate("window.__speechUpdate(1,[['i 250 ml mleka 2%',false]])");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),sentence);
+    await a.evaluate("window.__speechUpdate(1,[['i 250 ml mleka 2%',true]])");
+    await a.evaluate("window.__speechUpdate(2,[])"); // Identyczna lista bez zmian.
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),sentence);
+    await click(a,'voice-microphone');
+    await wait(a,"document.getElementById('meal-text-form').dataset.analysisState==='complete'");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),sentence);
+    assert.deepEqual(await a.outputs('proposal'),['421','18,9','10,6','60']);
+    assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal-items [data-item-id]').length"),2);
+  });
+
+  await t.test('wiele produktów oraz rzeczywiste powtórzenie 250 są zachowane', async () => {
+    await click(a,'voice-microphone');
+    await a.evaluate("window.__speechUpdate(0,[['250 ml mleka',true],['i banan',false]])");
+    await a.evaluate("window.__speechUpdate(1,[['i banan 120 gram',true]])");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'250 ml mleka i banan 120 gram');
+    await click(a,'voice-microphone');
+    await wait(a,"document.getElementById('meal-text-form').dataset.analysisState==='complete'");
+    assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal-items [data-item-id]').length"),2);
+    await click(a,'voice-microphone');
+    await a.evaluate("window.__speechUpdate(0,[['250 ml mleka',true],['i 250 ml kefiru',true]])");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'250 ml mleka i 250 ml kefiru');
+    await click(a,'cancel-speech');
+  });
+
+  await t.test('koniec sesji wyświetla tylko final — także w podglądzie na żywo', async () => {
+    await click(a,'voice-microphone');
+    await a.evaluate("window.__speechUpdate(0,[['250 ml mleka',true],['i niedokończony produkt',false]])");
+    await click(a,'voice-microphone');
+    await wait(a,"document.getElementById('meal-text-form').dataset.analysisState==='complete'");
+    assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'250 ml mleka');
+    assert.equal(await a.evaluate("document.getElementById('live-transcript').textContent"),'250 ml mleka');
+  });
+
   await t.test('interim pokazuje tekst bez analizy, requestu ani zapisu; final czeka na zakończenie', async () => {
+    const started = await a.evaluate("window.__speechInstances.filter(instance=>instance.started).length");
     await click(a, 'voice-microphone');
     assert.equal(await a.evaluate("document.getElementById('voice-entry').dataset.speechState"), 'listening');
     await a.evaluate("window.__speechResult('', '80 gram płatków')");
@@ -70,7 +140,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal-items [data-ready=true]').length"), 3);
     assert.deepEqual(await a.outputs('proposal'), ['527,8', '20,22', '10,96', '87,36']);
     assert.equal(await disabled(a), false); assert.equal((await a.saved()).length, 0); assert.equal(apiRequests().length, 0);
-    assert.equal(await a.evaluate("window.__speechInstances.filter(instance=>instance.started).length"), 1);
+    assert.equal(await a.evaluate("window.__speechInstances.filter(instance=>instance.started).length"), started + 1);
     assert.equal(await a.evaluate("window.__speechInstances.at(-1).onresult"), null);
   });
 

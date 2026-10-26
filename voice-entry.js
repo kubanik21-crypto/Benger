@@ -184,6 +184,10 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     finally { saving = false; buttonState(); }
   }
   function readSafeDate() { try { return readDate(); } catch { return null; } }
+  function displayTranscript(transcript) {
+    text.value = transcript;
+    $('live-transcript').textContent = transcript;
+  }
   const speech = createSpeechRecognitionAdapter({
     onState({ state, message }) {
       speechBusy = ['listening', 'processing'].includes(state);
@@ -195,8 +199,8 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
       $('cancel-speech').hidden = !speechBusy; text.disabled = speechBusy; $('analyze-meal').disabled = speechBusy;
       buttonState();
     },
-    onTranscript({ final, interim }) { text.value = [final, interim].filter(Boolean).join(' '); $('live-transcript').textContent = text.value; },
-    onComplete(transcript) { text.value = transcript; void analyze(); },
+    onTranscript({ text: transcript }) { displayTranscript(transcript); },
+    onComplete(transcript) { displayTranscript(transcript); void analyze(); },
   });
   $('speech-status').textContent = SPEECH_MESSAGES[speech.getState()];
   $('voice-entry').dataset.speechState = speech.getState(); $('voice-microphone').disabled = !speech.supported;
