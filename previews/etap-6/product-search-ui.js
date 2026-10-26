@@ -1,9 +1,9 @@
-import { createBarcodeScanner } from './barcode-scanner.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { initCustomProducts } from './custom-product-ui.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { copyProduct, productSourceLabel } from './product-model.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { createProductRepository } from './product-repository.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { productErrorMessage } from './product-errors.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { createProductResolver } from './product-resolver.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
+import { createBarcodeScanner } from './barcode-scanner.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { initCustomProducts } from './custom-product-ui.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { copyProduct, productSourceLabel } from './product-model.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { createProductRepository } from './product-repository.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { productErrorMessage } from './product-errors.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { createProductResolver } from './product-resolver.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
@@ -129,7 +129,6 @@ export function initProductSearch({ onSelect, repository = createProductReposito
     renderList('search-results', results, 'Wyniki pojawią się po wyszukaniu.');
     renderList('recent-products', recent, 'Dodane produkty znajdziesz tutaj.');
     renderList('favorite-products', favorites, 'Gwiazdka zapisuje produkt w ulubionych.');
-    renderList('basic-products', repository.localProducts(), '');
     renderSelected();
     $('catalog-storage-message').textContent = repository.persistent() ? '' : 'Pamięć produktów jest niedostępna. Katalog, własne produkty, skróty, ostatnie i ulubione działają tylko do zamknięcia tej karty. Dziennik korzysta z oddzielnej pamięci.';
   }

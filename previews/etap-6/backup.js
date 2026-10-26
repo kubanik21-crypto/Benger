@@ -1,9 +1,9 @@
-import { normalizeCustomProduct } from './product-providers/custom.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { normalizeFoodQuery } from './food-query.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { getLocalProducts } from './product-providers/local.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
+import { normalizeCustomProduct } from './product-providers/custom.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { normalizeFoodQuery } from './food-query.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { LEGACY_PRODUCT_IDS } from './legacy-product-references.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
 const JOURNAL='backup-import-journal-v1';
 export const BACKUP_LIMIT_BYTES=10*1024*1024;
 function fail(message='Nieprawidłowy format backupu.'){throw new TypeError(message);}
@@ -27,7 +27,7 @@ export function validateBackup(value){
  const customProducts=list(data.customProducts,2000).map(p=>{if(p?.source!=='custom'||!isProduct(p)||p.id!==`custom:${p.sourceId}`)fail('Nieprawidłowy własny produkt.');normalizeCustomProduct(p,p);return copyProduct(p);});
  if(new Set(customProducts.map(p=>p.id)).size!==customProducts.length || new Set(products.map(p=>p.id)).size!==products.length)fail('Powtórzone ID produktów.');
  const barcodes=customProducts.filter(p=>p.barcode).map(p=>barcodeKey(p.barcode));if(new Set(barcodes).size!==barcodes.length)fail('Powtórzone kody własnych produktów.');
- const all=[...products,...customProducts,...getLocalProducts()],ids=new Set(all.map(p=>p.id));
+ const ids=new Set([...products.map(p=>p.id),...customProducts.map(p=>p.id),...LEGACY_PRODUCT_IDS]);
  const favorites=list(data.favorites,5000).map(id=>{if(!ids.has(id))fail('Nieznany ulubiony produkt.');return id;});
  const recent=list(data.recent??[],20).map(id=>{if(!ids.has(id))fail('Nieznany ostatni produkt.');return id;});
  const aliases=list(data.aliases,1000).map(row=>{if(!text(row?.phrase,114)||normalizeFoodQuery(row.phrase).length<3||!ids.has(row.productId))fail('Nieprawidłowy alias.');return {phrase:normalizeFoodQuery(row.phrase),productId:row.productId};});
@@ -36,8 +36,8 @@ export function validateBackup(value){
 }
 export function parseBackup(raw){if(typeof raw!=='string'||new TextEncoder().encode(raw).length>BACKUP_LIMIT_BYTES)fail('Backup jest zbyt duży (limit 10 MiB).');try{return validateBackup(JSON.parse(raw));}catch(error){throw new TypeError(error instanceof SyntaxError?'Plik nie jest prawidłowym JSON.':error.message);}}
 export async function exportBackup({storage=createProductStorage(),local=globalThis.localStorage}={}){
- try{const state=await storage.snapshot();const products=state.products.map(row=>row.product).filter(isProduct),customProducts=state.meta.filter(row=>row.key.startsWith('custom:')).map(row=>row.product).filter(isProduct);
- const ids=new Set([...products,...customProducts,...getLocalProducts()].map(p=>p.id));
+ try{const state=await storage.snapshot();const products=state.products.map(row=>row.product).filter(p=>isProduct(p)&&['openfoodfacts','usda'].includes(p.source)),customProducts=state.meta.filter(row=>row.key.startsWith('custom:')).map(row=>row.product).filter(isProduct);
+ const ids=new Set([...products.map(p=>p.id),...customProducts.map(p=>p.id),...LEGACY_PRODUCT_IDS]);
  return validateBackup({app:'Benger',schemaVersion:1,exportedAt:new Date().toISOString(),data:{diary:JSON.parse(local.getItem(NUTRITION_STORAGE_KEY)??'[]'),products,customProducts,
  favorites:state.usage.filter(row=>row.favorite&&ids.has(row.key)).map(row=>row.key),recent:state.usage.filter(row=>row.lastUsedAt&&ids.has(row.key)).sort((a,b)=>b.lastUsedAt-a.lastUsedAt).slice(0,20).map(row=>row.key),
  aliases:state.meta.filter(row=>row.key.startsWith('alias:')&&ids.has(row.productId)).map(row=>({phrase:row.phrase,productId:row.productId})),

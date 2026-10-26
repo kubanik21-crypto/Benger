@@ -1,34 +1,4 @@
-// Dane przykładowe, wyłącznie do celów edukacyjnych.
-// Nie są to zweryfikowane wartości konkretnych marek produktów.
-// per100 opisuje kcal oraz gramy białka, tłuszczu i węglowodanów
-// na 100 g lub 100 ml, zgodnie z jednostką danego produktu.
-export const PRODUCTS = [
-  {
-    id: 'oat-flakes',
-    name: 'Płatki owsiane',
-    unit: 'g',
-    per100: { kcal: 370, protein: 13, fat: 7, carbs: 60 },
-  },
-  {
-    id: 'peeled-banana',
-    name: 'Banan bez skórki',
-    unit: 'g',
-    per100: { kcal: 89, protein: 1.1, fat: 0.3, carbs: 22.8 },
-  },
-  {
-    id: 'natural-yogurt',
-    name: 'Jogurt naturalny',
-    unit: 'g',
-    per100: { kcal: 60, protein: 4, fat: 2, carbs: 6 },
-  },
-  {
-    id: 'milk-2-percent',
-    name: 'Mleko 2%',
-    unit: 'ml',
-    per100: { kcal: 50, protein: 3.4, fat: 2, carbs: 4.8 },
-  },
-];
-
+// Czyste obliczenia dla produktów dostarczonych przez ProductRepository.
 const NUTRIENTS = ['kcal', 'protein', 'fat', 'carbs'];
 
 function validateNutrition(values) {

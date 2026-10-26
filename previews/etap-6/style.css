@@ -80,7 +80,7 @@ footer { margin: 26px 0 10px; font-size: 12px; line-height: 1.7; }
 .search-line input { flex: 1; width: 100%; min-width: 0; }
 .search-line button { flex-shrink: 0; }
 .barcode-lookup { margin-top: 18px; }
-.barcode-lookup summary, .basic-catalog summary { min-height: 48px; padding: 12px 0; }
+.barcode-lookup summary { min-height: 48px; padding: 12px 0; }
 .catalog-message { min-height: 24px; font-size: 14px; }
 .product-list { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 10px; }
 .search-results { grid-template-columns: repeat(2, minmax(0, 1fr)); }

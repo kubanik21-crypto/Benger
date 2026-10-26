@@ -1,5 +1,5 @@
-import { createProductRepository } from './product-repository.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { createBarcodeScanner } from './barcode-scanner.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
+import { createProductRepository } from './product-repository.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { createBarcodeScanner } from './barcode-scanner.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
 const $=id=>document.getElementById(id),repository=createProductRepository(),mode=document.body.dataset.lab;
 const report=value=>{$('report').textContent=JSON.stringify(value,null,2);};
 const brands=['Pilos','Łaciate','Piątnica','Mlekovita','Danone','Coca-Cola','Pepsi','Nutella','Sante','Lubella','Winiary','Kielecki'];let brandIndex=0;

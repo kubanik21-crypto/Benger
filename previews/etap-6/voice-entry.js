@@ -1,10 +1,10 @@
-import { recordAnalysis } from './analysis-history.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { understandMeal, MEAL_LABELS } from './meal-understanding.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { createProductResolver } from './product-resolver.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal } from './meal-resolution.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { productErrorMessage } from './product-errors.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
+import { recordAnalysis } from './analysis-history.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { understandMeal, MEAL_LABELS } from './meal-understanding.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { createProductResolver } from './product-resolver.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal } from './meal-resolution.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { productErrorMessage } from './product-errors.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });

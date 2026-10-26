@@ -1,13 +1,13 @@
-import { recoverPendingImport } from './backup.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { initBackupUi } from './backup-ui.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { initPwa } from './pwa.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { calculatePortion, sumNutrition } from './nutrition.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { initLegacyNotes } from './legacy.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { MEAL_LABELS } from './meal-understanding.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { initVoiceEntry } from './voice-entry.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { createProductRepository } from './product-repository.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { initProductSearch } from './product-search-ui.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=a2b2ae0f9c17630acc9006699ed8d0be6c8b098f';
+import { recoverPendingImport } from './backup.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { initBackupUi } from './backup-ui.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { initPwa } from './pwa.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { initLegacyNotes } from './legacy.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { MEAL_LABELS } from './meal-understanding.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { initVoiceEntry } from './voice-entry.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { createProductRepository } from './product-repository.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { initProductSearch } from './product-search-ui.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=f96ccff5b19fbfcad0b3103ec240199be22efa82';
 
 await recoverPendingImport();
 
@@ -191,7 +191,7 @@ function createPortionArticle(entry) {
   if (entry.brand || entry.source) {
     const provenance = document.createElement('p');
     provenance.className = 'entry-source';
-    provenance.textContent = [entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Benger · przykład' : entry.source].filter(Boolean).join(' · ');
+    provenance.textContent = [entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Archiwalny produkt' : entry.source].filter(Boolean).join(' · ');
     article.append(provenance);
   }
   return article;
