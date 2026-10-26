@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "builtAt": "2026-10-26T11:04:25.745Z",
+  "builtAt": "2026-10-26T11:24:15.010Z",
   "license": "USDA public domain / CC0",
   "sources": [
     {
@@ -44,7 +44,38 @@
           "median": "",
           "footnote": "",
           "min_year_acquired": ""
-        }
+        },
+        "surveyCategoryRows": 0,
+        "tables": [
+          "",
+          "food_update_log_entry.csv",
+          "agricultural_samples.csv",
+          "Download API Field Descriptions.xlsx",
+          "input_food.csv",
+          "food_attribute_type.csv",
+          "lab_method_code.csv",
+          "measure_unit.csv",
+          "food_nutrient_conversion_factor.csv",
+          "nutrient.csv",
+          "sub_sample_food.csv",
+          "market_acquisition.csv",
+          "food_attribute.csv",
+          "sample_food.csv",
+          "food.csv",
+          "food_protein_conversion_factor.csv",
+          "lab_method.csv",
+          "sub_sample_result.csv",
+          "food_category.csv",
+          "lab_method_nutrient.csv",
+          "food_nutrient.csv",
+          "acquisition_samples.csv",
+          "food_calorie_conversion_factor.csv",
+          "food_component.csv",
+          "result.txt",
+          "foundation_food.csv",
+          ".~lock.food_nutrient.csv#",
+          "food_portion.csv"
+        ]
       }
     },
     {
@@ -88,7 +119,25 @@
           "median": "",
           "footnote": "",
           "min_year_acquired": ""
-        }
+        },
+        "surveyCategoryRows": 0,
+        "tables": [
+          "",
+          "all_downloaded_table_record_counts.csv",
+          "Download & API Field Descriptions Oct 2022.pdf",
+          "fndds_ingredient_nutrient_value.csv",
+          "food.csv",
+          "food_attribute.csv",
+          "food_nutrient.csv",
+          "food_portion.csv",
+          "input_food.csv",
+          "survey_fndds_food.csv",
+          "fndds_derivation.csv",
+          "food_attribute_type.csv",
+          "measure_unit.csv",
+          "nutrient.csv",
+          "wweia_food_category.csv"
+        ]
       }
     },
     {
@@ -132,7 +181,29 @@
           "median": "",
           "footnote": "",
           "min_year_acquired": ""
-        }
+        },
+        "surveyCategoryRows": 0,
+        "tables": [
+          "",
+          "food_update_log_entry.csv",
+          "sr_legacy_food.csv",
+          "Download & API Field Descriptions-2019-10-11-16-22.xlsx",
+          "food_nutrient_source.csv",
+          "food_attribute_type.csv",
+          "measure_unit.csv",
+          "food_nutrient_conversion_factor.csv",
+          "nutrient.csv",
+          "food_nutrient_derivation.csv",
+          "food_attribute.csv",
+          "food.csv",
+          "food_protein_conversion_factor.csv",
+          "food_category.csv",
+          "all_downloaded_table_record_counts.csv",
+          "food_nutrient.csv",
+          "retention_factor.csv",
+          "food_calorie_conversion_factor.csv",
+          "food_portion.csv"
+        ]
       }
     }
   ],
@@ -140,5 +211,5 @@
   "accepted": 13727,
   "count": 13727,
   "chunks": 108,
-  "bytes": 7933610
+  "bytes": 8414055
 }
