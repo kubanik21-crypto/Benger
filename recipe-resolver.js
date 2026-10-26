@@ -1,7 +1,8 @@
+import {canonicalWord} from './food-language.js';
 import { normalizeText } from './product-model.js';
 const possessive=/\b(?:moj|moja|moje|mojego|mojej|moich|moim)\b/g;
-const inflections={mojego:'moj',mojej:'moj',moja:'moj',moje:'moj',moich:'moj',moim:'moj',dania:'danie',rosolu:'rosol',bigosu:'bigos',carbonary:'carbonara',kurczaka:'kurczak',zupy:'zupa',zupie:'zupa',zapiekanki:'zapiekanka',salatki:'salatka',owsianki:'owsianka',gulaszu:'gulasz'};
-export const recipeQuery=value=>normalizeText(value).split(' ').map(w=>inflections[w]??w).join(' ');
+const inflections={przepisu:'przepis',mojego:'moj',mojej:'moj',moja:'moj',moje:'moj',moich:'moj',moim:'moj',dania:'danie',rosolu:'rosol',bigosu:'bigos',carbonary:'carbonara',kurczaka:'kurczak',zupy:'zupa',zupie:'zupa',zapiekanki:'zapiekanka',salatki:'salatka',owsianki:'owsianka',gulaszu:'gulasz'};
+export const recipeQuery=value=>normalizeText(value).split(' ').map(w=>inflections[w]??canonicalWord(w)).join(' ');
 const withoutPossessive=value=>value.replace(possessive,' ').replace(/\s+/g,' ').trim();
 export function matchRecipes(query,recipes,{aliases=[],usage=[]}={}){
  const q=recipeQuery(query);if(!q||q.length>240)return {recipe:null,confidence:'LOW',alternatives:[],reason:'not-found'};
@@ -17,4 +18,4 @@ export function matchRecipes(query,recipes,{aliases=[],usage=[]}={}){
  if(alternatives.length===1)return {recipe:null,confidence:'MEDIUM',alternatives,reason:'confirm-recipe-match'};
  return {recipe:null,confidence:'LOW',alternatives,reason:alternatives.length?'ambiguous-recipes':explicitPossessive?'personal-recipe-not-found':'not-found'};
 }
-export function createRecipeResolver({repository}){return {async resolve(query){const [recipes,preferences]=await Promise.all([repository.list(),repository.preferences()]);return matchRecipes(query,recipes,preferences);}};}
+export function createRecipeResolver({repository}){return {async resolve(query){try{const [recipes,preferences]=await Promise.all([repository.list(),repository.preferences()]);return matchRecipes(query,recipes,preferences);}catch{return {recipe:null,alternatives:[],confidence:'LOW',reason:'recipe-storage-unavailable',message:'Nie można odczytać zapisanych przepisów. Sprawdź dostęp do pamięci przeglądarki.'};}}};}

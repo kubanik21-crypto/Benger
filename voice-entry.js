@@ -21,7 +21,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   const text = $('meal-text'), save = $('save-meal-proposal'), form = $('meal-text-form');
   let proposal = null, revision = 0, controller = null, storageAvailable = true, saving = false, summaryValid = false;
   const rowControllers = new Map(), rowVersions = new Map();
-  const choiceWrites = new Map(), pendingPortions = new Map();
+  const choiceWrites = new Map(), pendingPortions = new Map(), pendingLearning=new Set();
   let speechBusy = false;
   function error(message) {
     text.setAttribute('aria-invalid', 'true'); $('meal-text-error').textContent = message;
@@ -201,7 +201,8 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
         const savedRevision = revision;
         text.focus();
         // Zatwierdzenie całej widocznej propozycji jest jawną akceptacją produktu.
-        void (async () => {
+        form.dataset.learningState='pending';
+        const learning=(async () => {
           try {
             for (const item of current.items.filter(row => row.kind!=='RECIPE'&&!row.learned)) {
               const pending = pendingChoices.get(item.id);
@@ -211,6 +212,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
           }
           catch { if (revision === savedRevision) $('meal-text-status').textContent += ' Wpisy zapisane; nie udało się zapamiętać części dopasowań.'; }
         })();
+        pendingLearning.add(learning);void learning.finally(()=>{pendingLearning.delete(learning);if(!pendingLearning.size)form.dataset.learningState='idle';});
       }
     } catch (failure) { error(failure.message); }
     finally { saving = false; buttonState(); }
@@ -249,6 +251,6 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   window.addEventListener('benger:route',event=>{if(event.detail.route!=='dziennik')speech.abort();});
   window.addEventListener('pagehide', () => { speech.abort(); invalidate(); });
   form.dataset.analysisState = 'idle';
-  return { invalidateContext() { invalidate('Dane zmienione. Kliknij „Analizuj ponownie”.'); clearError(); },
+  return { async flush(){if(saving)throw new Error('Poczekaj na zakończenie zapisu posiłku.');await Promise.all([...pendingLearning,...[...choiceWrites.values()].map(w=>w.promise)]);}, invalidateContext() { invalidate('Dane zmienione. Kliknij „Analizuj ponownie”.'); clearError(); },
     setStorageAvailable(value) { storageAvailable = value; buttonState(); } };
 }

@@ -211,3 +211,9 @@ body { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
  .recipe-columns { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
 }
 @media (max-width:430px) { main { padding: 20px 14px; } .recipe-toolbar .voice-microphone { font-size: 18px; } }
+
+/* Recipe diary uses the existing accessible dialog and button palette. */
+#recipe-picker summary { min-height:48px; padding-block:12px; }
+#diary-recipe-results { display:grid; gap:8px; margin-top:12px; }
+#diary-recipe-results button { text-align:left; overflow-wrap:anywhere; }
+#recipe-diary-status { overflow-wrap:anywhere; }

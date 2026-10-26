@@ -6,7 +6,7 @@ export function updateRecipeCard(card,item,message=''){
  const recipe=item.resolution.recipe,result=recipe?resolveRecipePortion(recipe,item.intent.amount,item.intent.unit):null;
  card.querySelector('h4').textContent=recipe?.name??item.intent.query;
  card.querySelector('[data-provenance]').textContent=recipe?`Twój przepis · wersja ${recipe.version}`:'Twój przepis — wybierz dopasowanie';
- card.querySelector('[data-status]').textContent=message||(item.portion?'Sprawdź porcję przed dodaniem.':result?.reason??'Wybierz właściwy przepis.');
+ card.querySelector('[data-status]').textContent=message||(item.portion?'Sprawdź porcję przed dodaniem.':result?.reason??item.resolution.message??'Wybierz właściwy przepis.');
  card.querySelector('[data-values]').textContent=item.portion?`${number.format(item.portion.nutrition.kcal)} kcal · B ${number.format(item.portion.nutrition.protein)} / T ${number.format(item.portion.nutrition.fat)} / W ${number.format(item.portion.nutrition.carbs)} g`:'Brak kompletnych wartości porcji.';
  card.dataset.ready=String(Boolean(item.portion));card.querySelector('[data-amount]').setAttribute('aria-invalid',String(!item.intent.amount));
 }

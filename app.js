@@ -33,6 +33,8 @@ const addButton = $('add-nutrition');
 let nutritionEntries = [];
 let nutritionStorageOK = true;
 let voiceEntry;
+const diarySideEffects=new Set();
+function sideEffect(promise){diarySideEffects.add(promise);void promise.finally(()=>diarySideEffects.delete(promise));}
 
 function populateSelect(select, choices) {
   for (const [value, label] of choices) {
@@ -268,10 +270,11 @@ function appendNutritionPortions(portions, meal, date) {
     return [...current, ...entries];
   });
   // Awaria cache nie cofa poprawnego zapisu dziennika ani nie powoduje ponownego dodania.
-  if (saved) void productSearch.recordUsed(portions.filter(p=>p.kind!=='RECIPE').map(portion => portion.product)).catch(() => {
+  if (saved) sideEffect(productSearch.recordUsed(portions.filter(p=>p.kind!=='RECIPE').map(portion => portion.product)).catch(() => {
     $('catalog-storage-message').textContent = 'Wpis zapisany. Nie udało się zaktualizować ostatnich produktów.';
-  });
-  if(saved)void recipeRepository.recordUsed(portions.filter(p=>p.kind==='RECIPE').map(p=>p.recipeId)).catch(()=>{});
+  }));
+  const recipeIds=portions.filter(p=>p.kind==='RECIPE').map(p=>p.recipeId);
+  if(saved&&recipeIds.length)sideEffect(recipeRepository.recordUsed(recipeIds).catch(()=>{$('diary-message').textContent='Wpis zapisany. Nie udało się zaktualizować ostatnich przepisów.';}));
   return saved;
 }
 
@@ -306,7 +309,7 @@ function updateProposalButton() {
 function removeNutritionEntry(id) {
   const entry = nutritionEntries.find(item => item.id === id);
   if (updateNutritionEntries(current => current.filter(item => item.id !== id))) {
-    $('diary-message').textContent = `Usunięto: ${entry?.productName ?? 'produkt'}.`;
+    $('diary-message').textContent = `Usunięto: ${entry?.recipeName ?? entry?.productName ?? 'produkt'}.`;
     const nextButton = $('nutrition-entries').querySelector('button');
     (nextButton ?? $('nutrition-title')).focus();
   }
@@ -359,4 +362,4 @@ void productSearch.seedRecent(nutritionEntries).catch(() => {});
 
 void initPwa();
 
-initBackupUi({beforeRead:()=>recipesUI.flush()});
+initBackupUi({beforeRead:async()=>{await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});

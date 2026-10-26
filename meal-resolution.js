@@ -39,8 +39,8 @@ export async function resolveMealIntents(intents, { resolver, allowExternal = fa
     if (signal?.aborted) throw signal.reason;
     let localProductResolution;
     if(recipeResolver&&!intent.barcode){const resolution=await recipeResolver.resolve(intent.query);
-      if(resolution.reason==='personal-recipe-not-found')localProductResolution=await resolver.resolve({query:intent.query,...(['g','ml'].includes(intent.unit)?{unit:intent.unit}:{})},{allowExternal:false,signal});
-      if(resolution.recipe||resolution.alternatives.length||resolution.reason==='personal-recipe-not-found'&&!localProductResolution?.product){
+      if(['personal-recipe-not-found','recipe-storage-unavailable'].includes(resolution.reason))localProductResolution=await resolver.resolve({query:intent.query,...(['g','ml'].includes(intent.unit)?{unit:intent.unit}:{})},{allowExternal:false,signal});
+      if(resolution.recipe||resolution.alternatives.length||['personal-recipe-not-found','recipe-storage-unavailable'].includes(resolution.reason)&&!localProductResolution?.product){
         items.push({id:ids[index],kind:'RECIPE',intent:{...intent},resolution,portion:resolution.recipe?resolveRecipePortion(resolution.recipe,intent.amount,intent.unit).portion:null,confirmed:false});continue;
       }
     }
