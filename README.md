@@ -83,9 +83,9 @@ Zjadłem banana 120 gram i jogurt naturalny 200 gram
 Płatki owsiane osiemdziesiąt gramów
 ```
 
-`meal-understanding.js` rozdziela normalizację, posiłek, segmenty, ilość, jednostkę i query. Zna ograniczony słownik odmian i popularne liczby całkowite zapisane słownie 0–999 (`polish-numbers.js`). Obsługuje przecinek dziesiętny w cyfrach i flagę „około/jakieś/mniej więcej”. Nie zgaduje gramatury, makro, gęstości ani typowych porcji. Nie każdy produkt da się od razu rozstrzygnąć; UI zachowuje niepewną pozycję do wyboru.
+`meal-understanding.js` rozdziela normalizację, posiłek, segmenty, ilość, jednostkę i query. Zna ograniczony słownik odmian i liczby zapisane słownie 0–2000 oraz pół/półtora i słowne ułamki dziesiętne (`polish-numbers.js`). Obsługuje przecinek dziesiętny w cyfrach i flagę „około/jakieś/mniej więcej”. Nie zgaduje gramatury, makro, gęstości ani typowych porcji. Nie każdy produkt da się od razu rozstrzygnąć; UI zachowuje niepewną pozycję do wyboru.
 
-Istniejący ProductResolver używa pamięci wcześniejszych jawnych wyborów, ostatnich, ulubionych i cache. Po lokalnym dopasowaniu analiza może wykonać najwyżej **jeden** zewnętrzny search; pozostałe wyszukujesz przyciskiem w konkretnym wierszu. Wpisywanie i interim nie odpytują OFF. Wybór produktu oraz końcowe zatwierdzenie propozycji uczą lokalnego dopasowania bez podwójnego liczenia tego samego wyboru.
+Istniejący ProductResolver używa jawnych aliasów, dokładnej i podobnej pamięci potwierdzeń, ulubionych, ostatnich i cache. Po lokalnym dopasowaniu analiza może wykonać najwyżej **jeden** zewnętrzny search; pozostałe wyszukujesz przyciskiem w konkretnym wierszu. Wpisywanie i interim nie odpytują OFF. Wybór produktu oraz końcowe zatwierdzenie propozycji uczą lokalnego dopasowania bez podwójnego liczenia tego samego wyboru.
 
 Wszystkie obliczenia nadal wykonują `calculatePortion()` i `sumNutrition()`. Zmiana produktu między g i ml wymaga ponownego podania ilości, zamiast automatycznego przeliczenia. Stary `meal-parser.js` zachowano i testujemy jako zgodny moduł Etapu 2; nowy ekran korzysta z `understandMeal()`.
 

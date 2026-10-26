@@ -48,7 +48,7 @@ const resolution = await resolver.resolve(intent, { allowExternal: false, signal
 // {product, confidence, alternatives, reason, requiresConfirmation: true}
 ```
 
-Dokładny barcode jest rozstrzygany przed frazą. Dla query kolejność preferencji to pamięć jawnego wyboru → ostatnie → ulubione → lokalny/cache. Dopiero jawne `allowExternal: true` pozwala na search przez repozytorium. Odczyty podlegają wspólnemu limiterowi, TTL i obsłudze błędów; resolver nie wykonuje własnego fetch.
+Jawny alias ma pierwszeństwo, następnie dokładny barcode. Dla query kolejność preferencji to pamięć dokładnego wyboru → podobne potwierdzone frazy → ulubione → ostatnie → lokalny/cache. Dopiero jawne `allowExternal: true` pozwala na search przez repozytorium. Odczyty podlegają wspólnemu limiterowi, TTL i obsłudze błędów; resolver nie wykonuje własnego fetch.
 
 | Confidence | Warunek | Zachowanie przyszłego UI |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ Dokładny barcode jest rozstrzygany przed frazą. Dla query kolejność preferen
 | MEDIUM | Jedyny zgodny produkt lub pojedynczy jawny wybór | Pokaż do potwierdzenia z nazwą/marką i jednostką |
 | LOW | Kilka zgodnych marek/wariantów, brak wyniku lub konflikt jednostki | Nie wybieraj produktu; pokaż do pięciu propozycji albo poproś o brakującą informację |
 
-To deterministyczne reguły, nie model probabilistyczny. Ulubiony/recent ma priorytet na liście, ale sam nie usuwa niejednoznaczności. Pamięć może wskazać wcześniej wybrany produkt mimo braku dokładnej zgodności tokenów nazwy; nadal obowiązuje zgodna jednostka i brak jawnego konfliktu procentu. Bez pamięci dopasowanie jest konserwatywne: pełne tokeny nazwy/marki, bez odmiany polskich słów i fuzzy matching. Wszystkie wyniki wymagają weryfikacji, także HIGH.
+To deterministyczne reguły, nie model probabilistyczny. Ulubiony/recent ma priorytet na liście, ale sam nie usuwa niejednoznaczności. Pamięć może wskazać wcześniej wybrany produkt mimo braku dokładnej zgodności tokenów nazwy; nadal obowiązuje zgodna jednostka oraz ochrona procentu, smaku i Zero; HIGH z pamięci wymaga też zgodności aktualnego query. Bez pamięci dopasowanie jest konserwatywne: pełne tokeny nazwy/marki, ze znanymi odmianami polskich słów; podobne frazy mają odrębną konserwatywną ścieżkę MEDIUM. Wszystkie wyniki wymagają weryfikacji, także HIGH.
 
 ## Lokalna pamięć jawnych wyborów
 
