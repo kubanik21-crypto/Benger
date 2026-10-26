@@ -76,3 +76,6 @@ localStorage nadal ma zaakceptowany race condition przy dokładnie równoczesnym
 10. Wyeksportuj backup i sprawdź odtworzenie na osobnym preview po potwierdzeniu.
 
 Nie opublikowano zmian w produkcyjnym main. Nie utworzono PR i nie wykonano merge.
+
+
+Aktualizacja PWA pobiera bieżący obiekt rejestracji w momencie kliknięcia. Przy pierwszej instalacji nie pokazujemy przycisku aktualizacji; pojawia się dopiero dla oczekującej nowej wersji i istniejącego kontrolera. Dodatkowy test instaluje oryginalny klient Etapu 8, czeka na rzeczywistą gotowość aktualizacji, używa starego przycisku i porównuje cały backup po przejściu na nowy shell. Dane i cache innych scope pozostają nienaruszone.

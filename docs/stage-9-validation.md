@@ -3,8 +3,8 @@
 Node.js 22.23.4, lokalny headless Chromium, 2026-10-26. Standardowe testy używają mocków OFF/SpeechRecognition, nie prawdziwego mikrofonu ani płatnych usług.
 
 - `npm test`: **1103/1103 PASS**, zachowane wcześniejsze 976 przypadków.
-- `npm run test:browser`: **172/172 PASS**, zachowane wcześniejsze 154 przypadki.
-- Końcowe testy nowych ścieżek Chromium: **18/18 PASS** po ostatnim hardeningu.
+- `npm run test:browser`: **173/173 PASS**, zachowane wcześniejsze 154 przypadki.
+- Końcowe testy nowych ścieżek Chromium: **19/19 PASS** po ostatnim hardeningu.
 - Korpus: **113 różnych zdań** (porcje, ułamki, g/ml, formy polskie, posiłki, szyk, possessives, alias, mixed i ambiguity).
 - Generative: **600 kombinacji** nazwa × ilość × jednostka × pozycja, z własnościami skalowania, zachowania wersji, immutability, braku density conversion i niejednoznaczności.
 - `git diff --check`: PASS. Składnia workflow YAML: PASS.
@@ -64,3 +64,10 @@ Diagnostics: https://kubanik21-crypto.github.io/Benger/previews/etap-9/recipe-di
 Osobne dane preview-etap-9 i scope tylko tego podkatalogu. Root i Etap 8 pozostają bez zmian. Końcowe SHA i wyniki Actions podaje raport wykonania (dokument nie zawiera własnego SHA). Nie utworzono PR i nie wykonano merge.
 
 [Ograniczenia i 10-punktowa checklista Samsunga](recipe-diary-and-release-hardening.md#samsung--real-device-acceptance). Prawdziwy mikrofon, aparat i aktualizacja zainstalowanej PWA wymagają real-device acceptance; testy headless nie są jej zamiennikiem.
+
+
+## Doprecyzowanie testu aktualizacji z Etapu 8
+
+Fixture zawiera oryginalne zmienione pliki klienta z 19db9d3 (w tym PWA/SW); nie jest publikowana jako asset. Test instaluje poprzedni shell w izolowanym profilu, zapisuje wszystkie typy danych, podmienia publiczne pliki i aktywuje aktualizację przez bieżącą rejestrację SW. Porównuje pełny backup przed/po, zachowanie szkiców oraz pozostawienie cache innych scope.
+
+W tym scenariuszu stary interfejs potrafił pozostawić widoczny komunikat aktualizacji po pierwszej instalacji. Widoczny przycisk nie był dowodem, że następna wersja zakończyła instalację. Test czeka teraz na rzeczywisty waiting worker i używa przycisku starego klienta. Etap 9 pokazuje aktualizację tylko przy istniejącym kontrolerze i oczekującej wersji, czyści komunikat przy zmianie kontrolera oraz pobiera bieżącą rejestrację przy kliknięciu. Worker utrzymuje zdarzenie wiadomości przez waitUntil(skipWaiting()). Nie dodano automatycznego reload podczas edycji.
