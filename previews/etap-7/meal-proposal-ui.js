@@ -1,8 +1,8 @@
-import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { itemPortionResolution } from './meal-resolution.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { productSourceLabel } from './product-model.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
+import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { itemPortionResolution } from './meal-resolution.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { productSourceLabel } from './product-model.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
-import { MEAL_LABELS } from './meal-understanding.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
+import { MEAL_LABELS } from './meal-understanding.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
 
 export function node(tag, className, text) {
   const element = document.createElement(tag);
@@ -18,6 +18,7 @@ export function readProposalFields(card) {
 }
 export function updateProposalCard(card, item, message = '') {
   const product = item.resolution.product;
+  const conversion=itemPortionResolution(item);
   const approximation = card.querySelector('[data-approximation]');
   if (approximation) approximation.textContent = `ok. ${item.intent.amount ?? '…'} ${householdUnitLabel(item.intent.unit,item.intent.amount)} — ilość przybliżona.`;
   card.querySelector('h4').textContent = product?.name ?? (item.intent.query || 'Produkt bez nazwy');
@@ -30,7 +31,7 @@ export function updateProposalCard(card, item, message = '') {
   status.textContent = message || (ready ? '✓ Rozpoznano — sprawdź przed dodaniem.'
     : !product ? item.resolution.alternatives.length ? '? Sprawdź — wybierz właściwy produkt.' : '! Nie znaleziono — wyszukaj produkt.'
       : !Object.hasOwn(MEAL_LABELS, item.intent.meal) ? '! Wybierz posiłek.'
-        : !item.intent.amount ? '! Podaj ilość. Nie zgadujemy porcji.' : '! Sprawdź jednostkę i ilość. Nie przeliczamy gęstości.');
+        : !item.intent.amount ? '! Podaj ilość. Nie zgadujemy porcji.' : `! ${conversion.description}`);
   card.querySelector('[data-values]').textContent = item.portion
     ? `${number.format(item.portion.nutrition.kcal)} kcal · Białko: ${number.format(item.portion.nutrition.protein)} g · Tłuszcz: ${number.format(item.portion.nutrition.fat)} g · Węglowodany: ${number.format(item.portion.nutrition.carbs)} g` : 'Wartości pojawią się po uzupełnieniu produktu i porcji.';
   const detail=card.querySelector('[data-portion-detail]');

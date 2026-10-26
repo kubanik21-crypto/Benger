@@ -1,14 +1,14 @@
-import { validPortionSnapshot, copyPortionSnapshot } from './portion-model.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { initPortionSettings } from './portion-settings-ui.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { recoverPendingImport } from './backup.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { initBackupUi } from './backup-ui.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { initPwa } from './pwa.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { calculatePortion, sumNutrition } from './nutrition.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { MEAL_LABELS } from './meal-understanding.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { initVoiceEntry } from './voice-entry.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { createProductRepository } from './product-repository.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { initProductSearch } from './product-search-ui.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
+import { validPortionSnapshot, copyPortionSnapshot } from './portion-model.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { initPortionSettings } from './portion-settings-ui.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { recoverPendingImport } from './backup.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { initBackupUi } from './backup-ui.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { initPwa } from './pwa.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { MEAL_LABELS } from './meal-understanding.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { initVoiceEntry } from './voice-entry.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { createProductRepository } from './product-repository.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { initProductSearch } from './product-search-ui.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
 
 await recoverPendingImport();
 

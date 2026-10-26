@@ -1,11 +1,12 @@
-import { copyProduct, isProduct, normalizeText } from './product-model.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { PRODUCT_DB_NAME } from './app-storage.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
-import { normalizeFoodQuery } from './food-query.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
+import { copyProduct, isProduct, normalizeText } from './product-model.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { PRODUCT_DB_NAME } from './app-storage.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { normalizeFoodQuery } from './food-query.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
 
 export const PRODUCT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const SEARCH_TTL_MS = 15 * 60 * 1000;
 // Rev 2: nazwy marek z API 3.6. Starsze kopie pozostają dostępne offline, ale nie są świeże.
-export const PRODUCT_CACHE_REVISION = 2;
+// Revision 3 fetches serving/package metadata once online; older products remain usable offline.
+export const PRODUCT_CACHE_REVISION = 3;
 const STORES = ['products', 'usage', 'searches', 'meta', 'selections'];
 function availableIndexedDB() {
   try { return globalThis.indexedDB; } catch { return null; }
