@@ -1,5 +1,5 @@
-import {canonicalWord} from './food-language.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
-import { normalizeText } from './product-model.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
+import {canonicalWord} from './food-language.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import { normalizeText } from './product-model.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
 const possessive=/\b(?:moj|moja|moje|mojego|mojej|moich|moim)\b/g;
 const inflections={przepisu:'przepis',mojego:'moj',mojej:'moj',moja:'moj',moje:'moj',moich:'moj',moim:'moj',dania:'danie',rosolu:'rosol',bigosu:'bigos',carbonary:'carbonara',kurczaka:'kurczak',zupy:'zupa',zupie:'zupa',zapiekanki:'zapiekanka',salatki:'salatka',owsianki:'owsianka',gulaszu:'gulasz'};
 export const recipeQuery=value=>normalizeText(value).split(' ').map(w=>inflections[w]??canonicalWord(w)).join(' ');

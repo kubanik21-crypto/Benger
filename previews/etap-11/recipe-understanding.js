@@ -1,8 +1,8 @@
-import { normalizeFoodQuery } from './food-query.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
-import { normalizeTranscript } from './transcript-normalizer.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
-import { normalizeText } from './product-model.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
-import { readPolishNumber } from './polish-numbers.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
-import { understandMeal } from './meal-understanding.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
+import { normalizeFoodQuery } from './food-query.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import { normalizeTranscript } from './transcript-normalizer.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import { normalizeText } from './product-model.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import { readPolishNumber } from './polish-numbers.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import { understandMeal } from './meal-understanding.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
 export const RECIPE_EVENT_TYPES=['INGREDIENT','STEP','INGREDIENT_AND_STEP','YIELD','NAME','NOTE','UNKNOWN'];
 const addition=/^(?:daje|dodaje|wrzucam|wlewam|wsypuje|dokladam|uzywam)\s+/;
 const action=/\b(?:kroje|siekam|mieszam|blenduje|gotuje|smaze|podsmazam|pieke|dusze|doprawiam|odstawiam)\b/;

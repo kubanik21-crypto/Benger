@@ -1,7 +1,7 @@
-import {recipePortionModes,resolveRecipePortion} from './recipe-portion-resolver.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
-import {MEAL_LABELS} from './meal-understanding.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
-import {navigate} from './navigation.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
-import {storageErrorMessage} from './storage-health.js?v=a2669fe54677df19bb74c89ad1496548a3cba87d';
+import {recipePortionModes,resolveRecipePortion} from './recipe-portion-resolver.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import {MEAL_LABELS} from './meal-understanding.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import {navigate} from './navigation.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import {storageErrorMessage} from './storage-health.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
 const node=(tag,text)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;};
 export function initRecipeDiary({recipes,readDate,getMeal,onSave}){
  const dialog=node('dialog');dialog.id='recipe-diary-dialog';dialog.setAttribute('aria-labelledby','recipe-diary-title');const title=node('h2','Dodaj przepis do dziennika');title.id='recipe-diary-title';const form=node('form'),status=node('p');status.id='recipe-diary-status';status.setAttribute('role','status');const fields={};
