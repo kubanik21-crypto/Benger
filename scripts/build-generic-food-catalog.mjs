@@ -20,7 +20,7 @@ else {
    const bytes=Buffer.from(await response.arrayBuffer()),zip=join(directory,file);await writeFile(zip,bytes);
    const output=execFileSync('python3',[new URL('./read-usda-csv.py',import.meta.url).pathname,zip],{encoding:'utf8',maxBuffer:100*1024*1024});
    const rows=JSON.parse(output);foods.push(...rows);
-   sources.push({type,url,sha256:createHash('sha256').update(bytes).digest('hex'),records:rows.length});
+   sources.push({type,url,sha256:createHash('sha256').update(bytes).digest('hex'),records:rows.length,accepted:rows.map(normalizeUsdaProduct).filter(Boolean).length,diagnostics:rows[0]?.importDiagnostics});
   }
  }finally{await rm(directory,{recursive:true,force:true});}
 }
