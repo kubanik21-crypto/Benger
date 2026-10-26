@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "builtAt": "2026-10-26T11:24:15.010Z",
+  "builtAt": "2026-10-26T11:27:27.206Z",
   "license": "USDA public domain / CC0",
   "sources": [
     {
@@ -46,6 +46,8 @@
           "min_year_acquired": ""
         },
         "surveyCategoryRows": 0,
+        "categoryExample": null,
+        "surveyExample": null,
         "tables": [
           "",
           "food_update_log_entry.csv",
@@ -120,7 +122,18 @@
           "footnote": "",
           "min_year_acquired": ""
         },
-        "surveyCategoryRows": 0,
+        "surveyCategoryRows": 171,
+        "categoryExample": {
+          "wweia_food_category": "1002",
+          "wweia_food_category_description": "Milk, whole"
+        },
+        "surveyExample": {
+          "fdc_id": "2340760",
+          "food_code": "11000000",
+          "wweia_category_number": "9602",
+          "start_date": "2019-01-01",
+          "end_date": "2020-12-31"
+        },
         "tables": [
           "",
           "all_downloaded_table_record_counts.csv",
@@ -183,6 +196,8 @@
           "min_year_acquired": ""
         },
         "surveyCategoryRows": 0,
+        "categoryExample": null,
+        "surveyExample": null,
         "tables": [
           "",
           "food_update_log_entry.csv",
@@ -211,5 +226,5 @@
   "accepted": 13727,
   "count": 13727,
   "chunks": 108,
-  "bytes": 8414055
+  "bytes": 8492315
 }
