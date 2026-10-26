@@ -1,3 +1,7 @@
+import { validDiaryEntry,copyDiaryEntry } from './diary-entry.js';
+import {createRecipeRepository} from './recipe-repository.js';
+import {initRecipeDiary} from './recipe-diary-ui.js';
+import {storageErrorMessage,initStorageHealth} from './storage-health.js';
 import { initNavigation, navigate } from './navigation.js';
 import { initRecipes } from './recipe-ui.js';
 import { renderDiaryHistory } from './diary-history.js';
@@ -109,23 +113,7 @@ function readDiaryDate() {
   return dateInput.value;
 }
 
-function isValidNutritionEntry(entry) {
-  if(!validPortionSnapshot(entry))return false;
-  return entry !== null && typeof entry === 'object'
-    && typeof entry.id === 'string' && entry.id.trim() !== ''
-    && isValidDiaryDate(entry.date)
-    && typeof entry.createdAt === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(entry.createdAt)
-    && Number.isFinite(Date.parse(entry.createdAt))
-    && typeof entry.meal === 'string' && Object.hasOwn(MEAL_LABELS, entry.meal)
-    && typeof entry.productId === 'string' && entry.productId.trim() !== ''
-    && typeof entry.productName === 'string' && entry.productName.trim() !== ''
-    && ['brand', 'source', 'sourceId', 'barcode'].every(key => entry[key] === undefined || entry[key] === null || typeof entry[key] === 'string')
-    && Number.isFinite(entry.amount) && entry.amount > 0
-    && ['g', 'ml'].includes(entry.unit)
-    && entry.nutrition !== null && typeof entry.nutrition === 'object'
-    && Object.keys(NUTRIENT_LABELS).every(nutrient =>
-      Number.isFinite(entry.nutrition[nutrient]) && entry.nutrition[nutrient] >= 0);
-}
+const isValidNutritionEntry=validDiaryEntry;
 
 function loadNutritionEntries() {
   try {
@@ -160,9 +148,9 @@ function updateNutritionEntries(change) {
   const next = change(nutritionEntries);
   try {
     localStorage.setItem(nutritionStorageKey, JSON.stringify(next));
-  } catch {
+  } catch (failure) {
     renderNutritionEntries();
-    $('nutrition-storage-message').textContent = 'Nie udało się zapisać zmiany. Sprawdź wolne miejsce i dostęp do pamięci przeglądarki. Możesz spróbować ponownie.';
+    $('nutrition-storage-message').textContent = storageErrorMessage(failure);
     return false;
   }
   nutritionEntries = next;
@@ -186,18 +174,18 @@ function createPortionArticle(entry) {
   const article = document.createElement('article');
   article.className = 'food-entry';
   const name = document.createElement('h4');
-  name.textContent = entry.productName;
+  name.textContent = (entry.recipeName??entry.productName);
   const amount = document.createElement('p');
   amount.className = 'entry-amount';
-  amount.textContent = `${entry.displayPortion?.label ? entry.displayPortion.label+' · ' : ''}${entry.portionConversion?.estimated?'ok. ':''}${amountFormatter.format(entry.amount)} ${entry.unit}${entry.portionConversion?.estimated?' · typowa wartość':''}`;
+  amount.textContent = `${entry.displayPortion?.label ? entry.displayPortion.label+' · ' : ''}${entry.portionConversion?.estimated?'ok. ':''}${amountFormatter.format(entry.amount)} ${entry.unit==='serving'?'porcji':entry.unit}${entry.portionConversion?.estimated?' · typowa wartość':''}`;
   const values = document.createElement('p');
   values.className = 'entry-nutrition';
   values.textContent = `${formatter.format(entry.nutrition.kcal)} kcal · Białko: ${formatter.format(entry.nutrition.protein)} g · Tłuszcz: ${formatter.format(entry.nutrition.fat)} g · Węglowodany: ${formatter.format(entry.nutrition.carbs)} g`;
   article.append(name, amount, values);
-  if (entry.brand || entry.source) {
+  if (entry.kind==='RECIPE'||entry.brand || entry.source) {
     const provenance = document.createElement('p');
     provenance.className = 'entry-source';
-    provenance.textContent = [entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Archiwalny produkt' : entry.source].filter(Boolean).join(' · ');
+    provenance.textContent = entry.kind==='RECIPE'?`Twój przepis · v${entry.recipeVersion}`:[entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Archiwalny produkt' : entry.source].filter(Boolean).join(' · ');
     article.append(provenance);
   }
   return article;
@@ -210,7 +198,7 @@ function createNutritionArticle(entry) {
   remove.type = 'button';
   remove.className = 'button-secondary remove-entry';
   remove.textContent = 'Usuń';
-  remove.setAttribute('aria-label', `Usuń ${entry.productName}, ${amountFormatter.format(entry.amount)} ${entry.unit}, ${MEAL_LABELS[entry.meal]}`);
+  remove.setAttribute('aria-label', `Usuń ${(entry.recipeName??entry.productName)}, ${amountFormatter.format(entry.amount)} ${entry.unit}, ${MEAL_LABELS[entry.meal]}`);
   remove.addEventListener('click', () => removeNutritionEntry(entry.id));
   article.append(remove);
   return article;
@@ -267,22 +255,23 @@ function appendNutritionPortions(portions, meal, date) {
   if (!portions.length || portions.some(portion => !Object.hasOwn(MEAL_LABELS, portion.meal ?? meal))) throw fieldError('Wybierz posiłek.', 'nutrition-meal');
   const createdAt = new Date().toISOString();
   // Cały zestaw przygotowujemy przed zapisem. Jeden błąd oznacza brak zapisu.
-  const entries = portions.map(({ product, amount, nutrition, meal: rowMeal, displayPortion, portionConversion }) => ({
+  const entries = portions.map(portion=>{if(portion.kind==='RECIPE')return copyDiaryEntry({...portion,sourceType:'recipe',id:createEntryId(),date,createdAt,meal:portion.meal??meal});const { product, amount, nutrition, meal: rowMeal, displayPortion, portionConversion }=portion;return ({
     id: createEntryId(), date, createdAt, meal: rowMeal ?? meal,
     productId: product.id, productName: product.name, brand: product.brand, source: product.source,
     sourceId: product.sourceId, barcode: product.barcode, amount, unit: product.unit,
     nutrition: { ...nutrition },
     ...copyPortionSnapshot({displayPortion,portionConversion,productId:product.id,amount,unit:product.unit}),
-  }));
+  });});
   if (!entries.every(isValidNutritionEntry) || new Set(entries.map(entry => entry.id)).size !== entries.length) throw new Error('Nie można przygotować poprawnych wpisów. Żadna pozycja nie została zapisana.');
   const saved = updateNutritionEntries(current => {
     if (entries.some(entry => current.some(previous => previous.id === entry.id))) throw new Error('Identyfikator wpisu już istnieje. Spróbuj ponownie.');
     return [...current, ...entries];
   });
   // Awaria cache nie cofa poprawnego zapisu dziennika ani nie powoduje ponownego dodania.
-  if (saved) void productSearch.recordUsed(portions.map(portion => portion.product)).catch(() => {
+  if (saved) void productSearch.recordUsed(portions.filter(p=>p.kind!=='RECIPE').map(portion => portion.product)).catch(() => {
     $('catalog-storage-message').textContent = 'Wpis zapisany. Nie udało się zaktualizować ostatnich produktów.';
   });
+  if(saved)void recipeRepository.recordUsed(portions.filter(p=>p.kind==='RECIPE').map(p=>p.recipeId)).catch(()=>{});
   return saved;
 }
 
@@ -332,14 +321,17 @@ $('recipe-add-selected').onclick=async()=>{try{const portion=readPortionInput();
 $('scan-shortcut').onclick=()=>$('scan-barcode').click();
 window.addEventListener('benger:route',event=>{if(event.detail.route!=='produkty'&&$('scanner-dialog').open)$('cancel-scanner').click();});
 const productRepository = createProductRepository();
-const recipesUI=initRecipes({repository:productRepository});
+const recipeRepository=createRecipeRepository();
+const recipeDiary=initRecipeDiary({recipes:recipeRepository,readDate:readDiaryDate,getMeal:()=>mealSelect.value,onSave:(portions,date)=>appendNutritionPortions(portions,null,date)});
+const recipesUI=initRecipes({repository:productRepository,recipes:recipeRepository,onAddToDiary:recipeDiary.open});
+initStorageHealth();
 initPortionSettings(productRepository);
 const productSearch = initProductSearch({ repository: productRepository, onSelect(product) {
   selectedProduct = product;
   updatePortionPreview();
 } });
 voiceEntry = initVoiceEntry({ repository: productRepository, readDate: readDiaryDate, getMeal: () => mealSelect.value,
-  onSave: (portions, date) => appendNutritionPortions(portions, null, date), onDateError: error => showError(error, true) });
+  onSave: (portions, date) => appendNutritionPortions(portions, null, date), onDateError: error => showError(error, true),recipes:recipeRepository });
 amountInput.addEventListener('input', () => updatePortionPreview());
 mealSelect.addEventListener('change', () => {
   $('manual-meal').value=mealSelect.value;

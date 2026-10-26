@@ -1,3 +1,7 @@
+import { createRecipeResolver } from './recipe-resolver.js';
+import {createRecipeRepository} from './recipe-repository.js';
+import {createRecipeCard,updateRecipeCard} from './recipe-proposal-ui.js';
+import {resolveRecipePortion} from './recipe-portion-resolver.js';
 import { navigate } from './navigation.js';
 import { recordAnalysis } from './analysis-history.js';
 import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js';
@@ -11,7 +15,8 @@ const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
 const unresolved = () => ({ product: null, confidence: 'LOW', alternatives: [], reason: 'changed-query', requiresConfirmation: true });
 
-export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateError }) {
+export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateError, recipes = createRecipeRepository() }) {
+  const recipeResolver=createRecipeResolver({repository:recipes});
   const resolver = createProductResolver({ repository });
   const text = $('meal-text'), save = $('save-meal-proposal'), form = $('meal-text-form');
   let proposal = null, revision = 0, controller = null, storageAvailable = true, saving = false, summaryValid = false;
@@ -63,6 +68,13 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     const next = (rowVersions.get(id) ?? 0) + 1; rowVersions.set(id, next); return next;
   }
   function drawRow(item) {
+    if(item.kind==='RECIPE')return createRecipeCard(item,{
+      onInput:patch=>{const row=findItem(item.id);if(!row)return;nextRowVersion(item.id);const next=updateMealItemPortion(row,patch);replaceItem(item.id,next);updateRecipeCard(findCard(item.id),next);summary();},
+      onQuery:query=>{const row=findItem(item.id);if(!row)return;nextRowVersion(item.id);const next={...row,intent:{...row.intent,query},resolution:{recipe:null,alternatives:[],confidence:'LOW'},portion:null};replaceItem(item.id,next);updateRecipeCard(findCard(item.id),next);summary();},
+      onSearch:async query=>{const v=revision,rv=nextRowVersion(item.id);pendingPortions.set(item.id,rv);buttonState();try{const resolution=await recipeResolver.resolve(query);if(revision!==v||rowVersions.get(item.id)!==rv)return;const row=findItem(item.id),next={...row,resolution,portion:resolution.recipe?resolveRecipePortion(resolution.recipe,row.intent.amount,row.intent.unit).portion:null};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();}catch(f){error(f.message);}finally{if(pendingPortions.get(item.id)===rv){pendingPortions.delete(item.id);buttonState();}}},
+      onChoose:async id=>{const v=revision,rv=nextRowVersion(item.id);pendingPortions.set(item.id,rv);buttonState();try{const recipe=await recipes.get(id);if(!recipe)throw new Error('Przepis został usunięty.');if(revision!==v||rowVersions.get(item.id)!==rv)return;const row=findItem(item.id),resolution={recipe,confidence:'HIGH',alternatives:[],reason:'explicit-recipe-choice'},next={...row,resolution,portion:resolveRecipePortion(recipe,row.intent.amount,row.intent.unit).portion};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();}catch(f){error(f.message);}finally{if(pendingPortions.get(item.id)===rv){pendingPortions.delete(item.id);buttonState();}}},
+      onAlias:async phrase=>{const row=findItem(item.id);try{if(row?.resolution.recipe){await recipes.setAlias(phrase,row.resolution.recipe.id);$('meal-text-status').textContent='Alias przepisu zapisany.';}}catch(f){error(f.message);}},
+    });
     return createProposalCard(item, {
       onPortion: async (definition,remember) => {
         const row=findItem(item.id);if(!row||!row.resolution.product)return;
@@ -148,7 +160,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     const version = revision, request = new AbortController(); controller = request;
     form.dataset.analysisState = 'processing'; $('analyze-meal').disabled = true; $('meal-text-status').textContent = 'Dopasowuję produkty…';
     try {
-      const resolved = await resolveMealIntents(understood.intents, { resolver, allowExternal: !understood.issues.length, signal: request.signal, repository });
+      const resolved = await resolveMealIntents(understood.intents, { resolver, allowExternal: !understood.issues.length, signal: request.signal, repository, recipeResolver });
       if (revision !== version) return;
       recordAnalysis(understood,resolved.items.filter(item=>!item.portion).length);
       proposal = { ...resolved, rawTranscript:understood.rawTranscript, normalizedTranscript:understood.normalizedTranscript, source, defaultMeal, date, meal: understood.meal, issues: understood.issues };
@@ -160,7 +172,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
       if (revision === version) { error('Nie udało się zakończyć analizy. Popraw tekst i spróbuj ponownie.'); form.dataset.analysisState = 'error'; }
     } finally { if (revision === version) { controller = null; $('analyze-meal').disabled = speechBusy; buttonState(); } }
   }
-  function saveProposal() {
+  async function saveProposal() {
     if (!proposal || save.disabled || saving) return;
     if (proposal.source !== text.value || proposal.date !== readSafeDate() || proposal.defaultMeal !== getMeal()) { invalidate('Dane zmienione. Kliknij „Analizuj ponownie”.'); return; }
     // Autofill lub skrypt może zmienić kontrolkę bez input. Najpierw pokaż nowe wartości do akceptacji.
@@ -169,17 +181,19 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
       const card = findCard(item.id), fields = readProposalFields(card), query = card.querySelector('[data-query]').value;
       if (query !== item.intent.query) {
         nextRowVersion(item.id); choiceWrites.delete(item.id);
-        const row = { ...item, intent: { ...item.intent, query }, resolution: unresolved(), portion: null, learned: false };
-        replaceItem(item.id, row); renderProposalChoices(card, [], () => {}); updateProposalCard(card, row); changed = true;
+        const row = { ...item, intent: { ...item.intent, query }, resolution: item.kind==='RECIPE'?{recipe:null,confidence:'LOW',alternatives:[]}:unresolved(), portion: null, learned: false };
+        replaceItem(item.id, row); renderProposalChoices(card, [], () => {}); (row.kind==='RECIPE'?updateRecipeCard:updateProposalCard)(card, row); changed = true;
       } else if (Object.entries(fields).some(([key, value]) => value !== item.intent[key])) {
         nextRowVersion(item.id); const row = updateMealItemPortion(item, fields);
-        replaceItem(item.id, row); updateProposalCard(card, row); changed = true;
+        replaceItem(item.id, row); (row.kind==='RECIPE'?updateRecipeCard:updateProposalCard)(card, row); changed = true;
       }
     }
     if (changed) { summary(); error('Dane pozycji zmieniły się. Sprawdź aktualny podgląd przed dodaniem.'); return; }
     const current = proposal, pendingChoices = new Map(choiceWrites);
     saving = true; buttonState(); clearError();
     try {
+      for(const item of current.items.filter(i=>i.kind==='RECIPE')){const latest=await recipes.get(item.resolution.recipe.id);if(proposal!==current) return;if(!latest)throw new Error('Przepis został usunięty. Wybierz inny przed zapisaniem.');if(latest.version!==item.resolution.recipe.version){const next={...item,resolution:{...item.resolution,recipe:latest},portion:resolveRecipePortion(latest,item.intent.amount,item.intent.unit).portion};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();error('Przepis zmienił się w innej karcie. Sprawdź nowe wartości przed dodaniem.');return;}}
+      if(proposal!==current||current.source!==text.value||current.date!==readSafeDate()||current.defaultMeal!==getMeal())return;
       const portions = current.items.map(item => ({ ...item.portion, meal: item.intent.meal }));
       if (onSave(portions, current.date)) {
         text.value = ''; $('live-transcript').textContent = '';
@@ -189,7 +203,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
         // Zatwierdzenie całej widocznej propozycji jest jawną akceptacją produktu.
         void (async () => {
           try {
-            for (const item of current.items.filter(row => !row.learned)) {
+            for (const item of current.items.filter(row => row.kind!=='RECIPE'&&!row.learned)) {
               const pending = pendingChoices.get(item.id);
               if (pending?.productId === item.resolution.product.id && pending.query === item.intent.query && await pending.promise) continue;
               await resolver.rememberUserChoice(item.intent.query, item.resolution.product.id);

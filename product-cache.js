@@ -95,7 +95,7 @@ export function createProductStorage({ indexedDBFactory = availableIndexedDB(), 
           tx.oncomplete = () => resolve(next);
           tx.onerror = tx.onabort = () => reject(tx.error);
         });
-      } catch { degrade(); }
+      } catch(error) { if(error?.name==='QuotaExceededError')throw error;degrade(); }
     }
     if (!persistent) next = change(structuredClone(memory[store].get(key)));
     if (next === null) memory[store].delete(key); else memory[store].set(key, { ...next, key });
