@@ -1,4 +1,4 @@
-# Benger — Etap 4: dodawanie posiłku głosem
+# Benger — Etap 5: rozumienie wypowiedzi i osobiste dopasowania
 
 Benger is a voice-first nutrition diary. Manual entry is a fallback, not the primary product experience.
 
@@ -24,7 +24,7 @@ Frontend działa również bez `server.js`. Komplet publicznych plików definiuj
 
 Lokalny `npm start` nadal serwuje aplikację pod `/`. Hosting pod `/Benger/` jest symulowany w testach jako osobny serwer statyczny; nie dodano takiej trasy do serwera deweloperskiego.
 
-Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages pozostaje prostym hostingiem. Workflow preview aktualizuje wyłącznie podkatalog `previews/etap-4/` istniejącej gałęzi `gh-pages`. Pliki głównej wersji pozostają niezmienione. Podgląd ma oddzielną pamięć danych.
+Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages pozostaje prostym hostingiem. Workflow preview aktualizuje wyłącznie podkatalog `previews/etap-5/` istniejącej gałęzi `gh-pages`. Pliki głównej wersji pozostają niezmienione. Podgląd ma oddzielną pamięć danych.
 
 Manifest ma względne `start_url` i `scope`, ale nadal brakuje ikon instalacyjnych, service workera i offline shella. Nie ma jeszcze gwarancji instalacji ani odświeżenia bez sieci. Zmiana domeny, protokołu lub portu tworzy inny origin i nie przenosi danych localStorage; zmiana samej ścieżki na tym samym origin nie oddziela danych.
 
@@ -83,9 +83,9 @@ Zjadłem banana 120 gram i jogurt naturalny 200 gram
 Płatki owsiane osiemdziesiąt gramów
 ```
 
-`meal-understanding.js` rozdziela normalizację, posiłek, segmenty, ilość, jednostkę i query. Zna ograniczony słownik odmian i popularne liczby całkowite zapisane słownie 0–999 (`polish-numbers.js`). Obsługuje przecinek dziesiętny w cyfrach i flagę „około/jakieś/mniej więcej”. Nie zgaduje gramatury, makro, gęstości ani typowych porcji. Nie każdy produkt da się od razu rozstrzygnąć; UI zachowuje niepewną pozycję do wyboru.
+`meal-understanding.js` rozdziela normalizację, posiłek, segmenty, ilość, jednostkę i query. Zna ograniczony słownik odmian i liczby zapisane słownie 0–2000 oraz pół/półtora i słowne ułamki dziesiętne (`polish-numbers.js`). Obsługuje przecinek dziesiętny w cyfrach i flagę „około/jakieś/mniej więcej”. Nie zgaduje gramatury, makro, gęstości ani typowych porcji. Nie każdy produkt da się od razu rozstrzygnąć; UI zachowuje niepewną pozycję do wyboru.
 
-Istniejący ProductResolver używa pamięci wcześniejszych jawnych wyborów, ostatnich, ulubionych i cache. Po lokalnym dopasowaniu analiza może wykonać najwyżej **jeden** zewnętrzny search; pozostałe wyszukujesz przyciskiem w konkretnym wierszu. Wpisywanie i interim nie odpytują OFF. Wybór produktu oraz końcowe zatwierdzenie propozycji uczą lokalnego dopasowania bez podwójnego liczenia tego samego wyboru.
+Istniejący ProductResolver używa jawnych aliasów, dokładnej i podobnej pamięci potwierdzeń, ulubionych, ostatnich i cache. Po lokalnym dopasowaniu analiza może wykonać najwyżej **jeden** zewnętrzny search; pozostałe wyszukujesz przyciskiem w konkretnym wierszu. Wpisywanie i interim nie odpytują OFF. Wybór produktu oraz końcowe zatwierdzenie propozycji uczą lokalnego dopasowania bez podwójnego liczenia tego samego wyboru.
 
 Wszystkie obliczenia nadal wykonują `calculatePortion()` i `sumNutrition()`. Zmiana produktu między g i ml wymaga ponownego podania ilości, zamiast automatycznego przeliczenia. Stary `meal-parser.js` zachowano i testujemy jako zgodny moduł Etapu 2; nowy ekran korzysta z `understandMeal()`.
 
@@ -171,27 +171,38 @@ Testy katalogu obejmują mapowanie OFF, brak nazwy/kcal/makro, nieprawidłowe li
 
 Test Chromium Etapu 3 używa natywnego `fetch`, przechwytuje ruch OFF przez CDP z kontrolowanym CORS i działa na rzeczywistym IndexedDB pod `/Benger/`. Sprawdza pełny zapis produktu OFF, trwałość, offline, usuwanie ulubionego, barcode, limity także w dwóch kartach, awarie API, XSS, uszkodzony cache oraz zablokowany IndexedDB. Opcjonalny zrzut: `BENGER_CATALOG_SCREENSHOT_PATH=/tmp/benger-catalog.png npm run test:browser`.
 
-GitHub Actions uruchamia testy także po push do `etap-4-voice-first` (bez tworzenia PR). To workflow testowy, bez deploymentu.
+GitHub Actions uruchamia testy także po push do `etap-5-smart-voice` (bez tworzenia PR). To workflow testowy, bez deploymentu.
 
 
-## Preview Etapu 4 i ręczny test produkcyjnego OFF
+## Preview Etapu 5 i ręczny test produkcyjnego OFF
 
-Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-4/**
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-5/**
 
-Jest przygotowywane po push gałęzi `etap-4-voice-first` przez workflow `Stage 4 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
+Jest przygotowywane po push gałęzi `etap-5-smart-voice` przez workflow `Stage 5 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
 
-Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-4.nutrition.v1`, `benger.preview-etap-4.meals.v1` oraz IndexedDB `BengerDB-preview-etap-4`. Dane wersji głównej nie są kopiowane ani zmieniane.
+Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-5.nutrition.v1`, `benger.preview-etap-5.meals.v1` oraz IndexedDB `BengerDB-preview-etap-5`. Dane wersji głównej nie są kopiowane ani zmieniane.
 
-Ręczna publikacja z czystej gałęzi Etapu 4: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
+Ręczna publikacja z czystej gałęzi Etapu 5: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
 
 W preview kliknij „Sprawdź połączenie OFF”. Strona diagnostyczna uruchamia prawdziwe wyszukiwanie i barcode, zapisuje statusy HTTP, informację o czytelnej odpowiedzi CORS, znormalizowany produkt/makro i wynik ładowania zdjęcia. Nie dodaje wpisów do dziennika. Raport można pobrać jako JSON. Na tej stronie nic nie jest mockowane.
 
 Pełny test rzeczywistego przepływu w Chromium z tymczasowym profilem, poza standardowym CI:
 
 ```sh
-npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-4/ --report /tmp/benger-off-live.json
+npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-5/ --report /tmp/benger-off-live.json
 ```
 
 Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.
 
 Diagnostyka zawiera też porównanie A/B/C/D: CGI z X-User-Agent, CGI bez dodatkowych nagłówków, CGI z samym Accept oraz Search-a-licious. Pokazuje rzeczywiste wyniki fetch; status OPTIONS wymaga DevTools Network/CDP. Respektuje odstępy i blokadę 429. Szczegóły pomiaru, aktualny formularz rejestracji i bramki przed merge: [audyt produkcyjny](docs/off-production-audit.md).
+
+## Smart Voice Understanding — Etap 5
+
+Wspólny pipeline głosu i tekstu zachowuje raw/normalized, rozpoznaje liczby słowne, procenty i kilka produktów bez przecinków. Nie zgaduje brakującej masy ani wariantu. Jawne skróty użytkownika są oddzielone od pamięci potwierdzonych wyborów.
+
+- [Implementacja, testy i ograniczenia](docs/smart-voice-understanding.md)
+- [Preview Etapu 5](https://kubanik21-crypto.github.io/Benger/previews/etap-5/)
+- [Voice Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-5/voice-test-lab.html) — lokalna historia maks. 20 analiz, eksport JSON, aliasy; bez audio i telemetrii.
+- Benchmark części językowej: `node scripts/benchmark-voice.mjs`.
+
+Testy CI korzystają z mocków OFF i SpeechRecognition. Mikrofon na prawdziwym Androidzie pozostaje osobnym testem akceptacyjnym. Nie dodano AI, backendu ani service workera.

@@ -5,9 +5,11 @@ Pierwotne kontrakty ProductResolver powstały w Etapie 3. W Etapie 4 połączono
 ## Przepływ i granice
 
 ```text
-SpeechToText (przyszły adapter: Web Speech / lokalny model / inna usługa)
-  → tekst
-MealUnderstanding (parser; przyszłe rozumienie dłuższych wypowiedzi)
+SpeechToText (Web Speech, continuous=false / interimResults=true)
+  → rawTranscript
+TranscriptNormalizer → normalizedTranscript
+FoodTokenizer / FoodSegmentation
+MealUnderstanding (parser regułowy, bez AI)
   → {meal, intents: [{id, query, amount, unit, barcode?}]}
 ProductResolver (istniejący moduł)
   → istniejący Product + confidence + alternatives + reason
@@ -46,7 +48,7 @@ const resolution = await resolver.resolve(intent, { allowExternal: false, signal
 // {product, confidence, alternatives, reason, requiresConfirmation: true}
 ```
 
-Dokładny barcode jest rozstrzygany przed frazą. Dla query kolejność preferencji to pamięć jawnego wyboru → ostatnie → ulubione → lokalny/cache. Dopiero jawne `allowExternal: true` pozwala na search przez repozytorium. Odczyty podlegają wspólnemu limiterowi, TTL i obsłudze błędów; resolver nie wykonuje własnego fetch.
+Jawny alias ma pierwszeństwo, następnie dokładny barcode. Dla query kolejność preferencji to pamięć dokładnego wyboru → podobne potwierdzone frazy → ulubione → ostatnie → lokalny/cache. Dopiero jawne `allowExternal: true` pozwala na search przez repozytorium. Odczyty podlegają wspólnemu limiterowi, TTL i obsłudze błędów; resolver nie wykonuje własnego fetch.
 
 | Confidence | Warunek | Zachowanie przyszłego UI |
 | --- | --- | --- |
@@ -54,7 +56,7 @@ Dokładny barcode jest rozstrzygany przed frazą. Dla query kolejność preferen
 | MEDIUM | Jedyny zgodny produkt lub pojedynczy jawny wybór | Pokaż do potwierdzenia z nazwą/marką i jednostką |
 | LOW | Kilka zgodnych marek/wariantów, brak wyniku lub konflikt jednostki | Nie wybieraj produktu; pokaż do pięciu propozycji albo poproś o brakującą informację |
 
-To deterministyczne reguły, nie model probabilistyczny. Ulubiony/recent ma priorytet na liście, ale sam nie usuwa niejednoznaczności. Pamięć może wskazać wcześniej wybrany produkt mimo braku dokładnej zgodności tokenów nazwy; nadal obowiązuje zgodna jednostka i brak jawnego konfliktu procentu. Bez pamięci dopasowanie jest konserwatywne: pełne tokeny nazwy/marki, bez odmiany polskich słów i fuzzy matching. Wszystkie wyniki wymagają weryfikacji, także HIGH.
+To deterministyczne reguły, nie model probabilistyczny. Ulubiony/recent ma priorytet na liście, ale sam nie usuwa niejednoznaczności. Pamięć może wskazać wcześniej wybrany produkt mimo braku dokładnej zgodności tokenów nazwy; nadal obowiązuje zgodna jednostka oraz ochrona procentu, smaku i Zero; HIGH z pamięci wymaga też zgodności aktualnego query. Bez pamięci dopasowanie jest konserwatywne: pełne tokeny nazwy/marki, ze znanymi odmianami polskich słów; podobne frazy mają odrębną konserwatywną ścieżkę MEDIUM. Wszystkie wyniki wymagają weryfikacji, także HIGH.
 
 ## Lokalna pamięć jawnych wyborów
 
@@ -92,3 +94,7 @@ Test architektury ma cztery intencje: płatki, mleko, banan, skyr. Trzy porcje s
 4. Dodaj osobny adapter SpeechToText. Zmiana dostawcy transkrypcji nie może zmienić kontraktu intencji, źródła makro ani modelu historii.
 
 Powyższe cztery kroki zrealizowano w Etapie 4 z adapterem Web Speech. Pozostałe silniki transkrypcji są przyszłymi zamiennikami. Pozostają znane ograniczenia localStorage przy idealnie równoczesnym zapisie, brak synchronizacji urządzeń i brak gwarancji zimnego uruchomienia offline. Nie dodano kont, backendu ani płatnej usługi.
+
+## Etap 5
+
+Wdrożono normalizację, segmentację bez przecinków, niezależne structureConfidence, ochronę wariantów, podobne potwierdzone frazy i jawne aliasy. Pamięć IndexedDB v2 pozostaje zgodna wstecz; historia diagnostyczna jest osobna od dziennika. Szczegółowy kontrakt, kolejność resolvera i ograniczenia: [Smart Voice Understanding](smart-voice-understanding.md). Lab nie jest zewnętrzną usługą transkrypcji i nie wysyła historii.

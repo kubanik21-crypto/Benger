@@ -24,8 +24,8 @@ export async function preparePreview(destination, revision) {
     await mkdir(dirname(target), { recursive: true });
     if (file.endsWith('.html')) {
       let html = await readFile(source, 'utf8');
-      html = html.replace('<head>', `<head>\n  <meta name="benger-storage-namespace" content="preview-etap-4">\n  <meta name="benger-build" content="${revision}">`);
-      const banner = `<aside style="padding:16px;background:#174d3c;color:white;font:14px/1.6 system-ui">Podgląd Etapu 4 · ${revision.slice(0, 7)} · Oddzielne dane lokalne. <a style="color:white" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:white" href="./speech-diagnostics.html">Speech diagnostics</a> · <a style="color:white" href="../../">Wersja główna</a></aside>`;
+      html = html.replace('<head>', `<head>\n  <meta name="benger-storage-namespace" content="preview-etap-5">\n  <meta name="benger-build" content="${revision}">`);
+      const banner = `<aside style="padding:16px;background:#174d3c;color:white;font:14px/1.6 system-ui">Podgląd Etapu 5 · ${revision.slice(0, 7)} · Oddzielne dane lokalne. <a style="color:white" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:white" href="./speech-diagnostics.html">Speech diagnostics</a> · <a style="color:white" href="./voice-test-lab.html">Voice Test Lab</a> · <a style="color:white" href="../../">Wersja główna</a></aside>`;
       html = html.replace('<body>', `<body>\n${banner}`);
       html = html.replace(/((?:src|href)="\.\/[^"?]+\.(?:js|css|webmanifest))"/g, `$1?v=${revision}"`);
       await writeFile(target, html);

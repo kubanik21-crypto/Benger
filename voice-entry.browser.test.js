@@ -46,14 +46,14 @@ function contrast(a,b) {
 }
 
 test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany preview', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-4/', previewBuild: true, mockOFF: true });
+  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-5/', previewBuild: true, mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page(browser.base, { initScript: SPEECH });
   await a.date(DAY);
   const apiRequests = () => browser.off.requests.filter(request => new URL(request.url).hostname === 'world.openfoodfacts.org');
 
   await t.test('mikrofon jest widoczny na pierwszym ekranie telefonu 320/390/430 px', async () => {
-    for(const width of [320,390,430]) {
+    for(const width of [320,360,390,430]) {
       await a.send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
       await a.evaluate('window.scrollTo(0,0)');
       const rect=await a.evaluate("(()=>{const r=document.getElementById('voice-microphone').getBoundingClientRect();return{top:r.top,bottom:r.bottom,height:innerHeight}})()");
@@ -145,7 +145,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
   });
 
   await t.test('potwierdzenie zapisuje trzy snapshoty jedną operacją, reload i pamięć działają', async () => {
-    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-4.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
+    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-5.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
     await a.evaluate("document.getElementById('save-meal-proposal').click();document.getElementById('save-meal-proposal').click()");
     const saved = await a.saved(); assert.equal(saved.length, 3); assert.equal(await a.evaluate('window.__writes'), 1);
     assert.deepEqual(saved.map(entry=>entry.amount), [80,250,120]); assert.ok(saved.every(entry=>entry.meal==='breakfast' && entry.date===DAY));
@@ -154,7 +154,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 3);
     assert.ok(await a.evaluate("document.querySelector('#recent-products [data-product-id]')"));
     const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(item=>item.name))()');
-    assert.ok(names.includes('BengerDB-preview-etap-4')); assert.ok(!names.includes('BengerDB'));
+    assert.ok(names.includes('BengerDB-preview-etap-5')); assert.ok(!names.includes('BengerDB'));
     assert.equal(await a.raw('benger.nutrition.v1'), null); assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), null);
   });
 
@@ -297,7 +297,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
 
   await t.test('320/390/430 i desktop 1024/1440, mikrofon 88px, kontrast, etykiety i focus', async () => {
     await a.analyze(transcript);
-    for (const width of [320,390,430,1024,1440]) {
+    for (const width of [320,360,390,430,1024,1440]) {
       await a.send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<720});
       const dimensions=await a.evaluate(`(()=>{const mic=document.getElementById('voice-microphone'),s=getComputedStyle(mic);return{scroll:document.documentElement.scrollWidth,width:innerWidth,height:mic.getBoundingClientRect().height,color:s.color,background:s.backgroundColor,columns:getComputedStyle(document.querySelector('.voice-layout')).gridTemplateColumns}})()`);
       assert.ok(dimensions.scroll<=width,JSON.stringify(dimensions)); assert.ok(dimensions.height>=88); assert.ok(contrast(dimensions.color,dimensions.background)>=4.5);
@@ -328,7 +328,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
 });
 
 test('Speech diagnostics — surowe kumulacyjne eventy i tryby A/B/C',async t=>{
- const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-4/',previewBuild:true});t.after(()=>browser.close());
+ const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-5/',previewBuild:true});t.after(()=>browser.close());
  const page=await browser.page(new URL('speech-diagnostics.html',browser.base).href,{diagnostic:true,initScript:SPEECH});
  for(const mode of ['A','B','C']){
   await page.evaluate(`document.getElementById('mode').value='${mode}';document.getElementById('start').click();window.__speechUpdate(0,[['250',false]]);window.__speechUpdate(0,[['250 ml',true],['mleka',false]]);window.__speechUpdate(1,[['mleka',true]]);document.getElementById('stop').click()`);
@@ -336,4 +336,51 @@ test('Speech diagnostics — surowe kumulacyjne eventy i tryby A/B/C',async t=>{
   assert.equal(report.continuous,mode==='A');assert.equal(report.interimResults,mode!=='C');assert.equal(report.finalTranscript,'250 ml mleka');assert.equal(report.events.filter(e=>e.type==='result').length,3);assert.equal(report.events.find(e=>e.resultIndex===1).results[0].transcript,'250 ml');assert.equal(await page.evaluate("document.getElementById('download').disabled"),false);
  }
  assert.deepEqual(browser.errors,[]);
+});
+
+test('Etap 5 — pięć struktur bez przecinków, save/reload, alias i voice lab', {timeout:120000},async t=>{
+ const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-5/',previewBuild:true,mockOFF:true});t.after(()=>browser.close());
+ const a=await browser.page(browser.base,{initScript:SPEECH});await a.date(DAY);
+ const cases=[
+ ['na śniadanie 80 gram płatków owsianych 250 mililitrów mleka 2 procent i banana 120 gram',[80,250,120],['g','ml','g']],
+ ['na obiad 200 gram kurczaka 100 gram ryżu 10 gram oliwy',[200,100,10],['g','g','g']],
+ ['skyr waniliowy Pilos 150 gram i mleko Łaciate dwa procent 250 mili',[150,250],['g','ml']],
+ ['250 ml mleka i 250 ml kefiru',[250,250],['ml','ml']],
+ ['100 gram ryżu 100 gram kurczaka',[100,100],['g','g']],
+ ];
+ for(const [text,amounts,units] of cases)await t.test(text,async()=>{
+  await a.evaluate('window.__advanceClock(65000)');const before=browser.off.requests.filter(r=>new URL(r.url).hostname==='world.openfoodfacts.org').length;
+  await a.analyze(text);
+  assert.deepEqual(await a.evaluate("[...document.querySelectorAll('#meal-proposal [data-amount]')].map(input=>Number(input.value))"),amounts);
+  assert.deepEqual(await a.evaluate("[...document.querySelectorAll('#meal-proposal [data-unit]')].map(input=>input.value)"),units);
+  const after=browser.off.requests.filter(r=>new URL(r.url).hostname==='world.openfoodfacts.org').length;assert.ok(after-before<=1);
+ });
+ await t.test('mikrofon → brak przecinków → poprawa jednego wiersza → save → reload',async()=>{
+  await click(a,'voice-microphone');await a.evaluate(`window.__speechResult(${JSON.stringify(cases[0][0])})`);await click(a,'voice-microphone');
+  await wait(a,"document.getElementById('meal-text-form').dataset.analysisState==='complete'");
+  // Poprzedni scenariusz zapełnił cache drugim mlekiem: wymagamy jawnego wyboru wariantu.
+  await a.evaluate("document.querySelector('[data-item-id=food-2] [data-choice-id=milk-2-percent]')?.click()");
+  const first=await a.evaluate("document.querySelector('[data-item-id=food-1]').textContent");
+  await fillRow(a,'food-3','130');assert.equal(await a.evaluate("document.querySelector('[data-item-id=food-1]').textContent"),first);
+  assert.equal(await disabled(a),false,await a.evaluate("document.getElementById('meal-proposal').textContent"));await a.accept();assert.equal((await a.saved()).length,3);assert.equal((await a.saved())[2].amount,130);
+  await a.reload();await a.date(DAY);assert.equal((await a.visible()).length,3);
+ });
+ await t.test('przybliżenie aktualizuje etykietę po edycji ilości',async()=>{
+  await a.analyze('około 80 gram płatków');await fillRow(a,'food-1','90');
+  assert.equal(await a.evaluate("document.querySelector('[data-approximation]').textContent"),'ok. 90 g — ilość przybliżona.');
+ });
+ await t.test('lab pokazuje expected/tokens/intents, alias XSS jest tekstem i historia ma limit',async()=>{
+  const lab=await browser.page(new URL('voice-test-lab.html',browser.base).href,{diagnostic:true,initScript:SPEECH});
+  await lab.evaluate("document.getElementById('scenario').value='8';document.getElementById('raw').value='na śniadanie 80 gram płatków owsianych 250 ml mleka 2 procent i banana 120 gram';document.getElementById('analyze').click()");
+  await wait(lab,"document.getElementById('verdict').textContent==='PASS'");
+  const data=await lab.evaluate("JSON.parse(document.getElementById('result').textContent)");assert.equal(data.intents.length,3);assert.ok(data.tokens.length>0);assert.ok(data.normalizedTranscript.includes('2%'));
+  await lab.evaluate(`document.getElementById('alias').value='<img src=x onerror=alert(1)>';document.getElementById('product-id').value='milk-2-percent';document.getElementById('save-alias').click()`);
+  await wait(lab,"document.getElementById('aliases').textContent.includes('<img')");assert.equal(await lab.evaluate("document.querySelectorAll('#aliases img').length"),0);
+  const result=await lab.evaluate("(async()=>{const {createProductRepository}=await import('./product-repository.js');const {createProductResolver}=await import('./product-resolver.js');const repo=createProductRepository();await repo.createAlias('moje mleko','milk-2-percent');const result=await createProductResolver({repository:repo}).resolve({query:'moje mleko'});await repo.close();return result})()");assert.equal(result.reason,'explicit-user-alias');
+  await lab.evaluate("(async()=>{const {recordAnalysis}=await import('./analysis-history.js');for(let i=0;i<25;i++)recordAnalysis({rawTranscript:'banan',normalizedTranscript:'banan',intents:[{}]},1)})()");
+  await lab.evaluate("document.getElementById('raw').value='banan';document.getElementById('analyze').click()");await wait(lab,"JSON.parse(document.getElementById('history').textContent).length===20");
+  assert.equal((await lab.evaluate("JSON.parse(document.getElementById('history').textContent)")).length,20);
+  await click(lab,'clear');assert.deepEqual(await lab.evaluate("JSON.parse(document.getElementById('history').textContent)"),[]);
+  assert.equal((await a.saved()).length,3);assert.deepEqual(browser.errors,[]);
+ });
 });

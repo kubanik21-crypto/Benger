@@ -15,7 +15,7 @@ const validUsage = record => record && typeof record.key === 'string' && typeof 
 const recentUsage = records => records.filter(validUsage).filter(record => record.lastUsedAt !== null)
   .sort((a, b) => b.lastUsedAt - a.lastUsedAt || b.order - a.order).slice(0, 20);
 const validSelection = record => record && typeof record.key === 'string' && record.key.length >= 3 && record.key.length <= 120
-  && normalizeFoodQuery(record.key) === record.key && Array.isArray(record.choices) && record.choices.length > 0 && record.choices.length <= 5
+  && normalizeText(record.key) === record.key && Array.isArray(record.choices) && record.choices.length > 0 && record.choices.length <= 5
   && record.choices.every(choice => choice && typeof choice.productId === 'string' && choice.productId.length > 0 && choice.productId.length <= 240
     && Number.isSafeInteger(choice.count) && choice.count > 0 && Number.isFinite(choice.lastUsedAt) && choice.lastUsedAt >= 0)
   && new Set(record.choices.map(choice => choice.productId)).size === record.choices.length;
@@ -208,12 +208,26 @@ export function createProductCache({ storage = createProductStorage(), now = () 
       await storage.mutate('searches', key, () => ({ key, ids: products.map(product => product.id), fetchedAt: now(), revision: PRODUCT_CACHE_REVISION }));
       await prune();
     },
+    async selectionHistory() { return (await storage.read('selections')).filter(validSelection).map(record=>structuredClone(record)); },
+    async createAlias(query, product) {
+      const key=normalizeFoodQuery(query);
+      if(key.length<3 || key.length>114)throw new TypeError('Skrót musi mieć 3–114 znaków.');
+      copyProduct(product);
+      await storage.mutate('selections',`alias ${key}`,()=>({key:`alias ${key}`,choices:[{productId:product.id,count:1,lastUsedAt:now()}]}));
+      await ensureProducts([product]);
+      await storage.mutate('meta',`alias:${key}`,()=>({key:`alias:${key}`,phrase:key,productId:product.id}));
+    },
+    async listAliases(){return (await storage.read('meta')).filter(x=>typeof x?.key==='string' && x.key===`alias:${x.phrase}` && typeof x.productId==='string').map(x=>({phrase:x.phrase,productId:x.productId}));},
+    async resolveAlias(query){const record=await storage.read('meta',`alias:${normalizeFoodQuery(query)}`);return typeof record?.productId==='string'?record.productId:null;},
+    async removeAlias(query){const key=normalizeFoodQuery(query);await storage.mutate('meta',`alias:${key}`,()=>null);await storage.mutate('selections',`alias ${key}`,()=>null);},
     recentIds,
     async favoriteIds() { return (await usage()).filter(record => record.favorite).sort((a, b) => (b.favoriteAt ?? 0) - (a.favoriteAt ?? 0)).map(record => record.key); },
     setFavorite,
     async selectionMemory(query) {
-      const record = await storage.read('selections', normalizeFoodQuery(query));
-      return validSelection(record) ? structuredClone(record.choices).sort((a, b) => b.count - a.count || b.lastUsedAt - a.lastUsedAt || a.productId.localeCompare(b.productId)) : [];
+      const key=normalizeFoodQuery(query), records=(await storage.read('selections')).filter(validSelection).filter(row=>normalizeFoodQuery(row.key)===key);
+      const choices=new Map();
+      for(const record of records)for(const choice of record.choices){const previous=choices.get(choice.productId);choices.set(choice.productId,{...choice,count:Math.min(1000000,choice.count+(previous?.count??0)),lastUsedAt:Math.max(choice.lastUsedAt,previous?.lastUsedAt??0)});}
+      return [...choices.values()].sort((a,b)=>b.count-a.count || b.lastUsedAt-a.lastUsedAt || a.productId.localeCompare(b.productId));
     },
     async rememberSelection(query, product) {
       const key = normalizeFoodQuery(query);
@@ -228,7 +242,7 @@ export function createProductCache({ storage = createProductStorage(), now = () 
         return { key, choices: choices.slice(0, 5) };
       });
       await ensureProducts([product]);
-      const records = (await storage.read('selections')).filter(validSelection).sort((a, b) =>
+      const records = (await storage.read('selections')).filter(validSelection).filter(record=>!record.key.startsWith('alias ')).sort((a, b) =>
         Math.max(...b.choices.map(choice => choice.lastUsedAt)) - Math.max(...a.choices.map(choice => choice.lastUsedAt)));
       for (const record of records.slice(200)) await storage.mutate('selections', record.key, () => null);
       await prune();

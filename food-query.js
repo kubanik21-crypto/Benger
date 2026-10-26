@@ -1,8 +1,10 @@
+import { replaceSpokenNumbers } from './polish-numbers.js';
+import { canonicalWord } from './food-language.js';
 import { normalizeText } from './product-model.js';
 
-export function normalizeFoodQuery(value) {
+export function normalizeFoodQuery(value, {canonical=true} = {}) {
   if (typeof value !== 'string') return '';
-  return normalizeText(value).replace(/\b(\d+(?:[.,]\d+)?)\s*(?:%|procent(?:ow|a|y)?\b)/g,
+  return replaceSpokenNumbers(normalizeText(value)).split(' ').map(word=>canonical?canonicalWord(word):word).join(' ').replace(/\b(\d+(?:[.,]\d+)?)\s*(?:%|(?:procent(?:ow|a|y)?|proc)\b)/g,
     (_, number) => `${Number(number.replace(',', '.'))}%`);
 }
 

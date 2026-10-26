@@ -41,11 +41,11 @@ test('kilka podobnych produktów i różne marki: LOW, bez zgadywania, 2–5 pro
   assert.ok(result.alternatives.length >= 2 && result.alternatives.length <= 5);
   assert.equal((await resolver.resolve({ query: 'mleko 2% Marka A' })).product.id, milk.id);
 });
-test('ostatnio używany ma priorytet przed ulubionym, ale nie usuwa niejednoznaczności', async () => {
+test('ulubiony ma priorytet przed ostatnio używanym, ale nie usuwa niejednoznaczności', async () => {
   const { repository, resolver } = await setup();
   await repository.setFavorite(milk, true); await repository.markUsed([other]);
   const result = await resolver.resolve({ query: 'mleko 2%', unit: 'ml' });
-  assert.equal(result.confidence, 'LOW'); assert.equal(result.alternatives[0].id, other.id);
+  assert.equal(result.confidence, 'LOW'); assert.equal(result.alternatives[0].id, milk.id);
 });
 test('jedyny pasujący ulubiony: MEDIUM i szybkie potwierdzenie', async () => {
   const { repository, resolver } = await setup(); await repository.setFavorite(skyr, true);
@@ -123,4 +123,34 @@ test('pięć nowych produktów zużywa najwyżej jeden zewnętrzny search na ana
   const { resolver, calls } = await setup([]);
   const proposal = await resolveMealIntents(Array.from({length:5}, (_,i)=>({ query: `nieznany produkt ${i}`, amount: 100, unit: 'g' })), { resolver, allowExternal: true });
   assert.equal(proposal.items.length, 5); assert.equal(calls(), 1);
+});
+
+test('osobisty alias jest jawny, lokalny i wymaga istniejącego produktu',async()=>{
+ const {repository,resolver}=await setup();
+ assert.deepEqual(await repository.listAliases(),[]);
+ await assert.rejects(repository.createAlias('moje mleko','brak'));
+ await repository.createAlias('moje mleko',milk.id);
+ assert.equal((await resolver.resolve({query:'moje mleko',unit:'ml'})).product.id,milk.id);
+ assert.equal((await resolver.resolve({query:'moje mleko',unit:'ml'})).reason,'explicit-user-alias');
+ assert.equal(await repository.resolveAlias('MOJE MLEKO'),milk.id);
+ await repository.removeAlias('moje mleko');assert.equal(await repository.resolveAlias('moje mleko'),null);
+});
+test('pamięć nie omija wariantów procentów, smaku ani zero',async()=>{
+ const {repository,resolver,cache}=await setup();
+ await resolver.rememberUserChoice('mleko 3,2%',milk.id);await resolver.rememberUserChoice('mleko 3,2%',milk.id);
+ assert.equal((await resolver.resolve({query:'mleko 3,2%',unit:'ml'})).product,null);
+ const plain={...skyr,name:'Skyr naturalny'};await cache.putProducts([plain]);
+ await repository.createAlias('skyr waniliowy',plain.id);
+ assert.equal((await resolver.resolve({query:'skyr waniliowy'})).product,null);
+ const cola={...milk,id:'off:test-cola',sourceId:'765432',barcode:null,name:'Coca-Cola',brand:'Coca-Cola'};await cache.putProducts([cola]);
+ await repository.createAlias('Coca-Cola Zero',cola.id);
+ assert.equal((await resolver.resolve({query:'Coca-Cola Zero'})).product,null);
+});
+test('podobna potwierdzona fraza pomaga bez zmiany wariantu',async()=>{
+ const branded={...milk,name:'Mleko Łaciate 2%',brand:'Łaciate'};
+ const {resolver}=await setup([branded]);
+ await resolver.rememberUserChoice('łaciate dwa procent',branded.id);await resolver.rememberUserChoice('łaciate 2%',branded.id);
+ const resolved=await resolver.resolve({query:'mleko łaciate 2%',unit:'ml'});
+ assert.equal(resolved.product.id,branded.id);
+ assert.notEqual((await resolver.resolve({query:'mleko łaciate 3,2%',unit:'ml'})).confidence,'HIGH');
 });

@@ -32,7 +32,7 @@ export async function resolveMealIntents(intents, { resolver, allowExternal = fa
       externalBudget--; resolution = await resolver.resolve(identity, { allowExternal: true, signal });
     }
     items.push({ id: ids[index], intent: { query: intent.query, barcode: intent.barcode, amount: intent.amount, unit: intent.unit,
-      meal: intent.meal, amountApproximate: intent.amountApproximate === true, source: intent.source, issues: intent.issues ?? [] },
+      raw: intent.raw, structureConfidence:intent.structureConfidence, metadata:intent.metadata, meal: intent.meal, amountApproximate: intent.amountApproximate === true, source: intent.source, issues: intent.issues ?? [] },
       resolution, portion: portionFor(intent, resolution), confirmed: false });
   }
   return { items, requiresConfirmation: true };
