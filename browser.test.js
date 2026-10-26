@@ -615,7 +615,7 @@ test('Tekst — regresje wspólnego dziennika po integracji voice-first', { time
       await a.send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true });
       assert.ok(await a.evaluate('document.documentElement.scrollWidth<=innerWidth'));
       await a.analyze(`${'1' + '0'.repeat(100)} g płatków`);
-      assert.equal(await disabled(), false);
+      assert.equal(await disabled(), true);
       assert.ok(await a.evaluate('document.documentElement.scrollWidth<=innerWidth'), 'Długa ilość musi zawijać się na telefonie.');
       await a.analyze(three);
     }
@@ -873,7 +873,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
 });
 
 test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym katalogu', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({seedProducts:true, staticPrefix: '/Benger/previews/etap-6/', previewBuild: true, mockOFF: true });
+  const browser = await startBrowser({seedProducts:true, staticPrefix: '/Benger/previews/etap-7/', previewBuild: true, mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page();
   await a.setRaw(KEY, 'oryginalny dziennik produkcyjny');
@@ -881,20 +881,20 @@ test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym
   await a.setRaw('benger.preview-etap-3.nutrition.v1', 'dziennik starego preview');
   await a.reload(); await a.date(DAY);
   assert.equal(await a.evaluate("document.querySelector('meta[name=benger-build]').content"), 'a'.repeat(40));
-  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-6');
+  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-7');
   assert.equal(await a.evaluate("document.getElementById('nutrition-storage-message').textContent"), '');
   for (const file of STATIC_ASSETS) assert.equal((await fetch(new URL(file, browser.base))).status, 200, file);
   await a.choose('custom:test-oats', '50'); await a.submit();
   assert.equal((await a.saved()).length, 1);
   assert.equal((await a.saved())[0].nutrition.kcal, 185);
-  assert.equal(await a.raw('benger.preview-etap-6.meals.v1'),null);
+  assert.equal(await a.raw('benger.preview-etap-7.meals.v1'),null);
   assert.equal(await a.evaluate("document.getElementById('words')"),null);
   assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
   assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
   assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), 'dziennik starego preview');
   await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 1);
   const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(db=>db.name))()');
-  assert.ok(names.includes('BengerDB-preview-etap-6')); assert.ok(!names.includes('BengerDB'));
+  assert.ok(names.includes('BengerDB-preview-etap-7')); assert.ok(!names.includes('BengerDB'));
   const before = browser.off.requests.length;
   const diagnostic = await browser.page(new URL('off-diagnostics.html', browser.base).href, { diagnostic: true });
   assert.equal(browser.off.requests.length, before);
