@@ -18,6 +18,7 @@ export function readProposalFields(card) {
 }
 export function updateProposalCard(card, item, message = '') {
   const product = item.resolution.product;
+  const conversion=itemPortionResolution(item);
   const approximation = card.querySelector('[data-approximation]');
   if (approximation) approximation.textContent = `ok. ${item.intent.amount ?? '…'} ${householdUnitLabel(item.intent.unit,item.intent.amount)} — ilość przybliżona.`;
   card.querySelector('h4').textContent = product?.name ?? (item.intent.query || 'Produkt bez nazwy');
@@ -30,7 +31,7 @@ export function updateProposalCard(card, item, message = '') {
   status.textContent = message || (ready ? '✓ Rozpoznano — sprawdź przed dodaniem.'
     : !product ? item.resolution.alternatives.length ? '? Sprawdź — wybierz właściwy produkt.' : '! Nie znaleziono — wyszukaj produkt.'
       : !Object.hasOwn(MEAL_LABELS, item.intent.meal) ? '! Wybierz posiłek.'
-        : !item.intent.amount ? '! Podaj ilość. Nie zgadujemy porcji.' : '! Sprawdź jednostkę i ilość. Nie przeliczamy gęstości.');
+        : !item.intent.amount ? '! Podaj ilość. Nie zgadujemy porcji.' : `! ${conversion.description}`);
   card.querySelector('[data-values]').textContent = item.portion
     ? `${number.format(item.portion.nutrition.kcal)} kcal · Białko: ${number.format(item.portion.nutrition.protein)} g · Tłuszcz: ${number.format(item.portion.nutrition.fat)} g · Węglowodany: ${number.format(item.portion.nutrition.carbs)} g` : 'Wartości pojawią się po uzupełnieniu produktu i porcji.';
   const detail=card.querySelector('[data-portion-detail]');

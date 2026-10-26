@@ -185,3 +185,4 @@ test('alias chroni produkt mimo czyszczenia 200 zwykłych fraz i usuwa własny p
  await cache.removeAlias('mój produkt');assert.equal(await cache.resolveAlias('moj produkt'),null);
  assert.equal(await storage.read('selections','alias moj produkt'),undefined);
 });
+test('revision 2 product remains available offline but requests fresh household metadata online',async()=>{const {cache,storage,now}=setup();const p=product(31);await storage.mutate('products',p.id,()=>({key:p.id,product:p,fetchedAt:now(),revision:2}));assert.equal((await cache.getProduct(p.id)).fresh,false);assert.equal((await cache.allProducts())[0].id,p.id);await cache.putProducts([p]);assert.equal((await cache.getProduct(p.id)).fresh,true);});

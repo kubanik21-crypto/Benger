@@ -41,6 +41,16 @@ test('Etap 7 — porcje domowe, jawne uczenie, snapshot, backup, offline i scope
   await p.analyze('2 łyżki mojej oliwy');assert.match(await gram(p),/27 g/);await p.accept();
   await p.analyze('2 sztuki moje jajko');assert.equal(await disabled(p),true);assert.ok(await p.evaluate("document.querySelectorAll('.portion-choice').length>=4"));await click(p,'.portion-choice button');await wait(p,"document.querySelector('.proposal-card').dataset.ready==='true'");assert.equal(await disabled(p),false);
  });
+ await t.test('OFF barcode servings and package stay in one fetch and snapshots retain provenance',async()=>{
+  b.off.products=[{...b.off.products[0],code:'3017620422003',product_name_pl:'Chleb Off testowy',serving_size:'1 slice (30 g)',serving_quantity:30,serving_quantity_unit:'g',product_quantity:500,product_quantity_unit:'g',quantity:'500 g',nutrition:{aggregated_set:{...b.off.products[0].nutrition.aggregated_set,per:'100g'}}}];
+  await p.evaluate("window.__advanceClock(65000);document.getElementById('barcode').value='3017620422003';document.getElementById('barcode-form').requestSubmit()");await wait(p,"document.getElementById('search-results').getAttribute('aria-busy')==='false'");
+  await p.evaluate("(async()=>{const{createProductRepository}=await import('./product-repository.js');const r=createProductRepository();const result=await r.getProductByBarcode('3017620422003');await r.createAlias('chleb off',result.product.id);await r.close()})()");const requests=b.off.requests.filter(r=>r.method==='GET'&&r.url.includes('/product/3017620422003')).length;assert.equal(requests,1);
+  await p.analyze('2 kromki chleba off');assert.match(await gram(p),/60 g/);await p.accept();assert.equal((await p.saved()).at(-1).portionConversion.source,'OFF');assert.equal(b.off.requests.filter(r=>r.method==='GET'&&r.url.includes('/product/3017620422003')).length,requests);
+ });
+ await t.test('custom form creates labeled slices and package without a separate settings trip',async()=>{
+  await click(p,'#create-custom');await p.evaluate("(()=>{const v={name:'Bułka użytkownika',unit:'g',kcal:'240',protein:'8',fat:'3',carbs:'42',package:'400'};for(const[k,x]of Object.entries(v))document.getElementById('custom-'+k).value=x;document.getElementById('custom-add-portion').click();const row=document.querySelector('.custom-portion-row');row.querySelector('select').value='piece';row.querySelector('input').value='70';row.querySelector('[data-portion-label]').value='Moja bułka';document.getElementById('custom-form').requestSubmit()})()");await wait(p,"!document.getElementById('custom-dialog').open");
+  await p.analyze('2 sztuki bułka użytkownika');assert.match(await gram(p),/140 g/);await p.accept();
+ });
  await t.test('backup retains memory, vessel settings and snapshot; invalid import rolls back',async()=>{
   const result=await p.evaluate("(async()=>{const{exportBackup,importBackup}=await import('./backup.js');const before=await exportBackup();let rejected=false;try{await importBackup(JSON.stringify({...before,data:{...before.data,portionMemory:[{...before.data.portionMemory[0],normalizedAmount:-1}]}}))}catch{rejected=true;}const after=await exportBackup();await importBackup(JSON.stringify(before),{mode:'replace'});return{before,after,rejected,restored:await exportBackup()}})()");
   assert.equal(result.rejected,true);assert.deepEqual(result.after.data,result.before.data);assert.deepEqual(result.restored.data,result.before.data);assert.ok(result.before.data.portionMemory.length);assert.equal(result.before.data.portionSettings.cupMl,250);assert.ok(result.before.data.diary.some(e=>e.portionConversion));
@@ -49,6 +59,16 @@ test('Etap 7 — porcje domowe, jawne uczenie, snapshot, backup, offline i scope
   await p.evaluate('navigator.serviceWorker.ready');await p.reload();await wait(p,'Boolean(navigator.serviceWorker.controller)');const before=await p.saved();
   await p.send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});await p.reload();await p.date('2026-10-26');assert.deepEqual(await p.saved(),before);await p.analyze('2 łyżki mojej oliwy');assert.match(await gram(p),/27 g/);await p.analyze('2 łyżeczki mojego masła');assert.match(await gram(p),/12 g/);
   await p.send('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+ });
+ await t.test('portion memory edit/delete leaves saved history intact',async()=>{
+  const before=await p.saved();await click(p,'#portion-settings-refresh');await wait(p,"document.getElementById('portion-memory-list').getAttribute('aria-busy')==='false' && document.querySelectorAll('#portion-memory-list li').length>0");
+  await p.evaluate("(()=>{const row=document.querySelector('#portion-memory-list li');[...row.querySelectorAll('button')].find(b=>b.textContent==='Edytuj').click();row.querySelector('input').value='7';[...row.querySelectorAll('button')].find(b=>b.textContent==='Zapisz definicję').click()})()");await wait(p,"document.getElementById('portion-settings-status').textContent.startsWith('Zapisano definicję')");assert.deepEqual(await p.saved(),before);
+  await p.evaluate("[...document.querySelector('#portion-memory-list li').querySelectorAll('button')].find(b=>b.textContent==='Usuń definicję').click()");await wait(p,"document.getElementById('portion-settings-status').textContent.startsWith('Usunięto')");assert.deepEqual(await p.saved(),before);
+  await p.analyze('łyżeczka mojego masła');
+ });
+ await t.test('failed asynchronous learning after text changes cannot update a removed proposal',async()=>{
+  await p.analyze('łyżeczka mojego masła');await p.evaluate("window.__originalPut=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,...args){if(value?.key?.startsWith('portion:')){const text=document.getElementById('meal-text');text.value='Nowy tekst';text.dispatchEvent(new Event('input'));throw new DOMException('quota test','QuotaExceededError');}return window.__originalPut.call(this,value,...args)};document.querySelector('[data-portion-weight]').value='5';document.querySelector('[data-portion-remember=true]').click()");
+  await wait(p,"document.getElementById('meal-text-form').dataset.analysisState==='idle'");await p.evaluate('IDBObjectStore.prototype.put=window.__originalPut');assert.deepEqual(b.errors,[]);await p.analyze('łyżeczka mojego masła');
  });
  await t.test('320/360/390/430px, labels, focus targets and console',async()=>{
   for(const width of [320,360,390,430]){await p.send('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});assert.ok(await p.evaluate('document.documentElement.scrollWidth<=innerWidth'));}

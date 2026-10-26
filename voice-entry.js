@@ -15,20 +15,20 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   const text = $('meal-text'), save = $('save-meal-proposal'), form = $('meal-text-form');
   let proposal = null, revision = 0, controller = null, storageAvailable = true, saving = false, summaryValid = false;
   const rowControllers = new Map(), rowVersions = new Map();
-  const choiceWrites = new Map();
+  const choiceWrites = new Map(), pendingPortions = new Map();
   let speechBusy = false;
   function error(message) {
     text.setAttribute('aria-invalid', 'true'); $('meal-text-error').textContent = message;
   }
   function clearError() { text.setAttribute('aria-invalid', 'false'); $('meal-text-error').textContent = ''; }
   function buttonState() {
-    save.disabled = saving || speechBusy || !storageAvailable || !summaryValid || !proposal || Boolean(proposal.issues.length)
+    save.disabled = saving || pendingPortions.size > 0 || speechBusy || !storageAvailable || !summaryValid || !proposal || Boolean(proposal.issues.length)
       || proposal.items.length === 0 || proposal.items.some(item => !item.portion || !Object.hasOwn(MEAL_LABELS, item.intent.meal));
   }
   function invalidate(message = '') {
     revision++; controller?.abort(); controller = null;
     for (const request of rowControllers.values()) request.abort();
-    rowControllers.clear(); rowVersions.clear(); choiceWrites.clear(); proposal = null; summaryValid = false;
+    rowControllers.clear(); rowVersions.clear(); choiceWrites.clear(); pendingPortions.clear(); proposal = null; summaryValid = false;
     $('meal-proposal').hidden = true; $('proposal-empty').hidden = false;
     $('meal-proposal-items').replaceChildren(); $('meal-proposal-issues').replaceChildren();
     $('meal-proposal-summary').hidden = true; $('meal-text-status').textContent = message;
@@ -56,6 +56,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   const findCard = id => [...$('meal-proposal-items').children].find(card => card.dataset.itemId === id);
   function replaceItem(id, item) { proposal = { ...proposal, items: proposal.items.map(row => row.id === id ? item : row) }; }
   function nextRowVersion(id) {
+    pendingPortions.delete(id);
     rowControllers.get(id)?.abort(); rowControllers.delete(id);
     const button = findCard(id)?.querySelector('[data-search]'); if (button) button.disabled = false;
     const next = (rowVersions.get(id) ?? 0) + 1; rowVersions.set(id, next); return next;
@@ -65,11 +66,13 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
       onPortion: async (definition,remember) => {
         const row=findItem(item.id);if(!row||!row.resolution.product)return;
         const version=revision,rowVersion=nextRowVersion(item.id);
+        pendingPortions.set(item.id,rowVersion);buttonState();
         try {if(remember)await repository.portions.remember({...definition,source:'USER'});
           if(revision!==version||rowVersions.get(item.id)!==rowVersion)return;
           const changed={...findItem(item.id),definitionId:definition.id,portionDefinitions:[definition,...(findItem(item.id).portionDefinitions??[]).filter(d=>d.id!==definition.id)]};
           changed.portion=portionFor(changed.intent,changed.resolution,changed);replaceItem(item.id,changed);updateProposalCard(findCard(item.id),changed);summary();findCard(item.id).querySelector('[data-amount]').focus();
-        }catch(failure){updateProposalCard(findCard(item.id),findItem(item.id),failure.message);}
+        }catch(failure){if(revision===version&&rowVersions.get(item.id)===rowVersion&&findCard(item.id))updateProposalCard(findCard(item.id),findItem(item.id),failure.message);}
+        finally{if(pendingPortions.get(item.id)===rowVersion){pendingPortions.delete(item.id);buttonState();}}
       },
       onInput: patch => {
         if (!findItem(item.id)) return;
@@ -92,6 +95,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   async function chooseRow(id, productId) {
     const current = findItem(id); if (!current) return;
     const version = revision, rowVersion = nextRowVersion(id);
+    pendingPortions.set(id,rowVersion);buttonState();
     try {
       const product = await repository.getProductById(productId);
       if (!product) throw new Error('Produkt nie jest już dostępny w pamięci. Wyszukaj go ponownie.');
@@ -103,6 +107,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
       const choiceWrite = resolver.rememberUserChoice(row.intent.query, productId).then(() => true, () => false);
       choiceWrites.set(id, { productId, query: row.intent.query, promise: choiceWrite });
       replaceItem(id, row);
+      pendingPortions.delete(id);
       findCard(id).replaceWith(drawRow(row));
       if (mismatch) updateProposalCard(findCard(id), row, 'Jednostka produktu jest inna. Podaj ilość ponownie; nie przeliczamy gęstości.');
       summary(); findCard(id).querySelector('[data-amount]').focus();
@@ -112,6 +117,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
         else $('meal-text-status').textContent = 'Produkt wybrany. Nie udało się zapamiętać dopasowania; możesz nadal zapisać posiłek.';
       }
     } catch (failure) { if (revision === version && rowVersions.get(id) === rowVersion && findCard(id)) updateProposalCard(findCard(id), findItem(id), failure.message); }
+    finally{if(pendingPortions.get(id)===rowVersion){pendingPortions.delete(id);buttonState();}}
   }
   async function searchRow(id, query) {
     const current = findItem(id); if (!current || rowControllers.has(id)) return;

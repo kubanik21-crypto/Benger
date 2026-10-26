@@ -1,5 +1,6 @@
 // Product-specific definitions. Amount describes the source serving, never a global weight.
 export const HOUSEHOLD_UNITS = Object.freeze({piece:'sztuka',slice:'kromka',slab:'plaster',tablespoon:'łyżka',teaspoon:'łyżeczka',cup:'szklanka',mug:'kubek',package:'opakowanie',serving:'porcja',handful:'garść',scoop:'miarka'});
+export const samePortionUnit=(a,b)=>a===b||['slice','slab'].includes(a)&&['slice','slab'].includes(b);
 export const PORTION_SOURCES = ['USER','USDA','OFF','STANDARD_VOLUME','PACKAGE','NONE'];
 export function isPortionDefinition(value) {
  return value && typeof value==='object' && typeof value.id==='string' && value.id.length>0 && value.id.length<=240
@@ -23,7 +24,7 @@ export function validPortionSnapshot(row) {
  &&c.normalizedAmount===row.amount&&c.normalizedUnit===row.unit&&PORTION_SOURCES.includes(c.source)&&c.source!=='NONE'&&c.confidence==='HIGH'
  &&(c.source==='STANDARD_VOLUME' ? row.unit==='ml' && ['teaspoon','tablespoon','cup','mug'].includes(c.inputUnit) : isPortionDefinition(c.definition) && c.definition.source===c.source && Math.abs(c.normalizedAmount-c.inputAmount*c.definition.normalizedAmount/c.definition.amount)<=Math.max(1e-9,c.normalizedAmount*1e-12))
  &&typeof c.description==='string'&&c.description.length<=240
- &&(c.definition===null||c.definition===undefined||isPortionDefinition(c.definition)&&c.definition.productId===row.productId&&(c.definition.unit===c.inputUnit||c.inputUnit==='slab'&&c.definition.unit==='slice')&&c.definition.normalizedUnit===row.unit);
+ &&(c.definition===null||c.definition===undefined||isPortionDefinition(c.definition)&&c.definition.productId===row.productId&&samePortionUnit(c.definition.unit,c.inputUnit)&&c.definition.normalizedUnit===row.unit);
 }
 export function copyPortionSnapshot(row){
  if(!validPortionSnapshot(row))throw new TypeError('Nieprawidłowy snapshot porcji.');

@@ -172,13 +172,13 @@ Test Chromium Etapu 3 używa natywnego `fetch`, przechwytuje ruch OFF przez CDP 
 GitHub Actions uruchamia testy także po push do `etap-6-pwa-catalog-scanner` (bez tworzenia PR). To workflow testowy, bez deploymentu.
 
 
-## Preview Etapu 6 i ręczny test produkcyjnego OFF
+## Aktualny preview i ręczny test produkcyjnego OFF
 
-Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-6/**
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-7/**
 
 Jest przygotowywane po push gałęzi `etap-6-pwa-catalog-scanner` przez workflow `Stage 6 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
 
-Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-6.nutrition.v1`, `benger.preview-etap-6.meals.v1` oraz IndexedDB `BengerDB-preview-etap-6`. Dane wersji głównej nie są kopiowane ani zmieniane.
+Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-7.nutrition.v1` oraz IndexedDB `BengerDB-preview-etap-7`. Dane wersji głównej nie są kopiowane ani zmieniane.
 
 Ręczna publikacja z czystej gałęzi Etapu 6: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
 
@@ -187,7 +187,7 @@ W preview kliknij „Sprawdź połączenie OFF”. Strona diagnostyczna uruchami
 Pełny test rzeczywistego przepływu w Chromium z tymczasowym profilem, poza standardowym CI:
 
 ```sh
-npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-6/ --report /tmp/benger-off-live.json
+npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-7/ --report /tmp/benger-off-live.json
 ```
 
 Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.
@@ -199,8 +199,8 @@ Diagnostyka zawiera też porównanie A/B/C/D: CGI z X-User-Agent, CGI bez dodatk
 Wspólny pipeline głosu i tekstu zachowuje raw/normalized, rozpoznaje liczby słowne, procenty i kilka produktów bez przecinków. Nie zgaduje brakującej masy ani wariantu. Jawne skróty użytkownika są oddzielone od pamięci potwierdzonych wyborów.
 
 - [Implementacja, testy i ograniczenia](docs/smart-voice-understanding.md)
-- [Preview Etapu 6](https://kubanik21-crypto.github.io/Benger/previews/etap-6/)
-- [Voice Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-6/voice-test-lab.html) — lokalna historia maks. 20 analiz, eksport JSON, aliasy; bez audio i telemetrii.
+- [Preview Etapu 7](https://kubanik21-crypto.github.io/Benger/previews/etap-7/)
+- [Voice Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-7/voice-test-lab.html) — lokalna historia maks. 20 analiz, eksport JSON, aliasy; bez audio i telemetrii.
 - Benchmark części językowej: `node scripts/benchmark-voice.mjs`.
 
 Testy CI korzystają z mocków OFF i SpeechRecognition. Mikrofon na prawdziwym Androidzie pozostaje osobnym testem akceptacyjnym. Etap 5 nie dodawał AI ani backendu; service worker i offline shell zostały dodane w Etapie 6.
@@ -245,3 +245,22 @@ Testy syntetycznej kamery i headless Chromium nie zastępują instalacji ani pra
 ### Usunięcie katalogu demonstracyjnego
 
 Nie publikujemy czterech przykładowych produktów ani providera lokalnego. Wyszukiwanie i resolver korzystają tylko z USDA/OFF/custom/cache. Historyczne wpisy nadal pokazują zapisane nazwy i snapshoty makro; stare ID są zachowane wyłącznie jako referencje zgodności backupów i preferencji, bez odtwarzania produktów. Źródło dawnych wpisów jest oznaczone jako archiwalne. Testowe produkty custom są wyłącznie w niepublikowanych fixtures.
+
+
+## Naturalne porcje domowe — Etap 7
+
+Możesz powiedzieć lub wpisać np. „2 jajka”, „3 kromki chleba”, „2 łyżki oliwy” albo „pół opakowania skyra”. Najpierw wybieramy konkretny produkt, następnie jego porcję. Brak wiarygodnej masy wymaga wyboru rozmiaru lub wpisania wagi jednej porcji — nie zgadujemy gęstości ani uniwersalnej kromki.
+
+- Osobny PortionResolver i lazy-loaded porcje USDA z oficjalnych food_portion / measure_unit.
+- Porcje i opakowania OFF w tym samym requestcie; brak dodatkowych odpytań API.
+- Inline **Użyj raz** / **Zapamiętaj dla tego produktu**, edycja i usuwanie w **Moje porcje i naczynia**.
+- Opcjonalne porcje i wielkość opakowania własnego produktu.
+- Szklanka/kubek bez domyślnej pojemności; można zapisać swoje ml. Łyżka 15 ml i łyżeczka 5 ml wyłącznie dla podstawy ml.
+- Snapshot oryginalnej porcji i konwersji w dzienniku, zgodność dawnych wpisów i rozszerzony backup.
+- Pełny katalog porcji offline po przygotowaniu PWA, osobny preview/scope Etapu 7.
+
+[Opis architektury, diagnostyka i checklista Samsunga](docs/household-portions.md).
+
+[Preview Etapu 7](https://kubanik21-crypto.github.io/Benger/previews/etap-7/) · [Portion Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-7/portion-test-lab.html) · [Portion Diagnostics](https://kubanik21-crypto.github.io/Benger/previews/etap-7/portion-diagnostics.html).
+
+Testy: `npm test`, `npm run test:browser`, `git diff --check`. Pomiar bez zewnętrznego API: `node scripts/measure-household-portions.mjs /tmp/portions.json`.
