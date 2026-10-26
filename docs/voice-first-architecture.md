@@ -5,9 +5,11 @@ Pierwotne kontrakty ProductResolver powstały w Etapie 3. W Etapie 4 połączono
 ## Przepływ i granice
 
 ```text
-SpeechToText (przyszły adapter: Web Speech / lokalny model / inna usługa)
-  → tekst
-MealUnderstanding (parser; przyszłe rozumienie dłuższych wypowiedzi)
+SpeechToText (Web Speech, continuous=false / interimResults=true)
+  → rawTranscript
+TranscriptNormalizer → normalizedTranscript
+FoodTokenizer / FoodSegmentation
+MealUnderstanding (parser regułowy, bez AI)
   → {meal, intents: [{id, query, amount, unit, barcode?}]}
 ProductResolver (istniejący moduł)
   → istniejący Product + confidence + alternatives + reason
@@ -92,3 +94,7 @@ Test architektury ma cztery intencje: płatki, mleko, banan, skyr. Trzy porcje s
 4. Dodaj osobny adapter SpeechToText. Zmiana dostawcy transkrypcji nie może zmienić kontraktu intencji, źródła makro ani modelu historii.
 
 Powyższe cztery kroki zrealizowano w Etapie 4 z adapterem Web Speech. Pozostałe silniki transkrypcji są przyszłymi zamiennikami. Pozostają znane ograniczenia localStorage przy idealnie równoczesnym zapisie, brak synchronizacji urządzeń i brak gwarancji zimnego uruchomienia offline. Nie dodano kont, backendu ani płatnej usługi.
+
+## Etap 5
+
+Wdrożono normalizację, segmentację bez przecinków, niezależne structureConfidence, ochronę wariantów, podobne potwierdzone frazy i jawne aliasy. Pamięć IndexedDB v2 pozostaje zgodna wstecz; historia diagnostyczna jest osobna od dziennika. Szczegółowy kontrakt, kolejność resolvera i ograniczenia: [Smart Voice Understanding](smart-voice-understanding.md). Lab nie jest zewnętrzną usługą transkrypcji i nie wysyła historii.
