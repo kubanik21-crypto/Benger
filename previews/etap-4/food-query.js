@@ -1,4 +1,4 @@
-import { normalizeText } from './product-model.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { normalizeText } from './product-model.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
 
 export function normalizeFoodQuery(value) {
   if (typeof value !== 'string') return '';
