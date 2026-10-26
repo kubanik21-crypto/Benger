@@ -728,7 +728,9 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     await waitFor(a, "document.querySelectorAll('#favorite-products [data-product-id]').length === 1");
   });
   await t.test('offline: wyszukiwanie lokalne, ostatnie, ulubione, barcode i zapis bez sieci', async () => {
-    await a.evaluate('navigator.serviceWorker.ready');await waitFor(a,'Boolean(navigator.serviceWorker.controller)');
+    // Pierwsza nawigacja może pozostać niekontrolowana mimo zakończenia instalacji.
+    // Nowa nawigacja w aktywnym scope musi już korzystać z workera.
+    await a.evaluate('navigator.serviceWorker.ready');await a.reload();await a.date(DAY);await waitFor(a,'Boolean(navigator.serviceWorker.controller)');
     await a.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
     const before = apiRequests().length;
     await waitFor(a, 'navigator.onLine === false');
