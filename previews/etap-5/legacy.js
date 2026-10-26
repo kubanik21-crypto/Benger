@@ -1,4 +1,4 @@
-import { NOTES_STORAGE_KEY } from './app-storage.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { NOTES_STORAGE_KEY } from './app-storage.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
 
 // Oddzielny notatnik pierwszego prototypu. Nie odczytuje ani nie zapisuje produktów.
 export function initLegacyNotes({ dateInput, createEntryId }) {

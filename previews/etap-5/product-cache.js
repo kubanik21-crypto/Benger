@@ -1,6 +1,6 @@
-import { copyProduct, isProduct, normalizeText } from './product-model.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
-import { PRODUCT_DB_NAME } from './app-storage.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
-import { normalizeFoodQuery } from './food-query.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { copyProduct, isProduct, normalizeText } from './product-model.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
+import { PRODUCT_DB_NAME } from './app-storage.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
+import { normalizeFoodQuery } from './food-query.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
 
 export const PRODUCT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const SEARCH_TTL_MS = 15 * 60 * 1000;
