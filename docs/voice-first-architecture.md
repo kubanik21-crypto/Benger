@@ -1,6 +1,6 @@
 # Voice-first: kontrakty dopasowania produktów
 
-Stan: fundament zaimplementowany w Etapie 3, 25.10.2026. Bez AI, nowego mikrofonu, płatnej transkrypcji i automatycznego zapisu. Celem następnego etapu będzie krótka weryfikacja posiłku zamiast ręcznego szukania każdej pozycji.
+Pierwotne kontrakty ProductResolver powstały w Etapie 3. W Etapie 4 połączono je z adapterem SpeechRecognition, nową warstwą MealUnderstanding i edytorem propozycji. Aktualna instrukcja i ograniczenia: [voice-entry.md](voice-entry.md). Bez AI i płatnej transkrypcji.
 
 ## Przepływ i granice
 
@@ -21,7 +21,7 @@ Potwierdzenie użytkownika
 
 Transkrypcja przekazuje tekst, nie produkty ani makro. Parser przekazuje tożsamość/ilość/jednostkę i kod posiłku, nie wartości odżywcze. Resolver nie rozumie całej wypowiedzi i nie zapisuje posiłku. Obliczenia nie pytają API. Historyczny dziennik korzysta wyłącznie ze snapshotów, bez ponownego dopasowania.
 
-Obecny `meal-parser.js` i ekran Etapu 2 pozostają zgodne z czterema aliasami; nie zostały potajemnie zastąpione nowym parserem języka. Poniższy moduł propozycji przyjmuje już gotowe intencje i nie jest jeszcze podłączony do nowego edytora ani mikrofonu.
+`meal-parser.js` pozostaje zgodnym, testowanym modułem historycznym. Nowy ekran używa `meal-understanding.js`, a `voice-entry.js` łączy intencje z resolverem i modułem propozycji. Głos i tekst mają wspólny dalszy przepływ.
 
 ## Intencja wejściowa
 
@@ -66,7 +66,7 @@ await resolver.rememberUserChoice('mleko 2%', product.id);
 
 Normalizacja zachowuje znaczenie liczb/procentów: `MLEKO 2 procent`, `mleko 2,0%` i `mleko 2 %` mają ten sam klucz. `2%` nie jest `12%`, `Pilos` nie jest `Superpilos`. Nie wyliczamy procentu z pola fat.
 
-UI uczy po kliknięciu konkretnego wyniku wyszukiwania, nie po samym wyszukaniu, wnioskowaniu ani otwarciu listy. Nie wymaga zapisu do dziennika, a „ostatnie” nadal powstają dopiero po udanym zapisie. `rememberUserChoice` wymaga istniejącego produktu w repozytorium. Licznik i czas są aktualizowane w transakcji IndexedDB; alternatywne wybory pozostają widoczne w historii frazy. Najwyżej 200 fraz po 5 produktów, licznik ograniczony do miliona. Powiązane produkty nie wypadają ze zwykłego cache; uczenie nie odnawia daty pobrania.
+UI uczy po kliknięciu konkretnego wyniku wyszukiwania lub jawnym zatwierdzeniu całej widocznej propozycji. Ten sam wybór nie jest ponownie liczony przy zatwierdzeniu. Samo wyszukiwanie, wnioskowanie i otwarcie listy nie uczą. Nie wymaga zapisu do dziennika, a „ostatnie” nadal powstają dopiero po udanym zapisie. `rememberUserChoice` wymaga istniejącego produktu w repozytorium. Licznik i czas są aktualizowane w transakcji IndexedDB; alternatywne wybory pozostają widoczne w historii frazy. Najwyżej 200 fraz po 5 produktów, licznik ograniczony do miliona. Powiązane produkty nie wypadają ze zwykłego cache; uczenie nie odnawia daty pobrania.
 
 Upgrade bazy v1→v2 dodaje `selections`, bez usuwania produktów/ulubionych/ostatnich. Preview ma oddzielną bazę i klucze od root. Przy zablokowanym IndexedDB pamięć jest tylko w karcie, z widocznym ostrzeżeniem. Dane wyborów nie trafiają do OFF ani żadnego serwera.
 
@@ -84,11 +84,11 @@ Propozycja zachowuje każdą intencję, wynik dopasowania, porcję (lub null) or
 
 Test architektury ma cztery intencje: płatki, mleko, banan, skyr. Trzy porcje są gotowe, mleko ma kilka możliwych marek. Potwierdzenie wyłącznie mleka zachowuje pozostałe trzy. Dane skyra w tym teście są fikcyjne, nie opublikowane jako produkt spożywczy.
 
-## Integracja w następnym etapie
+## Integracja w Etapie 4
 
 1. Rozszerz MealUnderstanding do wyjścia `{meal, intents, issues}` bez zmiany resolvera i obliczeń; zachowaj stare testy parsera.
 2. Zbuduj edytor propozycji oparty na ID wiersza, z listą tylko niepewnych dopasowań. Zmiana ilości unieważnia jedną porcję; zmiana daty/posiłku aktualizuje kontekst propozycji.
 3. Po zatwierdzeniu wszystkich wymaganych wierszy przekaż istniejące snapshoty do wspólnego zapisu dziennika. Samo wyszukanie lub HIGH nigdy nie zapisuje wpisu.
 4. Dodaj osobny adapter SpeechToText. Zmiana dostawcy transkrypcji nie może zmienić kontraktu intencji, źródła makro ani modelu historii.
 
-Nie implementowano jeszcze tych czterech kroków. Pozostają znane ograniczenia localStorage przy idealnie równoczesnym zapisie, brak synchronizacji urządzeń i brak gwarancji zimnego uruchomienia offline. Nie dodano kont, backendu ani płatnej usługi.
+Powyższe cztery kroki zrealizowano w Etapie 4 z adapterem Web Speech. Pozostałe silniki transkrypcji są przyszłymi zamiennikami. Pozostają znane ograniczenia localStorage przy idealnie równoczesnym zapisie, brak synchronizacji urządzeń i brak gwarancji zimnego uruchomienia offline. Nie dodano kont, backendu ani płatnej usługi.

@@ -1,6 +1,8 @@
-# Benger — Etap 3: katalog produktów
+# Benger — Etap 4: dodawanie posiłku głosem
 
-Prosty lokalny dziennik żywieniowy w HTML, CSS i JavaScript, udostępniany przez mały serwer Node.js. Z wyszukiwaniem w Open Food Facts i lokalnym cache. Bez logowania, AI i dodatkowych bibliotek.
+Benger is a voice-first nutrition diary. Manual entry is a fallback, not the primary product experience.
+
+Lokalny dziennik w HTML/CSS/JavaScript: głos lub tekst → intencje produktów → ProductResolver → edytowalna propozycja → jawne zatwierdzenie → dziennik. Web Speech API, Open Food Facts i lokalny cache, bez płatnych API, kont, AI i bibliotek npm.
 
 ## Uruchomienie
 
@@ -22,12 +24,12 @@ Frontend działa również bez `server.js`. Komplet publicznych plików definiuj
 
 Lokalny `npm start` nadal serwuje aplikację pod `/`. Hosting pod `/Benger/` jest symulowany w testach jako osobny serwer statyczny; nie dodano takiej trasy do serwera deweloperskiego.
 
-Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages pozostaje prostym hostingiem. Workflow preview aktualizuje wyłącznie podkatalog `previews/etap-3/` istniejącej gałęzi `gh-pages`. Pliki głównej wersji pozostają niezmienione. Podgląd ma oddzielną pamięć danych.
+Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages pozostaje prostym hostingiem. Workflow preview aktualizuje wyłącznie podkatalog `previews/etap-4/` istniejącej gałęzi `gh-pages`. Pliki głównej wersji pozostają niezmienione. Podgląd ma oddzielną pamięć danych.
 
 Manifest ma względne `start_url` i `scope`, ale nadal brakuje ikon instalacyjnych, service workera i offline shella. Nie ma jeszcze gwarancji instalacji ani odświeżenia bez sieci. Zmiana domeny, protokołu lub portu tworzy inny origin i nie przenosi danych localStorage; zmiana samej ścieżki na tym samym origin nie oddziela danych.
 
 - [Audyt gotowości webowej](docs/web-readiness-audit.md): wyniki hostingu, responsive layout, PWA, dane i porównanie hostów.
-- [Wcześniejszy projekt Web Experience](docs/stage-3-web-experience.md): archiwalny plan przebudowy UI/PWA. Obecny Etap 3 dotyczy katalogu, nie realizacji tamtego planu.
+- [Wcześniejszy projekt Web Experience](docs/stage-3-web-experience.md): archiwalny plan przebudowy UI/PWA. Pozostaje planem pełniejszej przebudowy UI/PWA, niezależnym od wdrożonego katalogu i głosu.
 - [Architektura danych produktów](docs/product-data-architecture.md): model, OFF, cache, licencje, ograniczenia i przyszli dostawcy.
 
 ## Dziennik produktów
@@ -63,49 +65,39 @@ Dane: **[Open Food Facts i współtwórcy](https://world.openfoodfacts.org/)**. 
 
 Cache OFF i demonstracyjny katalog Bengera są oddzielnymi zbiorami. Ich połączenie odbywa się w pamięci na potrzeby wyników. Przyszła redystrybucja/łączenie baz wymaga uwzględnienia ODbL i share-alike. Przykłady w `tests/fixtures` są fikcyjne i służą wyłącznie testom.
 
-## Fundament pod dodawanie głosem
+## Dodawanie głosem i tekstem
 
-`product-resolver.js` dopasowuje ustrukturyzowaną intencję `{query, amount, unit}` do istniejącego Product. Preferuje wcześniejszy jawny wybór, ostatnie, ulubione i cache; internet jest opcjonalny i domyślnie wyłączony. Wyszukiwarka promuje zapamiętany produkt, ale nie wybiera go za użytkownika. Kliknięcie wyniku uczy dopasowania fraza → productId; samo wnioskowanie niczego nie uczy.
-
-Confidence jest regułą dopasowania, nie prawdopodobieństwem: dokładny barcode lub powtarzalny dominujący wybór daje HIGH, pojedynczy wybór/jedyny zgodny produkt MEDIUM, niejednoznaczność LOW i do pięciu alternatyw. Każdy wynik nadal wymaga weryfikacji. Nie przeliczamy g/ml ani nie odgadujemy makro.
-
-`meal-resolution.js` przygotowuje propozycję z wielu intencji i pozwala potwierdzić tylko niepewną pozycję, zachowując pozostałe. To moduł bez nowego ekranu i mikrofonu. Dotychczasowy formularz tekstowy nadal używa ograniczonego parsera Etapu 2 opisanego niżej. [Kontrakty i przepływ voice-first](docs/voice-first-architecture.md).
-
-## Dodawanie z tekstu
-
-Zasada działania: **parser rozpoznaje → użytkownik sprawdza → aplikacja zapisuje**.
-
-1. Wybierz datę dziennika.
-2. W sekcji „Dodaj z tekstu” opisz jeden posiłek. Jeśli nie podasz jego nazwy, zostanie użyty aktualny wybór posiłku z formularza ręcznego.
-3. Kliknij „Analizuj posiłek”. Sama analiza niczego nie zapisuje.
-4. Sprawdź datę, posiłek, nazwy, porcje, kcal, makro i sumę propozycji.
-5. Dopiero „Dodaj wszystko do dziennika” zapisuje osobny wpis dla każdego produktu i odświeża dziennik oraz sumę dnia.
+1. Wybierz datę i domyślny posiłek. Posiłek wypowiedziany w opisie ma pierwszeństwo; zegarek nie służy do zgadywania.
+2. Naciśnij duży mikrofon, zezwól przeglądarce na jego użycie i powiedz produkty z ilościami. Naciśnij „Zakończ”. Możesz też wpisać tekst bez mikrofonu.
+3. Transkrypcja pojawia się na żywo. Analiza zaczyna się dopiero po końcu sesji, wyłącznie z finalnego tekstu. „Anuluj” niczego nie analizuje ani nie zapisuje.
+4. Sprawdź propozycję. Popraw tylko brakującą ilość lub niepewny produkt, zamiast powtarzać cały posiłek. Możesz zmienić posiłek w pojedynczym wierszu.
+5. „Dodaj cały posiłek” tworzy wszystkie snapshoty jednym zapisem. Brakujące pozycje blokują przycisk; częściowa suma ich nie obejmuje.
 
 Przykłady:
 
 ```text
-Na śniadanie zjadłem 50 g płatków owsianych i 200 ml mleka 2%
-Obiad: banan 120 g i 150 g jogurtu naturalnego
-Na śniadanie 50 g płatków owsianych, 200 ml mleka 2% i banan 120 g
-50,5 g płatków oraz mleko 2% 200ml
+Na śniadanie zjadłem 80 gram płatków owsianych i 250 ml mleka 2%
+Kolacja: skyr Pilos 150 g i banan 120 g
+Zjadłem banana 120 gram i jogurt naturalny 200 gram
+80g płatków, mleko 250ml i banan 120g
+Płatki owsiane osiemdziesiąt gramów
 ```
 
-`meal-parser.js` to deterministyczny parser, bez AI, bibliotek NLP i połączeń z zewnętrznymi usługami. `parseMealText(text, { defaultMeal, products })` zwraca kod posiłku, pozycje (`productId`, `amount`, `unit`, `status`, `source`) oraz listę `issues`. Problemy z `itemIndex` dotyczą konkretnej pozycji. Parser nie oblicza wartości odżywczych i nie zapisuje danych; interfejs korzysta z kanonicznego lokalnego providera opartego na `PRODUCTS` i używa `calculatePortion()` oraz `sumNutrition()`. AI pozostaje na późniejszy etap.
+`meal-understanding.js` rozdziela normalizację, posiłek, segmenty, ilość, jednostkę i query. Zna ograniczony słownik odmian i popularne liczby całkowite zapisane słownie 0–999 (`polish-numbers.js`). Obsługuje przecinek dziesiętny w cyfrach i flagę „około/jakieś/mniej więcej”. Nie zgaduje gramatury, makro, gęstości ani typowych porcji. Nie każdy produkt da się od razu rozstrzygnąć; UI zachowuje niepewną pozycję do wyboru.
 
-Obsługiwane są cztery produkty i określone aliasy: płatki owsiane / płatków owsianych / płatki / płatków, banan / banana / banany, jogurt naturalny / jogurtu naturalnego / jogurt, mleko 2% / mleka 2% / mleko / mleka. Ilość może stać przed lub po produkcie. Działają `g`, `gram`, `gramów`, `ml`, `mililitrów`, zapis bez spacji (`50g`) i przecinek dziesiętny (`50,5`). Produkty oddzielaj przecinkami, średnikami albo słowami „i” lub „oraz”.
+Istniejący ProductResolver używa pamięci wcześniejszych jawnych wyborów, ostatnich, ulubionych i cache. Po lokalnym dopasowaniu analiza może wykonać najwyżej **jeden** zewnętrzny search; pozostałe wyszukujesz przyciskiem w konkretnym wierszu. Wpisywanie i interim nie odpytują OFF. Wybór produktu oraz końcowe zatwierdzenie propozycji uczą lokalnego dopasowania bez podwójnego liczenia tego samego wyboru.
 
-Parser rozpoznaje śniadanie, obiad, kolację i przekąskę, także we frazach „na kolację” i „na przekąskę”. Jeden opis dotyczy jednego posiłku. Dwa sprzeczne posiłki, niedokończona lista lub nieobsługiwane fragmenty wymagają poprawienia tekstu.
+Wszystkie obliczenia nadal wykonują `calculatePortion()` i `sumNutrition()`. Zmiana produktu między g i ml wymaga ponownego podania ilości, zamiast automatycznego przeliczenia. Stary `meal-parser.js` zachowano i testujemy jako zgodny moduł Etapu 2; nowy ekran korzysta z `understandMeal()`.
 
-Przykładowe problemy:
+## Rozpoznawanie mowy i prywatność
 
-- `zjadłem banana` — brakuje ilości i jednostki; nie przyjmujemy domyślnej porcji.
-- `100 g czegoś` — nieznany produkt.
-- `200 g mleka` — wymagana jest jednostka ml; nie konwertujemy g na ml.
-- `jogurt truskawkowy 150 g` — nie zastępujemy go jogurtem naturalnym.
+`speech-recognition.js` używa `SpeechRecognition` lub `webkitSpeechRecognition`, domyślnie `pl-PL`, wyłącznie po kliknięciu. Dostępność sprawdzamy w uruchomionej przeglądarce, na HTTPS/localhost. Najlepszy pierwszy wybór dla telefonu: aktualny Chrome na Androidzie. Safari/iOS może udostępniać wariant webkit; Firefox stabilny nie jest zakładanym środowiskiem mowy. Sama obecność API nie gwarantuje dostępności usługi ani języka.
 
-Jeśli choć jedna pozycja jest niepoprawna, **cały zapis jest zablokowany**. Popraw tekst i ponów analizę; nie ma automatycznego pomijania problematycznych pozycji ani edytora propozycji. Zmiana tekstu, daty lub wyboru domyślnego posiłku unieważnia poprzedni podgląd. Ręczne dodawanie nadal działa niezależnie.
+MDN Browser Compatibility Data zweryfikowano 25.10.2026: Chrome ma standardowy interfejs od 139 i starszy webkit od 33; Safari webkit od 14.1; Firefox jest oznaczony jako preview. Wsparcie mobilne, dostawca usługi, uprawnienia i polityki systemu mogą się różnić. [Źródło MDN](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition).
 
-To ograniczony parser reguł, nie pełne rozumienie języka polskiego. Nie obsługuje dowolnej odmiany nazw, marek, kilogramów, sztuk ani opisów typu „garść” czy „pół banana”. Nowe aliasy muszą wskazywać na istniejący produkt w `PRODUCTS`.
+**Benger nie nagrywa plików audio i ich nie przechowuje.** Browserowy silnik może wysyłać dźwięk do swojego dostawcy. Krótka informacja jest widoczna przed mikrofonem. Nie gwarantujemy rozpoznawania offline ani działania każdego Chromium. Odmowa zgody, brak mowy, timeout (45 s / 10 s po stop), błąd usługi i brak API mają komunikaty oraz pełny fallback tekstowy. Zmiana adaptera nie wymaga przebudowania parsera, produktów ani dziennika.
+
+Szczegóły: [voice-entry.md](docs/voice-entry.md); pierwotne kontrakty: [voice-first-architecture.md](docs/voice-first-architecture.md).
 
 ## Pamięć i model danych
 
@@ -120,7 +112,7 @@ Nowy dziennik używa klucza `benger.nutrition.v1` w localStorage. Każdy wpis za
 
 Historyczne wpisy korzystają z zapisanej kopii, więc aktualizacja katalogu nie zmienia historii. Przed dodawaniem i usuwaniem aplikacja ponownie odczytuje aktualną listę. Zdarzenie `storage` odświeża pozostałe karty. Nadal istnieje zaakceptowane ograniczenie: odczyt i zapis nie tworzą transakcji, więc dokładnie równoczesne zmiany w kartach mogą się nadpisać.
 
-Zatwierdzenie propozycji tekstowej korzysta z tego samego dziennika i klucza pamięci co ręczny formularz. Cały zestaw ma wspólną datę i posiłek, własne ID poszczególnych wpisów oraz kopie metadanych i makro pokazanych do akceptacji. Wykonywana jest jedna operacja `localStorage.setItem`. Błąd tworzenia dowolnego wpisu albo zapisu oznacza brak zapisu całego zestawu i brak komunikatu sukcesu. Tekst i propozycja pozostają dostępne do ponowienia.
+Zatwierdzenie propozycji głosowej/tekstowej korzysta z tego samego dziennika i klucza pamięci co formularz ręczny. Zestaw ma wspólną datę, ale posiłek można zmienić w pojedynczej pozycji. Każdy wpis ma własne ID oraz kopię metadanych i makro pokazanych do akceptacji. Wykonywana jest jedna operacja `localStorage.setItem`. Błąd tworzenia dowolnego wpisu albo zapisu oznacza brak zapisu całego zestawu i brak komunikatu sukcesu. Tekst i propozycja pozostają dostępne do ponowienia.
 
 Uszkodzone dane blokują zapis i nie są zastępowane pustą listą. Nieudany zapis pozostawia formularz i dane bez pozornego sukcesu. Gdy przeglądarka blokuje pamięć, dziennik może być niedostępny. Dane pozostają tylko w tej przeglądarce i pod tym adresem strony; wyczyszczenie pamięci je usuwa. Nie ma synchronizacji między urządzeniami, importu ani eksportu wpisów żywieniowych.
 
@@ -158,9 +150,13 @@ BENGER_SCREENSHOT_PATH=/tmp/benger.png npm run test:browser
 
 Testy sprawdzają porcje, walidację i fokus, posiłki i dwa dni, sumowanie, usuwanie, odświeżenie, dwie karty, awarie pamięci, UUID zastępcze, historyczne wartości, kontrast, szerokości 320/390/768/1024/1440 px, notatnik i konsolę.
 
-Dla Etapu 2 sprawdzają także podgląd dwóch i trzech produktów, brak zapisu przed akceptacją, pojedynczy zapis całego zestawu, poprawianie tekstu, blokadę starego podglądu, brak częściowego sukcesu przy awarii pamięci lub ID, snapshot propozycji, współpracę z formularzem ręcznym i widoki 320/390 px. Opcjonalny zrzut propozycji: `BENGER_TEXT_SCREENSHOT_PATH=/tmp/benger-text.png npm run test:browser`.
+Regresje wcześniejszego dziennika sprawdzają także podgląd dwóch i trzech produktów, brak zapisu przed akceptacją, pojedynczy zapis całego zestawu, poprawianie tekstu, blokadę starego podglądu, brak częściowego sukcesu przy awarii pamięci lub ID, snapshot propozycji, współpracę z formularzem ręcznym i widoki 320/390 px. Opcjonalny zrzut propozycji: `BENGER_TEXT_SCREENSHOT_PATH=/tmp/benger-text.png npm run test:browser`.
 
 Dwa dodatkowe zestawy uruchamiają sam publiczny frontend na osobnym hostingu statycznym pod `/` i `/Benger/`, bez produkcyjnego serwera Node. Podkatalog nie ma zasobów zastępczych pod root domeny. Testy obejmują importy, CSS, manifest, oba formularze, zapis, odświeżenie, logo i rozdzielenie localStorage między origin.
+
+Dodatkowy zestaw `voice-entry.browser.test.js` mockuje wyłącznie Speech API i OFF, sprawdza interim/final, mikrofon → tekst → propozycję → atomowy zapis → reload, pamięć wyborów, niepewny skyr, edycję jednej pozycji, brak gramatury, g/ml, offline, błędy mowy i limity. Układ sprawdzamy na 320/390/430/1024/1440 px. Mikrofon urządzenia sprawdź dodatkowo ręcznie na HTTPS.
+
+Opcjonalne zrzuty panelu głosowego: `BENGER_VOICE_SCREENSHOTS=/tmp/voice npm run test:browser`.
 
 Opcjonalne pomiary i zrzuty pięciu szerokości:
 
@@ -175,25 +171,25 @@ Testy katalogu obejmują mapowanie OFF, brak nazwy/kcal/makro, nieprawidłowe li
 
 Test Chromium Etapu 3 używa natywnego `fetch`, przechwytuje ruch OFF przez CDP z kontrolowanym CORS i działa na rzeczywistym IndexedDB pod `/Benger/`. Sprawdza pełny zapis produktu OFF, trwałość, offline, usuwanie ulubionego, barcode, limity także w dwóch kartach, awarie API, XSS, uszkodzony cache oraz zablokowany IndexedDB. Opcjonalny zrzut: `BENGER_CATALOG_SCREENSHOT_PATH=/tmp/benger-catalog.png npm run test:browser`.
 
-GitHub Actions uruchamia testy także po push do `etap-3-katalog-produktow` (bez tworzenia PR). To workflow testowy, bez deploymentu.
+GitHub Actions uruchamia testy także po push do `etap-4-voice-first` (bez tworzenia PR). To workflow testowy, bez deploymentu.
 
 
-## Preview PR #3 i ręczny test produkcyjnego OFF
+## Preview Etapu 4 i ręczny test produkcyjnego OFF
 
-Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-3/**
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-4/**
 
-Jest przygotowywane po push gałęzi `etap-3-katalog-produktow` przez workflow `Stage 3 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
+Jest przygotowywane po push gałęzi `etap-4-voice-first` przez workflow `Stage 4 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
 
-Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-3.nutrition.v1`, `benger.preview-etap-3.meals.v1` oraz IndexedDB `BengerDB-preview-etap-3`. Dane wersji głównej nie są kopiowane ani zmieniane.
+Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-4.nutrition.v1`, `benger.preview-etap-4.meals.v1` oraz IndexedDB `BengerDB-preview-etap-4`. Dane wersji głównej nie są kopiowane ani zmieniane.
 
-Ręczna publikacja z czystej gałęzi Etapu 3: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
+Ręczna publikacja z czystej gałęzi Etapu 4: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
 
 W preview kliknij „Sprawdź połączenie OFF”. Strona diagnostyczna uruchamia prawdziwe wyszukiwanie i barcode, zapisuje statusy HTTP, informację o czytelnej odpowiedzi CORS, znormalizowany produkt/makro i wynik ładowania zdjęcia. Nie dodaje wpisów do dziennika. Raport można pobrać jako JSON. Na tej stronie nic nie jest mockowane.
 
 Pełny test rzeczywistego przepływu w Chromium z tymczasowym profilem, poza standardowym CI:
 
 ```sh
-npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-3/ --report /tmp/benger-off-live.json
+npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-4/ --report /tmp/benger-off-live.json
 ```
 
 Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.

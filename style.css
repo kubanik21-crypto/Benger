@@ -122,3 +122,43 @@ footer { margin: 26px 0 10px; font-size: 12px; line-height: 1.7; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; }
 }
+
+/* Voice-first: dominujące działanie i osobna, kompaktowa propozycja. */
+.voice-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.15fr); gap: 30px; align-items: start; }
+.voice-input, .proposal-pane { min-width: 0; }
+.voice-microphone { display: block; width: 100%; min-height: 88px; padding: 20px; background: #174d3c; color: #fff; border: 2px solid #174d3c; border-radius: 18px; font-size: 21px; line-height: 1.4; }
+.voice-microphone:hover { background: #103b2e; }
+.voice-microphone:disabled { background: #dce4da; color: #384e3d; border-color: #7c8d7b; opacity: 1; cursor: default; }
+.voice-microphone[aria-pressed="true"] { border-color: #9b2020; box-shadow: 0 0 0 5px #efd6ce; animation: listening-pulse 1.5s ease-in-out infinite; }
+.speech-status { min-height: 52px; font-weight: 650; }
+.live-transcript { font-size: 14px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.live-transcript:empty { display: none; }
+.voice-secondary-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.proposal-empty { padding: 28px; border: 1px dashed #7c8d7b; border-radius: 16px; margin-top: 10px; }
+.proposal-pane #meal-proposal-items { grid-template-columns: minmax(0, 1fr); }
+.proposal-card { display: block; padding: 16px; overflow-wrap: anywhere; }
+.proposal-card h4 { margin: 0; }
+.proposal-card[data-ready="false"] { border-color: #9b5728; }
+.proposal-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .7fr) minmax(0, 1.2fr); gap: 8px; }
+.proposal-fields label { margin-top: 8px; }
+.proposal-fields input, .proposal-fields select { width: 100%; min-width: 0; padding: 10px 7px; }
+.proposal-row-status { font-size: 13px; line-height: 1.5; }
+.proposal-card .entry-nutrition { margin: 14px 0; }
+.proposal-product-edit summary { min-height: 48px; padding: 12px 0; }
+.proposal-product-edit input { width: 100%; margin-bottom: 10px; }
+.proposal-product-edit button { max-width: 100%; }
+.proposal-choices { display: grid; gap: 8px; margin-top: 12px; }
+.proposal-choice { text-align: left; display: grid; gap: 3px; width: 100%; }
+#save-meal-proposal { width: 100%; min-height: 56px; margin-top: 16px; }
+@keyframes listening-pulse { 50% { box-shadow: 0 0 0 9px #efd6ce; } }
+@media (prefers-reduced-motion: reduce) { .voice-microphone[aria-pressed="true"] { animation: none; } }
+@media (max-width: 900px) { .voice-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+@media (max-width: 360px) { .voice-microphone { font-size: 18px; } .proposal-fields { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); } .proposal-fields > div:last-child { grid-column: 1 / -1; } }
+.intro { padding: 20px 0 10px; }
+.intro h1 { font-size: clamp(32px, 4vw, 46px); margin: 12px 0; letter-spacing: -1.5px; }
+.intro > p:last-child { font-size: 14px; }
+@media (max-width: 720px) {
+  .date-bar { flex-direction: row; align-items: center; gap: 12px; }
+  .date-bar .field-help { display: none; }
+  .date-bar input { width: 155px; }
+}

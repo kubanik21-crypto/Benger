@@ -1,18 +1,12 @@
 import { calculatePortion, sumNutrition } from './nutrition.js';
 import { initLegacyNotes } from './legacy.js';
-import { parseMealText } from './meal-parser.js';
-import { getLocalProducts } from './product-providers/local.js';
-import { copyProduct } from './product-model.js';
+import { MEAL_LABELS } from './meal-understanding.js';
+import { initVoiceEntry } from './voice-entry.js';
+import { createProductRepository } from './product-repository.js';
 import { initProductSearch } from './product-search-ui.js';
 import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 
 const $ = id => document.getElementById(id);
-const MEAL_LABELS = {
-  breakfast: 'Śniadanie',
-  lunch: 'Obiad',
-  dinner: 'Kolacja',
-  snack: 'Przekąska',
-};
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
 const nutritionStorageKey = NUTRITION_STORAGE_KEY;
 const formatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
@@ -22,10 +16,9 @@ let selectedProduct = null;
 const amountInput = $('amount');
 const mealSelect = $('nutrition-meal');
 const addButton = $('add-nutrition');
-const textInput = $('meal-text');
 let nutritionEntries = [];
 let nutritionStorageOK = true;
-let mealProposal = null;
+let voiceEntry;
 
 function populateSelect(select, choices) {
   for (const [value, label] of choices) {
@@ -258,16 +251,20 @@ function createEntryId() {
 
 function appendNutritionPortions(portions, meal, date) {
   if (!isValidDiaryDate(date)) throw fieldError('Wybierz prawidłową datę dziennika.', 'date');
-  if (!Object.hasOwn(MEAL_LABELS, meal)) throw fieldError('Wybierz posiłek.', 'nutrition-meal');
+  if (!portions.length || portions.some(portion => !Object.hasOwn(MEAL_LABELS, portion.meal ?? meal))) throw fieldError('Wybierz posiłek.', 'nutrition-meal');
   const createdAt = new Date().toISOString();
   // Cały zestaw przygotowujemy przed zapisem. Jeden błąd oznacza brak zapisu.
-  const entries = portions.map(({ product, amount, nutrition }) => ({
-    id: createEntryId(), date, createdAt, meal,
+  const entries = portions.map(({ product, amount, nutrition, meal: rowMeal }) => ({
+    id: createEntryId(), date, createdAt, meal: rowMeal ?? meal,
     productId: product.id, productName: product.name, brand: product.brand, source: product.source,
     sourceId: product.sourceId, barcode: product.barcode, amount, unit: product.unit,
     nutrition: { ...nutrition },
   }));
-  const saved = updateNutritionEntries(current => [...current, ...entries]);
+  if (!entries.every(isValidNutritionEntry) || new Set(entries.map(entry => entry.id)).size !== entries.length) throw new Error('Nie można przygotować poprawnych wpisów. Żadna pozycja nie została zapisana.');
+  const saved = updateNutritionEntries(current => {
+    if (entries.some(entry => current.some(previous => previous.id === entry.id))) throw new Error('Identyfikator wpisu już istnieje. Spróbuj ponownie.');
+    return [...current, ...entries];
+  });
   // Awaria cache nie cofa poprawnego zapisu dziennika ani nie powoduje ponownego dodania.
   if (saved) void productSearch.recordUsed(portions.map(portion => portion.product)).catch(() => {
     $('catalog-storage-message').textContent = 'Wpis zapisany. Nie udało się zaktualizować ostatnich produktów.';
@@ -299,109 +296,7 @@ function addNutritionEntry(event) {
 }
 
 function updateProposalButton() {
-  $('save-meal-proposal').disabled = mealProposal === null || !nutritionStorageOK;
-}
-
-function resetMealProposal(message = '') {
-  mealProposal = null;
-  $('meal-proposal').hidden = true;
-  $('meal-proposal-items').replaceChildren();
-  $('meal-proposal-issues').replaceChildren();
-  $('meal-proposal-summary').hidden = true;
-  $('meal-text-status').textContent = message;
-  updateProposalButton();
-}
-
-function invalidateMealProposal() {
-  const hadProposal = !$('meal-proposal').hidden;
-  resetMealProposal(hadProposal ? 'Dane zmienione. Kliknij „Analizuj posiłek” ponownie.' : '');
-  clearFieldError('meal-text');
-}
-
-function createProblemArticle(source) {
-  const article = document.createElement('article');
-  article.className = 'proposal-problem';
-  const heading = document.createElement('h4');
-  heading.textContent = 'Wymaga poprawienia';
-  const text = document.createElement('p');
-  text.textContent = source;
-  article.append(heading, text);
-  return article;
-}
-
-function analyzeMealText(event) {
-  event.preventDefault();
-  resetMealProposal();
-  clearFieldError('meal-text');
-  clearFieldError('date');
-  let date;
-  try { date = readDiaryDate(); } catch (error) { showError(error, true); return; }
-  const products = getLocalProducts();
-  const result = parseMealText(textInput.value, { defaultMeal: mealSelect.value, products });
-  if (result.items.length === 0) {
-    showError(fieldError(result.issues.map(issue => issue.message).join(' '), 'meal-text'), true);
-    return;
-  }
-  const issues = [...result.issues];
-  const portions = [];
-  for (const [itemIndex, item] of result.items.entries()) {
-    if (item.status === 'recognized') {
-      const product = products.find(candidate => candidate.id === item.productId);
-      try {
-        const nutrition = calculatePortion(product, item.amount);
-        // Kopiujemy metadane i wartości widoczne przy akceptacji, bez przeliczania przy zapisie.
-        portions.push({ product: copyProduct(product), amount: item.amount, nutrition });
-        $('meal-proposal-items').append(createPortionArticle({ productName: product.name, amount: item.amount, unit: product.unit, nutrition }));
-        continue;
-      } catch {
-        issues.push({ itemIndex, message: 'Nie można obliczyć porcji. Sprawdź, czy ilość nie jest zbyt duża.' });
-      }
-    }
-    $('meal-proposal-items').append(createProblemArticle(item.source));
-  }
-  if (issues.length === 0) {
-    try {
-      writeNutritionFields('proposal', sumNutrition(portions.map(portion => portion.nutrition)));
-      $('meal-proposal-summary').hidden = false;
-      mealProposal = { source: textInput.value, defaultMeal: mealSelect.value, date, meal: result.meal, portions };
-    } catch {
-      issues.push({ message: 'Suma propozycji jest zbyt duża. Zmniejsz ilości i ponów analizę.' });
-    }
-  }
-  for (const issue of issues) {
-    const li = document.createElement('li');
-    li.textContent = `${issue.itemIndex === undefined ? '' : `Pozycja ${issue.itemIndex + 1}: `}${issue.message}`;
-    $('meal-proposal-issues').append(li);
-  }
-  if (issues.length) {
-    showError(fieldError('Nie można zapisać całej propozycji. Popraw wskazane problemy w tekście i ponów analizę.', 'meal-text'));
-  } else {
-    $('meal-text-status').textContent = `Rozpoznane pozycje: ${portions.length}. Sprawdź je przed zapisaniem. Analiza nie zapisuje danych.`;
-  }
-  $('meal-proposal-context').textContent = `Dzień: ${date} · Posiłek: ${MEAL_LABELS[result.meal] ?? 'wymaga doprecyzowania'}`;
-  $('meal-proposal').hidden = false;
-  updateProposalButton();
-  $('meal-proposal-title').focus();
-}
-
-function saveMealProposal() {
-  if (!mealProposal || !nutritionStorageOK) return;
-  const proposal = mealProposal;
-  // Chronimy przed zapisem starego podglądu także wtedy, gdy zmiana nie wysłała zdarzenia input/change.
-  if (proposal.source !== textInput.value || proposal.date !== dateInput.value || proposal.defaultMeal !== mealSelect.value) {
-    invalidateMealProposal();
-    return;
-  }
-  clearFieldError('meal-text');
-  try {
-    if (appendNutritionPortions(proposal.portions, proposal.meal, proposal.date)) {
-      textInput.value = '';
-      resetMealProposal(`Dodano do dziennika. Liczba pozycji: ${proposal.portions.length}. ${MEAL_LABELS[proposal.meal]}, ${proposal.date}.`);
-      textInput.focus();
-    }
-  } catch (error) {
-    showError(error.fieldId ? error : fieldError(error.message, 'meal-text'), true);
-  }
+  voiceEntry?.setStorageAvailable(nutritionStorageOK);
 }
 
 function removeNutritionEntry(id) {
@@ -416,21 +311,21 @@ function removeNutritionEntry(id) {
 const now = new Date();
 dateInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 populateSelect(mealSelect, Object.entries(MEAL_LABELS));
-const productSearch = initProductSearch({ onSelect(product) {
+const productRepository = createProductRepository();
+const productSearch = initProductSearch({ repository: productRepository, onSelect(product) {
   selectedProduct = product;
   updatePortionPreview();
 } });
+voiceEntry = initVoiceEntry({ repository: productRepository, readDate: readDiaryDate, getMeal: () => mealSelect.value,
+  onSave: (portions, date) => appendNutritionPortions(portions, null, date), onDateError: error => showError(error, true) });
 amountInput.addEventListener('input', () => updatePortionPreview());
 mealSelect.addEventListener('change', () => {
   clearFieldError('nutrition-meal');
-  invalidateMealProposal();
+  voiceEntry.invalidateContext();
 });
 $('nutrition-form').addEventListener('submit', addNutritionEntry);
-$('meal-text-form').addEventListener('submit', analyzeMealText);
-textInput.addEventListener('input', invalidateMealProposal);
-$('save-meal-proposal').addEventListener('click', saveMealProposal);
 dateInput.addEventListener('change', () => {
-  invalidateMealProposal();
+  voiceEntry.invalidateContext();
   clearFieldError('date');
   $('diary-message').textContent = '';
   if (!isValidDiaryDate(dateInput.value)) showError(fieldError('Wybierz prawidłową datę dziennika.', 'date'));

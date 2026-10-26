@@ -17,7 +17,7 @@ test('artefakt zawiera wyłącznie publiczne pliki, komplet modułów i izolacj�
   assert.deepEqual(files.sort(), [...PUBLIC_ASSETS, '.nojekyll'].sort());
   for (const file of ['index.html', 'off-diagnostics.html']) {
     const html = await readFile(join(directory, file), 'utf8');
-    assert.match(html, /benger-storage-namespace" content="preview-etap-3/);
+    assert.match(html, /benger-storage-namespace" content="preview-etap-4/);
     assert.ok(html.includes(`name="benger-build" content="${revision}"`));
     assert.ok(html.includes('Oddzielne dane lokalne'));
   }

@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, etap-3-katalog-produktow]
+    branches: [main, etap-3-katalog-produktow, etap-4-voice-first]
 
 permissions:
   contents: read
@@ -20,10 +20,15 @@ jobs:
           node-version: '22'
           package-manager-cache: false
       - name: Testy obliczeń
-        run: npm test
+        shell: bash
+        run: npm test 2>&1 | tee "$RUNNER_TEMP/benger-node-tests.log"
       - name: Testy w Chrome
+        shell: bash
         env:
           CHROMIUM_PATH: /usr/bin/google-chrome
         run: |
           "$CHROMIUM_PATH" --version
-          npm run test:browser
+          npm run test:browser 2>&1 | tee "$RUNNER_TEMP/benger-browser-tests.log"
+      - name: Raport testów
+        if: always()
+        run: node scripts/ci-test-report.mjs "$RUNNER_TEMP/benger-node-tests.log" "$RUNNER_TEMP/benger-browser-tests.log"

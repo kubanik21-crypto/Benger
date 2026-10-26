@@ -1,8 +1,8 @@
-name: Stage 3 preview
+name: Stage 4 preview
 
 on:
   push:
-    branches: [etap-3-katalog-produktow]
+    branches: [etap-4-voice-first]
   workflow_dispatch:
 
 permissions:
@@ -10,12 +10,12 @@ permissions:
   pages: write
 
 concurrency:
-  group: benger-stage-3-preview
+  group: benger-stage-4-preview
   cancel-in-progress: false
 
 jobs:
   preview:
-    if: github.repository == 'kubanik21-crypto/Benger' && github.ref == 'refs/heads/etap-3-katalog-produktow'
+    if: github.repository == 'kubanik21-crypto/Benger' && github.ref == 'refs/heads/etap-4-voice-first'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -27,15 +27,19 @@ jobs:
           node-version: '22'
           package-manager-cache: false
       - name: Tests
+        shell: bash
         run: |
-          npm test
-          CHROMIUM_PATH=/usr/bin/google-chrome npm run test:browser
+          npm test 2>&1 | tee "$RUNNER_TEMP/benger-node-tests.log"
+          CHROMIUM_PATH=/usr/bin/google-chrome npm run test:browser 2>&1 | tee "$RUNNER_TEMP/benger-browser-tests.log"
           git diff --check
+      - name: Raport testów
+        if: always()
+        run: node scripts/ci-test-report.mjs "$RUNNER_TEMP/benger-node-tests.log" "$RUNNER_TEMP/benger-browser-tests.log"
       - name: Prepare public artifact
         run: node scripts/prepare-preview.mjs /tmp/benger-preview "$GITHUB_SHA"
       - uses: actions/upload-artifact@v4
         with:
-          name: benger-stage-3-preview
+          name: benger-stage-4-preview
           path: /tmp/benger-preview/
           include-hidden-files: true
           retention-days: 7
@@ -58,5 +62,5 @@ jobs:
         run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
       - name: Preview link
         run: |
-          printf '%s\n' 'Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-3/' >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' 'Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-4/' >> "$GITHUB_STEP_SUMMARY"
           printf 'Source commit: %s\n' "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"

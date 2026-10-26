@@ -185,7 +185,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
         body: Buffer.from(body).toString('base64'),
       }, sessionId);
     }
-    async function page(url = base, { diagnostic = false } = {}) {
+    async function page(url = base, { diagnostic = false, initScript = '' } = {}) {
       const { targetId } = await command('Target.createTarget', { url: 'about:blank' });
       const { sessionId } = await command('Target.attachToTarget', { targetId, flatten: true });
       const send = (method, params) => command(method, params, sessionId);
@@ -215,6 +215,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
           stop() { this.onend?.(); }
         };
       ` });
+      if (initScript) await send('Page.addScriptToEvaluateOnNewDocument', { source: initScript });
       async function waitReady(previous) {
         for (let i = 0; i < 100; i++) {
           try {
@@ -249,7 +250,14 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       const visible = () => evaluate("[...document.querySelectorAll('#nutrition-entries article')].map(article => ({ id: article.dataset.entryId, text: article.textContent }))");
       const outputs = prefix => evaluate(`['kcal', 'protein', 'fat', 'carbs'].map(key => document.getElementById(${JSON.stringify(prefix)} + '-' + key).textContent)`);
       const remove = id => evaluate(`[...document.querySelectorAll('#nutrition-entries article')].find(article => article.dataset.entryId === ${JSON.stringify(id)}).querySelector('button').click()`);
-      const analyze = text => evaluate(`document.getElementById('meal-text').value = ${JSON.stringify(text)}; document.getElementById('meal-text').dispatchEvent(new Event('input')); document.getElementById('analyze-meal').click();`);
+      const analyze = async text => {
+        await evaluate(`document.getElementById('meal-text').value = ${JSON.stringify(text)}; document.getElementById('meal-text').dispatchEvent(new Event('input')); document.getElementById('analyze-meal').click();`);
+        for (let attempt = 0; attempt < 300; attempt++) {
+          if (await evaluate("document.getElementById('meal-text-form').dataset.analysisState !== 'processing'")) return;
+          await pause(50);
+        }
+        throw new Error('Analiza posiłku nie zakończyła się w limicie.');
+      };
       const accept = () => evaluate("document.getElementById('save-meal-proposal').click()");
       await send('Page.navigate', { url });
       await waitReady(null);
