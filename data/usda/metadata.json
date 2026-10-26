@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "builtAt": "2026-10-26T11:01:53.860Z",
+  "builtAt": "2026-10-26T11:04:25.745Z",
   "license": "USDA public domain / CC0",
   "sources": [
     {
@@ -52,7 +52,7 @@
       "url": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_survey_food_csv_2022-10-28.zip",
       "sha256": "e9a10d13a975bf45087f70306fc6ce1077fe538599843f028329a8b11c37b958",
       "records": 5624,
-      "accepted": 0,
+      "accepted": 5624,
       "diagnostics": {
         "nutrientIds": [
           "221",
@@ -137,8 +137,8 @@
     }
   ],
   "input": 77392,
-  "accepted": 8103,
-  "count": 8103,
-  "chunks": 64,
-  "bytes": 4102199
+  "accepted": 13727,
+  "count": 13727,
+  "chunks": 108,
+  "bytes": 6611081
 }
