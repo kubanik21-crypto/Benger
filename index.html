@@ -31,10 +31,6 @@
       </div>
     </div>
     <p id="nutrition-storage-message" class="field-error storage-error" role="alert"></p>
-    <p id="connection-status" class="field-help" role="status"></p>
-    <p id="pwa-status" class="fine" role="status">Przygotowujemy tryb offline…</p>
-    <button id="install-app" class="button-secondary" type="button" hidden>Zainstaluj Benger</button>
-    <button id="update-app" class="button-secondary" type="button" hidden>Aktualizuj aplikację</button>
     <section id="voice-entry" class="panel text-meal" aria-labelledby="text-meal-title">
       <div class="voice-layout">
       <div class="voice-input">
@@ -195,7 +191,11 @@
     </aside>
     <footer>Wpisy są zapisane tylko w tej przeglądarce i pod tym adresem strony. Wyczyszczenie jej danych usunie dziennik. Eksport powyżej obejmuje wyłącznie notatki tekstowe.</footer>
   </main>
-  <section class="panel" aria-labelledby="backup-title"><h2 id="backup-title">Dane i kopia zapasowa</h2>
+  <section class="panel" aria-labelledby="backup-title"><h2 id="backup-title">Dane i kopia zapasowa</h2>    <p id="connection-status" class="field-help" role="status"></p>
+    <p id="pwa-status" class="fine" role="status">Przygotowujemy tryb offline…</p>
+    <button id="install-app" class="button-secondary" type="button" hidden>Zainstaluj Benger</button>
+    <button id="update-app" class="button-secondary" type="button" hidden>Aktualizuj aplikację</button>
+
     <p>Dane są zapisane na tym urządzeniu. Backup pozwala przenieść dziennik, własne produkty, ulubione i skróty.</p>
     <button id="backup-export" type="button" class="button-secondary">Eksportuj backup JSON</button>
     <label for="backup-file">Wybierz backup (maks. 10 MiB)</label><input id="backup-file" type="file" accept=".json,application/json">
@@ -204,7 +204,7 @@
     <button id="backup-import" type="button" class="button-secondary" disabled>Potwierdź i importuj</button>
     <p id="backup-status" role="status"></p>
   </section>
-  <section class="panel"><h2>Źródła danych</h2><p>Żywność ogólna: <a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a> — public domain / CC0. Produkty markowe: <a href="https://world.openfoodfacts.org/">Open Food Facts</a> — ODbL, zdjęcia CC BY-SA. Własne produkty pozostają lokalnie. Katalog demonstracyjny Bengera jest oznaczony jako przykład.</p></section>
+  <section class="panel"><h2>Źródła danych</h2><p>Żywność ogólna: <a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a> — public domain / CC0. Produkty markowe: <a href="https://world.openfoodfacts.org/">Open Food Facts</a> — ODbL, zdjęcia CC BY-SA. Własne produkty pozostają lokalnie. Katalog demonstracyjny Bengera jest oznaczony jako przykład.</p><details><summary>Licencje skanera</summary><a href="./vendor/zxing/LICENSE-browser.txt">ZXing Browser — MIT</a> · <a href="./vendor/zxing/LICENSE-library.txt">ZXing Library — Apache-2.0</a> · <a href="./vendor/zxing/LICENSE-ts-custom-error.txt">ts-custom-error — MIT</a></details></section>
   <dialog id="scanner-dialog" aria-labelledby="scanner-title">
     <h2 id="scanner-title">Skanuj kod produktu</h2>
     <p>Używamy aparatu tylko do odczytu kodu. Nie zapisujemy ani nie wysyłamy wideo.</p>

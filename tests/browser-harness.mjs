@@ -19,7 +19,7 @@ export async function startStaticHost(prefix, previewBuild = false) {
   try {
     if (previewBuild) await preparePreview(directory, 'a'.repeat(40));
     else for (const name of STATIC_ASSETS) { await mkdir(dirname(join(directory, name)), { recursive: true }); await copyFile(new URL(name, ROOT_URL), join(directory, name)); }
-    const types = { js: 'text/javascript', css: 'text/css', html: 'text/html', json: 'application/json', png: 'image/png', webmanifest: 'application/manifest+json' };
+    const types = { js: 'text/javascript', css: 'text/css', html: 'text/html', txt: 'text/plain', json: 'application/json', png: 'image/png', webmanifest: 'application/manifest+json' };
     server = createHttpServer(async (request, response) => {
       const pathname = new URL(request.url, 'http://localhost').pathname;
       if (prefix !== '/' && pathname === prefix.slice(0, -1)) {
@@ -36,6 +36,7 @@ export async function startStaticHost(prefix, previewBuild = false) {
     });
     await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
     return {
+      directory,
       base: `http://127.0.0.1:${server.address().port}${prefix}`,
       close: async () => {
         await new Promise(resolve => server.close(resolve));
@@ -263,6 +264,6 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       await waitReady(null);
       return { send, evaluate, reload, navigate, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
     }
-    return { base, page, errors, requests, responses, failures, off, close, serverErrors: () => serverErrors };
+    return { staticDirectory:staticSite?.directory, base, page, errors, requests, responses, failures, off, close, serverErrors: () => serverErrors };
   } catch (error) { await close(); throw error; }
 }

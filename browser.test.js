@@ -728,6 +728,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     await waitFor(a, "document.querySelectorAll('#favorite-products [data-product-id]').length === 1");
   });
   await t.test('offline: wyszukiwanie lokalne, ostatnie, ulubione, barcode i zapis bez sieci', async () => {
+    await a.evaluate('navigator.serviceWorker.ready');await waitFor(a,'Boolean(navigator.serviceWorker.controller)');
     await a.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
     const before = apiRequests().length;
     await waitFor(a, 'navigator.onLine === false');
@@ -777,7 +778,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /Jogurt/);
     assert.ok(apiRequests().some(request => new URL(request.url).pathname === '/api/v3.6/product/5901234123464'));
     browser.off.mode = 'empty'; await advance(); await barcode('4006381333931');
-    assert.equal(await resultCount(), 0); assert.match(await message(), /Brak wyników/);
+    assert.equal(await resultCount(), 0); assert.match(await message(), /Nie znaleźliśmy tego produktu/);
     const before = apiRequests().length; await barcode('123'); assert.match(await message(), /prawidłowy kod/); assert.equal(apiRequests().length, before);
   });
   await t.test('XSS z API jest tekstem, nie kodem; snapshot nie zmienia się po aktualizacji OFF', async () => {

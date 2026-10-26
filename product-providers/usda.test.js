@@ -10,3 +10,13 @@ export function diskProvider(){return createUsdaProvider({fetchImpl:async url=>(
 test('Polish queries, brand does not become generic, bounded chunk memory',async()=>{const p=diskProvider();for(const query of ['banan','ryż','pierś z kurczaka','ziemniaki','płatki owsiane'])assert.ok((await p.search(query)).length,query);assert.deepEqual(await p.search('Pilos skyr waniliowy'),[]);assert.ok(p.stats().loadedChunks<=8);assert.ok(genericQueryTokens('pierś z kurczaka').includes('chicken'));});
 test('constructor is a token, never object prototype; duplicate IDs collapse',()=>{const p={...normalizeUsdaProduct(food),name:'constructor __proto__'};const built=buildCatalog([p,p]);assert.equal(built.metadata.count,1);assert.ok(Object.hasOwn(built.files['index.json'].tokens,'constructor'));});
 test('fixture build never uses network and records version',async()=>{const dir=await mkdtemp(join(tmpdir(),'benger-usda-test-'));try{const fixture=join(dir,'fixture.json');await (await import('node:fs/promises')).writeFile(fixture,JSON.stringify({foods:[food]}));execFileSync(process.execPath,['scripts/build-generic-food-catalog.mjs','--fixture',fixture,'--output',join(dir,'out')]);const meta=JSON.parse(await readFile(join(dir,'out/metadata.json'),'utf8'));assert.equal(meta.count,1);assert.equal(meta.sources[0].type,'fixture');}finally{await rm(dir,{recursive:true,force:true});}});
+test('plain generic ranking does not confuse strawberry with raw or prefer human milk',async()=>{const p=diskProvider();const milk=(await p.search('mleko'))[0];assert.match(milk.name,/^milk[, ]/i);assert.doesNotMatch(milk.name,/human|strawberry|infant/i);assert.match((await p.search('ryż'))[0].name,/^rice[, ]/i);});
+test('all three official sources have complete nutrition and preserved survey categories',async()=>{
+ const count={};
+ for(const file of(await readdir(new URL('../data/usda/',import.meta.url))).filter(f=>f.startsWith('chunk-'))){
+  const products=JSON.parse(await readFile(new URL('../data/usda/'+file,import.meta.url),'utf8'));
+  for(const p of products){count[p.dataType]=(count[p.dataType]??0)+1;assert.equal(p.unit,'g');assert.ok(Number.isFinite(p.per100.kcal));if(p.dataType==='survey_fndds_food')assert.notEqual(p.category,'Unknown');}
+ }
+ assert.deepEqual(count,{foundation_food:310,sr_legacy_food:7793,survey_fndds_food:5624});
+});
+test('untrusted category and datatype cannot introduce objects into product contract',()=>{const f=structuredClone(food);f.foodCategory={description:{unsafe:true}};f.dataType={unsafe:true};const p=normalizeUsdaProduct(f);assert.equal(p.category,'Unknown');assert.equal(p.dataType,'Unknown');});

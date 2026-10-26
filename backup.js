@@ -1,6 +1,7 @@
+import { normalizeCustomProduct } from './product-providers/custom.js';
 import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js';
 import { NUTRITION_STORAGE_KEY } from './app-storage.js';
-import { copyProduct, isProduct, normalizeText } from './product-model.js';
+import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js';
 import { normalizeFoodQuery } from './food-query.js';
 import { getLocalProducts } from './product-providers/local.js';
 const JOURNAL='backup-import-journal-v1';
@@ -23,7 +24,9 @@ export function validateBackup(value){
  const diary=list(data.diary,20000).map(row=>{try{if(!validDiaryEntry(row))fail();}catch{fail('Nieprawidłowy wpis dziennika.');}return {id:row.id,date:row.date,createdAt:row.createdAt,meal:row.meal,productId:row.productId,productName:row.productName,amount:row.amount,unit:row.unit,nutrition:{...row.nutrition},...Object.fromEntries(['brand','source','sourceId','barcode'].filter(key=>row[key]!==undefined).map(key=>[key,row[key]]))};});
  if(new Set(diary.map(row=>row.id)).size!==diary.length)fail('Powtórzone ID wpisów.');
  const products=list(data.products,5000).map(p=>{if(!['openfoodfacts','usda'].includes(p?.source)||!isProduct(p))fail('Nieprawidłowy produkt w backupie.');return copyProduct(p);});
- const customProducts=list(data.customProducts,2000).map(p=>{if(p?.source!=='custom'||!isProduct(p)||p.id!==`custom:${p.sourceId}`)fail('Nieprawidłowy własny produkt.');return copyProduct(p);});
+ const customProducts=list(data.customProducts,2000).map(p=>{if(p?.source!=='custom'||!isProduct(p)||p.id!==`custom:${p.sourceId}`)fail('Nieprawidłowy własny produkt.');normalizeCustomProduct(p,p);return copyProduct(p);});
+ if(new Set(customProducts.map(p=>p.id)).size!==customProducts.length || new Set(products.map(p=>p.id)).size!==products.length)fail('Powtórzone ID produktów.');
+ const barcodes=customProducts.filter(p=>p.barcode).map(p=>barcodeKey(p.barcode));if(new Set(barcodes).size!==barcodes.length)fail('Powtórzone kody własnych produktów.');
  const all=[...products,...customProducts,...getLocalProducts()],ids=new Set(all.map(p=>p.id));
  const favorites=list(data.favorites,5000).map(id=>{if(!ids.has(id))fail('Nieznany ulubiony produkt.');return id;});
  const recent=list(data.recent??[],20).map(id=>{if(!ids.has(id))fail('Nieznany ostatni produkt.');return id;});
@@ -44,8 +47,9 @@ export async function exportBackup({storage=createProductStorage(),local=globalT
 export async function recoverPendingImport({storage=createProductStorage(),local=globalThis.localStorage,close=true}={}){
  try{const journal=await storage.read('meta',JOURNAL);if(!journal)return false;
   // If localStorage becomes unavailable, retain journal and refuse to show a partial import.
-  if(journal.diary===null)local.removeItem(NUTRITION_STORAGE_KEY);else local.setItem(NUTRITION_STORAGE_KEY,journal.diary);
-  await storage.replace(journal.snapshot);return true;
+  let localError;try{if(journal.diary===null)local.removeItem(NUTRITION_STORAGE_KEY);else local.setItem(NUTRITION_STORAGE_KEY,journal.diary);}catch(error){localError=error;}
+  const restored=structuredClone(journal.snapshot);if(localError)restored.meta.push(journal);
+  await storage.replace(restored);if(localError)throw localError;return true;
  }finally{if(close)await storage.close();}
 }
 const keyed=(rows,key)=>new Map(rows.map(row=>[key(row),row]));

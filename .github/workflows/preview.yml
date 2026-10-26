@@ -11,7 +11,7 @@ permissions:
 
 concurrency:
   group: benger-stage-6-preview
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   preview:

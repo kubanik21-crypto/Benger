@@ -65,3 +65,4 @@ test('nie zakłada gęstości 1 g/ml przy walidacji wartości na 100 ml', () => 
   assert.equal(calculatePortion(liquid, 200).carbs, 220);
   assert.equal(isProduct({ ...liquid, unit: 'g' }), false);
 });
+test('unreasonable per100ml values are rejected without enforcing density1',()=>{const p={...getLocalProducts()[3],per100:{kcal:1e7,protein:0,fat:0,carbs:0}};assert.equal(isProduct(p),false);});

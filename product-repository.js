@@ -12,11 +12,14 @@ export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minut
 
 export function createProductRepository({ local = createLocalProvider(), generic = createUsdaProvider(), custom = createCustomProvider(), remote = createOpenFoodFactsProvider(), searchProvider = defaultSearchProvider(), cache = createProductCache(), isOnline = () => globalThis.navigator?.onLine !== false } = {}) {
   const inFlight = new Map();
-  const fromCache = async id => await custom.getById(id) ?? local.getById(id) ?? (await cache.getProduct(id))?.product ?? (id.startsWith('usda:') ? await generic.getById(id).catch(()=>null) : null);
+  const fromCache = async id => {
+    if(id.startsWith('usda:'))return await generic.getById(id).catch(()=>null) ?? (await cache.getProduct(id))?.product ?? null;
+    return await custom.getById(id) ?? local.getById(id) ?? (await cache.getProduct(id))?.product ?? null;
+  };
   const localMatches = async query => {
     const [own, starred, used, cached, usda] = await Promise.all([custom.list(), productsFor(await cache.favoriteIds()), productsFor(await cache.recentIds()), cache.allProducts(), generic.search(query).catch(()=>[])]);
     const alias = await cache.resolveAlias(query);
-    return deduplicateProducts([...(alias ? await productsFor([alias]) : []), ...searchProducts([...own,...starred,...used,...cached,...local.list()],query), ...usda]).slice(0,20);
+    return deduplicateProducts([...(alias ? await productsFor([alias]) : []), ...searchProducts([...own,...starred,...used,...cached.map(p=>usda.find(fresh=>fresh.id===p.id)??p),...local.list()],query), ...usda]).slice(0,20);
   };
   const merge = products => deduplicateProducts(products).slice(0, 20);
   async function request(key, kind, operation) {

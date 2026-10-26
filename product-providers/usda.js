@@ -29,19 +29,19 @@ export function normalizeUsdaProduct(food){
  }
  const per100={kcal:values.get(1008)??values.get(2048)??values.get(2047),protein:values.get(1003),fat:values.get(1004),carbs:values.get(1005)};
  const product={id:`usda:${food.fdcId}`,source:'usda',sourceId:String(food.fdcId),barcode:null,name:food.description.trim().slice(0,240),brand:null,unit:'g',basis:'declared',estimated:false,nutritionCompleteness:'COMPLETE',per100,imageUrl:null,quantity:null,updatedAt:null,
-  description:food.description.trim().slice(0,240),category:typeof food.foodCategory==='string'?food.foodCategory:food.foodCategory?.description??'Unknown',dataType:food.dataType??'Unknown'};
+  description:food.description.trim().slice(0,240),category:typeof food.foodCategory==='string'?food.foodCategory.slice(0,240):typeof food.foodCategory?.description==='string'?food.foodCategory.description.slice(0,240):'Unknown',dataType:typeof food.dataType==='string'?food.dataType.slice(0,240):'Unknown'};
  return isProduct(product)?product:null;
 }
 export function buildCatalog(input){
  const products=[...new Map(input.filter(isProduct).map(p=>[p.id,p])).values()].sort((a,b)=>a.sourceId.localeCompare(b.sourceId));
- const files={},tokens=Object.create(null),prefixes=Object.create(null),byId=Object.create(null),rank=Object.create(null),size=128;
+ const files={},tokens=Object.create(null),prefixes=Object.create(null),byId=Object.create(null),heads=Object.create(null),rank=Object.create(null),size=128;
  for(let i=0;i<products.length;i+=size){const name=`chunk-${String(i/size).padStart(4,'0')}.json`,chunk=products.slice(i,i+size);files[name]=chunk;
-  for(const p of chunk){byId[p.id]=name;rank[p.id]=p.name.length + (/with|pudding|sandwich|salad|babyfood|soup|dessert/i.test(p.name)?150:0) - (/raw|uncooked/i.test(p.name)?30:0);
+  for(const p of chunk){byId[p.id]=name;heads[p.id]=stem(terms(p.name)[0]??'');rank[p.id]=p.name.length - (p.name.includes(',')&&terms(p.name.split(',')[0]).length===1?50:0) + (/\b(?:with|pudding|sandwich|salad|babyfood|soup|dessert|human|infant|fried)\b/i.test(p.name)?150:0) + (/\b(?:milk|cake|paper|noodle|flour|bran|spread|snack|bar)\b/i.test(p.name)?45:0) - (/\b(?:raw|uncooked)\b/i.test(p.name)?20:0);
    for(const token of new Set(terms(p.name).map(stem))){(tokens[token]??=[]).push(p.id);}
   }
  }
  for(const [token,ids]of Object.entries(tokens)){ids.sort((a,b)=>rank[a]-rank[b]);const prefix=token.slice(0,3);(prefixes[prefix]??=[]).push(token);}
- files['index.json']={version:1,tokens,prefixes,byId,rank};
+ files['index.json']={version:1,tokens,prefixes,byId,heads,rank};
  return {files,metadata:{count:products.length,chunks:Math.ceil(products.length/size),bytes:Object.values(files).reduce((n,v)=>n+Buffer.byteLength(JSON.stringify(v)),0)}};
 }
 
@@ -49,17 +49,18 @@ export function createUsdaProvider({base=new URL('../data/usda/',import.meta.url
  let pendingIndex;const loaded=new Map();
  async function json(file){const response=await fetchImpl(new URL(file,base));if(!response.ok)throw new Error('Katalog USDA chwilowo niedostępny.');return response.json();}
  async function index(){if(!pendingIndex)pendingIndex=json('index.json').catch(error=>{pendingIndex=null;throw error;});return pendingIndex;}
- async function chunk(file){if(!/^chunk-\d{4}\.json$/.test(file))return[];if(loaded.has(file))return loaded.get(file);const data=(await json(file)).filter(p=>isProduct(p)&&p.source==='usda');loaded.set(file,data);if(loaded.size>8)loaded.delete(loaded.keys().next().value);return data;}
+ async function chunk(file){if(!/^chunk-\d{4}\.json$/.test(file))return[];if(loaded.has(file)){const data=loaded.get(file);loaded.delete(file);loaded.set(file,data);return data;}const data=(await json(file)).filter(p=>isProduct(p)&&p.source==='usda');loaded.set(file,data);if(loaded.size>8)loaded.delete(loaded.keys().next().value);return data;}
  return {
   async getById(id){if(!/^usda:\d+$/.test(id))return null;const idx=await index(),file=idx.byId[id];return file?(await chunk(file)).find(p=>p.id===id)??null:null;},
   async search(query){const words=genericQueryTokens(query);if(!words.length)return[];const idx=await index();
    const groups=words.map(word=>Object.hasOwn(idx.tokens,word)?idx.tokens[word]:(idx.prefixes[word.slice(0,3)]??[]).filter(token=>word.length>=3&&token.startsWith(word)).flatMap(token=>idx.tokens[token]));
    if(groups.some(group=>!group.length))return[];
    const sets=groups.map(group=>new Set(group));
-   const ids=[...new Set(groups[0])].filter(id=>sets.every(group=>group.has(id))).sort((a,b)=>idx.rank[a]-idx.rank[b]);
+   const score=id=>idx.rank[id]+(words.includes(idx.heads[id])?0:80);
+   const ids=[...new Set(groups[0])].filter(id=>sets.every(group=>group.has(id))).sort((a,b)=>score(a)-score(b));
    const candidates=[...new Set(ids.map(id=>idx.byId[id]))].slice(0,6),accepted=new Set(ids);
    const products=(await Promise.all(candidates.map(chunk))).flat().filter(p=>accepted.has(p.id) && !(words.length===1&&words[0]==='water'&&!/^water(?:,|$)/i.test(p.name)));
-   return products.sort((a,b)=>idx.rank[a.id]-idx.rank[b.id]).slice(0,20).map(copyProduct);
+   return products.sort((a,b)=>score(a.id)-score(b.id)).slice(0,20).map(copyProduct);
   },
   stats:()=>({loadedChunks:loaded.size}),
  };

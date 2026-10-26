@@ -2,11 +2,11 @@ import { normalizeScannedBarcode } from './barcode-utils.js';
 export const SCANNER_FORMATS=['ean_13','ean_8','upc_a','upc_e'];
 const zxingFormats={6:'ean_8',7:'ean_13',14:'upc_a',15:'upc_e'};
 export async function loadZxing(){await import('./vendor/zxing/zxing-browser-0.2.1.min.js');return globalThis.ZXingBrowser;}
-export function createBarcodeScanner({video,onCode,onError=()=>{},onMode=()=>{},media=globalThis.navigator?.mediaDevices,Detector=globalThis.BarcodeDetector,loadFallback=loadZxing,schedule=callback=>setTimeout(callback,120),cancel=clearTimeout}={}){
- let generation=0,stream=null,controls=null,timer=null;
- function stop(){generation++;if(timer!==null)cancel(timer);timer=null;try{controls?.stop();}catch{/* Still stop every camera track. */}controls=null;stream?.getTracks().forEach(track=>track.stop());stream=null;video.srcObject=null;}
- const fail=(error,version)=>{if(version!==generation)return;stop();onError(error?.name==='NotAllowedError'?'Nie udzielono dostępu do aparatu. Możesz wpisać kod ręcznie.':error?.name==='NotFoundError'?'Nie znaleziono aparatu. Wpisz kod ręcznie.':error?.name==='NotReadableError'?'Aparat jest zajęty. Zamknij inne aplikacje lub wpisz kod ręcznie.':'Nie udało się uruchomić skanera. Wpisz kod ręcznie.');};
- async function start(){stop();const version=generation;
+export function createBarcodeScanner({video,onCode,onError=()=>{},onMode=()=>{},media=globalThis.navigator?.mediaDevices,Detector=globalThis.BarcodeDetector,loadFallback=loadZxing,schedule=callback=>setTimeout(callback,120),cancel=clearTimeout,timeoutMs=45000}={}){
+ let generation=0,stream=null,controls=null,timer=null,deadline=null;
+ function stop(){generation++;clearTimeout(deadline);deadline=null;if(timer!==null)cancel(timer);timer=null;try{controls?.stop();}catch{/* Still stop every camera track. */}controls=null;stream?.getTracks().forEach(track=>track.stop());stream=null;video.srcObject=null;}
+ const fail=(error,version)=>{if(version!==generation)return;stop();onError(error?.name==='TimeoutError'?'Nie odczytano kodu. Spróbuj ponownie lub wpisz go ręcznie.':error?.name==='NotAllowedError'?'Nie udzielono dostępu do aparatu. Możesz wpisać kod ręcznie.':error?.name==='NotFoundError'?'Nie znaleziono aparatu. Wpisz kod ręcznie.':error?.name==='NotReadableError'?'Aparat jest zajęty. Zamknij inne aplikacje lub wpisz kod ręcznie.':'Nie udało się uruchomić skanera. Wpisz kod ręcznie.');};
+ async function start(){stop();const version=generation;deadline=setTimeout(()=>fail({name:'TimeoutError'},version),timeoutMs);
   try{
    if(!media?.getUserMedia)throw new Error('Camera unavailable');
    const formats=typeof Detector?.getSupportedFormats==='function'?await Detector.getSupportedFormats().catch(()=>[]):[];

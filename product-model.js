@@ -38,11 +38,12 @@ export function isProduct(product) {
     && (product.estimated === undefined || typeof product.estimated === 'boolean')
     && product.per100 !== null && typeof product.per100 === 'object'
     && NUTRIENTS.every(key => typeof product.per100[key] === 'number' && Number.isFinite(product.per100[key])
-      && product.per100[key] >= 0 && (product.unit === 'ml' || product.per100[key] <= (key === 'kcal' ? 1000 : 100)))
+      && product.per100[key] >= 0 && product.per100[key] <= (product.unit === 'ml' ? (key === 'kcal' ? 10000 : 1000) : (key === 'kcal' ? 1000 : 100)))
     // Limit masy dotyczy 100 g; bez gęstości nie wolno narzucać go 100 ml.
     && (product.unit === 'ml' || product.per100.protein + product.per100.fat + product.per100.carbs <= 101)
     && (product.imageUrl === null || safeImageUrl(product.imageUrl) === product.imageUrl)
     && (product.quantity === null || (typeof product.quantity === 'string' && product.quantity.length <= 120))
+    && (product.source !== 'usda' || ['description','category','dataType'].every(key=>product[key]===undefined || typeof product[key]==='string' && product[key].length<=240))
     && (product.updatedAt === null || (typeof product.updatedAt === 'string' && Number.isFinite(Date.parse(product.updatedAt))));
 }
 

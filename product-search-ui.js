@@ -131,7 +131,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
     renderList('favorite-products', favorites, 'Gwiazdka zapisuje produkt w ulubionych.');
     renderList('basic-products', repository.localProducts(), '');
     renderSelected();
-    $('catalog-storage-message').textContent = repository.persistent() ? '' : 'Pamięć produktów jest niedostępna. Cache, ostatnie i ulubione działają tylko do zamknięcia tej karty. Dziennik korzysta z oddzielnej pamięci.';
+    $('catalog-storage-message').textContent = repository.persistent() ? '' : 'Pamięć produktów jest niedostępna. Katalog, własne produkty, skróty, ostatnie i ulubione działają tylko do zamknięcia tej karty. Dziennik korzysta z oddzielnej pamięci.';
   }
   async function refresh() {
     const version = ++refreshRevision;
@@ -168,7 +168,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
       }
       renderList('search-results', results, 'Brak pasujących produktów z kompletem wartości odżywczych. Spróbuj innej nazwy lub kodu.');
       $('catalog-message').textContent = byBarcode && !result.product && result.status==='offline' ? 'Kod odczytany, ale do pobrania produktu potrzebne jest połączenie.' : result.error ? productErrorMessage(result.error)
-        : results.length ? `Znalezione produkty: ${results.length}.${result.status === 'cached' ? ' Wyniki z pamięci.' : ''} Wybierz produkt i sprawdź porcję.`
+        : byBarcode && !result.product ? 'Nie znaleźliśmy tego produktu. Możesz dodać własny produkt z tym kodem.' : results.length ? `Znalezione produkty: ${results.length}.${result.status === 'cached' ? ' Wyniki z pamięci.' : ''} Wybierz produkt i sprawdź porcję.`
           : 'Brak wyników. Spróbuj innej nazwy lub kodu.';
     } catch (error) {
       if (version === revision) { results = []; renderList('search-results', [], 'Zmień zapytanie i spróbuj ponownie.'); $('catalog-message').textContent = productErrorMessage(error); }
@@ -186,8 +186,8 @@ export function initProductSearch({ onSelect, repository = createProductReposito
     $('product-catalog').scrollIntoView({behavior:'smooth',block:'start'});
   },onError:message=>{$('scanner-status').textContent=message;}});
   $('scan-barcode').onclick=()=>{$('scanner-status').textContent='Umieść kod w ramce.';$('scanner-dialog').showModal();void scanner.start();};
-  $('cancel-scanner').onclick=()=>$('scanner-dialog').close();
-  $('scanner-dialog').addEventListener('close',()=>scanner.stop());
+  $('cancel-scanner').onclick=()=>{scanner.stop();$('scanner-dialog').close();};
+  $('scanner-dialog').addEventListener('close',()=>{if(!$('scanner-dialog').open)scanner.stop();});
   $('scanner-dialog').addEventListener('cancel',()=>scanner.stop());
   window.addEventListener('pagehide',()=>scanner.stop());
   document.addEventListener('visibilitychange',()=>{if(document.hidden){scanner.stop();if($('scanner-dialog').open)$('scanner-dialog').close();}});
