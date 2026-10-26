@@ -1,6 +1,6 @@
-import { copyProduct, isProduct, normalizeText } from './product-model.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { PRODUCT_DB_NAME } from './app-storage.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { normalizeFoodQuery } from './food-query.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
+import { copyProduct, isProduct, normalizeText } from './product-model.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { PRODUCT_DB_NAME } from './app-storage.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { normalizeFoodQuery } from './food-query.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
 
 export const PRODUCT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const SEARCH_TTL_MS = 15 * 60 * 1000;
@@ -242,7 +242,7 @@ export function createProductCache({ storage = createProductStorage(), now = () 
         return { key, choices: choices.slice(0, 5) };
       });
       await ensureProducts([product]);
-      const records = (await storage.read('selections')).filter(validSelection).sort((a, b) =>
+      const records = (await storage.read('selections')).filter(validSelection).filter(record=>!record.key.startsWith('alias ')).sort((a, b) =>
         Math.max(...b.choices.map(choice => choice.lastUsedAt)) - Math.max(...a.choices.map(choice => choice.lastUsedAt)));
       for (const record of records.slice(200)) await storage.mutate('selections', record.key, () => null);
       await prune();

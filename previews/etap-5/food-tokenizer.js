@@ -1,4 +1,4 @@
-import { canonicalWord, FOOD_HEADS } from './food-language.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
+import { canonicalWord, FOOD_HEADS } from './food-language.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
 const units=new Set(['g','ml','piece','slice','tablespoon','teaspoon']);
 export function tokenizeFood(text){
  return [...text.matchAll(/[-+]?\d[\d.,]*%?|[a-z]+(?:-[a-z]+)*|[^\s]/g)].map(match=>{

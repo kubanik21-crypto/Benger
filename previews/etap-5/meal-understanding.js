@@ -1,10 +1,10 @@
-import { canonicalWord } from './food-language.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { normalizeTranscript } from './transcript-normalizer.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { segmentFoodText } from './food-segmentation.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { tokenizeFood } from './food-tokenizer.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { normalizeText } from './product-model.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { normalizeFoodQuery } from './food-query.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { replaceSpokenNumbers } from './polish-numbers.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
+import { canonicalWord } from './food-language.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { normalizeTranscript } from './transcript-normalizer.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { segmentFoodText } from './food-segmentation.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { tokenizeFood } from './food-tokenizer.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { normalizeText } from './product-model.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { normalizeFoodQuery } from './food-query.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { readPolishNumber } from './polish-numbers.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
 
 export const MEAL_LABELS = { breakfast: 'Śniadanie', lunch: 'Obiad', dinner: 'Kolacja', snack: 'Przekąska' };
 const meals = { sniadanie: 'breakfast', sniadania: 'breakfast', obiad: 'lunch', obiadu: 'lunch', kolacja: 'dinner', kolacje: 'dinner', kolacji: 'dinner', przekaska: 'snack', przekaske: 'snack', przekaski: 'snack' };
@@ -32,7 +32,9 @@ function readFoodIntent(source, index, meal) {
   const issues = [];
   const quantities = [...source.matchAll(quantityPattern())];
   let amount = null, unit = null;
-  const amountApproximate = approximation.test(source); approximation.lastIndex = 0;
+  const hedgedNumber = source.match(/\bchyba z ([a-z ]+)$/);
+  const hedgedAmount = hedgedNumber ? readPolishNumber(hedgedNumber[1]) : null;
+  const amountApproximate = hedgedAmount !== null || approximation.test(source); approximation.lastIndex = 0;
   let rest = source.replace(approximation, ' ').replace(helpers, ' ');
   if (quantities.length === 1) {
     const quantity = quantities[0];
@@ -43,6 +45,10 @@ function readFoodIntent(source, index, meal) {
   } else if (quantities.length > 1) issues.push({ code: 'ambiguous-amount', message: 'Oddziel produkty słowem „i” lub przecinkiem; podaj jedną ilość dla pozycji.' });
   else {
     // Sama liczba przy nazwie nie daje prawa do zgadywania jednostki. Procent zostaje nazwą.
+    if (hedgedAmount !== null && hedgedAmount > 0) {
+      amount = hedgedAmount;
+      rest = rest.replace(/\bz [a-z ]+$/, ' ');
+    }
     const bare = [...rest.matchAll(/(?<![\d.,+\-])([+\-]?[\d.,]+)(?![\d.,%])(?!\s*%)/g)];
     if (bare.length === 1 && /^\d+(?:[.,]\d+)?$/.test(bare[0][1])) {
       const value = Number(bare[0][1].replace(',', '.'));
@@ -54,7 +60,7 @@ function readFoodIntent(source, index, meal) {
   const query = productQuery(rest);
   if (!query || !/[a-z]/.test(query)) issues.push({ code: 'missing-product', message: 'Podaj nazwę produktu.' });
   if (query.length > 120) issues.push({ code: 'long-query', message: 'Skróć nazwę produktu do 120 znaków.' });
-  return { id: `food-${index + 1}`, raw: source, source, query, amount, unit, amountApproximate, meal, issues, structureConfidence: issues.length ? 'LOW' : amountApproximate ? 'MEDIUM' : 'HIGH', metadata: {} };
+  return { id: `food-${index + 1}`, raw: source, source, query, amount, unit, amountApproximate, meal, issues, structureConfidence: issues.some(issue => !['missing-unit', 'mass-required'].includes(issue.code)) ? 'LOW' : amountApproximate || !unit ? 'MEDIUM' : 'HIGH', metadata: {} };
 }
 
 // Rozumie tekst, ale nie wyszukuje produktów, nie oblicza makro i niczego nie zapisuje.

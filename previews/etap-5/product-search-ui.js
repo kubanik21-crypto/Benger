@@ -1,7 +1,7 @@
-import { copyProduct } from './product-model.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { createProductRepository } from './product-repository.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { productErrorMessage } from './product-errors.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
-import { createProductResolver } from './product-resolver.js?v=9f5774d7c3515887439c933b2257ad75b148f590';
+import { copyProduct } from './product-model.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { createProductRepository } from './product-repository.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { productErrorMessage } from './product-errors.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
+import { createProductResolver } from './product-resolver.js?v=21de21892b5f59d590db1e8d3963079036994ddd';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });

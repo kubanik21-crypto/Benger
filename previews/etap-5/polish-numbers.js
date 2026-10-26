@@ -21,6 +21,10 @@ function readNumber(words) {
   }
   return index === words.length && value<=2000 ? value : null;
 }
+export function readPolishNumber(text) {
+  const words = text.trim().split(/\s+/);
+  return words.length && words.every(word => Object.hasOwn(values, word) || ['i', 'przecinek'].includes(word)) ? readNumber(words) : null;
+}
 export function replaceSpokenNumbers(text) {
   const words = text.split(/(\s+)/);
   for (let i = 0; i < words.length; i++) {
