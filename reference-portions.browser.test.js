@@ -6,7 +6,7 @@ async function wait(p,expression){const end=Date.now()+20000;while(Date.now()<en
 const detail=p=>p.evaluate("document.querySelector('[data-portion-detail]').textContent");
 const click=(p,selector)=>p.evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
 test('REFERENCE — branded nutrition, visible estimate, explicit overrides, history and offline',{timeout:120000},async t=>{
- const b=await startBrowser({staticPrefix:'/Benger/previews/etap-7/',previewBuild:true,mockOFF:true});t.after(()=>b.close());const p=await b.page(b.base);await p.date('2026-10-26');
+ const b=await startBrowser({staticPrefix:'/Benger/previews/etap-8/',previewBuild:true,mockOFF:true});t.after(()=>b.close());const p=await b.page(b.base);await p.date('2026-10-26');
  await p.evaluate("(async()=>{const{createProductRepository}=await import('./product-repository.js');const r=createProductRepository();for(const[name,alias]of [['Masło orzechowe','moje masło orzechowe'],['Oliwa z oliwek','moja oliwa'],['Miód','mój miód'],['Domowy sos','mój sos']]){const product=await r.saveCustomProduct({name,brand:'Pilos',unit:'g',per100:{kcal:600,protein:20,fat:50,carbs:15}});await r.createAlias(alias,product.id);}await r.close();})()");
  await t.test('OFF product keeps OFF nutrition while only household mass comes from USDA reference',async()=>{
   b.off.products=[{...b.off.products[0],code:'3017620422003',product_name_pl:'Masło orzechowe Pilos',brands_tags_pl:['Pilos'],quantity:null,nutrition:{aggregated_set:{per:'100g',preparation:'as_sold',nutrients:{'energy-kcal':{value:600,unit:'kcal'},proteins:{value:20,unit:'g'},fat:{value:50,unit:'g'},carbohydrates:{value:15,unit:'g'}}}}}];

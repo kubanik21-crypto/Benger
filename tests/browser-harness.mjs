@@ -243,6 +243,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
         await evaluate(`document.getElementById('date').value = ${JSON.stringify(value)}; document.getElementById('date').dispatchEvent(new Event('change'));`);
       }
       async function choose(product, amount, meal = 'breakfast') {
+        await evaluate("(async()=>{const{navigate}=await import('./navigation.js');navigate('produkty')})()");
         await evaluate(`document.getElementById('search-internet').checked=false;document.getElementById('product-search').value=${JSON.stringify(TEST_PRODUCTS.find(p=>p.id===product)?.name??product)};document.getElementById('product-search-form').requestSubmit();`);
         for(let i=0;i<200;i++){if(await evaluate("document.getElementById('search-results').getAttribute('aria-busy')==='false'"))break;await pause(20);}
         await evaluate(`[...document.querySelectorAll('#search-results [data-product-id]')].find(button => button.dataset.productId === ${JSON.stringify(product)}).click(); document.getElementById('amount').value = ${JSON.stringify(amount)}; document.getElementById('amount').dispatchEvent(new Event('input')); document.getElementById('nutrition-meal').value = ${JSON.stringify(meal)};`);
@@ -255,6 +256,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       const outputs = prefix => evaluate(`['kcal', 'protein', 'fat', 'carbs'].map(key => document.getElementById(${JSON.stringify(prefix)} + '-' + key).textContent)`);
       const remove = id => evaluate(`[...document.querySelectorAll('#nutrition-entries article')].find(article => article.dataset.entryId === ${JSON.stringify(id)}).querySelector('button').click()`);
       const analyze = async text => {
+        await evaluate("(async()=>{const{navigate}=await import('./navigation.js');navigate('dziennik')})()");
         await evaluate(`document.getElementById('meal-text').value = ${JSON.stringify(text)}; document.getElementById('meal-text').dispatchEvent(new Event('input')); document.getElementById('analyze-meal').click();`);
         for (let attempt = 0; attempt < 300; attempt++) {
           if (await evaluate("document.getElementById('meal-text-form').dataset.analysisState !== 'processing'")) return;

@@ -1,3 +1,6 @@
+import { initNavigation, navigate } from './navigation.js';
+import { initRecipes } from './recipe-ui.js';
+import { renderDiaryHistory } from './diary-history.js';
 import { validPortionSnapshot, copyPortionSnapshot } from './portion-model.js';
 import { initPortionSettings } from './portion-settings-ui.js';
 import { recoverPendingImport } from './backup.js';
@@ -10,6 +13,7 @@ import { createProductRepository } from './product-repository.js';
 import { initProductSearch } from './product-search-ui.js';
 import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 
+initNavigation();
 await recoverPendingImport();
 
 const $ = id => document.getElementById(id);
@@ -50,7 +54,7 @@ function showError(error, focus = false) {
   if (error.fieldId) {
     $(error.fieldId).setAttribute('aria-invalid', 'true');
     $(`${error.fieldId}-error`).textContent = error.message;
-    if (focus) $(error.fieldId).focus();
+    if (focus) {navigate(['date','nutrition-meal'].includes(error.fieldId)?'dziennik':'produkty');$(error.fieldId).focus();}
   } else {
     $('calculator-message').textContent = error.message;
   }
@@ -213,6 +217,8 @@ function createNutritionArticle(entry) {
 }
 
 function renderNutritionEntries() {
+  renderDiaryHistory(nutritionStorageOK?nutritionEntries:[],date=>{dateInput.value=date;dateInput.dispatchEvent(new Event('change'));navigate('dziennik');});
+  if($('manual-date'))$('manual-date').textContent=`Dzień zapisu: ${dateInput.value}`;
   const box = $('nutrition-entries');
   box.replaceChildren();
   $('day-summary').hidden = true;
@@ -285,6 +291,7 @@ function addNutritionEntry(event) {
   if (!nutritionStorageOK) return;
   $('calculator-message').textContent = '';
   clearFieldError('date');
+  $('manual-meal').value=mealSelect.value;
   clearFieldError('nutrition-meal');
   try {
     const date = readDiaryDate();
@@ -319,7 +326,13 @@ function removeNutritionEntry(id) {
 const now = new Date();
 dateInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 populateSelect(mealSelect, Object.entries(MEAL_LABELS));
+populateSelect($('manual-meal'),Object.entries(MEAL_LABELS));
+$('manual-meal').onchange=()=>{mealSelect.value=$('manual-meal').value;mealSelect.dispatchEvent(new Event('change'));};
+$('recipe-add-selected').onclick=async()=>{try{const portion=readPortionInput();await recipesUI.addSelected(portion);$('recipe-selected-status').textContent='Dodano składnik do szkicu.';}catch(error){$('recipe-selected-status').textContent=error.message;}};
+$('scan-shortcut').onclick=()=>$('scan-barcode').click();
+window.addEventListener('benger:route',event=>{if(event.detail.route!=='produkty'&&$('scanner-dialog').open)$('cancel-scanner').click();});
 const productRepository = createProductRepository();
+const recipesUI=initRecipes({repository:productRepository});
 initPortionSettings(productRepository);
 const productSearch = initProductSearch({ repository: productRepository, onSelect(product) {
   selectedProduct = product;
@@ -329,6 +342,7 @@ voiceEntry = initVoiceEntry({ repository: productRepository, readDate: readDiary
   onSave: (portions, date) => appendNutritionPortions(portions, null, date), onDateError: error => showError(error, true) });
 amountInput.addEventListener('input', () => updatePortionPreview());
 mealSelect.addEventListener('change', () => {
+  $('manual-meal').value=mealSelect.value;
   clearFieldError('nutrition-meal');
   voiceEntry.invalidateContext();
 });

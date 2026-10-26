@@ -1,3 +1,4 @@
+import { navigate } from './navigation.js';
 import { createBarcodeScanner } from './barcode-scanner.js';
 import { initCustomProducts } from './custom-product-ui.js';
 import { copyProduct, productSourceLabel } from './product-model.js';
@@ -145,6 +146,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
   }
   async function lookup(event, byBarcode) {
     event.preventDefault();
+    navigate('produkty');
     if (busy) return;
     const input = $(byBarcode ? 'barcode' : 'product-search');
     const value = input.value;

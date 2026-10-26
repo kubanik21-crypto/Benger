@@ -1,3 +1,4 @@
+import { navigate } from './navigation.js';
 import { recordAnalysis } from './analysis-history.js';
 import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js';
 import { understandMeal, MEAL_LABELS } from './meal-understanding.js';
@@ -227,10 +228,11 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   });
   $('cancel-speech').addEventListener('click', () => speech.abort());
   $('use-text-entry').addEventListener('click', () => text.focus());
-  $('use-manual-entry').addEventListener('click', () => { $('product-search').focus(); $('product-catalog').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  $('use-manual-entry').addEventListener('click', () => { navigate('produkty'); $('product-search').focus(); $('product-catalog').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
   form.addEventListener('submit', event => { event.preventDefault(); if (!speechBusy) void analyze(); });
   text.addEventListener('input', () => { invalidate('Tekst zmieniony. Kliknij „Analizuj ponownie”.'); clearError(); });
   save.addEventListener('click', saveProposal);
+  window.addEventListener('benger:route',event=>{if(event.detail.route!=='dziennik')speech.abort();});
   window.addEventListener('pagehide', () => { speech.abort(); invalidate(); });
   form.dataset.analysisState = 'idle';
   return { invalidateContext() { invalidate('Dane zmienione. Kliknij „Analizuj ponownie”.'); clearError(); },
