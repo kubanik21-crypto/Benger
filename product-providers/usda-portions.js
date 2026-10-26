@@ -3,26 +3,31 @@ import { isPortionDefinition } from '../portion-model.js';
 // Match descriptions, not dataset-specific measure_unit IDs. Unrecognized measures remain diagnostics only.
 export function usdaPortionUnit(description) {
  const text=normalizeText(description);
- if(/\b(?:tablespoon|tbsp)\b/.test(text))return 'tablespoon';
- if(/\b(?:teaspoon|tsp)\b/.test(text))return 'teaspoon';
- if(/\bcup\b/.test(text))return 'cup';
- if(/\bslice\b/.test(text))return 'slice';
- if(/\b(?:package|packet|container)\b/.test(text))return 'package';
- if(/\bserving\b/.test(text))return 'serving';
- if(/\bscoop\b/.test(text))return 'scoop';
- if(/\b(?:piece|large|medium|small|extra large|jumbo|fruit|egg|roll|cookie|whole|unit)\b/.test(text))return 'piece';
+ if(/\b(?:tablespoons?|tbsp)\b/.test(text))return 'tablespoon';
+ if(/\b(?:teaspoons?|tsp)\b/.test(text))return 'teaspoon';
+ if(/\bcups?\b/.test(text))return 'cup';
+ if(/\bslices?\b/.test(text))return 'slice';
+ if(/\b(?:packages?|packets?|containers?)\b/.test(text))return 'package';
+ if(/\bservings?\b/.test(text))return 'serving';
+ if(/\bscoops?\b/.test(text))return 'scoop';
+ if(/\b(?:pieces?|large|medium|small|extra large|jumbo|fruits?|eggs?|rolls?|cookies?|whole|unit|each)\b/.test(text))return 'piece';
  return null;
 }
 export function normalizeUsdaPortion(row,productId,index=0) {
  const description=[row.measure_unit_name,row.portion_description,row.modifier].filter(Boolean).join(' · ').slice(0,240);
- const unit=usdaPortionUnit(description);
- const value={id:`${productId}:portion:${row.id??index}`,productId,unit,amount:Number(row.amount),normalizedAmount:Number(row.gram_weight),normalizedUnit:'g',source:'USDA',description};
+ const measure=normalizeText(row.measure_unit_name??'');
+ const unit=usdaPortionUnit(!measure||measure==='undetermined'?description:measure);
+ const match=String(row.portion_description??'').trim().match(/^(\d+(?:\.\d+)?)(?:\s+(\d+)\/(\d+)|\/(\d+))?(?:\s|$)/);
+ const fallback=match?(match[4]?Number(match[1])/Number(match[4]):Number(match[1])+(match[2]?Number(match[2])/Number(match[3]):0)):NaN;
+ const declared=row.amount!==null && row.amount!==undefined && String(row.amount).trim()!==''?Number(row.amount):fallback;
+ const value={id:`${productId}:portion:${row.id??index}`,productId,unit,amount:declared,normalizedAmount:Number(row.gram_weight),normalizedUnit:'g',source:'USDA',description,evidence:{fdcId:String(row.fdc_id??productId.slice(5)),amount:String(row.amount??''),measureUnit:String(row.measure_unit_name??''),portionDescription:String(row.portion_description??'').slice(0,240),modifier:String(row.modifier??'').slice(0,240),gramWeight:String(row.gram_weight??'')}};
  return isPortionDefinition(value)?value:null;
 }
 export function buildPortionCatalog(foods,acceptedIds) {
  const files={},byId={},unknown=[],rows=[];
  for(const food of foods){const productId=`usda:${food.fdcId}`;if(!acceptedIds.has(productId))continue;
-  const portions=(food.foodPortions??[]).map((row,index)=>normalizeUsdaPortion(row,productId,index)).filter(Boolean);
+  const seen=new Set();
+  const portions=(food.foodPortions??[]).map((row,index)=>normalizeUsdaPortion(row,productId,index)).filter(p=>{if(!p)return false;const key=JSON.stringify([p.unit,p.amount,p.normalizedAmount,p.description]);if(seen.has(key))return false;seen.add(key);return true;});
   for(const row of food.foodPortions??[])if(!normalizeUsdaPortion(row,productId)) {if(unknown.length<30)unknown.push({productId,...row});}
   if(portions.length)rows.push([productId,portions]);
  }

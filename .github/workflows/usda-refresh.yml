@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [etap-7-household-portions]
-    paths: [scripts/build-generic-food-catalog.mjs, scripts/read-usda-csv.py, .github/workflows/usda-refresh.yml]
+    paths: [scripts/build-generic-food-catalog.mjs, scripts/read-usda-csv.py, product-providers/usda-portions.js, .github/workflows/usda-refresh.yml]
 permissions:
   contents: write
 jobs:
