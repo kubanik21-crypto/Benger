@@ -2,7 +2,7 @@ name: Build USDA catalog
 on:
   workflow_dispatch:
   push:
-    branches: [etap-6-pwa-catalog-scanner]
+    branches: [etap-7-household-portions]
     paths: [scripts/build-generic-food-catalog.mjs, scripts/read-usda-csv.py, .github/workflows/usda-refresh.yml]
 permissions:
   contents: write
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: etap-6-pwa-catalog-scanner
+          ref: etap-7-household-portions
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
@@ -25,4 +25,4 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data/usda
           git diff --cached --quiet || git commit -m 'Refresh official USDA generic catalog'
-          git push origin HEAD:etap-6-pwa-catalog-scanner
+          git push origin HEAD:etap-7-household-portions

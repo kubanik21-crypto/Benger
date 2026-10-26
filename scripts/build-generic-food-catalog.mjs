@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { normalizeUsdaProduct, buildCatalog } from '../product-providers/usda.js';
 
+import { buildPortionCatalog } from '../product-providers/usda-portions.js';
+
 const args=process.argv.slice(2), fixture=args.indexOf('--fixture'), output=args.indexOf('--output');
 const destination=output>=0?args[output+1]:'data/usda';
 if(fixture<0 && !args.includes('--refresh'))throw new Error('Użyj --fixture plik.json albo jawnego --refresh (pobiera oficjalne dane USDA).');
@@ -27,6 +29,9 @@ else {
 const products=foods.map(normalizeUsdaProduct).filter(Boolean);
 if(!products.length)throw new Error('Brak prawidłowych rekordów — nic nie publikuję.');
 const catalog=buildCatalog(products);
+const portions=buildPortionCatalog(foods,new Set(products.map(p=>p.id)));
+Object.assign(catalog.files,portions.files);
+catalog.metadata.portions=portions.metadata;
 await mkdir(destination,{recursive:true});
 for(const [file,value] of Object.entries(catalog.files))await writeFile(join(destination,file),JSON.stringify(value));
 await writeFile(join(destination,'metadata.json'),JSON.stringify({version:1,builtAt:new Date().toISOString(),license:'USDA public domain / CC0',sources,input:foods.length,accepted:products.length,...catalog.metadata},null,2)+'\n');

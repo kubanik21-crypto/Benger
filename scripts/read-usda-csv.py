@@ -29,6 +29,14 @@ with zipfile.ZipFile(sys.argv[1]) as archive:
         nutrient_id=legacy.get(row['nutrient_id'],row['nutrient_id'])
         if nutrient_id in wanted and row['fdc_id'] in foods:
             foods[row['fdc_id']]['foodNutrients'].append({'nutrient':{'id':int(nutrient_id)},'amount':row.get('amount')})
+    measures={row['id']:row.get('name', '') for row in rows('measure_unit.csv')}
+    portion_sample=None
+    for row in rows('food_portion.csv'):
+        if portion_sample is None: portion_sample=row
+        if row.get('fdc_id') in foods:
+            portion={key:row.get(key) for key in ['id','fdc_id','amount','measure_unit_id','portion_description','modifier','gram_weight']}
+            portion['measure_unit_name']=measures.get(row.get('measure_unit_id'),'')
+            foods[row['fdc_id']].setdefault('foodPortions',[]).append(portion)
     first=next(iter(foods.values()))
-    first['importDiagnostics']={'nutrientIds':observed,'firstNutrientRow':sample,'surveyCategoryRows':len(survey_categories),'categoryExample':next(rows('wweia_food_category.csv'),None),'surveyExample':next(rows('survey_fndds_food.csv'),None),'tables':list(names)}
+    first['importDiagnostics']={'firstPortionRow':portion_sample,'firstMeasureRow':next(rows('measure_unit.csv'),None),'nutrientIds':observed,'firstNutrientRow':sample,'surveyCategoryRows':len(survey_categories),'categoryExample':next(rows('wweia_food_category.csv'),None),'surveyExample':next(rows('survey_fndds_food.csv'),None),'tables':list(names)}
     print(json.dumps(list(foods.values()),ensure_ascii=False))
