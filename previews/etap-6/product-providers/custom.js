@@ -1,5 +1,5 @@
-import { createProductStorage } from '../product-cache.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { copyProduct, isProduct, normalizeBarcode, barcodeKey, searchProducts } from '../product-model.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { createProductStorage } from '../product-cache.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { copyProduct, isProduct, normalizeBarcode, barcodeKey, searchProducts } from '../product-model.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
 let counter=0;
 export function normalizeCustomProduct(input, previous=null){
  const name=typeof input.name==='string'?input.name.trim():'';

@@ -1,4 +1,4 @@
-import { normalizeBarcode } from './product-model.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { normalizeBarcode } from './product-model.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
 export function normalizeScannedBarcode(raw,format=''){
  if(typeof raw!=='string')return null;
  const code=raw.trim();

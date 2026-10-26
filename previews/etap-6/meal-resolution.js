@@ -1,5 +1,5 @@
-import { calculatePortion, sumNutrition } from './nutrition.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { copyProduct } from './product-model.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { copyProduct } from './product-model.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
 
 export function portionFor(intent, resolution) {
   if (!resolution.product || resolution.confidence === 'LOW') return null;

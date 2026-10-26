@@ -1,9 +1,9 @@
-import { createBarcodeScanner } from './barcode-scanner.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { initCustomProducts } from './custom-product-ui.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { copyProduct, productSourceLabel } from './product-model.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { createProductRepository } from './product-repository.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { productErrorMessage } from './product-errors.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { createProductResolver } from './product-resolver.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { createBarcodeScanner } from './barcode-scanner.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { initCustomProducts } from './custom-product-ui.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { copyProduct, productSourceLabel } from './product-model.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { createProductRepository } from './product-repository.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { productErrorMessage } from './product-errors.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { createProductResolver } from './product-resolver.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });

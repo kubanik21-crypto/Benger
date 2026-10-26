@@ -1,12 +1,12 @@
-import { recoverPendingImport } from './backup.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { initBackupUi } from './backup-ui.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { initPwa } from './pwa.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { calculatePortion, sumNutrition } from './nutrition.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { MEAL_LABELS } from './meal-understanding.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { initVoiceEntry } from './voice-entry.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { createProductRepository } from './product-repository.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { initProductSearch } from './product-search-ui.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { recoverPendingImport } from './backup.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { initBackupUi } from './backup-ui.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { initPwa } from './pwa.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { MEAL_LABELS } from './meal-understanding.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { initVoiceEntry } from './voice-entry.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { createProductRepository } from './product-repository.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { initProductSearch } from './product-search-ui.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
 
 await recoverPendingImport();
 

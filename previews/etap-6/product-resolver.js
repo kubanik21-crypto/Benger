@@ -1,6 +1,6 @@
-import { variantCompatible, phraseSimilarity } from './product-variants.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { variantCompatible, phraseSimilarity } from './product-variants.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
 
 function validIntent(intent) {
   return intent && typeof intent === 'object'

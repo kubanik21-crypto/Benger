@@ -1,9 +1,9 @@
-import { normalizeCustomProduct } from './product-providers/custom.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { normalizeFoodQuery } from './food-query.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
-import { LEGACY_PRODUCT_IDS } from './legacy-product-references.js?v=0e5b60957276146690f414006c82d34bc81e5d66';
+import { normalizeCustomProduct } from './product-providers/custom.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { normalizeFoodQuery } from './food-query.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
+import { LEGACY_PRODUCT_IDS } from './legacy-product-references.js?v=9e26c1f421e7fc013b91689d569c79990cbf8daa';
 const JOURNAL='backup-import-journal-v1';
 export const BACKUP_LIMIT_BYTES=10*1024*1024;
 function fail(message='Nieprawidłowy format backupu.'){throw new TypeError(message);}
