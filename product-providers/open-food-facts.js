@@ -1,3 +1,4 @@
+import { sourcePortions } from './source-portions.js';
 import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } from '../product-model.js';
 import { ProductError } from '../product-errors.js';
 import { createOffJsonClient } from './off-http.js';
@@ -6,7 +7,7 @@ export const OFF_BASE_URL = 'https://world.openfoodfacts.org';
 export const OFF_API_VERSION = '3.6';
 export const OFF_REQUEST_TIMEOUT_MS = 10_000;
 export const OFF_APP_ID = 'Benger/0.3 (https://github.com/kubanik21-crypto/Benger)';
-const COMMON_FIELDS = ['code', 'product_name', 'product_name_pl', 'brands_tags_pl', 'quantity', 'image_front_small_url', 'last_modified_t'];
+const COMMON_FIELDS = ['code', 'product_name', 'product_name_pl', 'brands_tags_pl', 'quantity', 'image_front_small_url', 'last_modified_t','serving_size','serving_quantity','serving_quantity_unit','product_quantity','product_quantity_unit'];
 export const OFF_FIELDS = [
   ...COMMON_FIELDS, 'nutrition.aggregated_set.per', 'nutrition.aggregated_set.preparation',
   ...['energy-kcal', 'proteins', 'fat', 'carbohydrates'].map(key => `nutrition.aggregated_set.nutrients.${key}`),
@@ -59,6 +60,7 @@ export function normalizeOffProduct(raw) {
     imageUrl: safeImageUrl(raw.image_front_small_url), quantity: text(raw.quantity, 120) || null,
     updatedAt: date && Number.isFinite(date.getTime()) ? date.toISOString() : null,
   };
+  product.portions=sourcePortions(raw,product);
   return isProduct(product) ? copyProduct(product) : null;
 }
 

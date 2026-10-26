@@ -11,8 +11,8 @@ import { confirmMealItem, resolveMealIntents, summarizeMealProposal } from './me
 
 const fixtures = JSON.parse(await readFile(new URL('./tests/fixtures/off-products.json', import.meta.url))).products;
 const milk = { ...normalizeOffProduct(fixtures[0]), name: 'Mleko 2%', brand: 'Marka A' };
-const other = { ...milk, id: 'off:05901234123464', sourceId: '5901234123464', barcode: '5901234123464', brand: 'Marka B' };
-const skyr = { ...normalizeOffProduct(fixtures[1]), id: 'off:test-skyr', sourceId: '123456', barcode: null, name: 'Skyr waniliowy', brand: 'Pilos' };
+const other = { ...milk, id: 'off:05901234123464', sourceId: '5901234123464', barcode: '5901234123464', brand: 'Marka B', portions: [] };
+const skyr = { ...normalizeOffProduct(fixtures[1]), id: 'off:test-skyr', sourceId: '123456', barcode: null, name: 'Skyr waniliowy', brand: 'Pilos', portions: [] };
 
 async function setup(products = [milk, other, skyr]) {
   let calls = 0;
@@ -143,7 +143,7 @@ test('pamięć nie omija wariantów procentów, smaku ani zero',async()=>{
  const plain={...skyr,name:'Skyr naturalny'};await cache.putProducts([plain]);
  await repository.createAlias('skyr waniliowy',plain.id);
  assert.equal((await resolver.resolve({query:'skyr waniliowy'})).product,null);
- const cola={...milk,id:'off:test-cola',sourceId:'765432',barcode:null,name:'Coca-Cola',brand:'Coca-Cola'};await cache.putProducts([cola]);
+ const cola={...milk,portions:[],id:'off:test-cola',sourceId:'765432',barcode:null,name:'Coca-Cola',brand:'Coca-Cola'};await cache.putProducts([cola]);
  await repository.createAlias('Coca-Cola Zero',cola.id);
  assert.equal((await resolver.resolve({query:'Coca-Cola Zero'})).product,null);
 });

@@ -1,3 +1,4 @@
+import { isPortionDefinition, copyPortionDefinition } from './portion-model.js';
 export const NUTRIENTS = ['kcal', 'protein', 'fat', 'carbs'];
 
 export function normalizeText(value) {
@@ -44,6 +45,7 @@ export function isProduct(product) {
     && (product.imageUrl === null || safeImageUrl(product.imageUrl) === product.imageUrl)
     && (product.quantity === null || (typeof product.quantity === 'string' && product.quantity.length <= 120))
     && (product.source !== 'usda' || ['description','category','dataType'].every(key=>product[key]===undefined || typeof product[key]==='string' && product[key].length<=240))
+    && (product.portions === undefined || Array.isArray(product.portions) && product.portions.length <= 30 && product.portions.every(d=>isPortionDefinition(d)&&d.productId===product.id&&d.normalizedUnit===product.unit))
     && (product.updatedAt === null || (typeof product.updatedAt === 'string' && Number.isFinite(Date.parse(product.updatedAt))));
 }
 
@@ -54,6 +56,7 @@ export function copyProduct(product) {
     id: product.id, source: product.source, sourceId: product.sourceId, barcode: product.barcode,
     name: product.name, brand: product.brand, unit: product.unit, basis: product.basis, estimated: product.estimated ?? false,
     nutritionCompleteness: 'COMPLETE',
+    ...(product.portions ? {portions:product.portions.map(copyPortionDefinition)} : {}),
     per100: Object.fromEntries(NUTRIENTS.map(key => [key, product.per100[key]])),
     imageUrl: product.imageUrl, quantity: product.quantity, updatedAt: product.updatedAt,
     ...(product.source === 'usda' ? {description:product.description ?? product.name,category:product.category ?? 'Unknown',dataType:product.dataType ?? 'Unknown'} : {}),

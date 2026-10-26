@@ -6,7 +6,7 @@ import { normalizeOffProduct } from './product-providers/open-food-facts.js';
 import { getTestProducts } from './tests/fixtures/nutrition-products.mjs';
 
 const raw = JSON.parse(await readFile(new URL('./tests/fixtures/off-products.json', import.meta.url))).products[0];
-const product = n => ({ ...normalizeOffProduct(raw), id: `off:test-${n}`, sourceId: String(n), barcode: null, name: `Produkt ${n}` });
+const product = n => ({ ...normalizeOffProduct(raw), id: `off:test-${n}`, sourceId: String(n), barcode: null, name: `Produkt ${n}`, portions: [] });
 function setup(maxProducts = 300) {
   let time = 1700000000000;
   const storage = createProductStorage({ indexedDBFactory: null });

@@ -21,6 +21,7 @@ export function validPortionSnapshot(row) {
  return display&&c&&Object.hasOwn(HOUSEHOLD_UNITS,display.unit)&&Number.isFinite(display.amount)&&display.amount>0&&display.amount<=100000
  &&typeof display.label==='string'&&display.label.length<=120&&c.inputAmount===display.amount&&c.inputUnit===display.unit
  &&c.normalizedAmount===row.amount&&c.normalizedUnit===row.unit&&PORTION_SOURCES.includes(c.source)&&c.source!=='NONE'&&c.confidence==='HIGH'
+ &&(c.source==='STANDARD_VOLUME' ? row.unit==='ml' && ['teaspoon','tablespoon','cup','mug'].includes(c.inputUnit) : isPortionDefinition(c.definition) && c.definition.source===c.source && Math.abs(c.normalizedAmount-c.inputAmount*c.definition.normalizedAmount/c.definition.amount)<=Math.max(1e-9,c.normalizedAmount*1e-12))
  &&typeof c.description==='string'&&c.description.length<=240
  &&(c.definition===null||c.definition===undefined||isPortionDefinition(c.definition)&&c.definition.productId===row.productId&&(c.definition.unit===c.inputUnit||c.inputUnit==='slab'&&c.definition.unit==='slice')&&c.definition.normalizedUnit===row.unit);
 }
