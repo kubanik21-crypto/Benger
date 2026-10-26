@@ -1,5 +1,5 @@
-import { PRODUCTS } from '../nutrition.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
-import { copyProduct, searchProducts } from '../product-model.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
+import { PRODUCTS } from '../nutrition.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { copyProduct, searchProducts } from '../product-model.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
 
 // Zachowany katalog demonstracyjny. Bez dopisywania niezweryfikowanych wartości.
 export function getLocalProducts() {

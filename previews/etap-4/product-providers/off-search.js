@@ -1,6 +1,6 @@
-import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
-import { createOffJsonClient } from './off-http.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
-import { ProductError } from '../product-errors.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
+import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { createOffJsonClient } from './off-http.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { ProductError } from '../product-errors.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
 
 export function validateSearchQuery(query) {
   const term = typeof query === 'string' ? query.trim().replace(/\s+/g, ' ') : '';

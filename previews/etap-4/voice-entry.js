@@ -1,9 +1,9 @@
-import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
-import { understandMeal, MEAL_LABELS } from './meal-understanding.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
-import { createProductResolver } from './product-resolver.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
-import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal } from './meal-resolution.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
-import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
-import { productErrorMessage } from './product-errors.js?v=d9c621f21a24d07670f8e44abfdbed54027be3e3';
+import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { understandMeal, MEAL_LABELS } from './meal-understanding.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { createProductResolver } from './product-resolver.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal } from './meal-resolution.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
+import { productErrorMessage } from './product-errors.js?v=0bfe6378d141710bcae40d835e98e1c433ba22d7';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
@@ -184,6 +184,10 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     finally { saving = false; buttonState(); }
   }
   function readSafeDate() { try { return readDate(); } catch { return null; } }
+  function displayTranscript(transcript) {
+    text.value = transcript;
+    $('live-transcript').textContent = transcript;
+  }
   const speech = createSpeechRecognitionAdapter({
     onState({ state, message }) {
       speechBusy = ['listening', 'processing'].includes(state);
@@ -195,8 +199,8 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
       $('cancel-speech').hidden = !speechBusy; text.disabled = speechBusy; $('analyze-meal').disabled = speechBusy;
       buttonState();
     },
-    onTranscript({ final, interim }) { text.value = [final, interim].filter(Boolean).join(' '); $('live-transcript').textContent = text.value; },
-    onComplete(transcript) { text.value = transcript; void analyze(); },
+    onTranscript({ text: transcript }) { displayTranscript(transcript); },
+    onComplete(transcript) { displayTranscript(transcript); void analyze(); },
   });
   $('speech-status').textContent = SPEECH_MESSAGES[speech.getState()];
   $('voice-entry').dataset.speechState = speech.getState(); $('voice-microphone').disabled = !speech.supported;

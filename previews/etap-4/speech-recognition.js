@@ -53,7 +53,7 @@ export function createSpeechRecognitionAdapter({ Recognition = speechRecognition
       if (typeof Recognition !== 'function') { emit('unsupported'); return false; }
       let recognition;
       try { recognition = new Recognition(); } catch { emit('service-error'); return false; }
-      const current = { recognition, final: '', timer: null };
+      const current = { recognition, segments: [], final: '', timer: null };
       session = current;
       recognition.lang = language;
       recognition.continuous = true;
@@ -62,14 +62,28 @@ export function createSpeechRecognitionAdapter({ Recognition = speechRecognition
       recognition.onstart = () => { if (session === current) emit('listening'); };
       recognition.onresult = event => {
         if (session !== current) return;
-        let final = '', interim = '';
-        for (const result of Array.from(event.results ?? [])) {
-          const text = typeof result[0]?.transcript === 'string' ? result[0].transcript : '';
-          if (result.isFinal) final += text + ' '; else interim += text + ' ';
+        const results = event.results;
+        const length = results?.length ?? 0;
+        if (!Number.isSafeInteger(length) || length < 0 || length > 2000) { abortAs('service-error'); return; }
+        const resultIndex = Number.isInteger(event.resultIndex) && event.resultIndex >= 0 && event.resultIndex <= length
+          ? event.resultIndex : 0;
+        // results to stan całej sesji. Czytamy tylko zmieniony ogon; kopiujemy dane,
+        // nie referencje do mutowalnych obiektów przeglądarki. Pierwszy event może mieć index > 0.
+        const firstChanged = Math.min(resultIndex, current.segments.length);
+        current.segments.length = length; // Usuwa również wycofane końcowe interim.
+        for (let index = firstChanged; index < length; index++) {
+          const result = results[index];
+          current.segments[index] = {
+            text: typeof result?.[0]?.transcript === 'string' ? result[0].transcript.trim() : '',
+            isFinal: result?.isFinal === true,
+          };
         }
-        if ((final + interim).length > 2000) { abortAs('service-error'); return; }
-        current.final = final.trim();
-        onTranscript({ final: current.final, interim: interim.trim() });
+        const segments = current.segments.filter(segment => segment.text);
+        const text = segments.map(segment => segment.text).join(' ');
+        if (text.length > 2000) { abortAs('service-error'); return; }
+        current.final = segments.filter(segment => segment.isFinal).map(segment => segment.text).join(' ');
+        const interim = segments.filter(segment => !segment.isFinal).map(segment => segment.text).join(' ');
+        onTranscript({ text, final: current.final, interim });
       };
       recognition.onerror = event => {
         if (session !== current) return;
