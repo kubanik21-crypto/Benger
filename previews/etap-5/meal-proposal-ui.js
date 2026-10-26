@@ -1,5 +1,5 @@
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
-import { MEAL_LABELS } from './meal-understanding.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
+import { MEAL_LABELS } from './meal-understanding.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
 
 export function node(tag, className, text) {
   const element = document.createElement(tag);

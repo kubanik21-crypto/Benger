@@ -1,10 +1,10 @@
-import { calculatePortion, sumNutrition } from './nutrition.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
-import { initLegacyNotes } from './legacy.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
-import { MEAL_LABELS } from './meal-understanding.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
-import { initVoiceEntry } from './voice-entry.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
-import { createProductRepository } from './product-repository.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
-import { initProductSearch } from './product-search-ui.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
+import { initLegacyNotes } from './legacy.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
+import { MEAL_LABELS } from './meal-understanding.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
+import { initVoiceEntry } from './voice-entry.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
+import { createProductRepository } from './product-repository.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
+import { initProductSearch } from './product-search-ui.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
 
 const $ = id => document.getElementById(id);
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
