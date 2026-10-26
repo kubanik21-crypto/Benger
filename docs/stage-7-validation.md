@@ -80,3 +80,23 @@ Aktualne uruchomienia: [Actions gałęzi Etapu 7](https://github.com/kubanik21-c
 [Preview](https://kubanik21-crypto.github.io/Benger/previews/etap-7/) · [Portion Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-7/portion-test-lab.html) · [Portion Diagnostics](https://kubanik21-crypto.github.io/Benger/previews/etap-7/portion-diagnostics.html).
 
 Checklista Samsunga i ograniczenia są w [household-portions.md](household-portions.md). Gałąź jest przeznaczona do real-device acceptance, bez tworzenia PR i bez merge.
+
+## Dogrywka: porcje referencyjne
+
+Zestaw A–G sprawdza:
+
+| Przypadek | Wynik |
+|---|---|
+| A — mleko w ml, 2 łyżki | 30 ml, STANDARD_VOLUME/HIGH, bez estimate |
+| B — markowa oliwa w g, bez porcji | ok. 27 g, REFERENCE/MEDIUM, USDA 171413 |
+| C — markowe masło orzechowe | ok. 32 g, REFERENCE/MEDIUM, USDA 174266; zachowane makro produktu |
+| D — jawna USER 20 g/łyżkę | 40 g, USER/HIGH, wygrywa z reference i exact source |
+| E — domowy sos w g | UNRESOLVED/LOW |
+| F — olej rzepakowy | ok. 28 g, USDA 172336; nigdy olive-oil |
+| G — zmiana oliwa → miód | poprzednia konwersja unieważniona; po załadowaniu honey: ok. 42 g |
+
+Dziewięć rodzin obejmuje 11 rzeczywistych miar źródłowych (łyżki/łyżeczki). Porównawczy test automatyczny sprawdza **11 × exact USDA/HIGH** dla konkretnych rekordów i **11 × REFERENCE/MEDIUM** dla odpowiadających im produktów bez własnych definicji. To liczby kontrolowanych przypadków, nie telemetria użycia.
+
+Nowe flow Chromium obejmuje również rzeczywisty frontend z mockiem OFF, zachowanie makro OFF, „ok.” i „typowa wartość”, brak automatycznego USER, jawny override, zmianę produktu, historię, backup/import oraz reload offline. Self-review obejmuje zakazane warianty i jednostki, próbę ukrycia typu oleju lub wariantu w marce, niepoprawne provenance, NaN/Infinity, pierwszeństwo exact i niezmienność zapisanych szacunków. Brakującej łyżeczki nie wyprowadzamy z łyżki.
+
+Pełny zestaw po dogrywce: **790/790 Node**, **140/140 Chromium**, `git diff --check` bez błędów. Wszystkie poprzednie testy pozostają uruchamiane. `nutrition.js` i `speech-recognition.js` nadal nie zostały zmienione. Źródła, konkretne rekordy i wartości są opisane w `household-portions.md`.

@@ -264,3 +264,5 @@ Możesz powiedzieć lub wpisać np. „2 jajka”, „3 kromki chleba”, „2 �
 [Preview Etapu 7](https://kubanik21-crypto.github.io/Benger/previews/etap-7/) · [Portion Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-7/portion-test-lab.html) · [Portion Diagnostics](https://kubanik21-crypto.github.io/Benger/previews/etap-7/portion-diagnostics.html).
 
 Testy: `npm test`, `npm run test:browser`, `git diff --check`. Pomiar bez zewnętrznego API: `node scripts/measure-household-portions.mjs /tmp/portions.json`.
+
+Dogrywka Etapu 7 dodaje ostrożny fallback **REFERENCE/MEDIUM** dla dziewięciu rodzin żywności. Typowa porcja jest oznaczona „ok.” / „typowa wartość”, nie zastępuje makro wybranego produktu i nie uczy USER automatycznie. Dokładna definicja oraz jawna porcja użytkownika mają pierwszeństwo. Szczegóły źródeł i ograniczeń: [household-portions.md](docs/household-portions.md#dogrywka-etapu-7--exact-reference-estimate-unresolved).

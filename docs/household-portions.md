@@ -33,7 +33,8 @@ Definicja źródłowa USDA zachowuje też `evidence`: FDC ID, oryginalne amount,
 2. Definicje konkretnego produktu: USDA, OFF albo własne definicje produktu custom. Kilka rozmiarów wymaga wyboru; kolejność w pliku nie jest regułą wyboru.
 3. STANDARD_VOLUME: łyżeczka 5 ml, łyżka 15 ml, tylko przy nutrition basis `ml`. Szklanka/kubek tylko po ustawieniu swojej pojemności.
 4. PACKAGE: masa/objętość całego konkretnego opakowania, w zgodnej jednostce produktu.
-5. NONE/LOW: użytkownik wybiera definicję albo podaje g/ml dla jednej porcji.
+5. REFERENCE/MEDIUM: typowa masa z jednoznacznej rodziny — patrz dogrywka poniżej.
+6. NONE/LOW: użytkownik wybiera definicję albo podaje g/ml dla jednej porcji.
 
 Źródłowe opakowanie jest normalną definicją typu `package`; nie konkuruje ze sztuką lub kromką. Nie przeliczamy g↔ml ani nie tworzymy globalnych mas łyżki, kromki, jajka, garści czy miarki. Angielskie `slice` może oznaczać kromkę lub plaster tego samego dokładnego produktu; oba polskie określenia korzystają z tej samej źródłowej miary bez przenoszenia jej do innego produktu.
 
@@ -94,3 +95,39 @@ Preview ma osobny namespace `preview-etap-7` i scope `/Benger/previews/etap-7/`.
 10. Sprawdź naturalny głos na Samsungu. Headless Chromium nie potwierdza jakości rzeczywistego mikrofonu.
 
 Ograniczenia: nie wszystkie rekordy USDA mają rozpoznawalne miary; brakujące porcje wymagają użytkownika. Nie interpretujemy dowolnych opisów OFF ani gęstości. Szkło użytkownika w ml nie przelicza produktu z bazą g. Rozmiar źródłowy może wymagać jawnego wyboru; nie zgadujemy na podstawie podobnej nazwy. OFF nadal wymaga sieci dla niezapisanego produktu, SpeechRecognition nie gwarantuje offline. localStorage nadal ma zaakceptowane ograniczenie dokładnie równoczesnego zapisu w dwóch kartach. Nie dodano AI, backendu, kont ani synchronizacji urządzeń.
+
+## Dogrywka Etapu 7 — exact, reference estimate, unresolved
+
+Resolver rozróżnia teraz trzy poziomy:
+
+- **EXACT / HIGH / estimated:false** — jawna miara USER, dokładna porcja wybranego produktu, opakowanie lub konwersja objętość→objętość. „Dokładna” oznacza zgodność z deklaracją/wyborem, nie laboratoryjny pomiar.
+- **TYPICAL / MEDIUM / estimated:true / source:REFERENCE** — typowa porcja jednoznacznej rodziny, zaczerpnięta z konkretnego importowanego produktu USDA. To **nie jest pomiar porcji użytkownika ani deklaracja producenta**.
+- **UNRESOLVED / LOW** — zbyt mało danych; użytkownik podaje własną porcję albo wybiera dokładną definicję.
+
+Hierarchia: USER → dokładna porcja OFF/USDA/custom → dokładne opakowanie → STANDARD_VOLUME → REFERENCE → unresolved. Kilka sprzecznych dokładnych definicji nadal wymaga wyboru: reference nie omija tej niepewności. Łyżka 15 ml i łyżeczka 5 ml pozostają metryczną konwersją objętości HIGH, bez gęstości i bez szacowania masy.
+
+`portion-references.js` zawiera wyłącznie mapę rodzin do identyfikatorów USDA i konserwatywne reguły nazw; **nie zawiera ręcznej tabeli gramów**. `repository.portions.getReference(product)` czyta te same lokalne chunki źródłowych porcji co exact resolver. Dane pozostają dostępne offline. W tej wersji reference dotyczy tylko łyżki/łyżeczki i produktów z podstawą g. Brakującej łyżeczki nie wyliczamy przez podzielenie łyżki przez trzy.
+
+| Rodzina | Referencyjny rekord USDA | Łyżka | Łyżeczka |
+|---|---|---:|---:|
+| olive-oil | 171413 — Oil, olive, salad or cooking | 13,5 g | 4,5 g |
+| vegetable-oil | 2345737 — Vegetable oil, NFS | 14 g | brak |
+| canola-oil | 172336 — Oil, canola | 14 g | 4,5 g |
+| butter | 173430 — Butter, without salt | 14,2 g | brak |
+| peanut-butter | 174266 — Peanut butter, smooth style, with salt | 16 g (źródło: 2 łyżki = 32 g) | brak |
+| honey | 169640 — Honey | 21 g | brak |
+| granulated-sugar | 169655 — Sugars, granulated | brak | 4,2 g |
+| mayonnaise | 171009 — Salad dressing, mayonnaise, regular | 13,8 g | brak |
+| ketchup | 168556 — Catsup | 17 g | brak |
+
+Wartości tabeli opisują istniejące rekordy, nie stanowią osobnego źródła danych aplikacji. Oryginalne `referencePortionId` są zachowywane z definicji USDA. Źródłowa łyżka USDA jest porcją referencyjną w gramach, a nie dowodem masy dowolnych 15 ml produktu.
+
+Matching bierze **nazwę rozwiązanego produktu**, nie niepewną frazę użytkownika. Usuwa tylko jawnie podane tokeny marki; pozostała nazwa musi pasować w całości do dozwolonej rodziny i wariantu. Istotnych słów takich jak light, coconut, sos czy puder nie można usunąć jako marki, by obejść ograniczenie. Olej kokosowy nie staje się rzepakowym, masło orzechowe nie staje się zwykłym masłem, a majonez light nie dostaje porcji klasycznego. Nie włączono mąki, ryżu, płatków ani twarogu na siłę: brak odpowiedniej miary łyżki lub istotny wariant produktu oznacza brak fallbacku.
+
+Nadal nie ma typowych przeliczników garści, kromki, plastra, jajka bez rozmiaru, bułki, porcji, miarki ani opakowania bez deklaracji. Domowy sos, zupa i gotowe dania pozostają nierozwiązane bez dokładnej definicji.
+
+Przykład: markowe masło orzechowe zachowuje identyfikator i makro OFF. Dwie typowe łyżki z USDA 174266 dają **ok. 32 g**, a `calculatePortion()` przelicza **makro OFF**, nie makro referencyjnego USDA. UI pokazuje „ok.” i „typowa wartość”, także przy historycznym wpisie. „Ustaw własną porcję” pozwala wpisać np. 20 g/łyżkę i jawnie zapamiętać USER. Sam zapis posiłku z estimate **nie tworzy USER portion**; pamięć wyboru tożsamości produktu nadal działa osobno.
+
+Snapshot zachowuje `estimated:true`, `status:TYPICAL`, `confidence:MEDIUM`, `referenceFamily`, `referenceProductId`, `referenceSource`, `referencePortionId` i kopię źródłowej definicji (`referenceDefinition`). Backup waliduje zgodność podstawy/count/mass/provenance i zachowuje te pola. Historyczna wartość nie zależy od przyszłych zmian mapy rodzin ani USDA. Stare snapshoty HIGH bez nowych pól pozostają zgodne.
+
+Portion Diagnostics pokazuje input, produkt, exact definitions, rodzinę i produkt referencyjny, dostępne source portions, konwersję, source, confidence oraz estimated. Testy A–G są w `portion-references.test.js`; pełne flow OFF/custom, oznaczenie w UI, jawny override, brak automatycznego uczenia, zmiana produktu, backup i offline są sprawdzane w `reference-portions.browser.test.js`.
