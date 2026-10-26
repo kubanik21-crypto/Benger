@@ -1,5 +1,5 @@
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
-import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
+import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
 
 function validIntent(intent) {
   return intent && typeof intent === 'object'

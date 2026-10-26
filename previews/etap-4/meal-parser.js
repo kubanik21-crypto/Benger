@@ -1,4 +1,4 @@
-import { PRODUCTS } from './nutrition.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
+import { PRODUCTS } from './nutrition.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
 
 // To wyłącznie aliasy językowe. Produkty i jednostki pochodzą z przekazanego katalogu (domyślnie PRODUCTS).
 const PRODUCT_ALIASES = {

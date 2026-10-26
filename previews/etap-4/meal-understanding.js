@@ -1,6 +1,6 @@
-import { normalizeText } from './product-model.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
-import { normalizeFoodQuery } from './food-query.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
-import { replaceSpokenNumbers } from './polish-numbers.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
+import { normalizeText } from './product-model.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
+import { normalizeFoodQuery } from './food-query.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
+import { replaceSpokenNumbers } from './polish-numbers.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
 
 export const MEAL_LABELS = { breakfast: 'Śniadanie', lunch: 'Obiad', dinner: 'Kolacja', snack: 'Przekąska' };
 const meals = { sniadanie: 'breakfast', sniadania: 'breakfast', obiad: 'lunch', obiadu: 'lunch', kolacja: 'dinner', kolacje: 'dinner', kolacji: 'dinner', przekaska: 'snack', przekaske: 'snack', przekaski: 'snack' };

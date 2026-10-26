@@ -1,9 +1,9 @@
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
-import { createLocalProvider } from './product-providers/local.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
-import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
-import { createProductCache } from './product-cache.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
-import { ProductError } from './product-errors.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
-import { defaultSearchProvider } from './product-providers/off-search.js?v=604eb6266ad289ce68114ab3dc2993b2908f816f';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
+import { createLocalProvider } from './product-providers/local.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
+import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
+import { createProductCache } from './product-cache.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
+import { ProductError } from './product-errors.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
+import { defaultSearchProvider } from './product-providers/off-search.js?v=d4f0abd38d7f74747ffd1e92c20b2db1a62bb44d';
 
 export const SEARCH_INTERVAL_MS = 6500; // poniżej 10 wyszukiwań/minutę
 export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minutę
