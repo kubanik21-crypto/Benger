@@ -27,3 +27,7 @@ test('normalizacja zachowuje brak ilości i odrzuca wejście ponad limit', () =>
 test('mili nie dziedziczy kontekstu płynu przez nazwę kolejnego produktu',()=>{
  assert.equal(normalizeTranscript('mleko 200 ml płatki 250 mili').normalizedTranscript,'mleko 200 ml platki 250 mili');
 });
+test('mili nie przechodzi przez spójnik; drugi rozpoznany płyn ma własny kontekst',()=>{
+ assert.equal(normalizeTranscript('mleko 200 ml i 250 mili banana').normalizedTranscript,'mleko 200 ml i 250 mili banana');
+ assert.equal(normalizeTranscript('mleko 200 ml kefir 250 mili').normalizedTranscript,'mleko 200 ml kefir 250 ml');
+});

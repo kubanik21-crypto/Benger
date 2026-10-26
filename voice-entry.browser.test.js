@@ -365,6 +365,10 @@ test('Etap 5 — pięć struktur bez przecinków, save/reload, alias i voice lab
   assert.equal(await disabled(a),false,await a.evaluate("document.getElementById('meal-proposal').textContent"));await a.accept();assert.equal((await a.saved()).length,3);assert.equal((await a.saved())[2].amount,130);
   await a.reload();await a.date(DAY);assert.equal((await a.visible()).length,3);
  });
+ await t.test('przybliżenie aktualizuje etykietę po edycji ilości',async()=>{
+  await a.analyze('około 80 gram płatków');await fillRow(a,'food-1','90');
+  assert.equal(await a.evaluate("document.querySelector('[data-approximation]').textContent"),'ok. 90 g — ilość przybliżona.');
+ });
  await t.test('lab pokazuje expected/tokens/intents, alias XSS jest tekstem i historia ma limit',async()=>{
   const lab=await browser.page(new URL('voice-test-lab.html',browser.base).href,{diagnostic:true,initScript:SPEECH});
   await lab.evaluate("document.getElementById('scenario').value='8';document.getElementById('raw').value='na śniadanie 80 gram płatków owsianych 250 ml mleka 2 procent i banana 120 gram';document.getElementById('analyze').click()");

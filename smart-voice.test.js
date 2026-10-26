@@ -31,3 +31,9 @@ test('częściowe odzyskanie zachowuje trzy produkty oraz nierozpoznany fragment
  assert.deepEqual(result.intents.map(i=>[i.query,i.amount,i.unit]),[['platki owsiane',80,'g'],['mleko',250,'ml'],['cos tam dziwnego',null,null],['banan',120,'g']]);
  assert.equal(result.intents[2].structureConfidence,'LOW');
 });
+test('nieznane nazwy podobne do właściwości Object pozostają tekstem, nie prototypem',()=>{
+ for(const name of ['constructor','__proto__']){
+  const intent=understandMeal(`${name} 80 g`,{defaultMeal:'breakfast'}).intents[0];
+  assert.equal(intent.query,name);assert.equal(intent.amount,80);
+ }
+});

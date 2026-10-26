@@ -13,14 +13,13 @@ const unitNames = { piece:'piece',slice:'slice',tablespoon:'tablespoon',teaspoon
 const quantityPattern = () => /(?<![\d.,+\-])([+\-]?[\d.,]+)\s*(piece|slice|tablespoon|teaspoon|mililitrow|mililitry|mililitra|mililitr|ml|gramow|gramy|grama|gram|g)(?![a-z])/g;
 const helpers = /\b(?:zjadlem|zjadlam|jadlem|jadlam|wypilem|wypilam|pije|jem|dzisiaj|dzis|potem|nastepnie|takze|mialem|mialam|jeszcze|chyba|do tego|na koniec)\b/g;
 const approximation = /\b(?:okolo|jakies|mniej wiecej(?: tak)?)\b/g;
-const forms = { platkow: 'platki', owsianych: 'owsiane', banana: 'banan', banany: 'banan', mleka: 'mleko', jogurtu: 'jogurt', naturalnego: 'naturalny', kurczaka: 'kurczak', ryzu: 'ryz', oliwy: 'oliwa', skyra: 'skyr', waniliowego: 'waniliowy', jablka: 'jablko', ziemniakow: 'ziemniaki', makaronu: 'makaron', chleba: 'chleb' };
 
 export function normalizeMealText(text) {
   return normalizeTranscript(text).normalizedTranscript;
 }
 function productQuery(text) {
   let query = text.replace(/^[\s:.,!?]+|[\s:.,!?]+$/g, '').replace(/\s+/g, ' ').trim();
-  query = query.split(' ').map(word => forms[word] ?? canonicalWord(word)).join(' ');
+  query = query.split(' ').map(word => canonicalWord(word)).join(' ');
   if (query === 'platki') query = 'platki owsiane';
   if (query === 'jogurt') query = 'jogurt naturalny';
   return query;

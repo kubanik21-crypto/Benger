@@ -14,8 +14,15 @@ export function normalizeTranscript(rawTranscript) {
   text = text.replace(/\b(\d+(?:[.,]\d+)?)\s*(gramow|gramy|grama|gram|mililitrow|mililitry|mililitra|mililitr)\b/g,
     (_, value, unit) => `${value} ${unit.startsWith('gram') ? 'g' : 'ml'}`);
   // „mili” ma sens tylko przy jawnej ilości i rozpoznawalnej nazwie płynu w tej samej frazie.
-  text = text.replace(/\b(\d+(?:[.,]\d+)?)\s+(mili|mil)\b(?=\s+(?:mleka|mleko|kefiru|kefir|wody|woda|soku|sok|napoju|napoj)\b)/g, '$1 ml');
-  text = text.replace(/\b((?:mleka|mleko|kefiru|kefir|wody|woda|soku|sok|napoju|napoj)\b[^,;]*?)\s+(\d+(?:[.,]\d+)?)\s+(mili|mil)\b/g, (full,prefix,amount)=>{const other=prefix.split(/\s+/).slice(1).some(word=>FOOD_HEADS.has(canonicalWord(word)));return other?full:`${prefix} ${amount} ml`;});
+  const liquids = new Set(['mleko', 'kefir', 'woda', 'sok', 'napoj']);
+  text = text.replace(/\b(\d+(?:[.,]\d+)?)\s+(mili|mil)\b/g, (full, amount, _unit, offset, whole) => {
+    const next = whole.slice(offset + full.length).trim().match(/^[a-z]+/)?.[0];
+    if (liquids.has(canonicalWord(next))) return `${amount} ml`;
+    // Nie dziedziczymy płynu przez granicę listy ani głowę innego produktu.
+    const clause = whole.slice(0, offset).split(/;|(?<!\d),|,(?!\d)|\b(?:i|oraz|plus|do tego|na koniec)\b/).at(-1);
+    const previousHead = (clause.match(/[a-z]+/g) ?? []).map(canonicalWord).filter(word => FOOD_HEADS.has(word)).at(-1);
+    return liquids.has(previousHead) ? `${amount} ml` : full;
+  });
   text = text.replace(/\bmniej wiecej(?: tak)?\b/g,'okolo');
   text = text.replace(/\b(\d+(?:[.,]\d+)?)\s+(?:sztuki|sztuk|sztuka)\b/g,'$1 piece').replace(/\b(\d+(?:[.,]\d+)?)\s+(?:kromki|kromka|kromek)\b/g,'$1 slice').replace(/\b(\d+(?:[.,]\d+)?)\s+(?:lyzki|lyzka)\b/g,'$1 tablespoon').replace(/\b(\d+(?:[.,]\d+)?)\s+(?:lyzeczki|lyzeczka)\b/g,'$1 teaspoon');
   text = text.replace(/\b(\d+)\s+(jajka|jajek|jajko)\b/g,'$1 piece $2');

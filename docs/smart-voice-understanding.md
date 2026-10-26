@@ -78,10 +78,14 @@ git diff --check
 
 Korpus zawiera 116 unikalnych jawnych zdań: 66 istniejących + 50 nowych, ponadto 400 generowanych kombinacji produktów, ilości, separatorów i szyku. Testy sprawdzają dane intencji, brak przesuwania ilości, warianty, aliasy i zgodność starej pamięci. Testy browser sprawdzają pięć wymaganych wypowiedzi, pełny mikrofon→edycja→zapis→reload, historię, XSS aliasu, sześć szerokości ekranu i regresje Etapów 1–4. OFF i mikrofon są mockowane w CI; nie udajemy realnego testu Samsungiem.
 
-Benchmark mierzy 1000 analiz językowych po 100 rozgrzewkowych, bez resolvera/IndexedDB/sieci. Pomiar lokalny na Node v22.23.4: 35,47 ms łącznie, średnio 0,035 ms/analizę. Wynik zależy od procesora i Node; skrypt wypisuje wersję i czas. Nie oznacza to czasu transkrypcji lub OFF.
+Benchmark mierzy 1000 analiz językowych po 100 rozgrzewkowych, bez resolvera/IndexedDB/sieci. Pomiar lokalny na Node v22.23.4: 41,80 ms łącznie, średnio 0,042 ms/analizę. Wynik zależy od procesora i Node; skrypt wypisuje wersję i czas. Nie oznacza to czasu transkrypcji lub OFF.
 
 ## Akceptacja na prawdziwym telefonie i ograniczenia
 
 Otwórz preview Etapu 5, sprawdź SHA, powiedz „250 ml mleka”, potem pełne śniadanie bez przecinków. Oceń tekst, porcje, wybierz warianty, popraw jeden wiersz i zatwierdź. Odśwież; sprawdź wpisy, ulubione i ostatnie. W labie sprawdź pozostałe scenariusze; diagnostyka speech nadal pokazuje surowe eventy z urządzenia.
 
 Parser ma skończony słownik rodzin i odmian; nie wszystkie zdania bez separatorów są jednoznaczne. Nie ma przeliczania sztuk na g, pojemności na masę ani kaloryczności z samej nazwy. OFF, Chrome Speech i sieć mogą być niedostępne; dane lokalne pozostają dostępne, lecz bez service workera nie gwarantujemy zimnego startu offline. localStorage nadal ma zaakceptowany wyścig dokładnie równoczesnych zapisów. Statystyczna pamięć nie jest modelem AI. Przed PR wymagany jest test akceptacyjny na Samsungu; żaden PR nie jest tworzony automatycznie.
+
+## Końcowy self-review względem main
+
+Naprawiono przechodzenie kontekstu „mili” przez spójnik i przez inny produkt; drugi płyn korzysta z własnego kontekstu. Usunięto powielony słownik fleksji. Dostęp do słownika używa `Object.hasOwn`, więc nazwy `constructor` i `__proto__` pozostają tekstem. Etykieta przybliżenia aktualizuje się po edycji porcji. Testy obejmują stare odmienione klucze pamięci bez migracji, zachowanie pinów aliasów po 205 innych wyborach oraz jawny wybór dwóch konkurencyjnych wariantów mleka. Historia ma limit długości tekstów i 20 rekordów. Dane z API, transkrypcji i aliasów trafiają do DOM przez textContent/createTextNode. Nie zmieniono formatu historycznych snapshotów, wzoru obliczeń ani adaptera mowy.
