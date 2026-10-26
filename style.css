@@ -170,3 +170,15 @@ dialog input,dialog select { display:block; width:100%; box-sizing:border-box; m
 .custom-row span { flex:1 1 180px; overflow-wrap:anywhere; }
 #connection-status:empty { display:none; }
 #search-internet { width:auto; min-height:24px; vertical-align:middle; }
+
+/* Product-specific household portions: compact on desktop, touch-friendly on mobile. */
+.portion-controls { min-width: 0; display: grid; gap: .65rem; }
+.portion-choice { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .65rem; border: 1px solid var(--line, #b7c8be); border-radius: 12px; }
+.portion-choice span { flex: 1 1 100%; overflow-wrap: anywhere; }
+.portion-controls button, #portion-memory-list button, .custom-portion-row button { min-height: 44px; white-space: normal; }
+.portion-controls input { width: 100%; box-sizing: border-box; }
+.custom-portion-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: .5rem; margin: .5rem 0; }
+.custom-portion-row button { grid-column: 1 / -1; }
+#portion-memory-list { padding-left: 1.2rem; }
+#portion-memory-list li { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: .8rem; }
+#portion-memory-list span { flex-basis: 100%; overflow-wrap: anywhere; }

@@ -1,3 +1,4 @@
+import { HOUSEHOLD_UNITS } from './portion-model.js';
 import { canonicalWord } from './food-language.js';
 import { normalizeTranscript } from './transcript-normalizer.js';
 import { segmentFoodText } from './food-segmentation.js';
@@ -9,8 +10,8 @@ import { readPolishNumber } from './polish-numbers.js';
 export const MEAL_LABELS = { breakfast: 'Śniadanie', lunch: 'Obiad', dinner: 'Kolacja', snack: 'Przekąska' };
 const meals = { sniadanie: 'breakfast', sniadania: 'breakfast', obiad: 'lunch', obiadu: 'lunch', kolacja: 'dinner', kolacje: 'dinner', kolacji: 'dinner', przekaska: 'snack', przekaske: 'snack', przekaski: 'snack' };
 const mealPattern = () => /\b(?:na\s+)?(sniadanie|sniadania|obiad|obiadu|kolacja|kolacje|kolacji|przekaska|przekaske|przekaski)\b/g;
-const unitNames = { piece:'piece',slice:'slice',tablespoon:'tablespoon',teaspoon:'teaspoon', g: 'g', gram: 'g', grama: 'g', gramy: 'g', gramow: 'g', ml: 'ml', mililitr: 'ml', mililitra: 'ml', mililitry: 'ml', mililitrow: 'ml' };
-const quantityPattern = () => /(?<![\d.,+\-])([+\-]?[\d.,]+)\s*(piece|slice|tablespoon|teaspoon|mililitrow|mililitry|mililitra|mililitr|ml|gramow|gramy|grama|gram|g)(?![a-z])/g;
+const unitNames = { ...Object.fromEntries(Object.keys(HOUSEHOLD_UNITS).map(unit=>[unit,unit])), piece:'piece',slice:'slice',tablespoon:'tablespoon',teaspoon:'teaspoon', g: 'g', gram: 'g', grama: 'g', gramy: 'g', gramow: 'g', ml: 'ml', mililitr: 'ml', mililitra: 'ml', mililitry: 'ml', mililitrow: 'ml' };
+const quantityPattern = () => /(?<![\d.,+\-])([+\-]?[\d.,]+)\s*(piece|slice|slab|tablespoon|teaspoon|cup|mug|package|serving|handful|scoop|mililitrow|mililitry|mililitra|mililitr|ml|gramow|gramy|grama|gram|g)(?![a-z])/g;
 const helpers = /\b(?:zjadlem|zjadlam|jadlem|jadlam|wypilem|wypilam|pije|jem|dzisiaj|dzis|potem|nastepnie|takze|mialem|mialam|jeszcze|chyba|do tego|na koniec)\b/g;
 const approximation = /\b(?:okolo|jakies|mniej wiecej(?: tak)?)\b/g;
 
@@ -55,7 +56,6 @@ function readFoodIntent(source, index, meal) {
     }
     issues.push({ code: amount === null ? 'missing-amount' : 'missing-unit', message: amount === null ? 'Podaj ilość i jednostkę. Nie zgadujemy porcji.' : 'Wybierz jednostkę ilości: g albo ml.' });
   }
-  if(unit && !['g','ml'].includes(unit)) issues.push({code:'mass-required',message:'Podaj masę w g lub objętość w ml; nie przeliczamy porcji domowych.'});
   const query = productQuery(rest);
   if (!query || !/[a-z]/.test(query)) issues.push({ code: 'missing-product', message: 'Podaj nazwę produktu.' });
   if (query.length > 120) issues.push({ code: 'long-query', message: 'Skróć nazwę produktu do 120 znaków.' });

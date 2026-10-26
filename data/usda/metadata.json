@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "builtAt": "2026-10-26T11:27:27.206Z",
+  "builtAt": "2026-10-26T13:13:10.407Z",
   "license": "USDA public domain / CC0",
   "sources": [
     {
@@ -10,6 +10,23 @@
       "records": 63975,
       "accepted": 310,
       "diagnostics": {
+        "firstPortionRow": {
+          "id": "118702",
+          "fdc_id": "319875",
+          "seq_num": "",
+          "amount": "2.0",
+          "measure_unit_id": "1001",
+          "portion_description": "",
+          "modifier": "",
+          "gram_weight": "35.8",
+          "data_points": "1",
+          "footnote": "",
+          "min_year_acquired": ""
+        },
+        "firstMeasureRow": {
+          "id": "1000",
+          "name": "cup"
+        },
         "nutrientIds": [
           "1051",
           "1002",
@@ -87,6 +104,20 @@
       "records": 5624,
       "accepted": 5624,
       "diagnostics": {
+        "firstPortionRow": {
+          "id": "267798",
+          "fdc_id": "2340760",
+          "seq_num": "3",
+          "amount": "",
+          "measure_unit_id": "9999",
+          "portion_description": "1 fl oz",
+          "modifier": "30000",
+          "gram_weight": "30.8"
+        },
+        "firstMeasureRow": {
+          "id": "1000",
+          "name": "cup"
+        },
         "nutrientIds": [
           "221",
           "323",
@@ -160,6 +191,23 @@
       "records": 7793,
       "accepted": 7793,
       "diagnostics": {
+        "firstPortionRow": {
+          "id": "81549",
+          "fdc_id": "167512",
+          "seq_num": "1",
+          "amount": "1",
+          "measure_unit_id": "9999",
+          "portion_description": "",
+          "modifier": "serving",
+          "gram_weight": "34",
+          "data_points": "",
+          "footnote": "",
+          "min_year_acquired": ""
+        },
+        "firstMeasureRow": {
+          "id": "1000",
+          "name": "cup"
+        },
         "nutrientIds": [
           "1003",
           "1007",
@@ -226,5 +274,342 @@
   "accepted": 13727,
   "count": 13727,
   "chunks": 108,
-  "bytes": 8810882
+  "bytes": 8810882,
+  "portions": {
+    "products": 9656,
+    "definitions": 17426,
+    "bytes": 6518724,
+    "unknownExamples": [
+      {
+        "productId": "usda:321359",
+        "id": "118806",
+        "fdc_id": "321359",
+        "amount": "1.0",
+        "measure_unit_id": "1009",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "30.5",
+        "measure_unit_name": "fl oz"
+      },
+      {
+        "productId": "usda:321359",
+        "id": "118807",
+        "fdc_id": "321359",
+        "amount": "1.0",
+        "measure_unit_id": "1045",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "976.0",
+        "measure_unit_name": "quart"
+      },
+      {
+        "productId": "usda:321360",
+        "id": "118808",
+        "fdc_id": "321360",
+        "amount": "5.0",
+        "measure_unit_id": "1082",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "49.7",
+        "measure_unit_name": "tomatoes"
+      },
+      {
+        "productId": "usda:322228",
+        "id": "118892",
+        "fdc_id": "322228",
+        "amount": "1.0",
+        "measure_unit_id": "1009",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "30.5",
+        "measure_unit_name": "fl oz"
+      },
+      {
+        "productId": "usda:322228",
+        "id": "118893",
+        "fdc_id": "322228",
+        "amount": "1.0",
+        "measure_unit_id": "1045",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "976.0",
+        "measure_unit_name": "quart"
+      },
+      {
+        "productId": "usda:322559",
+        "id": "118921",
+        "fdc_id": "322559",
+        "amount": "1.0",
+        "measure_unit_id": "1009",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "30.6",
+        "measure_unit_name": "fl oz"
+      },
+      {
+        "productId": "usda:322559",
+        "id": "118922",
+        "fdc_id": "322559",
+        "amount": "1.0",
+        "measure_unit_id": "1045",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "980.0",
+        "measure_unit_name": "quart"
+      },
+      {
+        "productId": "usda:322892",
+        "id": "118952",
+        "fdc_id": "322892",
+        "amount": "1.0",
+        "measure_unit_id": "1009",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "30.5",
+        "measure_unit_name": "fl oz"
+      },
+      {
+        "productId": "usda:322892",
+        "id": "118954",
+        "fdc_id": "322892",
+        "amount": "1.0",
+        "measure_unit_id": "1045",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "976.0",
+        "measure_unit_name": "quart"
+      },
+      {
+        "productId": "usda:323604",
+        "id": "119060",
+        "fdc_id": "323604",
+        "amount": "1.0",
+        "measure_unit_id": "1038",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "28.4",
+        "measure_unit_name": "oz"
+      },
+      {
+        "productId": "usda:323697",
+        "id": "119063",
+        "fdc_id": "323697",
+        "amount": "1.0",
+        "measure_unit_id": "1038",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "28.4",
+        "measure_unit_name": "oz"
+      },
+      {
+        "productId": "usda:324157",
+        "id": "119107",
+        "fdc_id": "324157",
+        "amount": "1.0",
+        "measure_unit_id": "1033",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "18.6",
+        "measure_unit_name": "link"
+      },
+      {
+        "productId": "usda:324653",
+        "id": "119202",
+        "fdc_id": "324653",
+        "amount": "1.0",
+        "measure_unit_id": "1077",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "40.4",
+        "measure_unit_name": "spear"
+      },
+      {
+        "productId": "usda:325658",
+        "id": "119321",
+        "fdc_id": "325658",
+        "amount": "1.0",
+        "measure_unit_id": "1033",
+        "portion_description": "",
+        "modifier": "medium",
+        "gram_weight": "86.6",
+        "measure_unit_name": "link"
+      },
+      {
+        "productId": "usda:325992",
+        "id": "119351",
+        "fdc_id": "325992",
+        "amount": "1.0",
+        "measure_unit_id": "1033",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "27.9",
+        "measure_unit_name": "link"
+      },
+      {
+        "productId": "usda:327198",
+        "id": "119519",
+        "fdc_id": "327198",
+        "amount": "1.0",
+        "measure_unit_id": "1060",
+        "portion_description": "",
+        "modifier": "large (1/8 of large melon)",
+        "gram_weight": "102.0",
+        "measure_unit_name": "wedge"
+      },
+      {
+        "productId": "usda:327198",
+        "id": "119521",
+        "fdc_id": "327198",
+        "amount": "1.0",
+        "measure_unit_id": "1060",
+        "portion_description": "",
+        "modifier": "medium (1/8 of medium melon)",
+        "gram_weight": "69.0",
+        "measure_unit_name": "wedge"
+      },
+      {
+        "productId": "usda:327198",
+        "id": "119523",
+        "fdc_id": "327198",
+        "amount": "1.0",
+        "measure_unit_id": "1060",
+        "portion_description": "",
+        "modifier": "small (1/8 of small melon)",
+        "gram_weight": "55.0",
+        "measure_unit_name": "wedge"
+      },
+      {
+        "productId": "usda:327923",
+        "id": "119544",
+        "fdc_id": "327923",
+        "amount": "1.0",
+        "measure_unit_id": "1117",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "581.0",
+        "measure_unit_name": "bunch"
+      },
+      {
+        "productId": "usda:329490",
+        "id": "119689",
+        "fdc_id": "329490",
+        "amount": "1.0",
+        "measure_unit_id": "1038",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "28.4",
+        "measure_unit_name": "oz"
+      },
+      {
+        "productId": "usda:329596",
+        "id": "119694",
+        "fdc_id": "329596",
+        "amount": "1.0",
+        "measure_unit_id": "1038",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "28.4",
+        "measure_unit_name": "oz"
+      },
+      {
+        "productId": "usda:329716",
+        "id": "119698",
+        "fdc_id": "329716",
+        "amount": "1.0",
+        "measure_unit_id": "1038",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "28.4",
+        "measure_unit_name": "oz"
+      },
+      {
+        "productId": "usda:330869",
+        "id": "120042",
+        "fdc_id": "330869",
+        "amount": "1.0",
+        "measure_unit_id": "1010",
+        "portion_description": "",
+        "modifier": "crumbles",
+        "gram_weight": "155.0",
+        "measure_unit_name": "paired cooked w"
+      },
+      {
+        "productId": "usda:331897",
+        "id": "121308",
+        "fdc_id": "331897",
+        "amount": "1.0",
+        "measure_unit_id": "1026",
+        "portion_description": "",
+        "modifier": "without skin",
+        "gram_weight": "94.7",
+        "measure_unit_name": "drumstick"
+      },
+      {
+        "productId": "usda:331897",
+        "id": "121309",
+        "fdc_id": "331897",
+        "amount": "1.0",
+        "measure_unit_id": "1026",
+        "portion_description": "",
+        "modifier": "with skin",
+        "gram_weight": "104.0",
+        "measure_unit_name": "drumstick"
+      },
+      {
+        "productId": "usda:332791",
+        "id": "121478",
+        "fdc_id": "332791",
+        "amount": "1.0",
+        "measure_unit_id": "1067",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "3.2",
+        "measure_unit_name": "olive"
+      },
+      {
+        "productId": "usda:332864",
+        "id": "121489",
+        "fdc_id": "332864",
+        "amount": "1.0",
+        "measure_unit_id": "1033",
+        "portion_description": "",
+        "modifier": "medium",
+        "gram_weight": "80.4",
+        "measure_unit_name": "link"
+      },
+      {
+        "productId": "usda:332864",
+        "id": "121490",
+        "fdc_id": "332864",
+        "amount": "1.0",
+        "measure_unit_id": "1033",
+        "portion_description": "",
+        "modifier": "long",
+        "gram_weight": "186.0",
+        "measure_unit_name": "link"
+      },
+      {
+        "productId": "usda:333374",
+        "id": "121591",
+        "fdc_id": "333374",
+        "amount": "1.0",
+        "measure_unit_id": "1027",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "176.0",
+        "measure_unit_name": "fillet"
+      },
+      {
+        "productId": "usda:333476",
+        "id": "121600",
+        "fdc_id": "333476",
+        "amount": "1.0",
+        "measure_unit_id": "1027",
+        "portion_description": "",
+        "modifier": "",
+        "gram_weight": "177.0",
+        "measure_unit_name": "fillet"
+      }
+    ]
+  }
 }

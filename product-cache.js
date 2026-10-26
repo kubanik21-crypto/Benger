@@ -5,7 +5,8 @@ import { normalizeFoodQuery } from './food-query.js';
 export const PRODUCT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const SEARCH_TTL_MS = 15 * 60 * 1000;
 // Rev 2: nazwy marek z API 3.6. Starsze kopie pozostają dostępne offline, ale nie są świeże.
-export const PRODUCT_CACHE_REVISION = 2;
+// Revision 3 fetches serving/package metadata once online; older products remain usable offline.
+export const PRODUCT_CACHE_REVISION = 3;
 const STORES = ['products', 'usage', 'searches', 'meta', 'selections'];
 function availableIndexedDB() {
   try { return globalThis.indexedDB; } catch { return null; }
@@ -227,8 +228,8 @@ export function createProductCache({ storage = createProductStorage(), now = () 
       await storage.mutate('meta',`alias:${key}`,()=>({key:`alias:${key}`,phrase:key,productId:product.id}));
     },
     async listAliases(){return (await storage.read('meta')).filter(x=>typeof x?.key==='string' && x.key===`alias:${x.phrase}` && typeof x.productId==='string').map(x=>({phrase:x.phrase,productId:x.productId}));},
-    async resolveAlias(query){const record=await storage.read('meta',`alias:${normalizeFoodQuery(query)}`);return typeof record?.productId==='string'?record.productId:null;},
-    async removeAlias(query){const key=normalizeFoodQuery(query);await storage.mutate('meta',`alias:${key}`,()=>null);await storage.mutate('selections',`alias ${key}`,()=>null);},
+    async resolveAlias(query){const phrase=normalizeFoodQuery(query),record=await storage.read('meta',`alias:${phrase}`);if(typeof record?.productId==='string')return record.productId;const ids=[...new Set((await storage.read('meta')).filter(row=>row.key?.startsWith('alias:')&&normalizeFoodQuery(row.phrase)===phrase).map(row=>row.productId).filter(id=>typeof id==='string'))];return ids.length===1?ids[0]:null;},
+    async removeAlias(query){const key=normalizeFoodQuery(query);for(const row of await storage.read('meta'))if(row.key?.startsWith('alias:')&&normalizeFoodQuery(row.phrase)===key){await storage.mutate('meta',row.key,()=>null);await storage.mutate('selections',`alias ${row.phrase}`,()=>null);}},
     recentIds,
     async favoriteIds() { return (await usage()).filter(record => record.favorite).sort((a, b) => (b.favoriteAt ?? 0) - (a.favoriteAt ?? 0)).map(record => record.key); },
     setFavorite,

@@ -2,12 +2,12 @@ import { readdirSync } from 'node:fs';
 // Jawna lista publikacji: bez serwera, testów, fixture, .git i konfiguracji.
 export const PUBLIC_ASSETS = [
   'barcode-test-lab.html','catalog-diagnostics.html','pwa-diagnostics.html','stage6-diagnostics.js',
-  'backup.js','backup-ui.js',
+  'portion-diagnostics.html','portion-test-lab.html','portion-diagnostics.js','backup.js','backup-ui.js','portion-model.js','portion-resolver.js','portion-references.js','portion-repository.js','portion-settings-ui.js','product-providers/usda-portions.js','product-providers/source-portions.js',
   'service-worker.js','sw-assets.js','pwa.js','barcode-scanner.js','barcode-utils.js','custom-product-ui.js',
   'icons/icon-192.png','icons/icon-512.png','vendor/zxing/zxing-browser-0.2.1.min.js',
   'vendor/zxing/LICENSE-browser.txt','vendor/zxing/LICENSE-library.txt','vendor/zxing/LICENSE-ts-custom-error.txt',
   'product-providers/usda.js','product-providers/custom.js',
-  ...readdirSync(new URL('../data/usda/',import.meta.url)).filter(file=>/^(?:index|metadata|chunk-\d{4})\.json$/.test(file)).sort().map(file=>'data/usda/'+file),
+  ...readdirSync(new URL('../data/usda/',import.meta.url)).filter(file=>/^(?:index|metadata|chunk-\d{4}|portion-index|portion-\d{4})\.json$/.test(file)).sort().map(file=>'data/usda/'+file),
   'index.html', 'style.css', 'app.js', 'app-storage.js', 'nutrition.js',
   'manifest.webmanifest', 'product-model.js', 'product-errors.js', 'product-cache.js',
   'product-repository.js', 'product-search-ui.js', 'legacy-product-references.js',

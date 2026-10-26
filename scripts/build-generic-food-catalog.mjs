@@ -1,9 +1,11 @@
-import { mkdir, readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, mkdtemp, rm, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { normalizeUsdaProduct, buildCatalog } from '../product-providers/usda.js';
+
+import { buildPortionCatalog } from '../product-providers/usda-portions.js';
 
 const args=process.argv.slice(2), fixture=args.indexOf('--fixture'), output=args.indexOf('--output');
 const destination=output>=0?args[output+1]:'data/usda';
@@ -27,7 +29,12 @@ else {
 const products=foods.map(normalizeUsdaProduct).filter(Boolean);
 if(!products.length)throw new Error('Brak prawidłowych rekordów — nic nie publikuję.');
 const catalog=buildCatalog(products);
+const portions=buildPortionCatalog(foods,new Set(products.map(p=>p.id)));
+Object.assign(catalog.files,portions.files);
+catalog.metadata.portions=portions.metadata;
 await mkdir(destination,{recursive:true});
+// Remove only obsolete generated chunks; never user data or unrelated files.
+for(const file of await readdir(destination))if(/^(?:chunk|portion)-\d{4}\.json$/.test(file)&&!Object.hasOwn(catalog.files,file))await rm(join(destination,file));
 for(const [file,value] of Object.entries(catalog.files))await writeFile(join(destination,file),JSON.stringify(value));
 await writeFile(join(destination,'metadata.json'),JSON.stringify({version:1,builtAt:new Date().toISOString(),license:'USDA public domain / CC0',sources,input:foods.length,accepted:products.length,...catalog.metadata},null,2)+'\n');
 console.log(JSON.stringify({input:foods.length,accepted:products.length,...catalog.metadata,sources},null,2));

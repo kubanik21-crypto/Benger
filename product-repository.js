@@ -1,3 +1,4 @@
+import { createPortionRepository } from './portion-repository.js';
 import { createUsdaProvider } from './product-providers/usda.js';
 import { createCustomProvider } from './product-providers/custom.js';
 import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js';
@@ -9,7 +10,7 @@ import { defaultSearchProvider } from './product-providers/off-search.js';
 export const SEARCH_INTERVAL_MS = 6500; // poniżej 10 wyszukiwań/minutę
 export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minutę
 
-export function createProductRepository({ generic = createUsdaProvider(), custom = createCustomProvider(), remote = createOpenFoodFactsProvider(), searchProvider = defaultSearchProvider(), cache = createProductCache(), isOnline = () => globalThis.navigator?.onLine !== false } = {}) {
+export function createProductRepository({ portions = createPortionRepository(), generic = createUsdaProvider(), custom = createCustomProvider(), remote = createOpenFoodFactsProvider(), searchProvider = defaultSearchProvider(), cache = createProductCache(), isOnline = () => globalThis.navigator?.onLine !== false } = {}) {
   const inFlight = new Map();
   const fromCache = async id => {
     if(id.startsWith('usda:'))return await generic.getById(id).catch(()=>null) ?? (await cache.getProduct(id))?.product ?? null;
@@ -43,6 +44,7 @@ export function createProductRepository({ generic = createUsdaProvider(), custom
   }
   return {
     ready: cache.ready,
+    portions,
     customProducts: custom.list,
     saveCustomProduct: (input,id) => custom.save(input,id),
     deleteCustomProduct: id => custom.remove(id),
@@ -110,6 +112,6 @@ export function createProductRepository({ generic = createUsdaProvider(), custom
         if (product) await cache.markUsed([product], Date.parse(entry.createdAt));
       }
     },
-    async close(){await Promise.all([cache.close(),custom.close()]);},
+    async close(){await Promise.all([cache.close(),custom.close(),portions.close()]);},
   };
 }

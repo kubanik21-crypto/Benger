@@ -1,0 +1,1046 @@
+[
+  {
+    "text": "2 łyżki oliwy",
+    "query": "oliwa",
+    "amount": 2,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "Zjadłem 3 łyżki oliwy",
+    "query": "oliwa",
+    "amount": 3,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "Na śniadanie 1 łyżka oliwy",
+    "query": "oliwa",
+    "amount": 1,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "Na kolację pół łyżki oliwy",
+    "query": "oliwa",
+    "amount": 0.5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "ćwierć łyżki oliwy",
+    "query": "oliwa",
+    "amount": 0.25,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "półtorej łyżki oliwy",
+    "query": "oliwa",
+    "amount": 1.5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "1,5 łyżki oliwy",
+    "query": "oliwa",
+    "amount": 1.5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "oliwy 2 łyżki",
+    "query": "oliwa",
+    "amount": 2,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "Na obiad łyżka oliwy",
+    "query": "oliwa",
+    "amount": 1,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "jedna i pół łyżki oliwy",
+    "query": "oliwa",
+    "amount": 1.5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "2 łyżeczki masła",
+    "query": "maslo",
+    "amount": 2,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "Zjadłem 3 łyżeczki masła",
+    "query": "maslo",
+    "amount": 3,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "Na śniadanie 1 łyżeczka masła",
+    "query": "maslo",
+    "amount": 1,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "Na kolację pół łyżeczki masła",
+    "query": "maslo",
+    "amount": 0.5,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "ćwierć łyżeczki masła",
+    "query": "maslo",
+    "amount": 0.25,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "półtorej łyżeczki masła",
+    "query": "maslo",
+    "amount": 1.5,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "1,5 łyżeczki masła",
+    "query": "maslo",
+    "amount": 1.5,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "masła 2 łyżeczki",
+    "query": "maslo",
+    "amount": 2,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "Na obiad łyżeczka masła",
+    "query": "maslo",
+    "amount": 1,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "jedna i pół łyżeczki masła",
+    "query": "maslo",
+    "amount": 1.5,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "2 kromki chleba",
+    "query": "chleb",
+    "amount": 2,
+    "unit": "slice"
+  },
+  {
+    "text": "Zjadłem 3 kromki chleba",
+    "query": "chleb",
+    "amount": 3,
+    "unit": "slice"
+  },
+  {
+    "text": "Na śniadanie 1 kromka chleba",
+    "query": "chleb",
+    "amount": 1,
+    "unit": "slice"
+  },
+  {
+    "text": "Na kolację pół kromki chleba",
+    "query": "chleb",
+    "amount": 0.5,
+    "unit": "slice"
+  },
+  {
+    "text": "ćwierć kromki chleba",
+    "query": "chleb",
+    "amount": 0.25,
+    "unit": "slice"
+  },
+  {
+    "text": "półtorej kromki chleba",
+    "query": "chleb",
+    "amount": 1.5,
+    "unit": "slice"
+  },
+  {
+    "text": "1,5 kromki chleba",
+    "query": "chleb",
+    "amount": 1.5,
+    "unit": "slice"
+  },
+  {
+    "text": "chleba 2 kromki",
+    "query": "chleb",
+    "amount": 2,
+    "unit": "slice"
+  },
+  {
+    "text": "Na obiad kromka chleba",
+    "query": "chleb",
+    "amount": 1,
+    "unit": "slice"
+  },
+  {
+    "text": "jedna i pół kromki chleba",
+    "query": "chleb",
+    "amount": 1.5,
+    "unit": "slice"
+  },
+  {
+    "text": "2 plastry sera",
+    "query": "ser",
+    "amount": 2,
+    "unit": "slab"
+  },
+  {
+    "text": "Zjadłem 3 plastry sera",
+    "query": "ser",
+    "amount": 3,
+    "unit": "slab"
+  },
+  {
+    "text": "Na śniadanie 1 plaster sera",
+    "query": "ser",
+    "amount": 1,
+    "unit": "slab"
+  },
+  {
+    "text": "Na kolację pół plastry sera",
+    "query": "ser",
+    "amount": 0.5,
+    "unit": "slab"
+  },
+  {
+    "text": "ćwierć plastry sera",
+    "query": "ser",
+    "amount": 0.25,
+    "unit": "slab"
+  },
+  {
+    "text": "półtorej plastry sera",
+    "query": "ser",
+    "amount": 1.5,
+    "unit": "slab"
+  },
+  {
+    "text": "1,5 plastry sera",
+    "query": "ser",
+    "amount": 1.5,
+    "unit": "slab"
+  },
+  {
+    "text": "sera 2 plastry",
+    "query": "ser",
+    "amount": 2,
+    "unit": "slab"
+  },
+  {
+    "text": "Na obiad plaster sera",
+    "query": "ser",
+    "amount": 1,
+    "unit": "slab"
+  },
+  {
+    "text": "jedna i pół plastry sera",
+    "query": "ser",
+    "amount": 1.5,
+    "unit": "slab"
+  },
+  {
+    "text": "2 opakowania skyra",
+    "query": "skyr",
+    "amount": 2,
+    "unit": "package"
+  },
+  {
+    "text": "Zjadłem 3 opakowania skyra",
+    "query": "skyr",
+    "amount": 3,
+    "unit": "package"
+  },
+  {
+    "text": "Na śniadanie 1 opakowanie skyra",
+    "query": "skyr",
+    "amount": 1,
+    "unit": "package"
+  },
+  {
+    "text": "Na kolację pół opakowania skyra",
+    "query": "skyr",
+    "amount": 0.5,
+    "unit": "package"
+  },
+  {
+    "text": "ćwierć opakowania skyra",
+    "query": "skyr",
+    "amount": 0.25,
+    "unit": "package"
+  },
+  {
+    "text": "półtorej opakowania skyra",
+    "query": "skyr",
+    "amount": 1.5,
+    "unit": "package"
+  },
+  {
+    "text": "1,5 opakowania skyra",
+    "query": "skyr",
+    "amount": 1.5,
+    "unit": "package"
+  },
+  {
+    "text": "skyra 2 opakowania",
+    "query": "skyr",
+    "amount": 2,
+    "unit": "package"
+  },
+  {
+    "text": "Na obiad opakowanie skyra",
+    "query": "skyr",
+    "amount": 1,
+    "unit": "package"
+  },
+  {
+    "text": "jedna i pół opakowania skyra",
+    "query": "skyr",
+    "amount": 1.5,
+    "unit": "package"
+  },
+  {
+    "text": "2 opakowania jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 2,
+    "unit": "package"
+  },
+  {
+    "text": "Zjadłem 3 opakowania jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 3,
+    "unit": "package"
+  },
+  {
+    "text": "Na śniadanie 1 opakowanie jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 1,
+    "unit": "package"
+  },
+  {
+    "text": "Na kolację pół opakowania jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 0.5,
+    "unit": "package"
+  },
+  {
+    "text": "ćwierć opakowania jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 0.25,
+    "unit": "package"
+  },
+  {
+    "text": "półtorej opakowania jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 1.5,
+    "unit": "package"
+  },
+  {
+    "text": "1,5 opakowania jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 1.5,
+    "unit": "package"
+  },
+  {
+    "text": "jogurtu 2 opakowania",
+    "query": "jogurt naturalny",
+    "amount": 2,
+    "unit": "package"
+  },
+  {
+    "text": "Na obiad opakowanie jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 1,
+    "unit": "package"
+  },
+  {
+    "text": "jedna i pół opakowania jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 1.5,
+    "unit": "package"
+  },
+  {
+    "text": "2 szklanki mleka",
+    "query": "mleko",
+    "amount": 2,
+    "unit": "cup"
+  },
+  {
+    "text": "Zjadłem 3 szklanki mleka",
+    "query": "mleko",
+    "amount": 3,
+    "unit": "cup"
+  },
+  {
+    "text": "Na śniadanie 1 szklanka mleka",
+    "query": "mleko",
+    "amount": 1,
+    "unit": "cup"
+  },
+  {
+    "text": "Na kolację pół szklanki mleka",
+    "query": "mleko",
+    "amount": 0.5,
+    "unit": "cup"
+  },
+  {
+    "text": "ćwierć szklanki mleka",
+    "query": "mleko",
+    "amount": 0.25,
+    "unit": "cup"
+  },
+  {
+    "text": "półtorej szklanki mleka",
+    "query": "mleko",
+    "amount": 1.5,
+    "unit": "cup"
+  },
+  {
+    "text": "1,5 szklanki mleka",
+    "query": "mleko",
+    "amount": 1.5,
+    "unit": "cup"
+  },
+  {
+    "text": "mleka 2 szklanki",
+    "query": "mleko",
+    "amount": 2,
+    "unit": "cup"
+  },
+  {
+    "text": "Na obiad szklanka mleka",
+    "query": "mleko",
+    "amount": 1,
+    "unit": "cup"
+  },
+  {
+    "text": "jedna i pół szklanki mleka",
+    "query": "mleko",
+    "amount": 1.5,
+    "unit": "cup"
+  },
+  {
+    "text": "2 kubki kefiru",
+    "query": "kefir",
+    "amount": 2,
+    "unit": "mug"
+  },
+  {
+    "text": "Zjadłem 3 kubki kefiru",
+    "query": "kefir",
+    "amount": 3,
+    "unit": "mug"
+  },
+  {
+    "text": "Na śniadanie 1 kubek kefiru",
+    "query": "kefir",
+    "amount": 1,
+    "unit": "mug"
+  },
+  {
+    "text": "Na kolację pół kubki kefiru",
+    "query": "kefir",
+    "amount": 0.5,
+    "unit": "mug"
+  },
+  {
+    "text": "ćwierć kubki kefiru",
+    "query": "kefir",
+    "amount": 0.25,
+    "unit": "mug"
+  },
+  {
+    "text": "półtorej kubki kefiru",
+    "query": "kefir",
+    "amount": 1.5,
+    "unit": "mug"
+  },
+  {
+    "text": "1,5 kubki kefiru",
+    "query": "kefir",
+    "amount": 1.5,
+    "unit": "mug"
+  },
+  {
+    "text": "kefiru 2 kubki",
+    "query": "kefir",
+    "amount": 2,
+    "unit": "mug"
+  },
+  {
+    "text": "Na obiad kubek kefiru",
+    "query": "kefir",
+    "amount": 1,
+    "unit": "mug"
+  },
+  {
+    "text": "jedna i pół kubki kefiru",
+    "query": "kefir",
+    "amount": 1.5,
+    "unit": "mug"
+  },
+  {
+    "text": "2 garści migdałów",
+    "query": "migdaly",
+    "amount": 2,
+    "unit": "handful"
+  },
+  {
+    "text": "Zjadłem 3 garści migdałów",
+    "query": "migdaly",
+    "amount": 3,
+    "unit": "handful"
+  },
+  {
+    "text": "Na śniadanie 1 garść migdałów",
+    "query": "migdaly",
+    "amount": 1,
+    "unit": "handful"
+  },
+  {
+    "text": "Na kolację pół garści migdałów",
+    "query": "migdaly",
+    "amount": 0.5,
+    "unit": "handful"
+  },
+  {
+    "text": "ćwierć garści migdałów",
+    "query": "migdaly",
+    "amount": 0.25,
+    "unit": "handful"
+  },
+  {
+    "text": "półtorej garści migdałów",
+    "query": "migdaly",
+    "amount": 1.5,
+    "unit": "handful"
+  },
+  {
+    "text": "1,5 garści migdałów",
+    "query": "migdaly",
+    "amount": 1.5,
+    "unit": "handful"
+  },
+  {
+    "text": "migdałów 2 garści",
+    "query": "migdaly",
+    "amount": 2,
+    "unit": "handful"
+  },
+  {
+    "text": "Na obiad garść migdałów",
+    "query": "migdaly",
+    "amount": 1,
+    "unit": "handful"
+  },
+  {
+    "text": "jedna i pół garści migdałów",
+    "query": "migdaly",
+    "amount": 1.5,
+    "unit": "handful"
+  },
+  {
+    "text": "2 miarki odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 2,
+    "unit": "scoop"
+  },
+  {
+    "text": "Zjadłem 3 miarki odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 3,
+    "unit": "scoop"
+  },
+  {
+    "text": "Na śniadanie 1 miarka odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 1,
+    "unit": "scoop"
+  },
+  {
+    "text": "Na kolację pół miarki odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 0.5,
+    "unit": "scoop"
+  },
+  {
+    "text": "ćwierć miarki odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 0.25,
+    "unit": "scoop"
+  },
+  {
+    "text": "półtorej miarki odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 1.5,
+    "unit": "scoop"
+  },
+  {
+    "text": "1,5 miarki odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 1.5,
+    "unit": "scoop"
+  },
+  {
+    "text": "odżywki białkowej 2 miarki",
+    "query": "odzywka bialkowa",
+    "amount": 2,
+    "unit": "scoop"
+  },
+  {
+    "text": "Na obiad miarka odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 1,
+    "unit": "scoop"
+  },
+  {
+    "text": "jedna i pół miarki odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 1.5,
+    "unit": "scoop"
+  },
+  {
+    "text": "2 porcje ryżu",
+    "query": "ryz",
+    "amount": 2,
+    "unit": "serving"
+  },
+  {
+    "text": "Zjadłem 3 porcje ryżu",
+    "query": "ryz",
+    "amount": 3,
+    "unit": "serving"
+  },
+  {
+    "text": "Na śniadanie 1 porcja ryżu",
+    "query": "ryz",
+    "amount": 1,
+    "unit": "serving"
+  },
+  {
+    "text": "Na kolację pół porcje ryżu",
+    "query": "ryz",
+    "amount": 0.5,
+    "unit": "serving"
+  },
+  {
+    "text": "ćwierć porcje ryżu",
+    "query": "ryz",
+    "amount": 0.25,
+    "unit": "serving"
+  },
+  {
+    "text": "półtorej porcje ryżu",
+    "query": "ryz",
+    "amount": 1.5,
+    "unit": "serving"
+  },
+  {
+    "text": "1,5 porcje ryżu",
+    "query": "ryz",
+    "amount": 1.5,
+    "unit": "serving"
+  },
+  {
+    "text": "ryżu 2 porcje",
+    "query": "ryz",
+    "amount": 2,
+    "unit": "serving"
+  },
+  {
+    "text": "Na obiad porcja ryżu",
+    "query": "ryz",
+    "amount": 1,
+    "unit": "serving"
+  },
+  {
+    "text": "jedna i pół porcje ryżu",
+    "query": "ryz",
+    "amount": 1.5,
+    "unit": "serving"
+  },
+  {
+    "text": "2 łyżeczki cukru",
+    "query": "cukier",
+    "amount": 2,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "Zjadłem 3 łyżeczki cukru",
+    "query": "cukier",
+    "amount": 3,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "Na śniadanie 1 łyżeczka cukru",
+    "query": "cukier",
+    "amount": 1,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "Na kolację pół łyżeczki cukru",
+    "query": "cukier",
+    "amount": 0.5,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "ćwierć łyżeczki cukru",
+    "query": "cukier",
+    "amount": 0.25,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "półtorej łyżeczki cukru",
+    "query": "cukier",
+    "amount": 1.5,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "1,5 łyżeczki cukru",
+    "query": "cukier",
+    "amount": 1.5,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "cukru 2 łyżeczki",
+    "query": "cukier",
+    "amount": 2,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "Na obiad łyżeczka cukru",
+    "query": "cukier",
+    "amount": 1,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "jedna i pół łyżeczki cukru",
+    "query": "cukier",
+    "amount": 1.5,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "2 łyżki masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 2,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "Zjadłem 3 łyżki masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 3,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "Na śniadanie 1 łyżka masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 1,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "Na kolację pół łyżki masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 0.5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "ćwierć łyżki masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 0.25,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "półtorej łyżki masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 1.5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "1,5 łyżki masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 1.5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "masła orzechowego 2 łyżki",
+    "query": "maslo orzechowy",
+    "amount": 2,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "Na obiad łyżka masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 1,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "jedna i pół łyżki masła orzechowego",
+    "query": "maslo orzechowy",
+    "amount": 1.5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "2 sztuki banana",
+    "query": "banan",
+    "amount": 2,
+    "unit": "piece"
+  },
+  {
+    "text": "Zjadłem 3 sztuki banana",
+    "query": "banan",
+    "amount": 3,
+    "unit": "piece"
+  },
+  {
+    "text": "Na śniadanie 1 sztuka banana",
+    "query": "banan",
+    "amount": 1,
+    "unit": "piece"
+  },
+  {
+    "text": "Na kolację pół sztuki banana",
+    "query": "banan",
+    "amount": 0.5,
+    "unit": "piece"
+  },
+  {
+    "text": "ćwierć sztuki banana",
+    "query": "banan",
+    "amount": 0.25,
+    "unit": "piece"
+  },
+  {
+    "text": "półtorej sztuki banana",
+    "query": "banan",
+    "amount": 1.5,
+    "unit": "piece"
+  },
+  {
+    "text": "1,5 sztuki banana",
+    "query": "banan",
+    "amount": 1.5,
+    "unit": "piece"
+  },
+  {
+    "text": "banana 2 sztuki",
+    "query": "banan",
+    "amount": 2,
+    "unit": "piece"
+  },
+  {
+    "text": "Na obiad sztuka banana",
+    "query": "banan",
+    "amount": 1,
+    "unit": "piece"
+  },
+  {
+    "text": "jedna i pół sztuki banana",
+    "query": "banan",
+    "amount": 1.5,
+    "unit": "piece"
+  },
+  {
+    "text": "2 sztuki jabłka",
+    "query": "jablko",
+    "amount": 2,
+    "unit": "piece"
+  },
+  {
+    "text": "Zjadłem 3 sztuki jabłka",
+    "query": "jablko",
+    "amount": 3,
+    "unit": "piece"
+  },
+  {
+    "text": "Na śniadanie 1 sztuka jabłka",
+    "query": "jablko",
+    "amount": 1,
+    "unit": "piece"
+  },
+  {
+    "text": "Na kolację pół sztuki jabłka",
+    "query": "jablko",
+    "amount": 0.5,
+    "unit": "piece"
+  },
+  {
+    "text": "ćwierć sztuki jabłka",
+    "query": "jablko",
+    "amount": 0.25,
+    "unit": "piece"
+  },
+  {
+    "text": "półtorej sztuki jabłka",
+    "query": "jablko",
+    "amount": 1.5,
+    "unit": "piece"
+  },
+  {
+    "text": "1,5 sztuki jabłka",
+    "query": "jablko",
+    "amount": 1.5,
+    "unit": "piece"
+  },
+  {
+    "text": "jabłka 2 sztuki",
+    "query": "jablko",
+    "amount": 2,
+    "unit": "piece"
+  },
+  {
+    "text": "Na obiad sztuka jabłka",
+    "query": "jablko",
+    "amount": 1,
+    "unit": "piece"
+  },
+  {
+    "text": "jedna i pół sztuki jabłka",
+    "query": "jablko",
+    "amount": 1.5,
+    "unit": "piece"
+  },
+  {
+    "text": "pięć łyżek oliwy",
+    "query": "oliwa",
+    "amount": 5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "sześć łyżeczek cukru",
+    "query": "cukier",
+    "amount": 6,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "pięć kromek chleba",
+    "query": "chleb",
+    "amount": 5,
+    "unit": "slice"
+  },
+  {
+    "text": "sześć plastrów sera",
+    "query": "ser",
+    "amount": 6,
+    "unit": "slab"
+  },
+  {
+    "text": "pięć sztuk banana",
+    "query": "banan",
+    "amount": 5,
+    "unit": "piece"
+  },
+  {
+    "text": "pięć opakowań jogurtu",
+    "query": "jogurt naturalny",
+    "amount": 5,
+    "unit": "package"
+  },
+  {
+    "text": "pięć porcji ryżu",
+    "query": "ryz",
+    "amount": 5,
+    "unit": "serving"
+  },
+  {
+    "text": "dwie garście migdałów",
+    "query": "migdaly",
+    "amount": 2,
+    "unit": "handful"
+  },
+  {
+    "text": "pięć garści migdałów",
+    "query": "migdaly",
+    "amount": 5,
+    "unit": "handful"
+  },
+  {
+    "text": "pięć miarek odżywki białkowej",
+    "query": "odzywka bialkowa",
+    "amount": 5,
+    "unit": "scoop"
+  },
+  {
+    "text": "pięć szklanek mleka",
+    "query": "mleko",
+    "amount": 5,
+    "unit": "cup"
+  },
+  {
+    "text": "pięć kubków kefiru",
+    "query": "kefir",
+    "amount": 5,
+    "unit": "mug"
+  },
+  {
+    "text": "pół kubka mleka",
+    "query": "mleko",
+    "amount": 0.5,
+    "unit": "mug"
+  },
+  {
+    "text": "połowa banana",
+    "query": "banan",
+    "amount": 0.5,
+    "unit": "piece"
+  },
+  {
+    "text": "ćwierć jabłka",
+    "query": "jablko",
+    "amount": 0.25,
+    "unit": "piece"
+  },
+  {
+    "text": "jeden i pół banana",
+    "query": "banan",
+    "amount": 1.5,
+    "unit": "piece"
+  },
+  {
+    "text": "trzy kromki mojego chleba",
+    "query": "moj chleb",
+    "amount": 3,
+    "unit": "slice"
+  },
+  {
+    "text": "łyżeczka mojej oliwy",
+    "query": "moj oliwa",
+    "amount": 1,
+    "unit": "teaspoon"
+  },
+  {
+    "text": "pół opakowania mojego skyra",
+    "query": "moj skyr",
+    "amount": 0.5,
+    "unit": "package"
+  },
+  {
+    "text": "jedno jajko",
+    "query": "jajko",
+    "amount": 1,
+    "unit": "piece"
+  },
+  {
+    "text": "dwie bułki",
+    "query": "bulka",
+    "amount": 2,
+    "unit": "piece"
+  },
+  {
+    "text": "półtora jabłka",
+    "query": "jablko",
+    "amount": 1.5,
+    "unit": "piece"
+  },
+  {
+    "text": "moja oliwa dwie łyżki",
+    "query": "moj oliwa",
+    "amount": 2,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "szklanka mojej wody",
+    "query": "moj woda",
+    "amount": 1,
+    "unit": "cup"
+  }
+]

@@ -58,7 +58,7 @@ const examples = [
   ['chleba 50 g', 'chleb', 50, 'g'],
   ['cola zero 200 ml', 'cola zero', 200, 'ml'],
   ['jogurt truskawkowy 150 g', 'jogurt truskawkowy', 150, 'g'],
-  ['na śniadanie 12,5 g masła', 'masla', 12.5, 'g', 'breakfast'],
+  ['na śniadanie 12,5 g masła', 'maslo', 12.5, 'g', 'breakfast'],
 ];
 for (const [text, query, amount, unit, meal = 'snack'] of examples) {
   test(`Rozumienie: ${text}`, () => {

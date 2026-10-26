@@ -1,3 +1,5 @@
+import { sourcePortions } from './source-portions.js';
+import { isPortionDefinition, copyPortionDefinition } from '../portion-model.js';
 import { createProductStorage } from '../product-cache.js';
 import { copyProduct, isProduct, normalizeBarcode, barcodeKey, searchProducts } from '../product-model.js';
 let counter=0;
@@ -13,7 +15,15 @@ export function normalizeCustomProduct(input, previous=null){
  for(const key of ['kcal','protein','fat','carbs']){const raw=input.per100?.[key];if(typeof raw!=='number'||!Number.isFinite(raw)||raw<0||raw>(key==='kcal'?kcalLimit:macroLimit))throw new TypeError(`Wpisz kcal 0–${kcalLimit} i makro 0–${macroLimit} na 100 ${input.unit}.`);per100[key]=raw;}
  if(per100.protein+per100.fat+per100.carbs>(volume?300:101))throw new TypeError('Suma makro jest zbyt duża dla wybranej podstawy. Sprawdź etykietę.');
  const sourceId=previous?.sourceId??(globalThis.crypto?.randomUUID?.()??`${Date.now().toString(36)}-${++counter}-${Math.random().toString(36).slice(2)}`);
- const product={id:`custom:${sourceId}`,source:'custom',sourceId,name,brand:brand||null,barcode,unit:input.unit,basis:'declared',estimated:false,nutritionCompleteness:'COMPLETE',per100,imageUrl:null,quantity:null,updatedAt:new Date().toISOString()};
+ const product={id:`custom:${sourceId}`,source:'custom',sourceId,name,brand:brand||null,barcode,unit:input.unit,basis:'declared',estimated:false,nutritionCompleteness:'COMPLETE',per100,imageUrl:null,quantity:Object.hasOwn(input,'quantity')?input.quantity:previous?.quantity??null,updatedAt:new Date().toISOString()};
+ if(input.packageAmount!==undefined && input.packageAmount!==null && input.packageAmount!=='') {
+  if(typeof input.packageAmount!=='number'||!Number.isFinite(input.packageAmount)||input.packageAmount<=0||input.packageAmount>100000)throw new TypeError('Podaj dodatnią wielkość opakowania do 100 000.');
+  product.quantity=`${input.packageAmount} ${product.unit}`;
+ }
+ const supplied=input.portions??previous?.portions??[];
+ if(!Array.isArray(supplied)||supplied.length>30)throw new TypeError('Najwyżej 30 definicji porcji.');
+ product.portions=supplied.map(d=>{const value={...d,productId:product.id,source:'USER'};if(!isPortionDefinition(value)||value.normalizedUnit!==product.unit)throw new TypeError('Nieprawidłowa porcja produktu.');return copyPortionDefinition(value);});
+ if(product.quantity)product.portions=[...product.portions.filter(d=>d.unit!=='package'),...sourcePortions({quantity:product.quantity},product)];
  if(!isProduct(product))throw new TypeError('Wybierz jednostkę g albo ml.');return product;
 }
 export function createCustomProvider({storage=createProductStorage()}={}){
