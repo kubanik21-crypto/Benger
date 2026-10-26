@@ -1,0 +1,27 @@
+import { HOUSEHOLD_UNITS, householdUnitLabel, isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=360a5dd5208b6acb78d24cab528ecca0b9f14587';
+// Pure conversion only. Product identity and nutrition calculation belong to other layers.
+export function resolvePortion({product,amount,unit,definitions=[],settings={},definitionId=null}={}) {
+ const base={inputAmount:amount,inputUnit:unit,normalizedAmount:null,normalizedUnit:product?.unit??null,source:'NONE',confidence:'LOW',description:'Uzupełnij porcję dla tego produktu.',alternatives:[]};
+ if(!product||!Number.isFinite(amount)||amount<=0||amount>100000)return base;
+ const resolved=(factor,source,description,definition=null)=>{
+  const normalizedAmount=amount*factor;
+  if(!Number.isFinite(normalizedAmount)||normalizedAmount<=0||normalizedAmount>1e7)return base;
+  return {...base,normalizedAmount,source,confidence:'HIGH',description,definition:definition?copyPortionDefinition(definition):null};
+ };
+ if(unit===product.unit)return resolved(1,'NONE',`${amount} ${unit}`);
+ if(!Object.hasOwn(HOUSEHOLD_UNITS,unit))return {...base,description:'Nie przeliczamy gęstości g ↔ ml.'};
+ let matches=definitions.filter(d=>isPortionDefinition(d)&&d.productId===product.id&&(d.unit===unit||unit==='slab'&&d.unit==='slice')&&d.normalizedUnit===product.unit);
+ const user=matches.filter(d=>d.source==='USER');if(user.length)matches=user;
+ if(definitionId){const chosen=matches.find(d=>d.id===definitionId);if(chosen)return resolved(chosen.normalizedAmount/chosen.amount,chosen.source,chosen.description,chosen);}
+ if(matches.length===1)return resolved(matches[0].normalizedAmount/matches[0].amount,matches[0].source,matches[0].description,matches[0]);
+ if(matches.length>1)return {...base,alternatives:matches.map(copyPortionDefinition),description:'Wybierz rozmiar / definicję porcji dla tego produktu.'};
+ if(product.unit==='ml'){
+  const volume={teaspoon:5,tablespoon:15,cup:settings.cupMl,mug:settings.mugMl}[unit];
+  if(typeof volume==='number'&&Number.isFinite(volume)&&volume>0&&volume<=2000)return resolved(volume,'STANDARD_VOLUME',`${HOUSEHOLD_UNITS[unit]}: ${volume} ml${['cup','mug'].includes(unit)?' (Twoje ustawienie)':''}`);
+ }
+ return base;
+}
+export function portionLabel(conversion) {
+ if(!conversion||!Object.hasOwn(HOUSEHOLD_UNITS,conversion.inputUnit))return null;
+ return `${new Intl.NumberFormat('pl-PL',{maximumFractionDigits:3}).format(conversion.inputAmount)} ${householdUnitLabel(conversion.inputUnit,conversion.inputAmount)}`;
+}
