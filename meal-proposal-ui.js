@@ -35,7 +35,7 @@ export function updateProposalCard(card, item, message = '') {
   card.querySelector('[data-values]').textContent = item.portion
     ? `${number.format(item.portion.nutrition.kcal)} kcal · Białko: ${number.format(item.portion.nutrition.protein)} g · Tłuszcz: ${number.format(item.portion.nutrition.fat)} g · Węglowodany: ${number.format(item.portion.nutrition.carbs)} g` : 'Wartości pojawią się po uzupełnieniu produktu i porcji.';
   const detail=card.querySelector('[data-portion-detail]');
-  if(detail){const c=itemPortionResolution(item);detail.textContent=item.portion?.displayPortion?`${item.portion.displayPortion.label} · ${number.format(item.portion.amount)} ${product.unit} · ${c.source}: ${humanPortionDescription(c.description)}`:Object.hasOwn(HOUSEHOLD_UNITS,item.intent.unit)?c.description:'';}
+  if(detail){const c=itemPortionResolution(item);detail.textContent=item.portion?.displayPortion?`${item.portion.displayPortion.label} · ${c.estimated?'ok. ':''}${number.format(item.portion.amount)} ${product.unit} · ${c.estimated?'typowa wartość':c.source+': '+humanPortionDescription(c.description)}`:Object.hasOwn(HOUSEHOLD_UNITS,item.intent.unit)?c.description:'';}
   const controls=card.querySelector('[data-portion-controls]');
   if(controls&&card.portionHandlers)renderPortionControls(controls,item,card.portionHandlers);
   const amount = card.querySelector('[data-amount]');
@@ -113,7 +113,7 @@ function renderPortionControls(container,item,{onPortion}) {
  };
  if(conversion.alternatives.length)for(const def of conversion.alternatives)offer(def,`${humanPortionDescription(def.description)} — ${number.format(def.normalizedAmount/def.amount)} ${def.normalizedUnit} / ${HOUSEHOLD_UNITS[unit]}`);
  const custom=node('details');custom.open=!item.portion&&!conversion.alternatives.length;
- custom.append(node('summary','',item.portion?'Zmień definicję porcji':'Uzupełnij masę / objętość porcji'));
+ custom.append(node('summary','',conversion.estimated?'Ustaw własną porcję':item.portion?'Zmień definicję porcji':'Uzupełnij masę / objętość porcji'));
  const label=node('label','',`Ile ${product.unit==='g'?'waży':'ma ml'} 1 ${HOUSEHOLD_UNITS[unit]} tego produktu? (${product.unit})`);
  const input=node('input');input.id=`${item.id}-portion-weight`;input.type='text';input.inputMode='decimal';input.maxLength=12;input.dataset.portionWeight='';label.htmlFor=input.id;
  const message=node('p','field-help');message.setAttribute('role','status');

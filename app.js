@@ -185,7 +185,7 @@ function createPortionArticle(entry) {
   name.textContent = entry.productName;
   const amount = document.createElement('p');
   amount.className = 'entry-amount';
-  amount.textContent = `${entry.displayPortion?.label ? entry.displayPortion.label+' · ' : ''}${amountFormatter.format(entry.amount)} ${entry.unit}`;
+  amount.textContent = `${entry.displayPortion?.label ? entry.displayPortion.label+' · ' : ''}${entry.portionConversion?.estimated?'ok. ':''}${amountFormatter.format(entry.amount)} ${entry.unit}${entry.portionConversion?.estimated?' · typowa wartość':''}`;
   const values = document.createElement('p');
   values.className = 'entry-nutrition';
   values.textContent = `${formatter.format(entry.nutrition.kcal)} kcal · Białko: ${formatter.format(entry.nutrition.protein)} g · Tłuszcz: ${formatter.format(entry.nutrition.fat)} g · Węglowodany: ${formatter.format(entry.nutrition.carbs)} g`;

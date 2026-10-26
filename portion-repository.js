@@ -1,3 +1,4 @@
+import { loadPortionReference } from './portion-references.js';
 import { createProductStorage } from './product-cache.js';
 import { createUsdaPortionProvider } from './product-providers/usda-portions.js';
 import { copyPortionDefinition, isPortionDefinition, samePortionUnit } from './portion-model.js';
@@ -5,6 +6,7 @@ const keyFor=(productId,unit)=>`portion:${productId}:${unit}`;
 export function validPortionSettings(value){return value&&typeof value==='object'&&Object.keys(value).every(key=>['cupMl','mugMl'].includes(key)&&typeof value[key]==='number'&&Number.isFinite(value[key])&&value[key]>0&&value[key]<=2000);}
 export function createPortionRepository({storage=createProductStorage(),usda=createUsdaPortionProvider()}={}) {
  return {
+  async getReference(product){return loadPortionReference(product,usda).catch(()=>null);},
   async getPortions(product){
    const user=(await storage.read('meta')).filter(row=>row.key?.startsWith('portion:')&&row.definition?.productId===product.id&&row.definition.source==='USER'&&row.definition.normalizedUnit===product.unit&&isPortionDefinition(row.definition)).map(row=>row.definition);
    const source=product.source==='usda'?await usda.getPortions(product.id).catch(()=>[]):product.portions??[];

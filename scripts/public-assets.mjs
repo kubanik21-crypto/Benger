@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs';
 // Jawna lista publikacji: bez serwera, testów, fixture, .git i konfiguracji.
 export const PUBLIC_ASSETS = [
   'barcode-test-lab.html','catalog-diagnostics.html','pwa-diagnostics.html','stage6-diagnostics.js',
-  'portion-diagnostics.html','portion-test-lab.html','portion-diagnostics.js','backup.js','backup-ui.js','portion-model.js','portion-resolver.js','portion-repository.js','portion-settings-ui.js','product-providers/usda-portions.js','product-providers/source-portions.js',
+  'portion-diagnostics.html','portion-test-lab.html','portion-diagnostics.js','backup.js','backup-ui.js','portion-model.js','portion-resolver.js','portion-references.js','portion-repository.js','portion-settings-ui.js','product-providers/usda-portions.js','product-providers/source-portions.js',
   'service-worker.js','sw-assets.js','pwa.js','barcode-scanner.js','barcode-utils.js','custom-product-ui.js',
   'icons/icon-192.png','icons/icon-512.png','vendor/zxing/zxing-browser-0.2.1.min.js',
   'vendor/zxing/LICENSE-browser.txt','vendor/zxing/LICENSE-library.txt','vendor/zxing/LICENSE-ts-custom-error.txt',
