@@ -1,4 +1,4 @@
-import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=97c6d29ab4957fd5a0ad09b319aa2dfffb978607';
+import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=9ced9ffbe1b6f10152fb33d5432ccc0a4b8aed43';
 const $ = id => document.getElementById(id);
 let adapter, report, started;
 function render() { $('report').textContent = JSON.stringify(report,null,2); }
