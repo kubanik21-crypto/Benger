@@ -1,3 +1,4 @@
+import { createTestCustomProvider } from './tests/fixtures/nutrition-products.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -17,7 +18,7 @@ async function setup(products = [milk, other, skyr]) {
   let calls = 0;
   const storage = createProductStorage({ indexedDBFactory: null });
   const cache = createProductCache({ storage }); await cache.putProducts(products);
-  const repository = createProductRepository({ cache, searchProvider: { id: 'test', searchProducts: async () => { calls++; return [skyr]; } } });
+  const repository = createProductRepository({ custom:createTestCustomProvider(), cache, searchProvider: { id: 'test', searchProducts: async () => { calls++; return [skyr]; } } });
   return { cache, repository, resolver: createProductResolver({ repository }), calls: () => calls, storage };
 }
 
@@ -56,7 +57,7 @@ test('wielkość liter, polskie znaki i procenty normalizują się deterministyc
   assert.equal(normalizeFoodQuery(' MLEKO 2,0 procent '), 'mleko 2%');
   assert.equal(normalizeFoodQuery('PŁATKI OWSIANE'), 'platki owsiane');
   const { resolver } = await setup();
-  assert.equal((await resolver.resolve({ query: 'PLATKI OWSIANE', amount: 50, unit: 'g' })).product.id, 'oat-flakes');
+  assert.equal((await resolver.resolve({ query: 'PLATKI OWSIANE', amount: 50, unit: 'g' })).product.id, 'custom:test-oats');
 });
 test('dokładny barcode HIGH; g/ml nigdy nie są przeliczane przez resolver', async () => {
   const { resolver, calls } = await setup();
@@ -116,7 +117,7 @@ test('posiłek zachowuje rozpoznane pozycje; potwierdzenie jednego wiersza nie z
 test('brak ilości zachowuje rozpoznaną tożsamość, ale nie tworzy porcji', async () => {
   const { resolver } = await setup();
   const proposal = await resolveMealIntents([{ query: 'banan', amount: null, unit: null }], { resolver });
-  assert.equal(proposal.items[0].resolution.product.id, 'peeled-banana');
+  assert.equal(proposal.items[0].resolution.product.id, 'custom:test-banana');
   assert.equal(proposal.items[0].portion, null);
 });
 test('pięć nowych produktów zużywa najwyżej jeden zewnętrzny search na analizę', async () => {

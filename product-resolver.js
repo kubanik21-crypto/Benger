@@ -57,6 +57,11 @@ export function createProductResolver({ repository }) {
       return result(product, 'MEDIUM', [], `unique-${origin}`);
     }
     if (eligible.length > 1) return result(null, 'LOW', eligible, 'ambiguous-products');
+    const localMismatch=all.filter(product=>matchesFoodQuery(product,query));
+    if(localMismatch.length)return result(null,'LOW',localMismatch,'unit-or-variant-mismatch');
+    const generic=(await repository.genericMatches?.(query) ?? []).filter(product=>compatible(product,intent));
+    if(generic.length===1)return result(generic[0],'MEDIUM',[],'unique-generic');
+    if(generic.length>1)return result(null,'LOW',generic,'ambiguous-generic-products');
     if (allowExternal) {
       const response = await repository.searchProducts(query, { signal });
       const products = deduplicateProducts(response.products).filter(product => compatible(product, intent) && matchesFoodQuery(product, query));

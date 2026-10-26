@@ -1,35 +1,36 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseMealText } from './meal-parser.js';
-import { PRODUCTS } from './nutrition.js';
+import { parseMealText as parseWithCatalog } from './meal-parser.js';
+const parseMealText=(text,options={})=>parseWithCatalog(text,{products:TEST_PRODUCTS,...options});
+import { TEST_PRODUCTS } from './tests/fixtures/nutrition-products.mjs';
 
 const parse = (text, options = {}) => parseMealText(text, { defaultMeal: 'breakfast', ...options });
 
 for (const [text, productId, amount, unit] of [
-  ['50 g płatków owsianych', 'oat-flakes', 50, 'g'],
-  ['płatki owsiane 50 g', 'oat-flakes', 50, 'g'],
-  ['200 ml mleka 2%', 'milk-2-percent', 200, 'ml'],
-  ['mleko 2% 200ml', 'milk-2-percent', 200, 'ml'],
-  ['banan 120 g', 'peeled-banana', 120, 'g'],
-  ['120 g banana', 'peeled-banana', 120, 'g'],
-  ['150 g jogurtu naturalnego', 'natural-yogurt', 150, 'g'],
-  ['50,5 g płatków', 'oat-flakes', 50.5, 'g'],
-  ['płatki 50g', 'oat-flakes', 50, 'g'],
-  ['płatki 50 gram', 'oat-flakes', 50, 'g'],
-  ['50 gramów płatków', 'oat-flakes', 50, 'g'],
-  ['200 mililitrów mleka', 'milk-2-percent', 200, 'ml'],
-  ['banany 120 gramów', 'peeled-banana', 120, 'g'],
-  ['jogurt 150 g', 'natural-yogurt', 150, 'g'],
-  ['mleko 200 ml', 'milk-2-percent', 200, 'ml'],
-  ['jogurt naturalny 150 g', 'natural-yogurt', 150, 'g'],
-  ['  NA ŚNIADANIE: ZJADŁAM\t50,5\u00a0GRAMÓW   PŁATKÓW OWSIANYCH.  ', 'oat-flakes', 50.5, 'g'],
+  ['50 g płatków owsianych', 'custom:test-oats', 50, 'g'],
+  ['płatki owsiane 50 g', 'custom:test-oats', 50, 'g'],
+  ['200 ml mleka 2%', 'custom:test-milk', 200, 'ml'],
+  ['mleko 2% 200ml', 'custom:test-milk', 200, 'ml'],
+  ['banan 120 g', 'custom:test-banana', 120, 'g'],
+  ['120 g banana', 'custom:test-banana', 120, 'g'],
+  ['150 g jogurtu naturalnego', 'custom:test-yogurt', 150, 'g'],
+  ['50,5 g płatków', 'custom:test-oats', 50.5, 'g'],
+  ['płatki 50g', 'custom:test-oats', 50, 'g'],
+  ['płatki 50 gram', 'custom:test-oats', 50, 'g'],
+  ['50 gramów płatków', 'custom:test-oats', 50, 'g'],
+  ['200 mililitrów mleka', 'custom:test-milk', 200, 'ml'],
+  ['banany 120 gramów', 'custom:test-banana', 120, 'g'],
+  ['jogurt 150 g', 'custom:test-yogurt', 150, 'g'],
+  ['mleko 200 ml', 'custom:test-milk', 200, 'ml'],
+  ['jogurt naturalny 150 g', 'custom:test-yogurt', 150, 'g'],
+  ['  NA ŚNIADANIE: ZJADŁAM\t50,5\u00a0GRAMÓW   PŁATKÓW OWSIANYCH.  ', 'custom:test-oats', 50.5, 'g'],
 ]) {
   test(`rozpoznanie: ${text.trim()}`, () => {
     const result = parse(text);
     assert.deepEqual(result.issues, []);
     assert.equal(result.items.length, 1);
     assert.deepEqual({ ...result.items[0], source: undefined }, { source: undefined, productId, amount, unit, status: 'recognized' });
-    assert.ok(PRODUCTS.some(product => product.id === result.items[0].productId && product.unit === unit));
+    assert.ok(TEST_PRODUCTS.some(product => product.id === result.items[0].productId && product.unit === unit));
   });
 }
 
@@ -38,7 +39,7 @@ test('pełne śniadanie z dwoma produktami', () => {
   assert.equal(result.meal, 'breakfast');
   assert.deepEqual(result.issues, []);
   assert.deepEqual(result.items.map(({ productId, amount, unit }) => [productId, amount, unit]), [
-    ['oat-flakes', 50, 'g'], ['milk-2-percent', 200, 'ml'],
+    ['custom:test-oats', 50, 'g'], ['custom:test-milk', 200, 'ml'],
   ]);
 });
 
@@ -53,7 +54,7 @@ test('przykładowy obiad z banana i jogurtu', () => {
   const result = parse('Obiad: banan 120 g i 150 g jogurtu naturalnego');
   assert.equal(result.meal, 'lunch');
   assert.deepEqual(result.issues, []);
-  assert.deepEqual(result.items.map(item => item.productId), ['peeled-banana', 'natural-yogurt']);
+  assert.deepEqual(result.items.map(item => item.productId), ['custom:test-banana', 'custom:test-yogurt']);
 });
 
 for (const [phrase, meal] of [
@@ -110,7 +111,7 @@ for (const [text, code] of [
 
 test('brak ilości nie przyjmuje domyślnej porcji', () => {
   const result = parse('zjadłem banana');
-  assert.equal(result.items[0].productId, 'peeled-banana');
+  assert.equal(result.items[0].productId, 'custom:test-banana');
   assert.equal(result.items[0].amount, null);
   assert.equal(result.items[0].unit, null);
 });
@@ -146,14 +147,14 @@ test('przecinki dziesiętne nie rozdzielają pozycji; działają „oraz” i ś
 });
 
 test('parser jest deterministyczny i nie zmienia katalogu ani opcji', () => {
-  const before = structuredClone(PRODUCTS);
+  const before = structuredClone(TEST_PRODUCTS);
   const options = Object.freeze({ defaultMeal: 'dinner' });
   const first = parseMealText('mleko 200 ml', options);
   first.items[0].amount = 999;
   const second = parseMealText('mleko 200 ml', options);
   assert.equal(second.items[0].amount, 200);
   assert.equal(second.meal, 'dinner');
-  assert.deepEqual(PRODUCTS, before);
+  assert.deepEqual(TEST_PRODUCTS, before);
   assert.equal(Object.hasOwn(second.items[0], 'nutrition'), false);
 });
 
@@ -171,9 +172,9 @@ test('naturalne wprowadzenia dla jedzenia i picia nie zmieniają ilości', () =>
 });
 
 test('parser przyjmuje dostarczony katalog bez requestów, zachowując istniejące aliasy', () => {
-  const products = [{ id: 'oat-flakes', name: 'Płatki z katalogu dostawcy', unit: 'g' }];
+  const products = [{ id: 'custom:test-oats', name: 'Płatki z katalogu dostawcy', unit: 'g', aliases: ['płatki owsiane','płatków owsianych'] }];
   const result = parseMealText('200 g płatków owsianych', { defaultMeal: 'breakfast', products });
-  assert.equal(result.items[0].productId, 'oat-flakes');
+  assert.equal(result.items[0].productId, 'custom:test-oats');
   assert.equal(result.items[0].status, 'recognized');
   const absent = parseMealText('200 g płatków owsianych', { defaultMeal: 'breakfast', products: [] });
   assert.equal(absent.items[0].status, 'needs-review');

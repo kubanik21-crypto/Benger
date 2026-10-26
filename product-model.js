@@ -38,11 +38,12 @@ export function isProduct(product) {
     && (product.estimated === undefined || typeof product.estimated === 'boolean')
     && product.per100 !== null && typeof product.per100 === 'object'
     && NUTRIENTS.every(key => typeof product.per100[key] === 'number' && Number.isFinite(product.per100[key])
-      && product.per100[key] >= 0 && (product.unit === 'ml' || product.per100[key] <= (key === 'kcal' ? 1000 : 100)))
+      && product.per100[key] >= 0 && product.per100[key] <= (product.unit === 'ml' ? (key === 'kcal' ? 10000 : 1000) : (key === 'kcal' ? 1000 : 100)))
     // Limit masy dotyczy 100 g; bez gęstości nie wolno narzucać go 100 ml.
     && (product.unit === 'ml' || product.per100.protein + product.per100.fat + product.per100.carbs <= 101)
     && (product.imageUrl === null || safeImageUrl(product.imageUrl) === product.imageUrl)
     && (product.quantity === null || (typeof product.quantity === 'string' && product.quantity.length <= 120))
+    && (product.source !== 'usda' || ['description','category','dataType'].every(key=>product[key]===undefined || typeof product[key]==='string' && product[key].length<=240))
     && (product.updatedAt === null || (typeof product.updatedAt === 'string' && Number.isFinite(Date.parse(product.updatedAt))));
 }
 
@@ -52,8 +53,10 @@ export function copyProduct(product) {
   return {
     id: product.id, source: product.source, sourceId: product.sourceId, barcode: product.barcode,
     name: product.name, brand: product.brand, unit: product.unit, basis: product.basis, estimated: product.estimated ?? false,
+    nutritionCompleteness: 'COMPLETE',
     per100: Object.fromEntries(NUTRIENTS.map(key => [key, product.per100[key]])),
     imageUrl: product.imageUrl, quantity: product.quantity, updatedAt: product.updatedAt,
+    ...(product.source === 'usda' ? {description:product.description ?? product.name,category:product.category ?? 'Unknown',dataType:product.dataType ?? 'Unknown'} : {}),
   };
 }
 
@@ -84,4 +87,11 @@ export function searchProducts(products, query, limit = 20) {
     .filter(item => item.matches)
     .sort((a, b) => b.score - a.score || a.product.name.localeCompare(b.product.name, 'pl'))
     .slice(0, limit).map(item => item.product);
+}
+
+export const productSourceLabel = product => ({openfoodfacts:'Open Food Facts',benger:'Archiwalny produkt',usda:'USDA · żywność ogólna',custom:'Własny produkt'})[product.source] ?? product.source;
+
+export function nutritionCompleteness(product){
+ const count=NUTRIENTS.filter(key=>typeof product?.per100?.[key]==='number'&&Number.isFinite(product.per100[key])&&product.per100[key]>=0).length;
+ return count===4?'COMPLETE':count?'PARTIAL':'INSUFFICIENT';
 }

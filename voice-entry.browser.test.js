@@ -46,7 +46,7 @@ function contrast(a,b) {
 }
 
 test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany preview', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-5/', previewBuild: true, mockOFF: true });
+  const browser = await startBrowser({seedProducts:true, staticPrefix: '/Benger/previews/etap-6/', previewBuild: true, mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page(browser.base, { initScript: SPEECH });
   await a.date(DAY);
@@ -145,7 +145,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
   });
 
   await t.test('potwierdzenie zapisuje trzy snapshoty jedną operacją, reload i pamięć działają', async () => {
-    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-5.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
+    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-6.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
     await a.evaluate("document.getElementById('save-meal-proposal').click();document.getElementById('save-meal-proposal').click()");
     const saved = await a.saved(); assert.equal(saved.length, 3); assert.equal(await a.evaluate('window.__writes'), 1);
     assert.deepEqual(saved.map(entry=>entry.amount), [80,250,120]); assert.ok(saved.every(entry=>entry.meal==='breakfast' && entry.date===DAY));
@@ -154,7 +154,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 3);
     assert.ok(await a.evaluate("document.querySelector('#recent-products [data-product-id]')"));
     const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(item=>item.name))()');
-    assert.ok(names.includes('BengerDB-preview-etap-5')); assert.ok(!names.includes('BengerDB'));
+    assert.ok(names.includes('BengerDB-preview-etap-6')); assert.ok(!names.includes('BengerDB'));
     assert.equal(await a.raw('benger.nutrition.v1'), null); assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), null);
   });
 
@@ -253,7 +253,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
   await t.test('nie więcej niż jeden automatyczny request na pięć nowych pozycji i brak XSS', async () => {
     await a.evaluate('window.__advanceClock(65000)'); const before=apiRequests().length;
     await a.analyze('100g kurczaka i 100g ryżu i 100g oliwy i 100g ziemniaków i 100g makaronu');
-    assert.equal(apiRequests().length,before+1); assert.equal(await disabled(a),true);
+    assert.ok(apiRequests().length-before<=1); assert.equal(await disabled(a),true);
     assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal-items .proposal-card').length"),5);
     await a.analyze('<img src=x onerror=window.__xss=true> banan 120g');
     assert.equal(await disabled(a),true); assert.equal(await a.evaluate("document.querySelectorAll('#meal-proposal img').length"),0);
@@ -328,7 +328,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
 });
 
 test('Speech diagnostics — surowe kumulacyjne eventy i tryby A/B/C',async t=>{
- const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-5/',previewBuild:true});t.after(()=>browser.close());
+ const browser=await startBrowser({seedProducts:true,staticPrefix:'/Benger/previews/etap-6/',previewBuild:true});t.after(()=>browser.close());
  const page=await browser.page(new URL('speech-diagnostics.html',browser.base).href,{diagnostic:true,initScript:SPEECH});
  for(const mode of ['A','B','C']){
   await page.evaluate(`document.getElementById('mode').value='${mode}';document.getElementById('start').click();window.__speechUpdate(0,[['250',false]]);window.__speechUpdate(0,[['250 ml',true],['mleka',false]]);window.__speechUpdate(1,[['mleka',true]]);document.getElementById('stop').click()`);
@@ -339,7 +339,7 @@ test('Speech diagnostics — surowe kumulacyjne eventy i tryby A/B/C',async t=>{
 });
 
 test('Etap 5 — pięć struktur bez przecinków, save/reload, alias i voice lab', {timeout:120000},async t=>{
- const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-5/',previewBuild:true,mockOFF:true});t.after(()=>browser.close());
+ const browser=await startBrowser({seedProducts:true,staticPrefix:'/Benger/previews/etap-6/',previewBuild:true,mockOFF:true});t.after(()=>browser.close());
  const a=await browser.page(browser.base,{initScript:SPEECH});await a.date(DAY);
  const cases=[
  ['na śniadanie 80 gram płatków owsianych 250 mililitrów mleka 2 procent i banana 120 gram',[80,250,120],['g','ml','g']],
@@ -359,7 +359,7 @@ test('Etap 5 — pięć struktur bez przecinków, save/reload, alias i voice lab
   await click(a,'voice-microphone');await a.evaluate(`window.__speechResult(${JSON.stringify(cases[0][0])})`);await click(a,'voice-microphone');
   await wait(a,"document.getElementById('meal-text-form').dataset.analysisState==='complete'");
   // Poprzedni scenariusz zapełnił cache drugim mlekiem: wymagamy jawnego wyboru wariantu.
-  await a.evaluate("document.querySelector('[data-item-id=food-2] [data-choice-id=milk-2-percent]')?.click()");
+  await a.evaluate("document.querySelector('[data-item-id=food-2] [data-choice-id=\"custom:test-milk\"]')?.click()");
   const first=await a.evaluate("document.querySelector('[data-item-id=food-1]').textContent");
   await fillRow(a,'food-3','130');assert.equal(await a.evaluate("document.querySelector('[data-item-id=food-1]').textContent"),first);
   assert.equal(await disabled(a),false,await a.evaluate("document.getElementById('meal-proposal').textContent"));await a.accept();assert.equal((await a.saved()).length,3);assert.equal((await a.saved())[2].amount,130);
@@ -374,9 +374,9 @@ test('Etap 5 — pięć struktur bez przecinków, save/reload, alias i voice lab
   await lab.evaluate("document.getElementById('scenario').value='8';document.getElementById('raw').value='na śniadanie 80 gram płatków owsianych 250 ml mleka 2 procent i banana 120 gram';document.getElementById('analyze').click()");
   await wait(lab,"document.getElementById('verdict').textContent==='PASS'");
   const data=await lab.evaluate("JSON.parse(document.getElementById('result').textContent)");assert.equal(data.intents.length,3);assert.ok(data.tokens.length>0);assert.ok(data.normalizedTranscript.includes('2%'));
-  await lab.evaluate(`document.getElementById('alias').value='<img src=x onerror=alert(1)>';document.getElementById('product-id').value='milk-2-percent';document.getElementById('save-alias').click()`);
+  await lab.evaluate(`document.getElementById('alias').value='<img src=x onerror=alert(1)>';document.getElementById('product-id').value='custom:test-milk';document.getElementById('save-alias').click()`);
   await wait(lab,"document.getElementById('aliases').textContent.includes('<img')");assert.equal(await lab.evaluate("document.querySelectorAll('#aliases img').length"),0);
-  const result=await lab.evaluate("(async()=>{const {createProductRepository}=await import('./product-repository.js');const {createProductResolver}=await import('./product-resolver.js');const repo=createProductRepository();await repo.createAlias('moje mleko','milk-2-percent');const result=await createProductResolver({repository:repo}).resolve({query:'moje mleko'});await repo.close();return result})()");assert.equal(result.reason,'explicit-user-alias');
+  const result=await lab.evaluate("(async()=>{const {createProductRepository}=await import('./product-repository.js');const {createProductResolver}=await import('./product-resolver.js');const repo=createProductRepository();await repo.createAlias('moje mleko','custom:test-milk');const result=await createProductResolver({repository:repo}).resolve({query:'moje mleko'});await repo.close();return result})()");assert.equal(result.reason,'explicit-user-alias');
   await lab.evaluate("(async()=>{const {recordAnalysis}=await import('./analysis-history.js');for(let i=0;i<25;i++)recordAnalysis({rawTranscript:'banan',normalizedTranscript:'banan',intents:[{}]},1)})()");
   await lab.evaluate("document.getElementById('raw').value='banan';document.getElementById('analyze').click()");await wait(lab,"JSON.parse(document.getElementById('history').textContent).length===20");
   assert.equal((await lab.evaluate("JSON.parse(document.getElementById('history').textContent)")).length,20);

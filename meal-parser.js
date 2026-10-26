@@ -1,12 +1,4 @@
-import { PRODUCTS } from './nutrition.js';
-
-// To wyłącznie aliasy językowe. Produkty i jednostki pochodzą z przekazanego katalogu (domyślnie PRODUCTS).
-const PRODUCT_ALIASES = {
-  'oat-flakes': ['płatki owsiane', 'płatków owsianych', 'płatki', 'płatków'],
-  'peeled-banana': ['banan', 'banana', 'banany'],
-  'natural-yogurt': ['jogurt naturalny', 'jogurtu naturalnego', 'jogurt'],
-  'milk-2-percent': ['mleko 2%', 'mleka 2%', 'mleko', 'mleka'],
-};
+// Archiwalny parser Etapu 2: wyłącznie jawnie przekazany katalog. Nie jest publikowany w PWA.
 const MEAL_ALIASES = {
   sniadanie: 'breakfast', sniadania: 'breakfast',
   obiad: 'lunch', obiadu: 'lunch',
@@ -23,16 +15,11 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const aliases = Object.entries(PRODUCT_ALIASES).flatMap(([productId, names]) =>
-  names.map(name => [normalize(name), productId]));
-const productIds = new Map(aliases);
-const productPattern = new RegExp(`(?<![a-z0-9])(?:${aliases.map(([name]) => escapeRegExp(name))
-  .sort((a, b) => b.length - a.length).join('|')})(?![a-z0-9])`, 'g');
 const mealPattern = new RegExp(`\\b(?:na\\s+)?(${Object.keys(MEAL_ALIASES).join('|')})\\b\\s*:?`, 'g');
 const quantityPattern = /(?<![a-z0-9.,+\-])([+\-]?[\d.,]+)\s*(mililitrow|mililitry|mililitra|mililitr|ml|gramow|gramy|grama|gram|g)(?![a-z0-9])/g;
 const introPattern = /^(?:(?:zjadlem|zjadlam|wypilem|wypilam|jadlem|jadlam|dzis|dzisiaj)\b[\s:]*|[\s:])+/;
 
-function parseItem(source, itemIndex, products) {
+function parseItem(source, itemIndex, products, productPattern, productIds) {
   const issues = [];
   const issue = (code, message) => issues.push({ code, message, itemIndex });
   const foundProducts = [];
@@ -86,7 +73,10 @@ function parseItem(source, itemIndex, products) {
 
 // Czysta funkcja: nie oblicza makro, nie korzysta z DOM ani localStorage.
 // issues z itemIndex odnoszą się do pozycji; pozostałe dotyczą całej propozycji.
-export function parseMealText(text, { defaultMeal, products = PRODUCTS } = {}) {
+export function parseMealText(text, { defaultMeal, products = [] } = {}) {
+  const aliases = products.flatMap(product => [...new Set([product.name, ...(product.aliases ?? [])])].map(name => [normalize(name), product.id]));
+  const productIds = new Map(aliases);
+  const productPattern = new RegExp(`(?<![a-z0-9])(?:${aliases.map(([name]) => escapeRegExp(name)).sort((a,b)=>b.length-a.length).join('|') || '(?!)'})(?![a-z0-9])`, 'g');
   const issues = [];
   const items = [];
   const validMeals = Object.values(MEAL_ALIASES);
@@ -116,7 +106,7 @@ export function parseMealText(text, { defaultMeal, products = PRODUCTS } = {}) {
     .split(/(?<!\d),|,(?!\d)|;|\b(?:i|oraz)\b/)
     .map(segment => segment.trim()).filter(Boolean);
   for (const source of segments) {
-    const parsed = parseItem(source, items.length, products);
+    const parsed = parseItem(source, items.length, products, productPattern, productIds);
     items.push(parsed.item);
     issues.push(...parsed.issues);
   }

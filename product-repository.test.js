@@ -1,3 +1,4 @@
+import { createTestCustomProvider } from './tests/fixtures/nutrition-products.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -13,14 +14,15 @@ function setup({ search = async () => products, lookup = async () => products[0]
   const remote = {
     getProductByBarcode: async (...args) => { lookups++; return lookup(...args); },
   };
-  const repository = createProductRepository({ cache, remote, searchProvider: { id: 'mock-search', searchProducts: async (...args) => { searches++; return search(...args); } }, isOnline: () => online });
+  const repository = createProductRepository({ custom:createTestCustomProvider(), cache, remote, searchProvider: { id: 'mock-search', searchProducts: async (...args) => { searches++; return search(...args); } }, isOnline: () => online });
+  const searchProducts=repository.searchProducts.bind(repository);repository.searchProducts=(query,options={})=>searchProducts(query,{forceExternal:true,...options});
   return { repository, cache, tick: ms => { time += ms; }, offline: () => { online = false; }, counts: () => ({ searches, lookups }) };
 }
 
 test('łączy lokalne i OFF, deduplikuje i ponownie używa wyników bez requestu', async () => {
   const { repository, counts } = setup();
   const result = await repository.searchProducts('mleko');
-  assert.equal(result.products[0].id, 'milk-2-percent');
+  assert.ok(result.products.some(p=>p.id==='custom:test-milk'));
   assert.ok(result.products.some(product => product.source === 'openfoodfacts'));
   const again = await repository.searchProducts(' MLEKO ');
   assert.equal(again.status, 'cached');
@@ -86,7 +88,7 @@ test('offline pokazuje lokalne i cached bez próby wywołania OFF', async () => 
   await cache.putProducts(products); offline();
   const result = await repository.searchProducts('mleko');
   assert.equal(result.status, 'offline');
-  assert.ok(result.products.some(product => product.source === 'benger'));
+  assert.ok(result.products.some(product => product.source === 'custom'));
   assert.ok(result.products.some(product => product.source === 'openfoodfacts'));
   assert.deepEqual(counts(), { searches: 0, lookups: 0 });
 });
@@ -103,13 +105,13 @@ test('429 blokuje kolejne typy zapytań; timeout/5xx zachowują fallback', async
     const setupCase = setup({ search: async () => { throw new ProductError(code); } });
     const result = await setupCase.repository.searchProducts('mleko');
     assert.equal(result.error.code, code);
-    assert.ok(result.products.some(product => product.id === 'milk-2-percent'));
+    assert.ok(result.products.some(product => product.id === 'custom:test-milk'));
   }
 });
 
 test('ostatnie i ulubione są dostępne offline, stare notatki dziennika nie są zmieniane', async () => {
   const { repository, offline } = setup();
-  const old = [{ productId: 'oat-flakes', createdAt: '2023-10-20T10:00:00Z' }];
+  const old = [{ productId: 'custom:test-oats', createdAt: '2023-10-20T10:00:00Z' }];
   const snapshot = structuredClone(old);
   await repository.seedRecentFromDiary(old);
   await repository.markUsed([products[0]]);

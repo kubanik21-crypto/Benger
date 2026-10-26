@@ -8,6 +8,9 @@ const contentTypes = new Map([
   ['.html', 'text/html'],
   ['.js', 'text/javascript'],
   ['.css', 'text/css'],
+  ['.json', 'application/json'],
+  ['.png', 'image/png'],
+  ['.txt', 'text/plain'],
   ['.webmanifest', 'application/manifest+json'],
 ]);
 
@@ -20,8 +23,10 @@ function publicFile(url) {
   const segments = pathname.slice(1).split('/');
   if (segments.some(segment => !segment || segment.startsWith('.'))) return null;
   const name = segments.at(-1).toLowerCase();
-  if (name === 'server.js' || name === 'package.json' || name.endsWith('.test.js')) return null;
+  if (name === 'server.js' || name === 'package.json' || name.endsWith('lock.json') || name.endsWith('.test.js')) return null;
   const type = contentTypes.get(extname(name));
+  if (extname(name) === '.txt' && !pathname.startsWith('/vendor/zxing/LICENSE-')) return null;
+  if (extname(name) === '.json' && !/^\/data\/usda\/(?:index|metadata|chunk-\d{4})\.json$/.test(pathname)) return null;
   const path = resolve(root, ...segments);
   const fromRoot = relative(root, path);
   if (!type || fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) return null;

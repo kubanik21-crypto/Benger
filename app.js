@@ -1,10 +1,14 @@
+import { recoverPendingImport } from './backup.js';
+import { initBackupUi } from './backup-ui.js';
+import { initPwa } from './pwa.js';
 import { calculatePortion, sumNutrition } from './nutrition.js';
-import { initLegacyNotes } from './legacy.js';
 import { MEAL_LABELS } from './meal-understanding.js';
 import { initVoiceEntry } from './voice-entry.js';
 import { createProductRepository } from './product-repository.js';
 import { initProductSearch } from './product-search-ui.js';
 import { NUTRITION_STORAGE_KEY } from './app-storage.js';
+
+await recoverPendingImport();
 
 const $ = id => document.getElementById(id);
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
@@ -186,7 +190,7 @@ function createPortionArticle(entry) {
   if (entry.brand || entry.source) {
     const provenance = document.createElement('p');
     provenance.className = 'entry-source';
-    provenance.textContent = [entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Benger · przykład' : entry.source].filter(Boolean).join(' · ');
+    provenance.textContent = [entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Archiwalny produkt' : entry.source].filter(Boolean).join(' · ');
     article.append(provenance);
   }
   return article;
@@ -341,4 +345,7 @@ updatePortionPreview();
 loadNutritionEntries();
 renderNutritionEntries();
 void productSearch.seedRecent(nutritionEntries).catch(() => {});
-initLegacyNotes({ dateInput, createEntryId });
+
+void initPwa();
+
+initBackupUi();

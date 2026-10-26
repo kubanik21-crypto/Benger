@@ -54,7 +54,7 @@ BCD wskazuje Chrome 139+ dla standardowego interfejsu i webkit od Chrome 33; Saf
 
 Benger nie używa MediaRecorder, nie tworzy pliku audio i nie zapisuje nagrań. Usługa browserowa może przesyłać audio do dostawcy rozpoznawania; MDN wskazuje takie zachowanie np. w Chrome. Informacja jest stale widoczna przed pierwszym kliknięciem. Nie wymuszamy ani nie obiecujemy lokalnego rozpoznawania offline. Benger nie utrwala również historii transkrypcji — dziennik przechowuje wyłącznie zatwierdzone pozycje. Wyszukiwanie nierozpoznanego produktu wysyła tylko jego query do OFF, nie całą wypowiedź, dziennik lub pamięć wyborów.
 
-Brak API, odmowa zgody i błąd usługi pozostawiają aktywny formularz tekstowy. Nie są błędem całej aplikacji. Tekst używa dokładnie tego samego understandMeal → ProductResolver → propozycja. Stary notatnik eksperymentalny zachowuje własne dane; jego mikrofon nie jest nowym głównym przepływem.
+Brak API, odmowa zgody i błąd usługi pozostawiają aktywny formularz tekstowy. Nie są błędem całej aplikacji. Tekst używa dokładnie tego samego understandMeal → ProductResolver → propozycja. Eksperymentalny notatnik i jego mikrofon usunięto z aplikacji; dawne dane pozostają nietknięte w localStorage.
 
 ## Rozumienie posiłku
 

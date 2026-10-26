@@ -111,7 +111,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     const changed = { ...current, intent: { ...current.intent, query }, resolution: unresolved(), portion: null, learned: false };
     replaceItem(id, changed); updateProposalCard(card, changed, 'Szukam produktu…'); summary();
     try {
-      const result = await repository.searchProducts(query, { signal: request.signal });
+      const result = await repository.searchProducts(query, { signal: request.signal, forceExternal:true });
       if (revision !== version || rowVersions.get(id) !== rowVersion) return;
       // Wyniki wyszukania są propozycjami do jawnego wyboru, nie drugim resolverem.
       const row = { ...findItem(id), resolution: { ...unresolved(), alternatives: result.products.slice(0, 5) } };

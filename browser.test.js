@@ -31,25 +31,26 @@ function contrast(foreground, background) {
 }
 
 test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
-  const browser = await startBrowser();
+  const browser = await startBrowser({seedProducts:true});
   t.after(() => browser.close());
   const a = await browser.page();
   await a.date(DAY);
 
-  await t.test('strona i moduły są dostępne, katalog pochodzi z PRODUCTS', async () => {
-    for (const path of ['/', '/app.js', '/nutrition.js', '/meal-parser.js', '/legacy.js', '/style.css', '/manifest.webmanifest']) {
+  await t.test('strona i moduły są dostępne, katalog demonstracyjny jest nieobecny, produkty testowe pochodzą z custom', async () => {
+    for (const path of ['/', '/app.js', '/nutrition.js', '/meal-parser.js', '/voice-entry.js', '/style.css', '/manifest.webmanifest']) {
       assert.equal((await fetch(browser.base + path)).status, 200, path);
     }
     assert.equal((await fetch(browser.base + '/missing')).status, 404);
-    assert.deepEqual(await a.evaluate("[...document.querySelectorAll('#basic-products .product-name')].map(node => node.textContent)"), ['Płatki owsiane', 'Banan bez skórki', 'Jogurt naturalny', 'Mleko 2%']);
+    assert.equal(await a.evaluate("document.getElementById('basic-products')"),null);
+    assert.equal(await a.evaluate("document.body.textContent.includes('Benger · przykład')"),false);
     assert.equal(await a.evaluate("document.getElementById('product-error').textContent"), '');
   });
   await t.test('podgląd: 50 g płatków, 120 g banana, 200 ml mleka i 50,5 g', async () => {
     for (const [product, amount, unit, expected] of [
-      ['oat-flakes', '50', 'g', ['185', '6,5', '3,5', '30']],
-      ['peeled-banana', '120', 'g', ['106,8', '1,32', '0,36', '27,36']],
-      ['milk-2-percent', '200', 'ml', ['100', '6,8', '4', '9,6']],
-      ['oat-flakes', '50,5', 'g', ['186,85', '6,57', '3,54', '30,3']],
+      ['custom:test-oats', '50', 'g', ['185', '6,5', '3,5', '30']],
+      ['custom:test-banana', '120', 'g', ['106,8', '1,32', '0,36', '27,36']],
+      ['custom:test-milk', '200', 'ml', ['100', '6,8', '4', '9,6']],
+      ['custom:test-oats', '50,5', 'g', ['186,85', '6,57', '3,54', '30,3']],
     ]) {
       await a.choose(product, amount);
       assert.deepEqual(await a.outputs('portion'), expected);
@@ -59,7 +60,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
   });
   await t.test('pusta ilość, zero, liczby ujemne i nieprawidłowe formaty są odrzucane', async () => {
     for (const amount of ['', '0', '-5', 'abc', '--5', '5,5,5', 'Infinity', '1e3', '0x10']) {
-      await a.choose('oat-flakes', amount);
+      await a.choose('custom:test-oats', amount);
       await a.submit();
       assert.equal((await a.saved()).length, 0);
       assert.equal(await a.evaluate("document.getElementById('portion-preview').hidden"), true);
@@ -68,7 +69,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
     }
   });
   await t.test('brak daty oznacza błąd przy polu, fokus i brak zapisu', async () => {
-    await a.date(''); await a.choose('oat-flakes', '50'); await a.submit();
+    await a.date(''); await a.choose('custom:test-oats', '50'); await a.submit();
     assert.equal(await a.evaluate('document.activeElement.id'), 'date');
     assert.equal(await a.evaluate("document.getElementById('date').getAttribute('aria-invalid')"), 'true');
     assert.ok(await a.evaluate("document.getElementById('date-error').textContent"));
@@ -78,7 +79,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
     assert.deepEqual(await a.outputs('total'), ['0', '0', '0', '0']);
   });
   await t.test('dodawanie do czterech posiłków, snapshot danych i suma dnia', async () => {
-    for (const [product, amount, meal] of [['oat-flakes', '50', 'breakfast'], ['peeled-banana', '120', 'lunch'], ['milk-2-percent', '200', 'dinner'], ['natural-yogurt', '100', 'snack']]) {
+    for (const [product, amount, meal] of [['custom:test-oats', '50', 'breakfast'], ['custom:test-banana', '120', 'lunch'], ['custom:test-milk', '200', 'dinner'], ['custom:test-yogurt', '100', 'snack']]) {
       await a.choose(product, amount, meal); await a.submit();
       assert.equal(await a.evaluate("document.getElementById('amount').value"), '');
       assert.equal(await a.evaluate('document.activeElement.id'), 'amount');
@@ -99,13 +100,13 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
   });
   await t.test('dwa dni i przełączanie dat nie mieszają wpisów ani sum', async () => {
     await a.date(OTHER_DAY); assert.equal((await a.visible()).length, 0);
-    await a.choose('oat-flakes', '100', 'lunch'); await a.submit();
+    await a.choose('custom:test-oats', '100', 'lunch'); await a.submit();
     assert.deepEqual(await a.outputs('total'), ['370', '13', '7', '60']);
     await a.date(DAY); assert.equal((await a.visible()).length, 4);
     assert.deepEqual(await a.outputs('total'), ['451,8', '18,62', '9,86', '72,96']);
   });
   await t.test('usunięcie jednego wpisu aktualizuje listę, pamięć i sumę', async () => {
-    const banana = (await a.saved()).find(entry => entry.productId === 'peeled-banana');
+    const banana = (await a.saved()).find(entry => entry.productId === 'custom:test-banana');
     await a.remove(banana.id);
     assert.equal((await a.visible()).length, 3);
     assert.ok(!(await a.saved()).some(entry => entry.id === banana.id));
@@ -118,30 +119,30 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
     assert.deepEqual(await a.outputs('total'), ['345', '17,3', '9,5', '45,6']);
   });
   await t.test('ilość z przecinkiem zapisuje liczby bez zaokrąglania', async () => {
-    await a.choose('oat-flakes', '50,5', 'lunch'); await a.submit();
+    await a.choose('custom:test-oats', '50,5', 'lunch'); await a.submit();
     const entry = (await a.saved()).at(-1);
     assert.equal(entry.amount, 50.5); assert.ok(Math.abs(entry.nutrition.protein - 6.565) < 1e-12);
     assert.ok((await a.visible()).find(item => item.id === entry.id).text.includes('6,57 g'));
   });
   await t.test('zmiana katalogu w pamięci nie przelicza historii', async () => {
     const before = await a.raw(KEY), totals = await a.outputs('total');
-    await a.evaluate("(async () => { const module = await import('./nutrition.js'); const old = module.PRODUCTS[0].per100.kcal; module.PRODUCTS[0].per100.kcal = 9999; document.getElementById('date').dispatchEvent(new Event('change')); module.PRODUCTS[0].per100.kcal = old; })()");
+    await a.evaluate("(async()=>{const {createProductRepository}=await import('./product-repository.js');const r=createProductRepository();const p=await r.getProductById('custom:test-oats');await r.saveCustomProduct({...p,per100:{...p.per100,kcal:999}},p.id);document.getElementById('date').dispatchEvent(new Event('change'));await r.saveCustomProduct(p,p.id);await r.close();})()");
     assert.equal(await a.raw(KEY), before); assert.deepEqual(await a.outputs('total'), totals);
   });
   await t.test('dwie karty zachowują kolejne zapisy i synchronizują widoki', async () => {
     await a.evaluate(`localStorage.removeItem('${KEY}')`); await a.reload(); await a.date(DAY);
     const b = await browser.page(); await b.date(DAY);
-    await a.choose('oat-flakes', '50'); await a.submit(); await waitCount(b, 1);
-    await b.choose('milk-2-percent', '200', 'dinner'); await b.submit();
+    await a.choose('custom:test-oats', '50'); await a.submit(); await waitCount(b, 1);
+    await b.choose('custom:test-milk', '200', 'dinner'); await b.submit();
     await waitCount(a, 2); await waitCount(b, 2);
-    assert.deepEqual((await a.saved()).map(entry => entry.productId), ['oat-flakes', 'milk-2-percent']);
+    assert.deepEqual((await a.saved()).map(entry => entry.productId), ['custom:test-oats', 'custom:test-milk']);
     assert.deepEqual(await a.outputs('total'), ['285', '13,3', '7,5', '39,6']);
     await b.evaluate('window.__pauseStorageSync = true');
-    await a.choose('peeled-banana', '120', 'snack'); await a.submit();
+    await a.choose('custom:test-banana', '120', 'snack'); await a.submit();
     assert.equal((await b.visible()).length, 2);
-    const milk = (await b.saved()).find(entry => entry.productId === 'milk-2-percent');
+    const milk = (await b.saved()).find(entry => entry.productId === 'custom:test-milk');
     await b.remove(milk.id);
-    assert.deepEqual((await b.saved()).map(entry => entry.productId), ['oat-flakes', 'peeled-banana']);
+    assert.deepEqual((await b.saved()).map(entry => entry.productId), ['custom:test-oats', 'custom:test-banana']);
     await waitCount(a, 2);
     await b.evaluate('window.__pauseStorageSync = false');
   });
@@ -163,7 +164,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
   await t.test('brak miejsca blokuje dodawanie i usuwanie bez fałszywego sukcesu', async () => {
     const before = await a.raw(KEY), visible = await a.visible();
     await a.evaluate(`window.__originalSetItem = Storage.prototype.setItem; Storage.prototype.setItem = function(key, value) { if (key === '${KEY}') throw new DOMException('Test quota', 'QuotaExceededError'); return window.__originalSetItem.call(this, key, value); };`);
-    await a.choose('oat-flakes', '44'); await a.submit();
+    await a.choose('custom:test-oats', '44'); await a.submit();
     assert.equal(await a.raw(KEY), before); assert.deepEqual(await a.visible(), visible);
     assert.equal(await a.evaluate("document.getElementById('amount').value"), '44');
     assert.ok(await a.evaluate("document.getElementById('nutrition-storage-message').textContent.includes('Nie udało się zapisać')"));
@@ -173,7 +174,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
   await t.test('brak randomUUID uruchamia bezpieczny wariant zastępczy', async () => {
     const before = (await a.saved()).length;
     await a.evaluate("Object.defineProperty(crypto, 'randomUUID', { value: undefined, configurable: true })");
-    await a.choose('oat-flakes', '50'); await a.submit();
+    await a.choose('custom:test-oats', '50'); await a.submit();
     assert.equal((await a.saved()).length, before + 1);
     assert.match((await a.saved()).at(-1).id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     assert.ok(await a.evaluate("document.getElementById('calculator-message').textContent.includes('Dodano:')"));
@@ -195,18 +196,17 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
       assert.ok(await a.evaluate(`Boolean(document.querySelector('label[for="${id}"]'))`));
     }
   });
-  await t.test('stare notatki: zapis, usuwanie, eksport i symulacja mikrofonu', async () => {
-    const food = await a.raw(KEY);
-    await a.evaluate("document.querySelector('details').open = true; document.getElementById('words').value = 'Nowa notatka'; document.getElementById('meal').value = 'Obiad'; document.getElementById('save').click()");
-    let notes = JSON.parse(await a.raw(NOTE_KEY)); assert.equal(notes.length, 2); assert.deepEqual(notes[0], legacy[0]);
-    await a.evaluate("document.querySelector('#entries button').click()");
-    notes = JSON.parse(await a.raw(NOTE_KEY)); assert.equal(notes.length, 1); assert.equal(notes[0].text, 'Nowa notatka');
-    await a.evaluate("document.getElementById('words').value = ''; document.getElementById('mic').click()");
-    assert.equal(await a.evaluate("document.getElementById('words').value"), 'Podyktowana notatka');
-    const exported = await a.evaluate("(async () => { let blob; const create = URL.createObjectURL, click = HTMLAnchorElement.prototype.click; URL.createObjectURL = value => { blob = value; return 'blob:test'; }; HTMLAnchorElement.prototype.click = function() {}; try { document.getElementById('export').click(); return JSON.parse(await blob.text()); } finally { URL.createObjectURL = create; HTMLAnchorElement.prototype.click = click; } })()");
-    assert.deepEqual(exported, notes); assert.equal(await a.raw(KEY), food);
-    await a.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 844, deviceScaleFactor: 1, mobile: true });
-    assert.ok(await a.evaluate('document.documentElement.scrollWidth <= innerWidth'));
+  await t.test('wycofany notatnik nie ma UI, stare dane pozostają nietknięte', async () => {
+    const food=await a.raw(KEY),raw=await a.raw(NOTE_KEY);
+    for(const saved of [raw,'{broken archived notes','null']){
+      await a.setRaw(NOTE_KEY,saved);await a.reload();await a.date(DAY);
+      assert.equal(await a.raw(NOTE_KEY),saved);assert.equal(await a.raw(KEY),food);
+      assert.equal(await a.evaluate("document.querySelector('.legacy')"),null);
+      for(const id of ['mic','words','meal','save','export','entries'])assert.equal(await a.evaluate(`document.getElementById(${JSON.stringify(id)})`),null);
+      assert.ok(await a.evaluate("Boolean(document.getElementById('voice-microphone'))"));
+      await a.analyze('50 g płatków owsianych');assert.deepEqual(await a.outputs('proposal'),['185','6,5','3,5','30']);
+    }
+    await a.setRaw(NOTE_KEY,raw);await a.reload();await a.date(DAY);
   });
   await t.test('usunięcie ostatnich produktów daje zerową sumę i pusty dzień', async () => {
     for (const entry of (await a.saved()).filter(entry => entry.date === DAY)) await a.remove(entry.id);
@@ -224,7 +224,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
 
 for (const prefix of ['/', '/Benger/']) {
   test(`hosting statyczny pod ${prefix}`, { timeout: 120000 }, async t => {
-    const browser = await startBrowser({ staticPrefix: prefix });
+    const browser = await startBrowser({seedProducts:true, staticPrefix: prefix });
     t.after(() => browser.close());
     const a = await browser.page();
     await a.date(DAY);
@@ -250,11 +250,11 @@ for (const prefix of ['/', '/Benger/']) {
       }
       assert.equal(await a.evaluate("document.querySelector('link[rel=stylesheet]').href"), new URL('style.css', browser.base).href);
       assert.equal(await a.evaluate('getComputedStyle(document.body).margin'), '0px');
-      assert.equal(await a.evaluate("document.querySelectorAll('#basic-products [data-product-id]').length"), 4);
+      assert.equal(await a.evaluate("document.getElementById('basic-products')"),null);
     });
 
     await t.test('importy, ręczne dodawanie i propozycja tekstowa korzystają ze wspólnego dziennika', async () => {
-      await a.choose('oat-flakes', '50'); await a.submit();
+      await a.choose('custom:test-oats', '50'); await a.submit();
       const raw = await a.raw(KEY);
       await a.analyze('Na śniadanie zjadłem 200 ml mleka 2% i banana 120 g');
       assert.equal(await a.raw(KEY), raw);
@@ -352,7 +352,7 @@ for (const prefix of ['/', '/Benger/']) {
         // Ta sama instancja Chromium i ten sam profil, ale inny port (inny origin).
         const b = await browser.page(otherSite.base);
         assert.equal(await b.raw(KEY), null);
-        await b.choose('milk-2-percent', '100'); await b.submit();
+        await b.choose('custom:test-milk', '100'); await b.submit();
         assert.equal((await b.saved()).length, 1);
         assert.equal(await a.raw(KEY), raw);
       } finally { await otherSite.close(); }
@@ -371,7 +371,7 @@ for (const prefix of ['/', '/Benger/']) {
 }
 
 test('Tekst — regresje wspólnego dziennika po integracji voice-first', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({ mockOFF: true });
+  const browser = await startBrowser({seedProducts:true, mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page();
   await a.date(DAY);
@@ -428,7 +428,7 @@ test('Tekst — regresje wspólnego dziennika po integracji voice-first', { time
     await a.reload(); await a.date(OTHER_DAY);
     assert.equal(await a.raw(KEY), raw);
     assert.equal((await a.visible()).length, 0);
-    await a.choose('oat-flakes', '', 'snack');
+    await a.choose('custom:test-oats', '', 'snack');
     await a.analyze('banan 120 g i 150 g jogurtu naturalnego');
     assert.ok(await a.evaluate("document.getElementById('meal-proposal-context').textContent.includes('Przekąska')"));
     assert.deepEqual(await a.outputs('proposal'), ['196,8', '7,32', '3,36', '36,36']);
@@ -453,7 +453,7 @@ test('Tekst — regresje wspólnego dziennika po integracji voice-first', { time
   });
 
   await t.test('ręczny formularz nadal dodaje i usuwa wpisy we wspólnym dzienniku', async () => {
-    await a.choose('natural-yogurt', '100', 'dinner'); await a.submit();
+    await a.choose('custom:test-yogurt', '100', 'dinner'); await a.submit();
     assert.equal((await a.visible()).length, 4);
     assert.deepEqual(await a.outputs('total'), ['451,8', '18,62', '9,86', '72,96']);
     const added = (await a.saved()).at(-1);
@@ -551,7 +551,7 @@ test('Tekst — regresje wspólnego dziennika po integracji voice-first', { time
     const before = (await a.visible()).length;
     await a.analyze(example);
     await a.evaluate('window.__pauseStorageSync=true');
-    await b.choose('natural-yogurt', '150', 'snack'); await b.submit();
+    await b.choose('custom:test-yogurt', '150', 'snack'); await b.submit();
     const id = (await b.saved()).at(-1).id;
     assert.equal((await a.visible()).length, before);
     await a.accept();
@@ -586,13 +586,13 @@ test('Tekst — regresje wspólnego dziennika po integracji voice-first', { time
 
   await t.test('zapis zachowuje dokładnie metadane i makro pokazane do akceptacji', async () => {
     await a.analyze('50 g płatków owsianych');
-    await a.evaluate("(async()=>{const {PRODUCTS}=await import('./nutrition.js'); const p=PRODUCTS[0]; window.__oldProduct={name:p.name,unit:p.unit,kcal:p.per100.kcal}; p.name='Zmieniony katalog'; p.unit='ml'; p.per100.kcal=9999;})()");
+    await a.evaluate("(async()=>{const{createProductRepository}=await import('./product-repository.js');const r=createProductRepository();const p=await r.getProductById('custom:test-oats');window.__oldProduct=p;await r.saveCustomProduct({...p,name:'Zmieniony katalog',unit:'ml',per100:{...p.per100,kcal:999}},p.id);await r.close()})()");
     await a.accept();
     const entry = (await a.saved()).at(-1);
     assert.equal(entry.productName, 'Płatki owsiane');
     assert.equal(entry.unit, 'g');
     assert.deepEqual(entry.nutrition, { kcal: 185, protein: 6.5, fat: 3.5, carbs: 30 });
-    await a.evaluate("(async()=>{const {PRODUCTS}=await import('./nutrition.js'); const p=PRODUCTS[0]; p.name=window.__oldProduct.name; p.unit=window.__oldProduct.unit; p.per100.kcal=window.__oldProduct.kcal;})()");
+    await a.evaluate("(async()=>{const{createProductRepository}=await import('./product-repository.js');const r=createProductRepository();await r.saveCustomProduct(window.__oldProduct,window.__oldProduct.id);await r.close()})()");
   });
 
   await t.test('przepełnienie porcji lub sumy i HTML w tekście nie prowadzą do zapisu', async () => {
@@ -651,14 +651,14 @@ async function waitFor(page, expression, timeout = 5000) {
 }
 
 test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { timeout: 150000 }, async t => {
-  const browser = await startBrowser({ staticPrefix: '/Benger/', mockOFF: true });
+  const browser = await startBrowser({seedProducts:true, staticPrefix: '/Benger/', mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page();
   await a.date(DAY);
   const apiRequests = () => browser.off.requests.filter(request => request.method === 'GET' && new URL(request.url).hostname === 'world.openfoodfacts.org');
   const advance = (ms = 6500) => a.evaluate(`window.__advanceClock(${ms})`);
   async function search(query) {
-    await a.evaluate(`document.getElementById('product-search').value = ${JSON.stringify(query)}; document.getElementById('product-search').dispatchEvent(new Event('input')); document.getElementById('product-search-form').requestSubmit()`);
+    await a.evaluate(`document.getElementById('search-internet').checked=true; document.getElementById('product-search').value = ${JSON.stringify(query)}; document.getElementById('product-search').dispatchEvent(new Event('input')); document.getElementById('product-search-form').requestSubmit()`);
     await waitFor(a, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'", 13000);
   }
   async function barcode(code) {
@@ -728,6 +728,9 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     await waitFor(a, "document.querySelectorAll('#favorite-products [data-product-id]').length === 1");
   });
   await t.test('offline: wyszukiwanie lokalne, ostatnie, ulubione, barcode i zapis bez sieci', async () => {
+    // Pierwsza nawigacja może pozostać niekontrolowana mimo zakończenia instalacji.
+    // Nowa nawigacja w aktywnym scope musi już korzystać z workera.
+    await a.evaluate('navigator.serviceWorker.ready');await a.reload();await a.date(DAY);await waitFor(a,'Boolean(navigator.serviceWorker.controller)');
     await a.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
     const before = apiRequests().length;
     await waitFor(a, 'navigator.onLine === false');
@@ -777,7 +780,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /Jogurt/);
     assert.ok(apiRequests().some(request => new URL(request.url).pathname === '/api/v3.6/product/5901234123464'));
     browser.off.mode = 'empty'; await advance(); await barcode('4006381333931');
-    assert.equal(await resultCount(), 0); assert.match(await message(), /Brak wyników/);
+    assert.equal(await resultCount(), 0); assert.match(await message(), /Nie znaleźliśmy tego produktu/);
     const before = apiRequests().length; await barcode('123'); assert.match(await message(), /prawidłowy kod/); assert.equal(apiRequests().length, before);
   });
   await t.test('XSS z API jest tekstem, nie kodem; snapshot nie zmienia się po aktualizacji OFF', async () => {
@@ -814,7 +817,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     })()`);
     const before = await a.raw(KEY); await a.reload(); await a.date(DAY);
     assert.equal(await a.raw(KEY), before);
-    assert.equal(await a.evaluate("document.querySelectorAll('#basic-products [data-product-id]').length"), 4);
+    assert.equal(await a.evaluate("document.getElementById('basic-products')"),null);
     assert.equal((await a.visible()).length, 2);
     const oldEntries = JSON.parse(before).map(({ brand, source, sourceId, barcode, ...entry }) => entry);
     await a.setRaw(KEY, JSON.stringify(oldEntries)); await a.reload(); await a.date(DAY);
@@ -829,7 +832,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     await isolated.reload();
     assert.match(await isolated.evaluate("document.getElementById('catalog-storage-message').textContent"), /tylko do zamknięcia tej karty/);
     const before = (await isolated.saved()).length;
-    await isolated.choose('peeled-banana', '120'); await isolated.submit();
+    await isolated.evaluate("document.getElementById('product-search').value='banan';document.getElementById('product-search-form').requestSubmit()");await waitFor(isolated,"document.getElementById('search-results').getAttribute('aria-busy')==='false'");await isolated.evaluate("document.querySelector('#search-results [data-product-id^=\"usda:\"]').click();document.getElementById('amount').value='120';document.getElementById('amount').dispatchEvent(new Event('input'))");await isolated.submit();
     assert.equal((await isolated.saved()).length, before + 1);
     await isolated.send('Page.removeScriptToEvaluateOnNewDocument', { identifier });
   });
@@ -870,7 +873,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
 });
 
 test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym katalogu', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({ staticPrefix: '/Benger/previews/etap-5/', previewBuild: true, mockOFF: true });
+  const browser = await startBrowser({seedProducts:true, staticPrefix: '/Benger/previews/etap-6/', previewBuild: true, mockOFF: true });
   t.after(() => browser.close());
   const a = await browser.page();
   await a.setRaw(KEY, 'oryginalny dziennik produkcyjny');
@@ -878,20 +881,20 @@ test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym
   await a.setRaw('benger.preview-etap-3.nutrition.v1', 'dziennik starego preview');
   await a.reload(); await a.date(DAY);
   assert.equal(await a.evaluate("document.querySelector('meta[name=benger-build]').content"), 'a'.repeat(40));
-  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-5');
+  assert.equal(await a.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"), 'preview-etap-6');
   assert.equal(await a.evaluate("document.getElementById('nutrition-storage-message').textContent"), '');
   for (const file of STATIC_ASSETS) assert.equal((await fetch(new URL(file, browser.base))).status, 200, file);
-  await a.choose('oat-flakes', '50'); await a.submit();
+  await a.choose('custom:test-oats', '50'); await a.submit();
   assert.equal((await a.saved()).length, 1);
   assert.equal((await a.saved())[0].nutrition.kcal, 185);
-  await a.evaluate("document.getElementById('words').value='Notatka preview';document.getElementById('save').click()");
-  assert.equal(JSON.parse(await a.raw('benger.preview-etap-5.meals.v1')).length, 1);
+  assert.equal(await a.raw('benger.preview-etap-6.meals.v1'),null);
+  assert.equal(await a.evaluate("document.getElementById('words')"),null);
   assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
   assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
   assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), 'dziennik starego preview');
   await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 1);
   const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(db=>db.name))()');
-  assert.ok(names.includes('BengerDB-preview-etap-5')); assert.ok(!names.includes('BengerDB'));
+  assert.ok(names.includes('BengerDB-preview-etap-6')); assert.ok(!names.includes('BengerDB'));
   const before = browser.off.requests.length;
   const diagnostic = await browser.page(new URL('off-diagnostics.html', browser.base).href, { diagnostic: true });
   assert.equal(browser.off.requests.length, before);
@@ -912,7 +915,7 @@ test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym
 });
 
 test('Migracja IndexedDB v1 → v2 i pamięć wyborów w dwóch kartach', { timeout: 120000 }, async t => {
-  const browser = await startBrowser({ staticPrefix: '/Benger/', mockOFF: true });
+  const browser = await startBrowser({seedProducts:true, staticPrefix: '/Benger/', mockOFF: true });
   t.after(() => browser.close());
   const initial = await browser.page(new URL('off-diagnostics.html', browser.base).href, { diagnostic: true });
   const raw = JSON.parse(await readFile(new URL('./tests/fixtures/off-products.json', import.meta.url))).products[0];

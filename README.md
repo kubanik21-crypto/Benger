@@ -1,8 +1,8 @@
-# Benger — Etap 5: rozumienie wypowiedzi i osobiste dopasowania
+# Benger — Etap 6: PWA, offline, katalog USDA i skaner
 
 Benger is a voice-first nutrition diary. Manual entry is a fallback, not the primary product experience.
 
-Lokalny dziennik w HTML/CSS/JavaScript: głos lub tekst → intencje produktów → ProductResolver → edytowalna propozycja → jawne zatwierdzenie → dziennik. Web Speech API, Open Food Facts i lokalny cache, bez płatnych API, kont, AI i bibliotek npm.
+Lokalny dziennik w HTML/CSS/JavaScript: głos lub tekst → intencje produktów → ProductResolver → edytowalna propozycja → jawne zatwierdzenie → dziennik. Web Speech API, Open Food Facts i lokalny cache, bez płatnych API, kont i AI; lokalny przypięty fallback ZXing.
 
 ## Uruchomienie
 
@@ -12,9 +12,9 @@ Wymaga Node.js 22 lub nowszego. Nie trzeba uruchamiać `npm install`.
 npm start
 ```
 
-Uruchamiaj z katalogu projektu. Domyślny port to 3000; zmienna `PORT` pozwala go zmienić. Dotychczasowa wersja jest dostępna na GitHub Pages; zmiany tej gałęzi wymagają osobnego wdrożenia po przeglądzie. Na telefonie używaj bezpiecznego połączenia HTTPS. Manifest pozwala przeglądarce korzystać z nazwy i kolorów aplikacji przy dodawaniu do ekranu głównego; nie ma service workera ani gwarancji uruchomienia offline.
+Uruchamiaj z katalogu projektu. Domyślny port to 3000; zmienna `PORT` pozwala go zmienić. Dotychczasowa wersja jest dostępna na GitHub Pages; zmiany tej gałęzi wymagają osobnego wdrożenia po przeglądzie. Na telefonie używaj bezpiecznego połączenia HTTPS. Manifest, rzeczywiste ikony i service worker umożliwiają instalację PWA oraz start offline po zakończeniu pobierania plików. Rozpoznawanie mowy może nadal wymagać sieci.
 
-Serwer automatycznie udostępnia zwykłe pliki `.html`, `.js`, `.css` i `.webmanifest` z katalogu projektu i podkatalogów. Nowy moduł JavaScript działa bez dopisywania trasy i bez restartu. `/` nadal zwraca `index.html`.
+Serwer automatycznie udostępnia zwykłe pliki `.html`, `.js`, `.css`, `.webmanifest`, ikony PNG, jawne JSON-y katalogu USDA i licencje skanera z katalogu projektu i podkatalogów. Nowy moduł JavaScript działa bez dopisywania trasy i bez restartu. `/` nadal zwraca `index.html`.
 
 Pliki i katalogi zaczynające się od `.`, `server.js`, `package.json`, pliki `*.test.js`, dowiązania oraz próby wyjścia poza katalog są blokowane. Inne rozszerzenia nie są publiczne. Odpowiedzi wymagają ponownej weryfikacji przez przeglądarkę (`Cache-Control: no-cache`). Po zmianie samego kodu `server.js` nadal trzeba zatrzymać wcześniejszy proces (`Ctrl+C`) i ponownie uruchomić `npm start`.
 
@@ -24,9 +24,9 @@ Frontend działa również bez `server.js`. Komplet publicznych plików definiuj
 
 Lokalny `npm start` nadal serwuje aplikację pod `/`. Hosting pod `/Benger/` jest symulowany w testach jako osobny serwer statyczny; nie dodano takiej trasy do serwera deweloperskiego.
 
-Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages pozostaje prostym hostingiem. Workflow preview aktualizuje wyłącznie podkatalog `previews/etap-5/` istniejącej gałęzi `gh-pages`. Pliki głównej wersji pozostają niezmienione. Podgląd ma oddzielną pamięć danych.
+Nie publikuj całego repozytorium: zabezpieczenia lokalnego serwera nie obowiązują na hostingu statycznym. Przygotuj artefakt wyłącznie z plikami publicznymi. GitHub Pages pozostaje prostym hostingiem. Workflow preview aktualizuje wyłącznie podkatalog `previews/etap-6/` istniejącej gałęzi `gh-pages`. Pliki głównej wersji pozostają niezmienione. Podgląd ma oddzielną pamięć danych.
 
-Manifest ma względne `start_url` i `scope`, ale nadal brakuje ikon instalacyjnych, service workera i offline shella. Nie ma jeszcze gwarancji instalacji ani odświeżenia bez sieci. Zmiana domeny, protokołu lub portu tworzy inny origin i nie przenosi danych localStorage; zmiana samej ścieżki na tym samym origin nie oddziela danych.
+Manifest ma względne `id`, `start_url` i `scope`, ikony PNG 192/512 i offline shell. Instalacja zależy od możliwości przeglądarki i HTTPS. Zmiana domeny, protokołu lub portu tworzy inny origin i nie przenosi danych localStorage; zmiana samej ścieżki na tym samym origin nie oddziela danych.
 
 - [Audyt gotowości webowej](docs/web-readiness-audit.md): wyniki hostingu, responsive layout, PWA, dane i porównanie hostów.
 - [Wcześniejszy projekt Web Experience](docs/stage-3-web-experience.md): archiwalny plan przebudowy UI/PWA. Pozostaje planem pełniejszej przebudowy UI/PWA, niezależnym od wdrożonego katalogu i głosu.
@@ -35,17 +35,17 @@ Manifest ma względne `start_url` i `scope`, ale nadal brakuje ikon instalacyjny
 ## Dziennik produktów
 
 1. Wybierz dzień nad formularzem — dotyczy on dodawania, listy i podsumowania.
-2. Wyszukaj produkt po nazwie/marce i kliknij „Szukaj” (lub Enter). Możesz też użyć kodu kreskowego, ostatnich, ulubionych lub czterech produktów przykładowych. Wybierz wynik, a następnie posiłek.
+2. Wyszukaj produkt po nazwie/marce i kliknij „Szukaj” (lub Enter). Możesz też użyć kodu kreskowego, ostatnich, ulubionych lub własnych produktów. Wybierz wynik, a następnie posiłek.
 3. Wpisz ilość w jednostce produktu: g albo ml. Działa kropka i polski przecinek, np. `50,5`.
 4. Sprawdź kcal, białko, tłuszcz i węglowodany w podglądzie.
 5. Dodaj pozycję do dziennika. Ilość zostanie wyczyszczona, a komunikat potwierdzi zapis.
 6. Wpisy są podzielone na posiłki. Przycisk „Usuń” usuwa wyłącznie wskazany wpis i aktualizuje sumę dnia.
 
-Wartości produktów w `nutrition.js` są **przykładowe, edukacyjne**. Nie opisują konkretnych marek i nie są podstawą zaleceń dietetycznych. Nie przeliczamy mililitrów na gramy. Obliczenia wykonują wyłącznie `calculatePortion()` i `sumNutrition()`. Dane są zaokrąglane dopiero na ekranie.
+`nutrition.js` zawiera wyłącznie funkcje obliczeniowe. Produkty pochodzą z USDA, OFF, własnych danych i cache. Katalog demonstracyjny został usunięty. Nie przeliczamy mililitrów na gramy. Obliczenia wykonują wyłącznie `calculatePortion()` i `sumNutrition()`. Dane są zaokrąglane dopiero na ekranie.
 
 ## Wyszukiwarka, ostatnie i ulubione
 
-- Minimum 3 znaki, maksymalnie 20 wyników. Nie ma requestów przy wpisywaniu każdego znaku. Wyniki łączą katalog lokalny, cache i Open Food Facts, pokazują nazwę, markę, miniaturkę, wartości na 100 g/ml i źródło.
+- Minimum 3 znaki, maksymalnie 20 wyników. Nie ma requestów przy wpisywaniu każdego znaku. Wyniki łączą USDA, własne produkty, cache i Open Food Facts, pokazują nazwę, markę, miniaturkę, wartości na 100 g/ml i źródło.
 - Pole „Kod kreskowy” obsługuje ręczne EAN-8, UPC-A, EAN-13, GTIN-14 z poprawną cyfrą kontrolną. Nie uruchamia kamery.
 - „Ostatnio używane” zawiera 20 unikalnych produktów z udanych zapisów dziennika. Gwiazdka zapisuje ulubione niezależnie od dziennika. Sekcja pokazuje 20 ostatnio oznaczonych; inne zapisane produkty można wyszukać lokalnie.
 - Cache IndexedDB `BengerDB` zawiera znormalizowane produkty OFF (7 dni świeżości), wyniki wyszukiwań (15 minut), referencje ostatnich/ulubionych, pamięć jawnych wyborów produktów oraz limiter współdzielony między kartami. Wersja bazy 2 dodaje store `selections`, zachowując istniejące dane. Nie przechowujemy pełnych odpowiedzi API ani zdjęć base64. Ulubienie/użycie nie odnawia wieku danych.
@@ -63,7 +63,7 @@ Aplikacja już załadowana działa bez sieci; nie ma jeszcze service workera gwa
 
 Dane: **[Open Food Facts i współtwórcy](https://world.openfoodfacts.org/)**. Baza: [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/), zawartość: [DbCL 1.0](https://opendatacommons.org/licenses/dbcl/1-0/). Zdjęcia: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/), autorzy na karcie produktu dostępnej przy jego wyborze. Miniaturki są wyświetlane bez zmian ze źródła; nie kopiujemy ich do repozytorium. Zawierają też oznaczenia opakowań podlegające własnym prawom.
 
-Cache OFF i demonstracyjny katalog Bengera są oddzielnymi zbiorami. Ich połączenie odbywa się w pamięci na potrzeby wyników. Przyszła redystrybucja/łączenie baz wymaga uwzględnienia ODbL i share-alike. Przykłady w `tests/fixtures` są fikcyjne i służą wyłącznie testom.
+Cache OFF, statyczny katalog USDA i własne produkty są oddzielnymi zbiorami. Ich połączenie odbywa się w pamięci na potrzeby wyników. Przyszła redystrybucja/łączenie baz wymaga uwzględnienia ODbL i share-alike. Przykłady w `tests/fixtures` są fikcyjne i służą wyłącznie testom.
 
 ## Dodawanie głosem i tekstem
 
@@ -116,11 +116,9 @@ Zatwierdzenie propozycji głosowej/tekstowej korzysta z tego samego dziennika i 
 
 Uszkodzone dane blokują zapis i nie są zastępowane pustą listą. Nieudany zapis pozostawia formularz i dane bez pozornego sukcesu. Gdy przeglądarka blokuje pamięć, dziennik może być niedostępny. Dane pozostają tylko w tej przeglądarce i pod tym adresem strony; wyczyszczenie pamięci je usuwa. Nie ma synchronizacji między urządzeniami, importu ani eksportu wpisów żywieniowych.
 
-## Notatnik eksperymentalny
+## Archiwalne notatki prototypu
 
-Zwijana sekcja zachowuje stary notatnik i jego klucz `benger.meals.v1`. Nowy dziennik nie przepisuje ani nie usuwa tych danych. Kod notatnika jest w `legacy.js`; można pisać, usuwać i eksportować notatki. Eksport obejmuje **wyłącznie notatki tekstowe**, nie produkty.
-
-Dyktowanie nie jest połączone z dziennikiem produktów. Wymaga obsługi Web Speech API, bezpiecznego połączenia i zgody na mikrofon. Może wysyłać dźwięk do dostawcy przeglądarki. Automatyczne testy symulują jego zdarzenia; rzeczywisty mikrofon telefonu wymaga osobnego sprawdzenia.
+Eksperymentalny notatnik, jego mikrofon i moduł zostały usunięte z aplikacji. Nie odczytujemy, nie migrujemy i nie kasujemy istniejących kluczy `benger.meals.v1` ani ich odpowiedników preview. Dane pozostają w przeglądarce, ale nie mają już interfejsu notatnika. Główne dodawanie posiłków głosem działa nadal przez `speech-recognition.js` i `voice-entry.js`. Backup dziennika produktów nie obejmuje dawnych notatek.
 
 ## Testy
 
@@ -148,7 +146,7 @@ Opcjonalny zrzut ekranu po dodaniu czterech posiłków:
 BENGER_SCREENSHOT_PATH=/tmp/benger.png npm run test:browser
 ```
 
-Testy sprawdzają porcje, walidację i fokus, posiłki i dwa dni, sumowanie, usuwanie, odświeżenie, dwie karty, awarie pamięci, UUID zastępcze, historyczne wartości, kontrast, szerokości 320/390/768/1024/1440 px, notatnik i konsolę.
+Testy sprawdzają porcje, walidację i fokus, posiłki i dwa dni, sumowanie, usuwanie, odświeżenie, dwie karty, awarie pamięci, UUID zastępcze, historyczne wartości, kontrast, szerokości 320/390/768/1024/1440 px, zachowanie archiwalnych danych notatek i konsolę.
 
 Regresje wcześniejszego dziennika sprawdzają także podgląd dwóch i trzech produktów, brak zapisu przed akceptacją, pojedynczy zapis całego zestawu, poprawianie tekstu, blokadę starego podglądu, brak częściowego sukcesu przy awarii pamięci lub ID, snapshot propozycji, współpracę z formularzem ręcznym i widoki 320/390 px. Opcjonalny zrzut propozycji: `BENGER_TEXT_SCREENSHOT_PATH=/tmp/benger-text.png npm run test:browser`.
 
@@ -171,25 +169,25 @@ Testy katalogu obejmują mapowanie OFF, brak nazwy/kcal/makro, nieprawidłowe li
 
 Test Chromium Etapu 3 używa natywnego `fetch`, przechwytuje ruch OFF przez CDP z kontrolowanym CORS i działa na rzeczywistym IndexedDB pod `/Benger/`. Sprawdza pełny zapis produktu OFF, trwałość, offline, usuwanie ulubionego, barcode, limity także w dwóch kartach, awarie API, XSS, uszkodzony cache oraz zablokowany IndexedDB. Opcjonalny zrzut: `BENGER_CATALOG_SCREENSHOT_PATH=/tmp/benger-catalog.png npm run test:browser`.
 
-GitHub Actions uruchamia testy także po push do `etap-5-smart-voice` (bez tworzenia PR). To workflow testowy, bez deploymentu.
+GitHub Actions uruchamia testy także po push do `etap-6-pwa-catalog-scanner` (bez tworzenia PR). To workflow testowy, bez deploymentu.
 
 
-## Preview Etapu 5 i ręczny test produkcyjnego OFF
+## Preview Etapu 6 i ręczny test produkcyjnego OFF
 
-Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-5/**
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-6/**
 
-Jest przygotowywane po push gałęzi `etap-5-smart-voice` przez workflow `Stage 5 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
+Jest przygotowywane po push gałęzi `etap-6-pwa-catalog-scanner` przez workflow `Stage 6 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
 
-Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-5.nutrition.v1`, `benger.preview-etap-5.meals.v1` oraz IndexedDB `BengerDB-preview-etap-5`. Dane wersji głównej nie są kopiowane ani zmieniane.
+Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-6.nutrition.v1`, `benger.preview-etap-6.meals.v1` oraz IndexedDB `BengerDB-preview-etap-6`. Dane wersji głównej nie są kopiowane ani zmieniane.
 
-Ręczna publikacja z czystej gałęzi Etapu 5: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
+Ręczna publikacja z czystej gałęzi Etapu 6: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
 
 W preview kliknij „Sprawdź połączenie OFF”. Strona diagnostyczna uruchamia prawdziwe wyszukiwanie i barcode, zapisuje statusy HTTP, informację o czytelnej odpowiedzi CORS, znormalizowany produkt/makro i wynik ładowania zdjęcia. Nie dodaje wpisów do dziennika. Raport można pobrać jako JSON. Na tej stronie nic nie jest mockowane.
 
 Pełny test rzeczywistego przepływu w Chromium z tymczasowym profilem, poza standardowym CI:
 
 ```sh
-npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-5/ --report /tmp/benger-off-live.json
+npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-6/ --report /tmp/benger-off-live.json
 ```
 
 Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.
@@ -201,8 +199,49 @@ Diagnostyka zawiera też porównanie A/B/C/D: CGI z X-User-Agent, CGI bez dodatk
 Wspólny pipeline głosu i tekstu zachowuje raw/normalized, rozpoznaje liczby słowne, procenty i kilka produktów bez przecinków. Nie zgaduje brakującej masy ani wariantu. Jawne skróty użytkownika są oddzielone od pamięci potwierdzonych wyborów.
 
 - [Implementacja, testy i ograniczenia](docs/smart-voice-understanding.md)
-- [Preview Etapu 5](https://kubanik21-crypto.github.io/Benger/previews/etap-5/)
-- [Voice Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-5/voice-test-lab.html) — lokalna historia maks. 20 analiz, eksport JSON, aliasy; bez audio i telemetrii.
+- [Preview Etapu 6](https://kubanik21-crypto.github.io/Benger/previews/etap-6/)
+- [Voice Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-6/voice-test-lab.html) — lokalna historia maks. 20 analiz, eksport JSON, aliasy; bez audio i telemetrii.
 - Benchmark części językowej: `node scripts/benchmark-voice.mjs`.
 
-Testy CI korzystają z mocków OFF i SpeechRecognition. Mikrofon na prawdziwym Androidzie pozostaje osobnym testem akceptacyjnym. Nie dodano AI, backendu ani service workera.
+Testy CI korzystają z mocków OFF i SpeechRecognition. Mikrofon na prawdziwym Androidzie pozostaje osobnym testem akceptacyjnym. Etap 5 nie dodawał AI ani backendu; service worker i offline shell zostały dodane w Etapie 6.
+
+## PWA, katalog i aparat — Etap 6
+
+Mikrofon pozostaje głównym działaniem. Obok niego jest „Skanuj kod”; ręczne wyszukiwanie i pełnoprawny własny produkt są dostępne bez konta. Po ukończeniu instalacji offline działa cały statyczny katalog USDA, dziennik, tekstowy parser, custom, ulubione, aliasy oraz zapisane produkty OFF. ZXing jest vendored/lazy, bez CDN. Kamera nie zapisuje obrazu i zatrzymuje się po sukcesie, anulowaniu, błędzie lub opuszczeniu strony.
+
+Katalog: 13 727 kompletnych produktów z oficjalnych Foundation/FNDDS/SR Legacy. Bez USDA API key. Wyszukiwanie po polsku korzysta z lokalnego indeksu i chunków; wartości per100 g nie są przeliczane na ml. `source: openfoodfacts/benger` zachowano dla zgodności wcześniejszych danych; nowe źródła to usda/custom.
+
+- [PWA, scope, aktualizacja, backup/import](docs/pwa-offline.md)
+- [Skaner, prywatność i fallback](docs/barcode-scanner.md)
+- [Katalog, indeks, budowanie USDA i pomiary](docs/product-catalog.md)
+- [Źródła danych i licencje](docs/data-sources-and-licenses.md)
+
+```sh
+npm test
+npm run test:browser
+node scripts/catalog-benchmark.mjs
+# Wyłącznie ręczna diagnostyka prawdziwej sieci, poza CI:
+node scripts/brand-coverage.mjs
+```
+
+Standardowe testy nie pobierają USDA ani produkcyjnego OFF. Refresh jest osobnym, jawnym `npm run catalog:refresh`; wymaga python3 wyłącznie w pipeline danych. `npm start` i testy generują manifest assetów PWA. Zapisuj `sw-assets.js` razem ze zmianami publicznych plików.
+
+Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-6/ — własny scope i namespace. Strony developerskie: [Barcode Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-6/barcode-test-lab.html), [Catalog Diagnostics](https://kubanik21-crypto.github.io/Benger/previews/etap-6/catalog-diagnostics.html), [PWA Diagnostics](https://kubanik21-crypto.github.io/Benger/previews/etap-6/pwa-diagnostics.html). Publikacja nie zmienia root ani wcześniejszych preview.
+
+Backup w sekcji „Dane i kopia zapasowa” zawiera także własne produkty, ulubione, aliasy i pamięć wyborów. Domyślnie import łączy dane i wymaga potwierdzenia. Przed importem zamknij inne karty. Dane są lokalne; nie ma synchronizacji urządzeń.
+
+### Akceptacja na Samsungu
+
+1. Zainstaluj PWA i uruchom z ikonki.
+2. Odczytaj realny EAN aparatem; sprawdź silnik w Barcode Test Lab, wynik OFF oraz zatrzymanie kamery.
+3. Po komunikacie gotowości offline wyłącz sieć, zamknij i otwórz PWA; sprawdź dziennik i zapytania „banan”, „ryż”, „pierś z kurczaka”.
+4. Sprawdź cached barcode i własny produkt z kodem; nieznany kod powinien wyjaśnić potrzebę sieci.
+5. Włącz sieć i sprawdź głos, zatwierdzenie posiłku oraz odświeżenie.
+6. Wyeksportuj backup, zaimportuj po potwierdzeniu, sprawdź snapshoty i ulubione.
+7. Przy kolejnej wersji zapisz edycję, zaakceptuj aktualizację i sprawdź, że dane pozostały.
+
+Testy syntetycznej kamery i headless Chromium nie zastępują instalacji ani prawdziwego aparatu na Samsungu. Nie utworzono PR ani nie scalono Etapu 6.
+
+### Usunięcie katalogu demonstracyjnego
+
+Nie publikujemy czterech przykładowych produktów ani providera lokalnego. Wyszukiwanie i resolver korzystają tylko z USDA/OFF/custom/cache. Historyczne wpisy nadal pokazują zapisane nazwy i snapshoty makro; stare ID są zachowane wyłącznie jako referencje zgodności backupów i preferencji, bez odtwarzania produktów. Źródło dawnych wpisów jest oznaczone jako archiwalne. Testowe produkty custom są wyłącznie w niepublikowanych fixtures.

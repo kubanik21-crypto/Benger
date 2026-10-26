@@ -1,0 +1,6 @@
+// Manual real-network browser diagnostic. Never included in npm test or CI.
+import { startBrowser } from '../tests/browser-harness.mjs';
+const requested=Number(process.argv[2]??12);if(!Number.isInteger(requested)||requested<1||requested>12)throw new Error('Liczba marek: 1–12.');
+const brands=['Pilos','Łaciate','Piątnica','Mlekovita','Danone','Coca-Cola','Pepsi','Nutella','Sante','Lubella','Winiary','Kielecki'].slice(0,requested);
+const browser=await startBrowser({staticPrefix:'/Benger/',respectProxy:true});const report=[];
+try{const page=await browser.page();for(const query of brands){const result=await page.evaluate(`(async()=>{const{createProductRepository}=await import('./product-repository.js');const r=createProductRepository();try{const result=await r.searchProducts(${JSON.stringify(query)},{forceExternal:true});return{query:${JSON.stringify(query)},status:result.status,error:result.error?.code??null,count:result.products.filter(p=>p.source==='openfoodfacts').length,products:result.products.filter(p=>p.source==='openfoodfacts').slice(0,2)}}finally{await r.close()}})()`);report.push(result);console.log(JSON.stringify(result));if(query!==brands.at(-1))await new Promise(resolve=>setTimeout(resolve,6600));}if(report.some(r=>r.error))process.exitCode=1;}finally{await browser.close();}
