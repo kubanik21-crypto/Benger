@@ -174,20 +174,20 @@ GitHub Actions uruchamia testy także po push do `etap-6-pwa-catalog-scanner` (b
 
 ## Aktualny preview i ręczny test produkcyjnego OFF
 
-Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-8/**
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-9/**
 
-Jest przygotowywane po push gałęzi `etap-8-recipes-navigation` przez workflow `Stage 8 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
+Jest przygotowywane po push gałęzi `etap-9-recipe-diary-hardening` przez workflow `Stage 9 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
 
-Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-8.nutrition.v1` oraz IndexedDB `BengerDB-preview-etap-8`. Dane wersji głównej nie są kopiowane ani zmieniane.
+Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-9.nutrition.v1` oraz IndexedDB `BengerDB-preview-etap-9`. Dane wersji głównej nie są kopiowane ani zmieniane.
 
-Ręczna publikacja z czystej gałęzi Etapu 8: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
+Ręczna publikacja z czystej gałęzi Etapu 9: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
 
 W preview kliknij „Sprawdź połączenie OFF”. Strona diagnostyczna uruchamia prawdziwe wyszukiwanie i barcode, zapisuje statusy HTTP, informację o czytelnej odpowiedzi CORS, znormalizowany produkt/makro i wynik ładowania zdjęcia. Nie dodaje wpisów do dziennika. Raport można pobrać jako JSON. Na tej stronie nic nie jest mockowane.
 
 Pełny test rzeczywistego przepływu w Chromium z tymczasowym profilem, poza standardowym CI:
 
 ```sh
-npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-8/ --report /tmp/benger-off-live.json
+npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-9/ --report /tmp/benger-off-live.json
 ```
 
 Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.
@@ -280,3 +280,14 @@ Przepisy, szkice i historia wersji są lokalne w IndexedDB. Makro jest snapshote
 - [Recipe Diagnostics](https://kubanik21-crypto.github.io/Benger/previews/etap-8/recipe-diagnostics.html)
 
 Pomiar na izolowanym profilu Chromium, bez danych użytkownika: `node scripts/measure-recipes.mjs /tmp/recipes.json`.
+
+## Przepis → dziennik i release hardening — Etap 9
+
+Możesz powiedzieć „porcja mojego curry i 200 ml mleka” albo dodać porcję ze szczegółów przepisu. Przepisy pozostają osobnym modelem; lokalne aliasy, ulubione i ostatnie wspierają szybki wybór. Wydajność przepisu określa dostępne porcje/g/ml, bez zgadywania gęstości. Dziennik zachowuje snapshot wersji nawet po edycji i usunięciu przepisu.
+
+- [Architektura, backup, bezpieczeństwo i checklista Samsunga](docs/recipe-diary-and-release-hardening.md)
+- [Preview Etapu 9](https://kubanik21-crypto.github.io/Benger/previews/etap-9/)
+- [Recipe Diary Test Lab](https://kubanik21-crypto.github.io/Benger/previews/etap-9/recipe-diary-test-lab.html)
+- [Recipe Diagnostics](https://kubanik21-crypto.github.io/Benger/previews/etap-9/recipe-diagnostics.html)
+
+Pełne testy: `npm test`, `npm run test:browser`, `git diff --check`. Pomiary na izolowanym profilu: `node scripts/measure-release.mjs /tmp/benger-release.json`. Standardowe CI nie odpytuje prawdziwego OFF. Nie dodano płatnych usług ani bibliotek.
