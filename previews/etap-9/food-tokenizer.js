@@ -1,5 +1,5 @@
-import { HOUSEHOLD_UNITS } from './portion-model.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
-import { canonicalWord, FOOD_HEADS } from './food-language.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
+import { HOUSEHOLD_UNITS } from './portion-model.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
+import { canonicalWord, FOOD_HEADS } from './food-language.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
 const units=new Set(['g','ml','piece','slice','tablespoon','teaspoon',...Object.keys(HOUSEHOLD_UNITS)]);
 export function tokenizeFood(text){
  return [...text.matchAll(/[-+]?\d[\d.,]*%?|[a-z]+(?:-[a-z]+)*|[^\s]/g)].map(match=>{

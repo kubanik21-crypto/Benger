@@ -1,7 +1,7 @@
-import { OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
-import { createCgiSearchProvider } from './product-providers/off-search.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
-import { createProductCache } from './product-cache.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
-import { ProductError, productErrorMessage } from './product-errors.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
+import { OFF_API_VERSION, OFF_APP_ID } from './product-providers/open-food-facts.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
+import { createCgiSearchProvider } from './product-providers/off-search.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
+import { createProductCache } from './product-cache.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
+import { ProductError, productErrorMessage } from './product-errors.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
 
 export const SEARCHALICIOUS_URL = 'https://search.openfoodfacts.org/search';
 export function searchaliciousDiagnosticUrl() {

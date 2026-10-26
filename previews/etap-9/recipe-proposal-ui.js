@@ -1,6 +1,6 @@
-import {node,readProposalFields} from './meal-proposal-ui.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
-import {MEAL_LABELS} from './meal-understanding.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
-import {resolveRecipePortion} from './recipe-portion-resolver.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
+import {node,readProposalFields} from './meal-proposal-ui.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
+import {MEAL_LABELS} from './meal-understanding.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
+import {resolveRecipePortion} from './recipe-portion-resolver.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
 const number=new Intl.NumberFormat('pl-PL',{maximumFractionDigits:2});
 export function updateRecipeCard(card,item,message=''){
  const recipe=item.resolution.recipe,result=recipe?resolveRecipePortion(recipe,item.intent.amount,item.intent.unit):null;

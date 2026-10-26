@@ -1,4 +1,4 @@
-import { validateRecipe } from './recipe-model.js?v=64778a5c9c057837fd27e8fa5e0d770c00b894b1';
+import { validateRecipe } from './recipe-model.js?v=a08b97addfa97de6ba55d056af5656a433dba897';
 const fields={serving:'servings',g:'finalWeight',ml:'finalVolume'};
 export function recipePortionModes(recipe){return Object.keys(fields).filter(unit=>Number.isFinite(recipe.yield?.[fields[unit]])&&recipe.yield[fields[unit]]>0);}
 export function resolveRecipePortion(recipe,amount,unit){
