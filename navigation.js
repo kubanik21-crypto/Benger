@@ -6,7 +6,7 @@ export function initNavigation(){
  let current=null;
  function render(){const route=routeFromHash(location.hash);if(location.hash!==`#/${route}`)history.replaceState(null,'',`#/${route}`);if(current===route)return;
   for(const section of document.querySelectorAll('[data-app-section]'))section.hidden=section.dataset.appSection!==route;
-  for(const link of document.querySelectorAll('[data-route]')){if(link.dataset.route===route)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
+  for(const link of document.querySelectorAll('a[data-route]')){if(link.dataset.route===route)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
   document.title=`Benger · ${ROUTES[route]}`;
   if(current!==null&&current!==route)window.scrollTo(0,0);
   if(current!==null&&current!==route)document.querySelector(`[data-app-section="${route}"] [data-route-heading]`)?.focus({preventScroll:true});

@@ -19,8 +19,8 @@ import { initProductSearch } from './product-search-ui.js';
 import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 
 initNavigation();
-initProgress();
 await recoverPendingImport();
+const progressUI=initProgress();
 
 const $ = id => document.getElementById(id);
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
@@ -364,4 +364,4 @@ void productSearch.seedRecent(nutritionEntries).catch(() => {});
 
 void initPwa();
 
-initBackupUi({beforeRead:async()=>{await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});
+initBackupUi({beforeRead:async()=>{await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});
