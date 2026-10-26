@@ -1,0 +1,892 @@
+[
+  {
+    "text": "dodaję 100 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 100,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 10 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 10,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 0.5 litra wody",
+    "type": "INGREDIENT",
+    "amount": 500,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 1 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 1000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 1 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 1,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 1 marchewki",
+    "type": "INGREDIENT",
+    "amount": 1,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 5 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 3 minut w 155 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 1 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 1,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 1 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 1
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 0.5 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 500
+    }
+  },
+  {
+    "text": "mam 250 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 250
+    }
+  },
+  {
+    "text": "nazwij przepis rosół",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 1 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 1",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 200 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 200,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 20 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 20,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 1.0 litra wody",
+    "type": "INGREDIENT",
+    "amount": 1000,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 2 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 2000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 2 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 2,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 2 marchewki",
+    "type": "INGREDIENT",
+    "amount": 2,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 10 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 6 minut w 160 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 2 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 2,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 2 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 2
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 1.0 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 1000
+    }
+  },
+  {
+    "text": "mam 500 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 500
+    }
+  },
+  {
+    "text": "nazwij przepis żurek",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 2 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 2",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 300 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 300,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 30 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 30,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 1.5 litra wody",
+    "type": "INGREDIENT",
+    "amount": 1500,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 3 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 3000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 3 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 3,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 3 marchewki",
+    "type": "INGREDIENT",
+    "amount": 3,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 15 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 9 minut w 165 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 3 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 3,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 3 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 3
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 1.5 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 1500
+    }
+  },
+  {
+    "text": "mam 750 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 750
+    }
+  },
+  {
+    "text": "nazwij przepis bigos",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 3 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 3",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 400 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 400,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 40 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 40,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 2.0 litra wody",
+    "type": "INGREDIENT",
+    "amount": 2000,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 4 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 4000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 4 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 4,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 4 marchewki",
+    "type": "INGREDIENT",
+    "amount": 4,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 20 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 12 minut w 170 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 4 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 4,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 4 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 4
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 2.0 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 2000
+    }
+  },
+  {
+    "text": "mam 1000 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 1000
+    }
+  },
+  {
+    "text": "nazwij przepis gołąbki",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 4 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 4",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 500 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 500,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 50 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 50,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 2.5 litra wody",
+    "type": "INGREDIENT",
+    "amount": 2500,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 5 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 5000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 5 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 5 marchewki",
+    "type": "INGREDIENT",
+    "amount": 5,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 25 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 15 minut w 175 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 5 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 5,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 5 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 5
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 2.5 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 2500
+    }
+  },
+  {
+    "text": "mam 1250 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 1250
+    }
+  },
+  {
+    "text": "nazwij przepis pierogi",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 5 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 5",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 600 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 600,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 60 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 60,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 3.0 litra wody",
+    "type": "INGREDIENT",
+    "amount": 3000,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 6 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 6000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 6 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 6,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 6 marchewki",
+    "type": "INGREDIENT",
+    "amount": 6,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 30 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 18 minut w 180 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 6 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 6,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 6 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 6
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 3.0 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 3000
+    }
+  },
+  {
+    "text": "mam 1500 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 1500
+    }
+  },
+  {
+    "text": "nazwij przepis carbonara",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 6 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 6",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 700 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 700,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 70 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 70,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 3.5 litra wody",
+    "type": "INGREDIENT",
+    "amount": 3500,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 7 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 7000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 7 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 7,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 7 marchewki",
+    "type": "INGREDIENT",
+    "amount": 7,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 35 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 21 minut w 185 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 7 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 7,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 7 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 7
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 3.5 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 3500
+    }
+  },
+  {
+    "text": "mam 1750 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 1750
+    }
+  },
+  {
+    "text": "nazwij przepis curry",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 7 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 7",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 800 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 800,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 80 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 80,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 4.0 litra wody",
+    "type": "INGREDIENT",
+    "amount": 4000,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 8 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 8000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 8 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 8,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 8 marchewki",
+    "type": "INGREDIENT",
+    "amount": 8,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 40 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 24 minut w 190 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 8 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 8,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 8 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 8
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 4.0 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 4000
+    }
+  },
+  {
+    "text": "mam 2000 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 2000
+    }
+  },
+  {
+    "text": "nazwij przepis pizza",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 8 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 8",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 900 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 900,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 90 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 90,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 4.5 litra wody",
+    "type": "INGREDIENT",
+    "amount": 4500,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 9 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 9000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 9 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 9,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 9 marchewki",
+    "type": "INGREDIENT",
+    "amount": 9,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 45 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 27 minut w 195 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 9 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 9,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 9 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 9
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 4.5 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 4500
+    }
+  },
+  {
+    "text": "mam 2250 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 2250
+    }
+  },
+  {
+    "text": "nazwij przepis owsianka",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 9 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 9",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję 1000 gram piersi z kurczaka",
+    "type": "INGREDIENT",
+    "amount": 1000,
+    "unit": "g"
+  },
+  {
+    "text": "wsypuję 100 g ryżu",
+    "type": "INGREDIENT",
+    "amount": 100,
+    "unit": "g"
+  },
+  {
+    "text": "wlewam 5.0 litra wody",
+    "type": "INGREDIENT",
+    "amount": 5000,
+    "unit": "ml"
+  },
+  {
+    "text": "daję 10 kg ziemniaków",
+    "type": "INGREDIENT",
+    "amount": 10000,
+    "unit": "g"
+  },
+  {
+    "text": "dodaję 10 łyżki oliwy",
+    "type": "INGREDIENT",
+    "amount": 10,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "dodaję 10 marchewki",
+    "type": "INGREDIENT",
+    "amount": 10,
+    "unit": "piece"
+  },
+  {
+    "text": "gotuję 50 minut",
+    "type": "STEP"
+  },
+  {
+    "text": "piekę 30 minut w 200 stopniach",
+    "type": "STEP"
+  },
+  {
+    "text": "na 10 łyżkach oliwy podsmażam cebulę",
+    "type": "INGREDIENT_AND_STEP",
+    "amount": 10,
+    "unit": "tablespoon"
+  },
+  {
+    "text": "wyszło 10 porcji",
+    "type": "YIELD",
+    "yield": {
+      "servings": 10
+    }
+  },
+  {
+    "text": "po ugotowaniu waży 5.0 kilo",
+    "type": "YIELD",
+    "yield": {
+      "finalWeight": 5000
+    }
+  },
+  {
+    "text": "mam 2500 ml rosołu",
+    "type": "YIELD",
+    "yield": {
+      "finalVolume": 2500
+    }
+  },
+  {
+    "text": "nazwij przepis sałatka",
+    "type": "NAME"
+  },
+  {
+    "text": "notatka wariant 10 bez ostrej papryki",
+    "type": "NOTE"
+  },
+  {
+    "text": "nie wiem co zrobić wariant 10",
+    "type": "UNKNOWN"
+  },
+  {
+    "text": "dodaję sól i pieprz do smaku",
+    "type": "STEP"
+  },
+  {
+    "text": "daję kilogram udek z kurczaka",
+    "type": "INGREDIENT"
+  },
+  {
+    "text": "dwie pietruszki",
+    "type": "INGREDIENT"
+  },
+  {
+    "text": "pół selera",
+    "type": "INGREDIENT"
+  },
+  {
+    "text": "po ugotowaniu zostało trzy i pół litra",
+    "type": "YIELD"
+  },
+  {
+    "text": "mieszam dokładnie",
+    "type": "STEP"
+  },
+  {
+    "text": "siekam cebulę",
+    "type": "STEP"
+  },
+  {
+    "text": "blenduję zupę",
+    "type": "STEP"
+  },
+  {
+    "text": "duszę pod przykryciem",
+    "type": "STEP"
+  },
+  {
+    "text": "odstawiam na dziesięć minut",
+    "type": "STEP"
+  },
+  {
+    "text": "dodaję skyr",
+    "type": "INGREDIENT"
+  },
+  {
+    "text": "dokładam pół opakowania skyra",
+    "type": "INGREDIENT"
+  },
+  {
+    "text": "używam półtorej łyżki masła orzechowego",
+    "type": "INGREDIENT"
+  },
+  {
+    "text": "to będzie żurek świąteczny",
+    "type": "NAME"
+  },
+  {
+    "text": "dwa jajka i 200 ml mleka",
+    "type": "INGREDIENT"
+  }
+]
