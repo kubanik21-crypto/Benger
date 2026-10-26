@@ -200,6 +200,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
   $('barcode-form').addEventListener('submit', event => lookup(event, true));
   window.addEventListener('offline', updateConnection);
   window.addEventListener('online', updateConnection);
+  window.addEventListener('benger:route',event=>{if(event.detail.route==='produkty')void refresh();});
   window.addEventListener('focus', () => { void refresh(); });
   updateConnection();
   const ready = (async () => { await repository.ready(); await refresh(); $('product-catalog').dataset.ready = 'true'; })();

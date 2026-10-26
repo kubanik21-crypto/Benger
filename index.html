@@ -103,15 +103,15 @@
 <section data-app-section="przepisy" id="route-przepisy" hidden aria-labelledby="recipes-title">
 <h1 id="recipes-title" data-route-heading tabindex="-1">Przepisy</h1>
 <p>Twoje składniki, kroki i sposób gotowania. Zapisane na tym urządzeniu.</p>
-<div class="recipe-toolbar"><button id="recipe-new" class="button-secondary" type="button">+ Nowy przepis</button><button id="recipe-cook" class="voice-microphone" type="button">Gotuj z Bengerem</button></div>
+<button id="recipe-back" type="button" class="button-secondary" hidden>← Moje przepisy</button><div class="recipe-toolbar"><button id="recipe-new" class="button-secondary" type="button">+ Nowy przepis</button><button id="recipe-cook" class="voice-microphone" type="button">Gotuj z Bengerem</button></div>
 <label for="recipe-search">Szukaj w przepisach i składnikach</label><input id="recipe-search" type="search" maxlength="200">
 <p id="recipe-list-status" role="status"></p><div id="recipe-drafts"></div><div id="recipe-list"></div>
 <section id="recipe-detail" class="panel" hidden aria-label="Szczegóły przepisu"></section>
 <section id="recipe-editor" class="panel" hidden aria-labelledby="recipe-editor-title">
 <h2 id="recipe-editor-title" tabindex="-1">Gotuj z Bengerem</h2>
 <label for="recipe-name">Nazwa przepisu</label><input id="recipe-name" maxlength="200">
-<p id="recipe-autosave" role="status" aria-live="polite"></p>
-<button id="recipe-mic" class="voice-microphone" type="button" aria-pressed="false">🎙️ Powiedz składnik lub krok</button><button id="recipe-cancel-mic" class="button-secondary" type="button" hidden>Anuluj nagrywanie</button>
+<p id="recipe-last-change" class="success-message" role="status"></p><p id="recipe-autosave" role="status" aria-live="polite"></p>
+<button id="recipe-mic" class="voice-microphone" type="button" aria-pressed="false">🎙️ Powiedz składnik lub krok</button><button id="recipe-cancel-mic" class="button-secondary" type="button" hidden>Anuluj rozpoznawanie</button>
 <p id="recipe-speech-status" role="status"></p><p class="fine">Rozpoznawanie mowy może korzystać z usługi przeglądarki i sieci. Benger nie zapisuje audio. Możesz zawsze użyć tekstu.</p>
 <form id="recipe-event-form" novalidate><label for="recipe-text">Napisz, co robisz</label><textarea id="recipe-text" maxlength="2000" rows="3" placeholder="Dodaję 500 g piersi z kurczaka"></textarea><button class="button-secondary" id="recipe-analyze" type="submit">Przeanalizuj wypowiedź</button></form>
 <section id="recipe-event-review" class="recipe-event-review" hidden aria-labelledby="recipe-event-title"><h3 id="recipe-event-title" tabindex="-1">Sprawdź wypowiedź</h3><p id="recipe-event-raw"></p>
@@ -191,10 +191,10 @@
     <button id="install-app" class="button-secondary" type="button" hidden>Zainstaluj Benger</button>
     <button id="update-app" class="button-secondary" type="button" hidden>Aktualizuj aplikację</button>
 
-    <p>Dane są zapisane na tym urządzeniu. Backup pozwala przenieść dziennik, własne produkty, ulubione i skróty.</p>
+    <p>Dane są zapisane na tym urządzeniu. Backup pozwala przenieść dziennik, przepisy, szkice, własne produkty, ulubione i skróty. Tryb „Zastąp” usuwa również przepisy i szkice, których nie ma w wybranym backupie.</p>
     <button id="backup-export" type="button" class="button-secondary">Eksportuj backup JSON</button>
     <label for="backup-file">Wybierz backup (maks. 10 MiB)</label><input id="backup-file" type="file" accept=".json,application/json">
-    <label for="backup-mode">Tryb importu</label><select id="backup-mode"><option value="merge">Połącz z obecnymi danymi — zachowaj istniejące wpisy</option><option value="replace">Zastąp dziennik i dane produktów backupem</option></select>
+    <label for="backup-mode">Tryb importu</label><select id="backup-mode"><option value="merge">Połącz z obecnymi danymi — zachowaj istniejące wpisy</option><option value="replace">Zastąp dziennik, produkty, przepisy i szkice backupem</option></select>
     <label><input id="backup-confirm" type="checkbox"> Potwierdzam import w wybranym trybie; zamknąłem inne karty Bengera.</label>
     <button id="backup-import" type="button" class="button-secondary" disabled>Potwierdź i importuj</button>
     <p id="backup-status" role="status"></p>

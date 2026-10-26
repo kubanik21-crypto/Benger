@@ -367,4 +367,4 @@ void productSearch.seedRecent(nutritionEntries).catch(() => {});
 
 void initPwa();
 
-initBackupUi();
+initBackupUi({beforeRead:()=>recipesUI.flush()});
