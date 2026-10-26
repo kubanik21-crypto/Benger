@@ -1,5 +1,5 @@
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
-import { MEAL_LABELS } from './meal-understanding.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
+import { MEAL_LABELS } from './meal-understanding.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
 
 export function node(tag, className, text) {
   const element = document.createElement(tag);
@@ -15,6 +15,8 @@ export function readProposalFields(card) {
 }
 export function updateProposalCard(card, item, message = '') {
   const product = item.resolution.product;
+  const approximation = card.querySelector('[data-approximation]');
+  if (approximation) approximation.textContent = `ok. ${item.intent.amount ?? '…'} ${item.intent.unit ?? ''} — ilość przybliżona.`;
   card.querySelector('h4').textContent = product?.name ?? (item.intent.query || 'Produkt bez nazwy');
   card.querySelector('[data-provenance]').textContent = product
     ? [product.brand, product.source === 'openfoodfacts' ? 'Open Food Facts' : 'Benger · przykład'].filter(Boolean).join(' · ') : '';
@@ -47,7 +49,9 @@ export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose 
   const title = node('h4', '', item.resolution.product?.name ?? (item.intent.query || 'Produkt bez nazwy'));
   card.append(title);
   const provenance = node('p', 'field-help'); provenance.dataset.provenance = ''; card.append(provenance);
-  if (item.intent.amountApproximate) card.append(node('p', 'field-help', `ok. ${item.intent.amount ?? '…'} ${item.intent.unit ?? ''} — ilość przybliżona.`));
+  if (item.intent.amountApproximate) {
+    const approximation = node('p', 'field-help'); approximation.dataset.approximation = ''; card.append(approximation);
+  }
   const status = node('p', 'proposal-row-status'); status.dataset.status = ''; status.id = `${item.id}-status`; status.setAttribute('role', 'status');
   const fields = node('div', 'proposal-fields');
   for (const [key, label] of [['amount', 'Ilość'], ['unit', 'Jednostka'], ['meal', 'Posiłek']]) {

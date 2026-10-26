@@ -1,10 +1,10 @@
-import { canonicalWord } from './food-language.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
-import { normalizeTranscript } from './transcript-normalizer.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
-import { segmentFoodText } from './food-segmentation.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
-import { tokenizeFood } from './food-tokenizer.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
-import { normalizeText } from './product-model.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
-import { normalizeFoodQuery } from './food-query.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
-import { readPolishNumber } from './polish-numbers.js?v=e7a992364fefec5c4a0610772f49b3b9aaa50556';
+import { canonicalWord } from './food-language.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
+import { normalizeTranscript } from './transcript-normalizer.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
+import { segmentFoodText } from './food-segmentation.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
+import { tokenizeFood } from './food-tokenizer.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
+import { normalizeText } from './product-model.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
+import { normalizeFoodQuery } from './food-query.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
+import { readPolishNumber } from './polish-numbers.js?v=cb88bcb8935dca82e7d48b0b2d139eb14453d8be';
 
 export const MEAL_LABELS = { breakfast: 'Śniadanie', lunch: 'Obiad', dinner: 'Kolacja', snack: 'Przekąska' };
 const meals = { sniadanie: 'breakfast', sniadania: 'breakfast', obiad: 'lunch', obiadu: 'lunch', kolacja: 'dinner', kolacje: 'dinner', kolacji: 'dinner', przekaska: 'snack', przekaske: 'snack', przekaski: 'snack' };
@@ -13,14 +13,13 @@ const unitNames = { piece:'piece',slice:'slice',tablespoon:'tablespoon',teaspoon
 const quantityPattern = () => /(?<![\d.,+\-])([+\-]?[\d.,]+)\s*(piece|slice|tablespoon|teaspoon|mililitrow|mililitry|mililitra|mililitr|ml|gramow|gramy|grama|gram|g)(?![a-z])/g;
 const helpers = /\b(?:zjadlem|zjadlam|jadlem|jadlam|wypilem|wypilam|pije|jem|dzisiaj|dzis|potem|nastepnie|takze|mialem|mialam|jeszcze|chyba|do tego|na koniec)\b/g;
 const approximation = /\b(?:okolo|jakies|mniej wiecej(?: tak)?)\b/g;
-const forms = { platkow: 'platki', owsianych: 'owsiane', banana: 'banan', banany: 'banan', mleka: 'mleko', jogurtu: 'jogurt', naturalnego: 'naturalny', kurczaka: 'kurczak', ryzu: 'ryz', oliwy: 'oliwa', skyra: 'skyr', waniliowego: 'waniliowy', jablka: 'jablko', ziemniakow: 'ziemniaki', makaronu: 'makaron', chleba: 'chleb' };
 
 export function normalizeMealText(text) {
   return normalizeTranscript(text).normalizedTranscript;
 }
 function productQuery(text) {
   let query = text.replace(/^[\s:.,!?]+|[\s:.,!?]+$/g, '').replace(/\s+/g, ' ').trim();
-  query = query.split(' ').map(word => forms[word] ?? canonicalWord(word)).join(' ');
+  query = query.split(' ').map(word => canonicalWord(word)).join(' ');
   if (query === 'platki') query = 'platki owsiane';
   if (query === 'jogurt') query = 'jogurt naturalny';
   return query;
