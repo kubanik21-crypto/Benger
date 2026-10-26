@@ -226,3 +226,23 @@ body { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
 #route-progres figure { margin:8px 0; min-width:0; }
 #route-progres img { max-width:100%; height:auto; object-fit:contain; }
 #progress-gallery img { max-width:160px; }
+/* Dziennik: compact overview, then existing voice-first flow. */
+.dashboard-metric { margin:.6rem 0; overflow-wrap:anywhere; }
+.dashboard-metric progress { display:block; width:100%; height:.65rem; accent-color:#174d3c; }
+.dashboard-shortcuts,.dashboard-health { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; margin:1rem 0; }
+.dashboard-shortcuts button { min-height:48px; padding:.6rem; }
+.dashboard-health > div { min-width:0; }
+#dashboard h3 { margin:.6rem 0; }
+#dashboard details > summary,#goals summary { min-height:44px; cursor:pointer; padding:.5rem 0; }
+#goals-form,#goals-body-fields { display:grid; gap:.6rem; }
+#goals input { max-width:100%; min-width:0; }
+#dashboard p,#goals p { overflow-wrap:anywhere; }
+@media(max-width:360px) { .dashboard-health { grid-template-columns:1fr; } }
+#dashboard-day { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.4rem .7rem; }
+#dashboard-day > p { grid-column:1/-1; margin:.3rem 0; }
+.dashboard-metric { font-size:14px; margin:.2rem 0; }
+.dashboard-metric strong,.dashboard-metric span { display:block; }
+.dashboard-shortcuts #voice-microphone { font-size:17px; grid-column:1/-1; min-height:88px; }
+.dashboard-shortcuts { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.dashboard-shortcuts button { font-size:14px; }
+#dashboard { padding:16px; }
