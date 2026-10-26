@@ -1,4 +1,4 @@
-import { exportBackup, parseBackup, importBackup, BACKUP_LIMIT_BYTES } from './backup.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { exportBackup, parseBackup, importBackup, BACKUP_LIMIT_BYTES } from './backup.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
 export function initBackupUi(){
  const $=id=>document.getElementById(id);let raw=null;
  $('backup-export').onclick=async()=>{try{const backup=await exportBackup(),url=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='benger-backup.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('backup-status').textContent='Backup pobrany. Przechowuj go bezpiecznie — zawiera Twój dziennik.';}catch(error){$('backup-status').textContent=error.message;}};

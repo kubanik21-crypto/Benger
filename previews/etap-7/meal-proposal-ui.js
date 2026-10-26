@@ -1,8 +1,8 @@
-import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { itemPortionResolution } from './meal-resolution.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { productSourceLabel } from './product-model.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { itemPortionResolution } from './meal-resolution.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { productSourceLabel } from './product-model.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
-import { MEAL_LABELS } from './meal-understanding.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { MEAL_LABELS } from './meal-understanding.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
 
 export function node(tag, className, text) {
   const element = document.createElement(tag);
@@ -35,7 +35,7 @@ export function updateProposalCard(card, item, message = '') {
   card.querySelector('[data-values]').textContent = item.portion
     ? `${number.format(item.portion.nutrition.kcal)} kcal · Białko: ${number.format(item.portion.nutrition.protein)} g · Tłuszcz: ${number.format(item.portion.nutrition.fat)} g · Węglowodany: ${number.format(item.portion.nutrition.carbs)} g` : 'Wartości pojawią się po uzupełnieniu produktu i porcji.';
   const detail=card.querySelector('[data-portion-detail]');
-  if(detail){const c=itemPortionResolution(item);detail.textContent=item.portion?.displayPortion?`${item.portion.displayPortion.label} · ${number.format(item.portion.amount)} ${product.unit} · ${c.source}: ${humanPortionDescription(c.description)}`:Object.hasOwn(HOUSEHOLD_UNITS,item.intent.unit)?c.description:'';}
+  if(detail){const c=itemPortionResolution(item);detail.textContent=item.portion?.displayPortion?`${item.portion.displayPortion.label} · ${c.estimated?'ok. ':''}${number.format(item.portion.amount)} ${product.unit} · ${c.estimated?'typowa wartość':c.source+': '+humanPortionDescription(c.description)}`:Object.hasOwn(HOUSEHOLD_UNITS,item.intent.unit)?c.description:'';}
   const controls=card.querySelector('[data-portion-controls]');
   if(controls&&card.portionHandlers)renderPortionControls(controls,item,card.portionHandlers);
   const amount = card.querySelector('[data-amount]');
@@ -113,7 +113,7 @@ function renderPortionControls(container,item,{onPortion}) {
  };
  if(conversion.alternatives.length)for(const def of conversion.alternatives)offer(def,`${humanPortionDescription(def.description)} — ${number.format(def.normalizedAmount/def.amount)} ${def.normalizedUnit} / ${HOUSEHOLD_UNITS[unit]}`);
  const custom=node('details');custom.open=!item.portion&&!conversion.alternatives.length;
- custom.append(node('summary','',item.portion?'Zmień definicję porcji':'Uzupełnij masę / objętość porcji'));
+ custom.append(node('summary','',conversion.estimated?'Ustaw własną porcję':item.portion?'Zmień definicję porcji':'Uzupełnij masę / objętość porcji'));
  const label=node('label','',`Ile ${product.unit==='g'?'waży':'ma ml'} 1 ${HOUSEHOLD_UNITS[unit]} tego produktu? (${product.unit})`);
  const input=node('input');input.id=`${item.id}-portion-weight`;input.type='text';input.inputMode='decimal';input.maxLength=12;input.dataset.portionWeight='';label.htmlFor=input.id;
  const message=node('p','field-help');message.setAttribute('role','status');

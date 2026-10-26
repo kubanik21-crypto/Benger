@@ -1,10 +1,10 @@
-import { resolvePortion, portionLabel } from './portion-resolver.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { calculatePortion, sumNutrition } from './nutrition.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { copyProduct } from './product-model.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { resolvePortion, portionLabel } from './portion-resolver.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { copyProduct } from './product-model.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
 
 export function portionFor(intent, resolution, context = {}) {
   if (!resolution.product || resolution.confidence === 'LOW') return null;
-  const conversion=resolvePortion({product:resolution.product,amount:intent.amount,unit:intent.unit,definitions:context.portionDefinitions,settings:context.portionSettings,definitionId:context.definitionId});
+  const conversion=resolvePortion({product:resolution.product,amount:intent.amount,unit:intent.unit,definitions:context.portionDefinitions,settings:context.portionSettings,definitionId:context.definitionId,reference:context.portionReference});
   if(conversion.confidence==='LOW')return null;
   try { return { product: copyProduct(resolution.product), amount: conversion.normalizedAmount, nutrition: calculatePortion(resolution.product, conversion.normalizedAmount),
     ...(portionLabel(conversion)?{displayPortion:{amount:intent.amount,unit:intent.unit,label:portionLabel(conversion)},portionConversion:conversion}:{}), }; }
@@ -13,11 +13,11 @@ export function portionFor(intent, resolution, context = {}) {
 export async function loadItemPortions(item, repository) {
  const product=item.resolution.product;
  if(!product)return {...item,portion:null,portionDefinitions:[],definitionId:null};
- const [portionDefinitions,portionSettings]=repository?.portions?await Promise.all([repository.portions.getPortions(product),repository.portions.settings()]):[product.portions??[],{}];
- const updated={...item,portionDefinitions,portionSettings};
+ const [portionDefinitions,portionSettings,portionReference]=repository?.portions?await Promise.all([repository.portions.getPortions(product),repository.portions.settings(),repository.portions.getReference?.(product)??null]):[product.portions??[],{},null];
+ const updated={...item,portionDefinitions,portionSettings,portionReference};
  return {...updated,portion:portionFor(item.intent,item.resolution,updated)};
 }
-export function itemPortionResolution(item){return resolvePortion({product:item.resolution.product,amount:item.intent.amount,unit:item.intent.unit,definitions:item.portionDefinitions,settings:item.portionSettings,definitionId:item.definitionId});}
+export function itemPortionResolution(item){return resolvePortion({product:item.resolution.product,amount:item.intent.amount,unit:item.intent.unit,definitions:item.portionDefinitions,settings:item.portionSettings,definitionId:item.definitionId,reference:item.portionReference});}
 
 export function updateMealItemPortion(item, patch) {
   const intent = { ...item.intent };

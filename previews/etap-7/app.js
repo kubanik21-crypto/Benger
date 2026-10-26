@@ -1,14 +1,14 @@
-import { validPortionSnapshot, copyPortionSnapshot } from './portion-model.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { initPortionSettings } from './portion-settings-ui.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { recoverPendingImport } from './backup.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { initBackupUi } from './backup-ui.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { initPwa } from './pwa.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { calculatePortion, sumNutrition } from './nutrition.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { MEAL_LABELS } from './meal-understanding.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { initVoiceEntry } from './voice-entry.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { createProductRepository } from './product-repository.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { initProductSearch } from './product-search-ui.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=8f060d458260f8e7a191d5dff84b0d9f76d716a4';
+import { validPortionSnapshot, copyPortionSnapshot } from './portion-model.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { initPortionSettings } from './portion-settings-ui.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { recoverPendingImport } from './backup.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { initBackupUi } from './backup-ui.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { initPwa } from './pwa.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { MEAL_LABELS } from './meal-understanding.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { initVoiceEntry } from './voice-entry.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { createProductRepository } from './product-repository.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { initProductSearch } from './product-search-ui.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=4e08d35fe8de2037413f03bda22e46f3659598e8';
 
 await recoverPendingImport();
 
@@ -185,7 +185,7 @@ function createPortionArticle(entry) {
   name.textContent = entry.productName;
   const amount = document.createElement('p');
   amount.className = 'entry-amount';
-  amount.textContent = `${entry.displayPortion?.label ? entry.displayPortion.label+' · ' : ''}${amountFormatter.format(entry.amount)} ${entry.unit}`;
+  amount.textContent = `${entry.displayPortion?.label ? entry.displayPortion.label+' · ' : ''}${entry.portionConversion?.estimated?'ok. ':''}${amountFormatter.format(entry.amount)} ${entry.unit}${entry.portionConversion?.estimated?' · typowa wartość':''}`;
   const values = document.createElement('p');
   values.className = 'entry-nutrition';
   values.textContent = `${formatter.format(entry.nutrition.kcal)} kcal · Białko: ${formatter.format(entry.nutrition.protein)} g · Tłuszcz: ${formatter.format(entry.nutrition.fat)} g · Węglowodany: ${formatter.format(entry.nutrition.carbs)} g`;

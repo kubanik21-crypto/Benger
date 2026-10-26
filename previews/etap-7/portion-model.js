@@ -1,7 +1,7 @@
 // Product-specific definitions. Amount describes the source serving, never a global weight.
 export const HOUSEHOLD_UNITS = Object.freeze({piece:'sztuka',slice:'kromka',slab:'plaster',tablespoon:'łyżka',teaspoon:'łyżeczka',cup:'szklanka',mug:'kubek',package:'opakowanie',serving:'porcja',handful:'garść',scoop:'miarka'});
 export const samePortionUnit=(a,b)=>a===b||['slice','slab'].includes(a)&&['slice','slab'].includes(b);
-export const PORTION_SOURCES = ['USER','USDA','OFF','STANDARD_VOLUME','PACKAGE','NONE'];
+export const PORTION_SOURCES = ['USER','USDA','OFF','STANDARD_VOLUME','PACKAGE','REFERENCE','NONE'];
 export function isPortionDefinition(value) {
  return value && typeof value==='object' && typeof value.id==='string' && value.id.length>0 && value.id.length<=240
  && typeof value.productId==='string' && value.productId.length>0 && value.productId.length<=240
@@ -15,22 +15,35 @@ export function copyPortionDefinition(value) {
  if(!isPortionDefinition(value))throw new TypeError('Nieprawidłowa definicja porcji.');
  return {...(value.evidence?{evidence:{...value.evidence}}:{}),...Object.fromEntries(['id','productId','unit','amount','normalizedAmount','normalizedUnit','source','description'].map(key=>[key,value[key]]))};
 }
+function sameAmount(c,definition){return Math.abs(c.normalizedAmount-c.inputAmount*definition.normalizedAmount/definition.amount)<=Math.max(1e-9,c.normalizedAmount*1e-12);}
+function validReferenceSnapshot(c,row){
+ const d=c.referenceDefinition;
+ return c.confidence==='MEDIUM'&&c.estimated===true&&c.status==='TYPICAL'&&(row.estimated===undefined||row.estimated===true)
+ &&typeof c.referenceFamily==='string'&&/^[a-z][a-z-]{1,60}$/.test(c.referenceFamily)
+ &&typeof c.referenceProductId==='string'&&/^usda:\d+$/.test(c.referenceProductId)&&c.referenceSource==='USDA'
+ &&isPortionDefinition(d)&&d.productId===c.referenceProductId&&d.id===c.referencePortionId&&d.source==='USDA'
+ &&['tablespoon','teaspoon'].includes(c.inputUnit)&&d.unit===c.inputUnit&&row.unit==='g'&&d.normalizedUnit===row.unit&&sameAmount(c,d)
+ &&(c.definition===null||c.definition===undefined);
+}
 export function validPortionSnapshot(row) {
  if(!row||typeof row!=='object')return false;
  if(row.displayPortion===undefined&&row.portionConversion===undefined)return true;
  const display=row.displayPortion,c=row.portionConversion;
- return display&&c&&Object.hasOwn(HOUSEHOLD_UNITS,display.unit)&&Number.isFinite(display.amount)&&display.amount>0&&display.amount<=100000
+ if(!(display&&c&&Object.hasOwn(HOUSEHOLD_UNITS,display.unit)&&Number.isFinite(display.amount)&&display.amount>0&&display.amount<=100000
  &&typeof display.label==='string'&&display.label.length<=120&&c.inputAmount===display.amount&&c.inputUnit===display.unit
- &&c.normalizedAmount===row.amount&&c.normalizedUnit===row.unit&&PORTION_SOURCES.includes(c.source)&&c.source!=='NONE'&&c.confidence==='HIGH'
- &&(c.source==='STANDARD_VOLUME' ? row.unit==='ml' && ['teaspoon','tablespoon','cup','mug'].includes(c.inputUnit) : isPortionDefinition(c.definition) && c.definition.source===c.source && Math.abs(c.normalizedAmount-c.inputAmount*c.definition.normalizedAmount/c.definition.amount)<=Math.max(1e-9,c.normalizedAmount*1e-12))
- &&typeof c.description==='string'&&c.description.length<=240
+ &&Number.isFinite(c.normalizedAmount)&&c.normalizedAmount>0&&c.normalizedAmount<=1e7&&c.normalizedAmount===row.amount&&c.normalizedUnit===row.unit&&PORTION_SOURCES.includes(c.source)&&c.source!=='NONE'
+ &&typeof c.description==='string'&&c.description.length<=240))return false;
+ if(c.source==='REFERENCE')return validReferenceSnapshot(c,row);
+ return c.confidence==='HIGH'&&(c.estimated===undefined||c.estimated===false)&&(row.estimated===undefined||row.estimated===false)&&(c.status===undefined||c.status==='EXACT')
+ &&(c.source==='STANDARD_VOLUME' ? row.unit==='ml' && ['teaspoon','tablespoon','cup','mug'].includes(c.inputUnit) : isPortionDefinition(c.definition) && c.definition.source===c.source && sameAmount(c,c.definition))
  &&(c.definition===null||c.definition===undefined||isPortionDefinition(c.definition)&&c.definition.productId===row.productId&&samePortionUnit(c.definition.unit,c.inputUnit)&&c.definition.normalizedUnit===row.unit);
 }
 export function copyPortionSnapshot(row){
  if(!validPortionSnapshot(row))throw new TypeError('Nieprawidłowy snapshot porcji.');
  if(!row.displayPortion)return {};
- const {inputAmount,inputUnit,normalizedAmount,normalizedUnit,source,confidence,description,definition}=row.portionConversion;
- return {displayPortion:{amount:row.displayPortion.amount,unit:row.displayPortion.unit,label:row.displayPortion.label},portionConversion:{inputAmount,inputUnit,normalizedAmount,normalizedUnit,source,confidence,description,definition:definition?copyPortionDefinition(definition):null}};
+ const {inputAmount,inputUnit,normalizedAmount,normalizedUnit,source,confidence,description,definition,status,estimated}=row.portionConversion;
+ const reference=source==='REFERENCE'?{referenceFamily:row.portionConversion.referenceFamily,referenceProductId:row.portionConversion.referenceProductId,referenceSource:row.portionConversion.referenceSource,referencePortionId:row.portionConversion.referencePortionId,referenceDefinition:copyPortionDefinition(row.portionConversion.referenceDefinition)}:{};
+ return {...(source==='REFERENCE'?{estimated:true}:{}),displayPortion:{amount:row.displayPortion.amount,unit:row.displayPortion.unit,label:row.displayPortion.label},portionConversion:{inputAmount,inputUnit,normalizedAmount,normalizedUnit,source,confidence,description,definition:definition?copyPortionDefinition(definition):null,...(status!==undefined?{status}:{}),...(estimated!==undefined?{estimated}:{}),...reference}};
 }
 const plurals={piece:['sztuki','sztuk'],slice:['kromki','kromek'],slab:['plastry','plastrów'],tablespoon:['łyżki','łyżek'],teaspoon:['łyżeczki','łyżeczek'],cup:['szklanki','szklanek'],mug:['kubki','kubków'],package:['opakowania','opakowań'],serving:['porcje','porcji'],handful:['garście','garści'],scoop:['miarki','miarek']};
 export function householdUnitLabel(unit,amount=1){if(!Object.hasOwn(HOUSEHOLD_UNITS,unit))return unit??'';if(amount===1)return HOUSEHOLD_UNITS[unit];const forms=plurals[unit];return Number.isInteger(amount)?forms[amount%10>=2&&amount%10<=4&&!(amount%100>=12&&amount%100<=14)?0:1]:unit==='handful'?'garści':forms[0];}
