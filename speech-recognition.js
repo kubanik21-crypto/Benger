@@ -18,7 +18,7 @@ export function speechRecognitionConstructor(scope = globalThis) {
 
 // Tylko transkrypcja. Bez MediaRecorder, parsera, pamięci ani requestów produktów.
 export function createSpeechRecognitionAdapter({ Recognition = speechRecognitionConstructor(), language = 'pl-PL',
-  continuous = true, interimResults = true, onEvent = () => {}, timeoutMs = 45_000, stopTimeoutMs = 10_000, onState = () => {}, onTranscript = () => {}, onComplete = () => {},
+  continuous = false, interimResults = true, onEvent = () => {}, timeoutMs = 45_000, stopTimeoutMs = 10_000, onState = () => {}, onTranscript = () => {}, onComplete = () => {},
   setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
   let state = typeof Recognition === 'function' ? 'ready' : 'unsupported';
   let session = null;

@@ -31,7 +31,7 @@ test('Speech: wykrywa standard, webkit i brak obsługi oraz kontekst HTTP', () =
 test('Speech: pl-PL, interim, blokada drugiego startu i final dopiero po end', () => {
   const { adapter, instances, transcripts, completed, results, timers } = setup();
   assert.equal(adapter.start(), true); assert.equal(adapter.start(), false);
-  const recognition = instances[0]; assert.equal(recognition.lang, 'pl-PL'); assert.equal(recognition.interimResults, true);
+  const recognition = instances[0]; assert.equal(recognition.continuous, false); assert.equal(recognition.lang, 'pl-PL'); assert.equal(recognition.interimResults, true);
   recognition.onresult(results(['50 g płatków', false]));
   assert.deepEqual(transcripts.at(-1), { text: '50 g płatków', final: '', interim: '50 g płatków' }); assert.deepEqual(completed, []);
   recognition.onresult(results(['50 g płatków', true], ['i mleko', false]));

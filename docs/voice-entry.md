@@ -26,7 +26,7 @@ Speech adapter nie zna parsera ani źródła produktów. Rozumienie posiłku nie
 
 ## Mikrofon
 
-Domyślny język: `pl-PL`, opcja fabryki pozwala go zmienić bez nowego UI. Wykrywamy standardowy `SpeechRecognition` i starszy `webkitSpeechRecognition`, tylko w bezpiecznym kontekście. Recognition jest tworzone dla każdej sesji, z `continuous=true`, `interimResults=true` i jedną alternatywą.
+Domyślny język: `pl-PL`, opcja fabryki pozwala go zmienić bez nowego UI. Wykrywamy standardowy `SpeechRecognition` i starszy `webkitSpeechRecognition`, tylko w bezpiecznym kontekście. Recognition jest tworzone dla każdej sesji, z `continuous=false`, `interimResults=true` i jedną alternatywą.
 
 - Naciśnij „Powiedz posiłek”; system przeglądarki może zapytać o dostęp do mikrofonu.
 - Mów cały posiłek. Interim i final są wyświetlane w ograniczonej do 2000 znaków transkrypcji, bez analizy każdego fragmentu.
@@ -113,3 +113,9 @@ Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-4/ . Namespace 
 `npm run test:browser` uruchamia serialnie wcześniejsze regresje i osobny voice-entry.browser.test.js. OFF jest przechwytywane przez CDP, Speech API wstrzyknięte; nie ma prawdziwego mikrofonu w CI ani requestów do produkcyjnego OFF. Testy sprawdzają zapis/reload, wybory, częściowe sumy, mieszane posiłki, jednostki, walidację, błędy, offline, XSS, limity i layout. Brak realnej transkrypcji w CI jest jawnym ograniczeniem testu, nie dowodem działania dostawcy głosu na urządzeniu.
 
 Ręczny test Android/HTTPS: uruchom preview, kliknij mikrofon i powiedz „Na śniadanie zjadłem 80 gram płatków owsianych, 250 ml mleka 2% i banana 120 gram”. Zakończ, sprawdź transkrypcję i trzy wiersze, popraw jedną ilość, zatwierdź, odśwież. Osobno sprawdź odmowę zgody i niepewny skyr. Pierwsze trzy produkty mogą pochodzić z jawnie oznaczonego katalogu edukacyjnego; produkt markowy należy zweryfikować z etykietą/OFF. Bez internetu tekst i zapisane produkty mogą działać w już załadowanej aplikacji, ale usługa mowy i zimny start offline nie są gwarantowane.
+
+## Wybór trybu po teście Samsunga (26.10.2026)
+
+Domyślnie używamy trybu B: continuous=false, interimResults=true. Raport urządzenia pokazał jedną aktualizowaną hipotezę pod indeksem 0 oraz jeden final dla całego posiłku po około 7,4 s, bez duplikacji. W trybie A usługa dostarczała rosnące wersje frazy jako kolejne final. Nie usuwamy słów ani liczb heurystycznie. Diagnostyka nadal pozwala jawnie wybrać A/B/C.
+
+Jedna wypowiedź to jedna sesja. Usługa może zakończyć sesję po naturalnej pauzie; nie restartujemy mikrofonu automatycznie. Sprawdź finalny tekst: w przesłanym raporcie zabrakło separatora między płatkami a mlekiem oraz deklaracji 2 procent. Nie odtwarzamy ich przez zgadywanie; tekst można poprawić przed ponowną analizą.
