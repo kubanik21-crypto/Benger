@@ -1,3 +1,4 @@
+import {initProgress} from './progress-ui.js';
 import { validDiaryEntry,copyDiaryEntry } from './diary-entry.js';
 import {createRecipeRepository} from './recipe-repository.js';
 import {initRecipeDiary} from './recipe-diary-ui.js';
@@ -18,6 +19,7 @@ import { initProductSearch } from './product-search-ui.js';
 import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 
 initNavigation();
+initProgress();
 await recoverPendingImport();
 
 const $ = id => document.getElementById(id);
