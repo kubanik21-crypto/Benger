@@ -9,9 +9,10 @@ for(const [text,expected] of VOICE_CORPUS)test(`Smart corpus: ${text}`,()=>{
 });
 test('generowane kombinacje nie gubią produktu ani nie przenoszą ilości',()=>{
  const products=[['banan','banan','g'],['ryż','ryz','g'],['kurczak','kurczak','g'],['płatki','platki owsiane','g'],['mleko 2%','mleko 2%','ml']];
- for(const [name,query,unit] of products)for(const amount of [50,80,100,120,250])for(const separator of [', ',' i ',' oraz ',' '])for(const before of [false,true]){
+ for(const [name,query,unit] of products)for(const amount of [50,80,100,120,250])for(const separator of [', ',' i ',' oraz ',' '])for(const before of [false,true])for(const secondBefore of [false,true]){
  const one=before?`${amount} ${unit} ${name}`:`${name} ${amount} ${unit}`;
- const result=understandMeal(`${one}${separator}banan 150 g`,{defaultMeal:'breakfast'});
+ const second=secondBefore?'150 g banana':'banan 150 g';
+ const result=understandMeal(`${one}${separator}${second}`,{defaultMeal:'breakfast'});
  // Identyczne nazwy też pozostają osobnymi pozycjami.
  assert.deepEqual(result.intents.map(i=>[i.query,i.amount,i.unit]),[[query,amount,unit],['banan',150,'g']],one+separator);
  }
