@@ -37,7 +37,7 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
   await a.date(DAY);
 
   await t.test('strona i moduły są dostępne, katalog demonstracyjny jest nieobecny, produkty testowe pochodzą z custom', async () => {
-    for (const path of ['/', '/app.js', '/nutrition.js', '/meal-parser.js', '/legacy.js', '/style.css', '/manifest.webmanifest']) {
+    for (const path of ['/', '/app.js', '/nutrition.js', '/meal-parser.js', '/voice-entry.js', '/style.css', '/manifest.webmanifest']) {
       assert.equal((await fetch(browser.base + path)).status, 200, path);
     }
     assert.equal((await fetch(browser.base + '/missing')).status, 404);
@@ -196,18 +196,17 @@ test('Etap 1 w Chromium', { timeout: 120000 }, async t => {
       assert.ok(await a.evaluate(`Boolean(document.querySelector('label[for="${id}"]'))`));
     }
   });
-  await t.test('stare notatki: zapis, usuwanie, eksport i symulacja mikrofonu', async () => {
-    const food = await a.raw(KEY);
-    await a.evaluate("document.querySelector('details').open = true; document.getElementById('words').value = 'Nowa notatka'; document.getElementById('meal').value = 'Obiad'; document.getElementById('save').click()");
-    let notes = JSON.parse(await a.raw(NOTE_KEY)); assert.equal(notes.length, 2); assert.deepEqual(notes[0], legacy[0]);
-    await a.evaluate("document.querySelector('#entries button').click()");
-    notes = JSON.parse(await a.raw(NOTE_KEY)); assert.equal(notes.length, 1); assert.equal(notes[0].text, 'Nowa notatka');
-    await a.evaluate("document.getElementById('words').value = ''; document.getElementById('mic').click()");
-    assert.equal(await a.evaluate("document.getElementById('words').value"), 'Podyktowana notatka');
-    const exported = await a.evaluate("(async () => { let blob; const create = URL.createObjectURL, click = HTMLAnchorElement.prototype.click; URL.createObjectURL = value => { blob = value; return 'blob:test'; }; HTMLAnchorElement.prototype.click = function() {}; try { document.getElementById('export').click(); return JSON.parse(await blob.text()); } finally { URL.createObjectURL = create; HTMLAnchorElement.prototype.click = click; } })()");
-    assert.deepEqual(exported, notes); assert.equal(await a.raw(KEY), food);
-    await a.send('Emulation.setDeviceMetricsOverride', { width: 320, height: 844, deviceScaleFactor: 1, mobile: true });
-    assert.ok(await a.evaluate('document.documentElement.scrollWidth <= innerWidth'));
+  await t.test('wycofany notatnik nie ma UI, stare dane pozostają nietknięte', async () => {
+    const food=await a.raw(KEY),raw=await a.raw(NOTE_KEY);
+    for(const saved of [raw,'{broken archived notes','null']){
+      await a.setRaw(NOTE_KEY,saved);await a.reload();await a.date(DAY);
+      assert.equal(await a.raw(NOTE_KEY),saved);assert.equal(await a.raw(KEY),food);
+      assert.equal(await a.evaluate("document.querySelector('.legacy')"),null);
+      for(const id of ['mic','words','meal','save','export','entries'])assert.equal(await a.evaluate(`document.getElementById(${JSON.stringify(id)})`),null);
+      assert.ok(await a.evaluate("Boolean(document.getElementById('voice-microphone'))"));
+      await a.analyze('50 g płatków owsianych');assert.deepEqual(await a.outputs('proposal'),['185','6,5','3,5','30']);
+    }
+    await a.setRaw(NOTE_KEY,raw);await a.reload();await a.date(DAY);
   });
   await t.test('usunięcie ostatnich produktów daje zerową sumę i pusty dzień', async () => {
     for (const entry of (await a.saved()).filter(entry => entry.date === DAY)) await a.remove(entry.id);
@@ -886,8 +885,8 @@ test('Preview Etapu 4 — osobna pamięć i kompletny artefakt w zagnieżdżonym
   await a.choose('custom:test-oats', '50'); await a.submit();
   assert.equal((await a.saved()).length, 1);
   assert.equal((await a.saved())[0].nutrition.kcal, 185);
-  await a.evaluate("document.getElementById('words').value='Notatka preview';document.getElementById('save').click()");
-  assert.equal(JSON.parse(await a.raw('benger.preview-etap-6.meals.v1')).length, 1);
+  assert.equal(await a.raw('benger.preview-etap-6.meals.v1'),null);
+  assert.equal(await a.evaluate("document.getElementById('words')"),null);
   assert.equal(await a.raw(KEY), 'oryginalny dziennik produkcyjny');
   assert.equal(await a.raw(NOTE_KEY), 'oryginalne notatki produkcyjne');
   assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), 'dziennik starego preview');

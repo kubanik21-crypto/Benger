@@ -2,7 +2,6 @@ import { recoverPendingImport } from './backup.js';
 import { initBackupUi } from './backup-ui.js';
 import { initPwa } from './pwa.js';
 import { calculatePortion, sumNutrition } from './nutrition.js';
-import { initLegacyNotes } from './legacy.js';
 import { MEAL_LABELS } from './meal-understanding.js';
 import { initVoiceEntry } from './voice-entry.js';
 import { createProductRepository } from './product-repository.js';
@@ -346,7 +345,6 @@ updatePortionPreview();
 loadNutritionEntries();
 renderNutritionEntries();
 void productSearch.seedRecent(nutritionEntries).catch(() => {});
-initLegacyNotes({ dateInput, createEntryId });
 
 void initPwa();
 

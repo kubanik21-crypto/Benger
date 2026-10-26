@@ -223,7 +223,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
           try {
             if (diagnostic && await evaluate(`window.__documentId !== ${JSON.stringify(previous)} && document.documentElement.dataset.diagnosticsReady === 'true'`)) return;
             if (diagnostic) { await pause(100); continue; }
-            if (await evaluate(`window.__documentId !== ${JSON.stringify(previous)} && document.getElementById('nutrition-meal')?.options.length === 4 && document.getElementById('product-catalog')?.dataset.ready === 'true' && Boolean(document.getElementById('date')?.value) && document.getElementById('entries').textContent !== ''`)) return;
+            if (await evaluate(`window.__documentId !== ${JSON.stringify(previous)} && document.getElementById('nutrition-meal')?.options.length === 4 && document.getElementById('product-catalog')?.dataset.ready === 'true' && Boolean(document.getElementById('date')?.value)`)) return;
           } catch {}
           await pause(100);
         }

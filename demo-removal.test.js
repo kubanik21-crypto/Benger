@@ -8,3 +8,9 @@ test('fresh search and resolver use USDA without recreating historical demo IDs'
  const results=await repo.searchProducts('banan');assert.ok(results.products.length);assert.ok(results.products.every(p=>p.source==='usda'));assert.equal(external,0);
  const resolved=await createProductResolver({repository:repo}).resolve({query:'banan',unit:'g'});for(const p of[resolved.product,...resolved.alternatives].filter(Boolean)){assert.equal(p.source,'usda');assert.ok(!LEGACY_PRODUCT_IDS.has(p.id));}await repo.close();
 });
+test('experimental notes are not published or initialized; primary voice entry remains',async()=>{
+ assert.ok(!PUBLIC_ASSETS.includes('legacy.js'));
+ const app=await readFile('app.js','utf8'),html=await readFile('index.html','utf8');
+ assert.ok(!app.includes('initLegacyNotes'));assert.ok(!html.includes('Notatki głosowe — eksperymentalne'));
+ assert.ok(app.includes('initVoiceEntry'));assert.ok(html.includes('id="voice-microphone"'));
+});

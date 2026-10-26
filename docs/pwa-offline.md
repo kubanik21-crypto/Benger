@@ -30,7 +30,7 @@ Przeglądarka może usunąć dane po ręcznym czyszczeniu pamięci lub wskutek p
 
 ## Backup i import
 
-`backup.js` eksportuje `app: Benger`, `schemaVersion: 1`, timestamp i dane: snapshoty dziennika, produkty referencyjne, własne produkty, ulubione, ostatnie, aliasy, pamięć wyborów. Notatnik starego prototypu pozostaje nietknięty; nie jest częścią tego eksportu. Historia diagnostyczna nie jest eksportowana jako dane żywieniowe.
+`backup.js` eksportuje `app: Benger`, `schemaVersion: 1`, timestamp i dane: snapshoty dziennika, produkty referencyjne, własne produkty, ulubione, ostatnie, aliasy, pamięć wyborów. Interfejs notatnika starego prototypu został usunięty; jego dane w localStorage pozostają nietknięte i nie są częścią tego eksportu. Historia diagnostyczna nie jest eksportowana jako dane żywieniowe.
 
 Import ma limit 10 MiB, ograniczenia liczby rekordów, głębokości i długości; weryfikuje typy, makro, daty, kody, powiązania, duplikaty oraz niebezpieczne klucze prototypu. Nie wykonuje pobrań ani kodu z pliku. Domyślny merge zachowuje obecne rekordy przy zbieżnych ID; replace zastępuje dziennik i dane produktów. W obu trybach wymagane jest osobne zaznaczenie potwierdzenia. Przed importem zamknij inne karty: nie implementujemy rozproszonej blokady zapisu.
 

@@ -45,7 +45,7 @@ Manifest ma względne `id`, `start_url` i `scope`, ikony PNG 192/512 i offline s
 
 ## Wyszukiwarka, ostatnie i ulubione
 
-- Minimum 3 znaki, maksymalnie 20 wyników. Nie ma requestów przy wpisywaniu każdego znaku. Wyniki łączą katalog lokalny, cache i Open Food Facts, pokazują nazwę, markę, miniaturkę, wartości na 100 g/ml i źródło.
+- Minimum 3 znaki, maksymalnie 20 wyników. Nie ma requestów przy wpisywaniu każdego znaku. Wyniki łączą USDA, własne produkty, cache i Open Food Facts, pokazują nazwę, markę, miniaturkę, wartości na 100 g/ml i źródło.
 - Pole „Kod kreskowy” obsługuje ręczne EAN-8, UPC-A, EAN-13, GTIN-14 z poprawną cyfrą kontrolną. Nie uruchamia kamery.
 - „Ostatnio używane” zawiera 20 unikalnych produktów z udanych zapisów dziennika. Gwiazdka zapisuje ulubione niezależnie od dziennika. Sekcja pokazuje 20 ostatnio oznaczonych; inne zapisane produkty można wyszukać lokalnie.
 - Cache IndexedDB `BengerDB` zawiera znormalizowane produkty OFF (7 dni świeżości), wyniki wyszukiwań (15 minut), referencje ostatnich/ulubionych, pamięć jawnych wyborów produktów oraz limiter współdzielony między kartami. Wersja bazy 2 dodaje store `selections`, zachowując istniejące dane. Nie przechowujemy pełnych odpowiedzi API ani zdjęć base64. Ulubienie/użycie nie odnawia wieku danych.
@@ -116,11 +116,9 @@ Zatwierdzenie propozycji głosowej/tekstowej korzysta z tego samego dziennika i 
 
 Uszkodzone dane blokują zapis i nie są zastępowane pustą listą. Nieudany zapis pozostawia formularz i dane bez pozornego sukcesu. Gdy przeglądarka blokuje pamięć, dziennik może być niedostępny. Dane pozostają tylko w tej przeglądarce i pod tym adresem strony; wyczyszczenie pamięci je usuwa. Nie ma synchronizacji między urządzeniami, importu ani eksportu wpisów żywieniowych.
 
-## Notatnik eksperymentalny
+## Archiwalne notatki prototypu
 
-Zwijana sekcja zachowuje stary notatnik i jego klucz `benger.meals.v1`. Nowy dziennik nie przepisuje ani nie usuwa tych danych. Kod notatnika jest w `legacy.js`; można pisać, usuwać i eksportować notatki. Eksport obejmuje **wyłącznie notatki tekstowe**, nie produkty.
-
-Dyktowanie nie jest połączone z dziennikiem produktów. Wymaga obsługi Web Speech API, bezpiecznego połączenia i zgody na mikrofon. Może wysyłać dźwięk do dostawcy przeglądarki. Automatyczne testy symulują jego zdarzenia; rzeczywisty mikrofon telefonu wymaga osobnego sprawdzenia.
+Eksperymentalny notatnik, jego mikrofon i moduł zostały usunięte z aplikacji. Nie odczytujemy, nie migrujemy i nie kasujemy istniejących kluczy `benger.meals.v1` ani ich odpowiedników preview. Dane pozostają w przeglądarce, ale nie mają już interfejsu notatnika. Główne dodawanie posiłków głosem działa nadal przez `speech-recognition.js` i `voice-entry.js`. Backup dziennika produktów nie obejmuje dawnych notatek.
 
 ## Testy
 
@@ -148,7 +146,7 @@ Opcjonalny zrzut ekranu po dodaniu czterech posiłków:
 BENGER_SCREENSHOT_PATH=/tmp/benger.png npm run test:browser
 ```
 
-Testy sprawdzają porcje, walidację i fokus, posiłki i dwa dni, sumowanie, usuwanie, odświeżenie, dwie karty, awarie pamięci, UUID zastępcze, historyczne wartości, kontrast, szerokości 320/390/768/1024/1440 px, notatnik i konsolę.
+Testy sprawdzają porcje, walidację i fokus, posiłki i dwa dni, sumowanie, usuwanie, odświeżenie, dwie karty, awarie pamięci, UUID zastępcze, historyczne wartości, kontrast, szerokości 320/390/768/1024/1440 px, zachowanie archiwalnych danych notatek i konsolę.
 
 Regresje wcześniejszego dziennika sprawdzają także podgląd dwóch i trzech produktów, brak zapisu przed akceptacją, pojedynczy zapis całego zestawu, poprawianie tekstu, blokadę starego podglądu, brak częściowego sukcesu przy awarii pamięci lub ID, snapshot propozycji, współpracę z formularzem ręcznym i widoki 320/390 px. Opcjonalny zrzut propozycji: `BENGER_TEXT_SCREENSHOT_PATH=/tmp/benger-text.png npm run test:browser`.
 

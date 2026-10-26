@@ -8,7 +8,7 @@ export const PUBLIC_ASSETS = [
   'vendor/zxing/LICENSE-browser.txt','vendor/zxing/LICENSE-library.txt','vendor/zxing/LICENSE-ts-custom-error.txt',
   'product-providers/usda.js','product-providers/custom.js',
   ...readdirSync(new URL('../data/usda/',import.meta.url)).filter(file=>/^(?:index|metadata|chunk-\d{4})\.json$/.test(file)).sort().map(file=>'data/usda/'+file),
-  'index.html', 'style.css', 'app.js', 'app-storage.js', 'nutrition.js',  'legacy.js',
+  'index.html', 'style.css', 'app.js', 'app-storage.js', 'nutrition.js',
   'manifest.webmanifest', 'product-model.js', 'product-errors.js', 'product-cache.js',
   'product-repository.js', 'product-search-ui.js', 'legacy-product-references.js',
   'product-providers/open-food-facts.js', 'product-providers/off-http.js', 'product-providers/off-search.js',
