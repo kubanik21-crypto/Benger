@@ -18,7 +18,7 @@ export function speechRecognitionConstructor(scope = globalThis) {
 
 // Tylko transkrypcja. Bez MediaRecorder, parsera, pamięci ani requestów produktów.
 export function createSpeechRecognitionAdapter({ Recognition = speechRecognitionConstructor(), language = 'pl-PL',
-  timeoutMs = 45_000, stopTimeoutMs = 10_000, onState = () => {}, onTranscript = () => {}, onComplete = () => {},
+  continuous = true, interimResults = true, onEvent = () => {}, timeoutMs = 45_000, stopTimeoutMs = 10_000, onState = () => {}, onTranscript = () => {}, onComplete = () => {},
   setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
   let state = typeof Recognition === 'function' ? 'ready' : 'unsupported';
   let session = null;
@@ -26,7 +26,7 @@ export function createSpeechRecognitionAdapter({ Recognition = speechRecognition
   const emit = value => { state = value; onState({ state, message: SPEECH_MESSAGES[state] }); };
   function cleanup(current) {
     clearTimer(current.timer);
-    for (const event of ['start', 'result', 'error', 'end', 'speechend']) current.recognition[`on${event}`] = null;
+    for (const event of ['start', 'result', 'error', 'end', 'speechend', 'audiostart', 'soundstart', 'speechstart', 'soundend', 'audioend']) current.recognition[`on${event}`] = null;
     if (session === current) session = null;
   }
   function finish(current, next, complete = false) {
@@ -56,8 +56,8 @@ export function createSpeechRecognitionAdapter({ Recognition = speechRecognition
       const current = { recognition, segments: [], final: '', timer: null };
       session = current;
       recognition.lang = language;
-      recognition.continuous = true;
-      recognition.interimResults = true;
+      recognition.continuous = continuous;
+      recognition.interimResults = interimResults;
       recognition.maxAlternatives = 1;
       recognition.onstart = () => { if (session === current) emit('listening'); };
       recognition.onresult = event => {
@@ -93,6 +93,14 @@ export function createSpeechRecognitionAdapter({ Recognition = speechRecognition
         try { recognition.abort(); } catch { /* Usługa mogła już zakończyć sesję. */ }
       };
       recognition.onend = () => finish(current, current.final ? 'completed' : 'no-speech', Boolean(current.final));
+      for (const type of ['start','audiostart','soundstart','speechstart','speechend','soundend','audioend','result','end','error']) {
+        const handler = recognition[`on${type}`];
+        recognition[`on${type}`] = event => {
+          if (session !== current) return;
+          onEvent(type, event);
+          handler?.(event);
+        };
+      }
       emit('listening');
       arm(current, timeoutMs);
       try { recognition.start(); return true; }

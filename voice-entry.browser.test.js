@@ -326,3 +326,14 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     assert.deepEqual(browser.responses.filter(response=>response.url.startsWith(browser.base) && response.status>=400),[]);
   });
 });
+
+test('Speech diagnostics — surowe kumulacyjne eventy i tryby A/B/C',async t=>{
+ const browser=await startBrowser({staticPrefix:'/Benger/previews/etap-4/',previewBuild:true});t.after(()=>browser.close());
+ const page=await browser.page(new URL('speech-diagnostics.html',browser.base).href,{diagnostic:true,initScript:SPEECH});
+ for(const mode of ['A','B','C']){
+  await page.evaluate(`document.getElementById('mode').value='${mode}';document.getElementById('start').click();window.__speechUpdate(0,[['250',false]]);window.__speechUpdate(0,[['250 ml',true],['mleka',false]]);window.__speechUpdate(1,[['mleka',true]]);document.getElementById('stop').click()`);
+  const report=await page.evaluate("JSON.parse(document.getElementById('report').textContent)");
+  assert.equal(report.continuous,mode==='A');assert.equal(report.interimResults,mode!=='C');assert.equal(report.finalTranscript,'250 ml mleka');assert.equal(report.events.filter(e=>e.type==='result').length,3);assert.equal(report.events.find(e=>e.resultIndex===1).results[0].transcript,'250 ml');assert.equal(await page.evaluate("document.getElementById('download').disabled"),false);
+ }
+ assert.deepEqual(browser.errors,[]);
+});

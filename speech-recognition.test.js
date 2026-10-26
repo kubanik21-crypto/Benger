@@ -194,3 +194,11 @@ test('Speech: zniknięcie samego interim kończy się no-speech, a nowa sesja ni
   adapter.start(); instances[1].onresult(cumulativeEvent(0, [['banan 120 gram', true]])); instances[1].onend();
   assert.equal(transcripts.at(-1).text, 'banan 120 gram'); assert.deepEqual(completed, ['banan 120 gram']);
 });
+
+test('Speech diagnostics: trzy konfiguracje i surowy event przed przetworzeniem',()=>{
+ for(const [continuous,interimResults] of [[true,true],[false,true],[false,false]]){
+  const events=[];const {adapter,instances,results}=setup({continuous,interimResults,onEvent:(type,event)=>events.push({type,index:event?.resultIndex})});
+  adapter.start();const r=instances[0];assert.equal(r.continuous,continuous);assert.equal(r.interimResults,interimResults);
+  r.onresult(results(['250 ml mleka',true]));r.onend();assert.ok(events.some(e=>e.type==='result'&&e.index===0));assert.equal(r.onaudioend,null);
+ }
+});
