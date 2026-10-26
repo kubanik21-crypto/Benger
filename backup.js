@@ -1,3 +1,4 @@
+import { validateRecipe } from './recipe-model.js';
 import { validPortionSnapshot, copyPortionSnapshot, isPortionDefinition, copyPortionDefinition } from './portion-model.js';
 import { validPortionSettings } from './portion-repository.js';
 import { normalizeCustomProduct } from './product-providers/custom.js';
@@ -21,7 +22,7 @@ export function validDiaryEntry(row){
  &&['brand','source','sourceId','barcode'].every(key=>row[key]===undefined||row[key]===null||text(row[key]));
 }
 export function validateBackup(value){
- safeTree(value);if(value?.app!=='Benger'||value.schemaVersion!==1||!value.data)fail('Nieobsługiwana wersja backupu Bengera.');
+ safeTree(value);if(value?.app!=='Benger'||![1,2].includes(value.schemaVersion)||!value.data)fail('Nieobsługiwana wersja backupu Bengera.');
  const data=value.data;
  const diary=list(data.diary,20000).map(row=>{try{if(!validDiaryEntry(row))fail();}catch{fail('Nieprawidłowy wpis dziennika.');}return {id:row.id,date:row.date,createdAt:row.createdAt,meal:row.meal,productId:row.productId,productName:row.productName,amount:row.amount,unit:row.unit,nutrition:{...row.nutrition},...copyPortionSnapshot(row),...Object.fromEntries(['brand','source','sourceId','barcode'].filter(key=>row[key]!==undefined).map(key=>[key,row[key]]))};});
  if(new Set(diary.map(row=>row.id)).size!==diary.length)fail('Powtórzone ID wpisów.');
@@ -37,13 +38,16 @@ export function validateBackup(value){
  const portionMemory=list(data.portionMemory??[],2000).map(d=>{if(!isPortionDefinition(d)||d.source!=='USER')fail('Nieprawidłowa zapamiętana porcja.');return copyPortionDefinition(d);});
  if(new Set(portionMemory.map(d=>`${d.productId}:${d.unit}`)).size!==portionMemory.length)fail('Powtórzone definicje porcji.');
  const portionSettings=data.portionSettings??{};if(!validPortionSettings(portionSettings))fail('Nieprawidłowe ustawienia naczyń.');
- return {app:'Benger',schemaVersion:1,exportedAt:value.exportedAt,data:{diary,products,customProducts,favorites,recent,aliases,selections,portionMemory,portionSettings:{...portionSettings}}};
+ const recipes=list(data.recipes??[],1000).map(r=>validateRecipe(r)),recipeDrafts=list(data.recipeDrafts??[],100).map(r=>validateRecipe(r,{draft:true})),recipeHistory=list(data.recipeHistory??[],2000).map(r=>validateRecipe(r));
+ for(const rows of [recipes,recipeDrafts])if(new Set(rows.map(r=>r.id)).size!==rows.length)fail('Powtórzone ID przepisów.');
+ if(new Set(recipeHistory.map(r=>`${r.id}:v${r.version}`)).size!==recipeHistory.length)fail('Powtórzone wersje przepisu.');
+ return {app:'Benger',schemaVersion:2,exportedAt:value.exportedAt,data:{recipes,recipeDrafts,recipeHistory,diary,products,customProducts,favorites,recent,aliases,selections,portionMemory,portionSettings:{...portionSettings}}};
 }
 export function parseBackup(raw){if(typeof raw!=='string'||new TextEncoder().encode(raw).length>BACKUP_LIMIT_BYTES)fail('Backup jest zbyt duży (limit 10 MiB).');try{return validateBackup(JSON.parse(raw));}catch(error){throw new TypeError(error instanceof SyntaxError?'Plik nie jest prawidłowym JSON.':error.message);}}
 export async function exportBackup({storage=createProductStorage(),local=globalThis.localStorage}={}){
  try{const state=await storage.snapshot();const products=state.products.map(row=>row.product).filter(p=>isProduct(p)&&['openfoodfacts','usda'].includes(p.source)),customProducts=state.meta.filter(row=>row.key.startsWith('custom:')).map(row=>row.product).filter(isProduct);
  const ids=new Set([...products.map(p=>p.id),...customProducts.map(p=>p.id),...LEGACY_PRODUCT_IDS]);
- return validateBackup({app:'Benger',schemaVersion:1,exportedAt:new Date().toISOString(),data:{diary:JSON.parse(local.getItem(NUTRITION_STORAGE_KEY)??'[]'),products,customProducts,
+ return validateBackup({app:'Benger',schemaVersion:2,exportedAt:new Date().toISOString(),data:{recipes:(state.recipes??[]).map(r=>r.recipe),recipeDrafts:(state.recipeDrafts??[]).map(r=>r.recipe),recipeHistory:(state.recipeHistory??[]).map(r=>r.recipe),diary:JSON.parse(local.getItem(NUTRITION_STORAGE_KEY)??'[]'),products,customProducts,
  favorites:state.usage.filter(row=>row.favorite&&ids.has(row.key)).map(row=>row.key),recent:state.usage.filter(row=>row.lastUsedAt&&ids.has(row.key)).sort((a,b)=>b.lastUsedAt-a.lastUsedAt).slice(0,20).map(row=>row.key),
  aliases:state.meta.filter(row=>row.key.startsWith('alias:')&&ids.has(row.productId)).map(row=>({phrase:row.phrase,productId:row.productId})),
  portionMemory:state.meta.filter(row=>row.key.startsWith('portion:')).map(row=>row.definition),
@@ -66,9 +70,10 @@ export async function importBackup(raw,{mode='merge',storage=createProductStorag
   await recoverPendingImport({storage,local,close:false});const previous=await storage.snapshot(),oldDiary=local.getItem(NUTRITION_STORAGE_KEY);
   const oldEntries=JSON.parse(oldDiary??'[]');if(!Array.isArray(oldEntries)||oldEntries.some(row=>!validDiaryEntry(row)))fail('Bieżący dziennik jest uszkodzony. Najpierw zabezpiecz jego kopię.');
   local.setItem(NUTRITION_STORAGE_KEY,oldDiary??'[]'); // quota/permission check before mutation
-  const next=structuredClone(previous),now=Date.now();
-  if(mode==='replace'){next.products=[];next.usage=[];next.selections=[];next.meta=next.meta.filter(row=>!row.key.startsWith('custom:')&&!row.key.startsWith('alias:')&&!row.key.startsWith('portion:')&&row.key!=='portion-settings');}
+  const next=structuredClone(previous),now=Date.now();for(const name of ['recipes','recipeDrafts','recipeHistory'])next[name]??=[];
+  if(mode==='replace'){next.recipes=[];next.recipeDrafts=[];next.recipeHistory=[];next.products=[];next.usage=[];next.selections=[];next.meta=next.meta.filter(row=>!row.key.startsWith('custom:')&&!row.key.startsWith('alias:')&&!row.key.startsWith('portion:')&&row.key!=='portion-settings');}
   const merge=(old,rows,key)=>[...keyed([...rows,...old],key).values()]; // existing values win in merge mode
+  for(const name of ['recipes','recipeDrafts','recipeHistory'])next[name]=merge(next[name],backup.data[name].map(recipe=>({key:name==='recipeHistory'?`${recipe.id}:v${recipe.version}`:recipe.id,recipe})),row=>row.key);
   next.products=merge(next.products,backup.data.products.map(product=>({key:product.id,product,fetchedAt:0,revision:PRODUCT_CACHE_REVISION})),row=>row.key);
   const importedMeta=[...backup.data.portionMemory.map(definition=>({key:`portion:${definition.productId}:${definition.unit}`,definition})),{key:'portion-settings',value:backup.data.portionSettings},...backup.data.customProducts.map(product=>({key:product.id,product})),...backup.data.aliases.map(alias=>({key:`alias:${alias.phrase}`,...alias}))];
   next.meta=merge(next.meta,importedMeta,row=>row.key);

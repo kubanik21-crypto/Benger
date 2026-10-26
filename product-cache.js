@@ -7,7 +7,7 @@ export const SEARCH_TTL_MS = 15 * 60 * 1000;
 // Rev 2: nazwy marek z API 3.6. Starsze kopie pozostają dostępne offline, ale nie są świeże.
 // Revision 3 fetches serving/package metadata once online; older products remain usable offline.
 export const PRODUCT_CACHE_REVISION = 3;
-const STORES = ['products', 'usage', 'searches', 'meta', 'selections'];
+const STORES = ['products', 'usage', 'searches', 'meta', 'selections','recipes','recipeDrafts','recipeHistory'];
 function availableIndexedDB() {
   try { return globalThis.indexedDB; } catch { return null; }
 }
@@ -41,7 +41,7 @@ export function createProductStorage({ indexedDBFactory = availableIndexedDB(), 
       };
       const timer = setTimeout(() => finish(null), 3000);
       try {
-        const request = indexedDBFactory.open(name, 2);
+        const request = indexedDBFactory.open(name, 3);
         request.onupgradeneeded = () => {
           for (const store of STORES) if (!request.result.objectStoreNames.contains(store)) request.result.createObjectStore(store, { keyPath: 'key' });
         };
@@ -135,6 +135,14 @@ export function createProductStorage({ indexedDBFactory = availableIndexedDB(), 
   }
   return {
     read, mutate, removeUnprotectedProducts, ready: database, persistent: () => persistent,
+    async transact(names,change){
+      if(!Array.isArray(names)||!names.length||names.some(n=>!STORES.includes(n)))throw new TypeError('Nieznany magazyn.');
+      const db=await database();if(!db)throw new Error('Zapis przepisu wymaga dostępnej IndexedDB. Zmiany nie zostały zapisane.');
+      return new Promise((resolve,reject)=>{const tx=db.transaction(names,'readwrite'),state={};let remaining=names.length,result;
+       for(const name of names){const request=tx.objectStore(name).getAll();request.onsuccess=()=>{state[name]=request.result;if(--remaining===0){try{result=change(state);for(const storeName of names){const store=tx.objectStore(storeName);store.clear();for(const row of state[storeName])store.put(row);}}catch(error){tx.abort();reject(error);}}};}
+       tx.oncomplete=()=>resolve(structuredClone(result));tx.onerror=tx.onabort=()=>reject(tx.error??new Error('Nie udało się zapisać przepisu.'));
+      });
+    },
     async snapshot() {
       const db=await database();if(!db)throw new Error('Backup wymaga dostępnej pamięci IndexedDB.');
       return new Promise((resolve,reject)=>{const tx=db.transaction(STORES,'readonly'),result={};for(const name of STORES){const request=tx.objectStore(name).getAll();request.onsuccess=()=>{result[name]=request.result;};}tx.oncomplete=()=>resolve(result);tx.onerror=tx.onabort=()=>reject(tx.error);});

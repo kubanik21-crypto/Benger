@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{readFile}from'node:fs/promises';import{understandRecipe}from'./recipe-understanding.js';
+const rows=JSON.parse(await readFile(new URL('./tests/fixtures/recipe-corpus.json',import.meta.url)));assert.ok(rows.length>=150);
+for(const row of rows)test('Cooking corpus: '+row.text,()=>{const result=understandRecipe(row.text);assert.equal(result.type,row.type);assert.equal(result.raw,row.text);if(row.amount!==undefined){assert.equal(result.intents.length,1);assert.equal(result.intents[0].amount,row.amount);assert.equal(result.intents[0].unit,row.unit);}if(row.yield)assert.deepEqual(result.yield,row.yield);if(row.type==='STEP')assert.deepEqual(result.intents,[]);});
