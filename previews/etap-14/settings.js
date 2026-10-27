@@ -1,0 +1,8 @@
+import {createProductStorage} from './product-cache.js?v=b5beacd427a1599d5871763248ff0efa67408024';
+export const SETTINGS_KEY='app-settings-v1';
+export const DEFAULT_SETTINGS=Object.freeze({version:1,theme:'system',startRoute:'dziennik'});
+export function validateSettings(value){if(!value||Object.getPrototypeOf(value)!==Object.prototype||Object.keys(value).some(k=>!['version','theme','startRoute'].includes(k))||value.version!==1||!['system','light','dark'].includes(value.theme)||!['dziennik','trening','progres'].includes(value.startRoute))throw new TypeError('Nieprawidłowe ustawienia aplikacji.');return {version:1,theme:value.theme,startRoute:value.startRoute};}
+export function readSettings(value){try{return validateSettings(value);}catch{return {...DEFAULT_SETTINGS};}}
+export async function loadSettings(){const storage=createProductStorage();try{return readSettings((await storage.read('meta',SETTINGS_KEY))?.value);}finally{await storage.close();}}
+export async function saveSettings(value){const checked=validateSettings(value),storage=createProductStorage();try{await storage.ready();if(!storage.persistent())throw new Error('Pamięć ustawień jest niedostępna. Nie zapisano zmian.');await storage.mutate('meta',SETTINGS_KEY,()=>({key:SETTINGS_KEY,value:checked}));return checked;}finally{await storage.close();}}
+export function applyTheme(settings,media=matchMedia('(prefers-color-scheme: dark)')){const dark=settings.theme==='dark'||settings.theme==='system'&&media.matches;document.documentElement.dataset.theme=dark?'dark':'light';document.documentElement.style.colorScheme=dark?'dark':'light';document.querySelector('meta[name="theme-color"]')?.setAttribute('content',dark?'#12251e':'#174d3c');}
