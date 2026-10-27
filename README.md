@@ -174,20 +174,20 @@ GitHub Actions uruchamia testy także po push do `etap-6-pwa-catalog-scanner` (b
 
 ## Aktualny preview i ręczny test produkcyjnego OFF
 
-Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-11/**
+Preview: **https://kubanik21-crypto.github.io/Benger/previews/etap-12/**
 
-Jest przygotowywane po push gałęzi `etap-11-dashboard-goals` przez workflow `Stage 11 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
+Jest przygotowywane po push gałęzi `etap-12-training` przez workflow `Stage 12 preview`: testy → artefakt publicznych plików → zmiana tylko podkatalogu na istniejącym `gh-pages` → jawne żądanie przebudowy Pages. Token GitHub Actions sam nie wyzwala kolejnego builda Pages. Workflow sprawdza źródło `gh-pages`/`/`; nie zmienia konfiguracji hostingu i zatrzyma się, jeśli jest inna. Istniejące pliki root pozostają bez zmian. Udostępnia też pobieralny artefakt.
 
-Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-11.nutrition.v1` oraz IndexedDB `BengerDB-preview-etap-11`. Dane wersji głównej nie są kopiowane ani zmieniane.
+Pasek podglądu pokazuje SHA. Odwołania do CSS, JS, manifestu i importy modułów w artefakcie zawierają ten sam parametr wersji SHA, aby nowy index nie mieszał się ze starszymi modułami z cache hostingu. Preview używa `benger.preview-etap-12.nutrition.v1` oraz IndexedDB `BengerDB-preview-etap-12`. Dane wersji głównej nie są kopiowane ani zmieniane.
 
-Ręczna publikacja z czystej gałęzi Etapu 11: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
+Ręczna publikacja z czystej gałęzi Etapu 12: `npm run preview:publish`. Skrypt tworzy tymczasowy detached worktree istniejącej gałęzi `gh-pages`, sprawdza zakres zmiany i wykonuje zwykły push bez force. Nie tworzy nowej gałęzi i nie przełącza roboczego checkoutu.
 
 W preview kliknij „Sprawdź połączenie OFF”. Strona diagnostyczna uruchamia prawdziwe wyszukiwanie i barcode, zapisuje statusy HTTP, informację o czytelnej odpowiedzi CORS, znormalizowany produkt/makro i wynik ładowania zdjęcia. Nie dodaje wpisów do dziennika. Raport można pobrać jako JSON. Na tej stronie nic nie jest mockowane.
 
 Pełny test rzeczywistego przepływu w Chromium z tymczasowym profilem, poza standardowym CI:
 
 ```sh
-npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-11/ --report /tmp/benger-off-live.json
+npm run test:off:live -- --url https://kubanik21-crypto.github.io/Benger/previews/etap-12/ --report /tmp/benger-off-live.json
 ```
 
 Test lokalnego artefaktu z rzeczywistym OFF: `npm run test:off:live -- --local`. Respektuje proxy środowiska, nie wyłącza TLS i nie omija blokad sieci. Brak odpowiedzi lub niekompletny przepływ kończy test błędem. Zwykłe `npm test` i `npm run test:browser` nadal używają mocków dla OFF.
@@ -306,3 +306,9 @@ Backup v3 importuje również v1/v2. Lekka kopia zawiera pomiary; pełna kopia j
 Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-11/
 
 Dziennik pokazuje dzienną realizację opcjonalnych celów, ostatnie pomiary i podsumowanie tygodnia. Historia celów jest datowana (`effectiveFrom`), a raporty 7/30/90 dni korzystają z zapisanych snapshotów. Dane i obliczenia działają lokalnie/offline. Backup v4 obejmuje cele i obsługuje starsze pliki; brak celów w starym pliku nie usuwa obecnej historii. Szczegóły obliczeń i checklista Samsunga: [docs/dashboard-goals.md](docs/dashboard-goals.md).
+
+### Etap 12 — Trening i Mobility
+
+Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-12/#/trening
+
+Lokalne plany, serie, cardio, aktywne sesje, timery, historia/progres oraz własne rutyny Mobility. Hantle zapisujemy jako ciężar jednego hantla. Głos wypełnia serię do zatwierdzenia. Brak diagnoz, szacowania spalonych kcal i automatycznej zmiany celów. Backup v5 zachowuje aktywne sesje i obsługuje starsze wersje. [Model, ograniczenia i checklista Samsunga](docs/training.md).
