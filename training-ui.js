@@ -20,7 +20,7 @@ export function initTraining(){
  const status=message=>$('training-status').textContent=message;
  const catalog=()=>[...EXERCISES,...state.exercises];
  async function run(fn){if(busy)return;busy=true;status('');try{await fn();await refresh();}catch(e){status(storageErrorMessage(e));$('training-status').scrollIntoView({block:'center'});}finally{busy=false;consumeVoice();if(!busy&&pendingTimerActions.length)void run(pendingTimerActions.shift());}}
- const action=(text,fn)=>{const b=el('button',text);b.type='button';b.className='button-secondary';b.onclick=()=>void run(fn);return b;};
+ const action=(text,fn)=>{const b=el('button',text);b.type='button';b.className=/^(Usuń|Porzuć)/.test(text)?'button-secondary button-danger':'button-secondary';b.onclick=()=>void run(fn);return b;};
  function field(parent,label,name,value='',type='text',change=()=>{}){const l=el('label',label),input=el(/note/i.test(name)?'textarea':'input');if(input.tagName==='TEXTAREA')input.rows=3;input.id='training-field-'+name;input.name=name;if(input.tagName==='INPUT')input.type=type;input.value=value??'';input.maxLength=type==='text'?2000:100;if(type==='text')input.inputMode=/kg|reps|duration|rest|distance|speed|incline|rir|sets|discomfort|wellbeing|stiffness/.test(name)?'decimal':'text';l.htmlFor=input.id;input.oninput=()=>change(input.value);parent.append(l,input);return input;}
  function select(parent,label,name,values,value,change=()=>{}){const l=el('label',label),s=el('select');s.id='training-field-'+name;s.name=name;for(const [key,text]of values){const o=el('option',text);o.value=key;s.append(o);}s.value=value??values[0]?.[0]??'';l.htmlFor=s.id;s.onchange=()=>change(s.value);parent.append(l,s);return s;}
  const number=(value,optional=false)=>{if(optional&&(value===''||value===null||value===undefined))return null;const raw=String(value??'').trim();if(!/^\d+(?:[.,]\d+)?$/.test(raw))throw new Error('Podaj poprawną dodatnią liczbę, np. 32,5.');return Number(raw.replace(',','.'));};
@@ -69,7 +69,7 @@ export function initTraining(){
   }
   root.append(action(kind==='workout'?'Porzuć trening':'Porzuć Mobility',async()=>{if(confirm('Porzucić niezakończony trening / Mobility? Wykonanie nie trafi do historii.')){await repository.discard(kind,session.id);finishPreview=null;focusExercise=true;}}));
  }
- function viewAction(text,fn){const b=el('button',text);b.type='button';b.className='button-secondary';b.onclick=fn;return b;}
+ function viewAction(text,fn){const b=el('button',text);b.type='button';b.className=/^(Usuń|Porzuć)/.test(text)?'button-secondary button-danger':'button-secondary';b.onclick=fn;return b;}
  function viewPrimary(text,fn){const b=viewAction(text,fn);b.className='button-primary';return b;}
  function primary(text,fn){const b=action(text,fn);b.className='button-primary';return b;}
  function submit(text){const b=el('button',text);b.className='button-primary';return b;}

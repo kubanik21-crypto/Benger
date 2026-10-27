@@ -20,7 +20,7 @@ export function initCustomProducts({repository,onChanged,onSelect}){
  }
  async function refresh(){const products=await repository.customProducts();$('custom-products').replaceChildren();
   for(const product of products){const row=document.createElement('li');row.className='custom-row';const label=document.createElement('span');label.textContent=product.name;row.append(label);
-   for(const [title,action]of [['Wybierz',()=>onSelect(product)],['Edytuj',()=>open(product)],['Usuń',async()=>{try{await repository.deleteCustomProduct(product.id);await refresh();await onChanged();}catch{$('catalog-message').textContent='Nie udało się usunąć produktu.';}}]]){const button=document.createElement('button');button.type='button';button.className='button-secondary';button.textContent=title;button.setAttribute('aria-label',`${title}: ${product.name}`);button.onclick=()=>void action();row.append(button);}
+   for(const [title,action]of [['Wybierz',()=>onSelect(product)],['Edytuj',()=>open(product)],['Usuń',async()=>{if(!confirm(`Usunąć własny produkt „${product.name}”? Historyczne wpisy pozostaną bez zmian.`))return;try{await repository.deleteCustomProduct(product.id);await refresh();await onChanged();}catch{$('catalog-message').textContent='Nie udało się usunąć produktu.';}}]]){const button=document.createElement('button');button.type='button';button.className='button-secondary';button.textContent=title;if(title==='Usuń')button.classList.add('button-danger');button.setAttribute('aria-label',`${title}: ${product.name}`);button.onclick=()=>void action();row.append(button);}
    $('custom-products').append(row);
   }
  }

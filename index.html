@@ -183,11 +183,11 @@
     <button id="install-app" class="button-secondary" type="button" hidden>Zainstaluj Benger</button>
     <button id="update-app" class="button-secondary" type="button" hidden>Aktualizuj aplikację</button>
 
-    <p>Dane są zapisane na tym urządzeniu. Backup pozwala przenieść dziennik, przepisy, szkice, własne produkty, ulubione i skróty. Tryb „Zastąp” usuwa również przepisy i szkice, których nie ma w wybranym backupie.</p>
+    <p>Dane są zapisane na tym urządzeniu. Backup pozwala przenieść dziennik, przepisy, szkice, własne produkty, ulubione i skróty. Tryb „Zastąp” zastępuje dane zawarte w kopii, w tym dziennik, przepisy, szkice, cele i treningi. Kopia v6 przywraca także ustawienia; starsza kopia ich nie zmienia.</p>
     <button id="backup-export" type="button" class="button-secondary">Eksportuj backup JSON</button>
     <label for="backup-file">Wybierz backup (maks. 10 MiB)</label><input id="backup-file" type="file" accept=".json,application/json">
-    <label for="backup-mode">Tryb importu</label><select id="backup-mode"><option value="merge">Połącz z obecnymi danymi — zachowaj istniejące wpisy</option><option value="replace">Zastąp dziennik, produkty, przepisy i szkice backupem</option></select>
-    <label><input id="backup-confirm" type="checkbox"> Potwierdzam import w wybranym trybie; zamknąłem inne karty Bengera.</label>
+    <label for="backup-mode">Tryb importu</label><select id="backup-mode"><option value="merge">Połącz z obecnymi danymi — zachowaj istniejące wpisy</option><option value="replace">Zastąp dane zawarte w kopii, także cele i treningi</option></select>
+    <label><input id="backup-confirm" type="checkbox"> Rozumiem wybrany tryb importu i potwierdzam zmianę danych; zamknąłem inne karty Bengera.</label>
     <button id="backup-import" type="button" class="button-secondary" disabled>Potwierdź i importuj</button>
     <button type="button" id="backup-export-photos" class="button-secondary">Pełny backup ze zdjęciami</button><p>Standardowy backup obejmuje pomiary, ale nie fotografie. Import lekkiej kopii pozostawia istniejące zdjęcia; zastąpienie pełną kopią zastępuje także fotografie. Pełny backup zawiera również zdjęcia; limit 35 MB zdjęć.</p><p id="backup-status" role="status"></p>
   </section><section class="panel" aria-labelledby="portion-settings-title"><details><summary id="portion-settings-title">Moje porcje i naczynia</summary>

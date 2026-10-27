@@ -17,7 +17,7 @@ test('artefakt zawiera wyłącznie publiczne pliki, komplet modułów i izolacj�
   assert.deepEqual(files.sort(), [...PUBLIC_ASSETS, '.nojekyll'].sort());
   for (const file of ['index.html', 'off-diagnostics.html']) {
     const html = await readFile(join(directory, file), 'utf8');
-    assert.match(html, /benger-storage-namespace" content="preview-etap-12/);
+    assert.match(html, /benger-storage-namespace" content="preview-etap-13/);
     assert.ok(html.includes(`name="benger-build" content="${revision}"`));
     assert.ok(html.includes('Oddzielne dane lokalne'));
   }
@@ -48,3 +48,5 @@ test('builder nie kopiuje dowiązań ani plików spoza katalogu projektu', async
   await assert.rejects(safeAssetSource(root, 'linked.js'), /bez dowiązań/);
   await assert.rejects(safeAssetSource(root, '../private.js'), /wewnątrz/);
 });
+
+test('production artifact has exact build without preview namespace or banner',async t=>{const output=await mkdtemp(join(tmpdir(),'benger-web-release-'));t.after(()=>rm(output,{recursive:true,force:true}));await preparePreview(output,'b'.repeat(40),{preview:false});const html=await readFile(join(output,'index.html'),'utf8');assert.ok(html.includes('content="'+ 'b'.repeat(40)+'"'));assert.ok(!html.includes('name="benger-storage-namespace"'));assert.ok(!html.includes('Podgląd Etapu 13'));});
