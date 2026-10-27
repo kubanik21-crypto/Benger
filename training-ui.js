@@ -88,6 +88,10 @@ export function initTraining(){
  }
  function renderMobility(root,session,item){
   const routine=mobilityUsesRoutine(session,state.mobilityRoutines),lastExercise=session.index===session.items.length-1,lastSet=item.completedSets+1>=item.dosage.sets;
+  const plan=el('form');plan.id='mobility-sets-form';plan.noValidate=true;
+  const sets=field(plan,'Liczba serii','mobility-sets',item.dosage.sets,'number');sets.min=String(Math.max(1,item.completedSets));sets.max='100';sets.step='1';sets.inputMode='numeric';
+  const saveSets=el('button','Zapisz liczbę serii');saveSets.className='button-secondary';plan.append(saveSets);
+  plan.onsubmit=e=>{e.preventDefault();void run(async()=>{const count=number(sets.value);if(!Number.isInteger(count)||count<1||count>100)throw new Error('Podaj liczbę serii od 1 do 100 (całkowitą).');await repository.configure('mobility',session.id,session.index,{sets:count});status('Liczba serii zapisana dla tego ćwiczenia.');});};root.append(plan);
   root.append(el('p',`Zaliczone serie: ${item.completedSets}/${item.dosage.sets}`));
   if(item.dosage.duration){const start=primary(`Start ${item.dosage.duration} s`,()=>repository.timer('mobility',session.id,item.dosage.duration,'exercise'));start.disabled=item.completedSets>=item.dosage.sets;root.append(start);}
   const label=!lastSet?'Gotowe — kolejna seria':routine&&lastExercise?'Gotowe — zakończ rutynę':'Gotowe → następne';
