@@ -1,4 +1,4 @@
-import { STORAGE_NAMESPACE } from './app-storage.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { STORAGE_NAMESPACE } from './app-storage.js?v=da43694aa0e945596b60a6c60b611939356d178b';
 
 const key = `benger.${STORAGE_NAMESPACE || 'local'}.analyses.v1`;
 const limit = 20;

@@ -1,12 +1,12 @@
 import{recipePortionModes}from'./recipe-portion-resolver.js';
 import{NUTRITION_STORAGE_KEY}from'./app-storage.js';
-import { createProductRepository } from './product-repository.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
-import { createProductResolver } from './product-resolver.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
-import { createRecipeRepository } from './recipe-repository.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
-import { createRecipeDraft } from './recipe-model.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
-import { analyzeCookingEvent, applyCookingEvent } from './recipe-session.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
-import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
-import { STORAGE_NAMESPACE } from './app-storage.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { createProductRepository } from './product-repository.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { createProductResolver } from './product-resolver.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { createRecipeRepository } from './recipe-repository.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { createRecipeDraft } from './recipe-model.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { analyzeCookingEvent, applyCookingEvent } from './recipe-session.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { createSpeechRecognitionAdapter } from './speech-recognition.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { STORAGE_NAMESPACE } from './app-storage.js?v=da43694aa0e945596b60a6c60b611939356d178b';
 const $=id=>document.getElementById(id),show=(id,value)=>{$(id).textContent=JSON.stringify(value,null,2);};
 if($('recipe-lab-raw')){const repository=createProductRepository(),resolver=createProductResolver({repository});let draft=createRecipeDraft('Przepis laboratorium'),pending=null;
  async function analyze(){try{pending=await analyzeCookingEvent($('recipe-lab-raw').value,{repository,resolver,knownIngredients:draft.ingredients});show('recipe-lab-report',{raw:pending.event.raw,normalized:pending.event.normalized,type:pending.event.type,ingredientIntents:pending.event.intents,steps:pending.event.steps,yield:pending.event.yield,productAndPortionResolution:pending.proposal.items});$('recipe-lab-status').textContent='Analiza gotowa. Sprawdź przed zaakceptowaniem.';}catch(e){$('recipe-lab-status').textContent=e.message;}}

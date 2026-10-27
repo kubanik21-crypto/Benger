@@ -1,4 +1,4 @@
-import { HOUSEHOLD_UNITS } from './portion-model.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { HOUSEHOLD_UNITS } from './portion-model.js?v=da43694aa0e945596b60a6c60b611939356d178b';
 export function initPortionSettings(repository) {
  const form=document.getElementById('portion-settings-form'),list=document.getElementById('portion-memory-list'),status=document.getElementById('portion-settings-status');
  let refreshRevision=0;

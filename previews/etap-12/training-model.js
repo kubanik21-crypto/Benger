@@ -1,5 +1,5 @@
-import {EXERCISES,EQUIPMENT} from './training-library.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
-import {validDate} from './goals.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {EXERCISES,EQUIPMENT} from './training-library.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import {validDate} from './goals.js?v=da43694aa0e945596b60a6c60b611939356d178b';
 export const TRAINING_PREFIX='training:';
 export const emptyTraining=()=>({exercises:[],workoutTemplates:[],mobilityRoutines:[],activeWorkout:null,activeMobility:null,completedWorkouts:[],completedMobility:[],timer:null});
 const text=(x,max,empty=false)=>typeof x==='string'&&x.length<=max&&(empty||x.trim().length>0);
@@ -28,3 +28,5 @@ export function setVolume(exercise,set){return exercise.mode==='strength'?set.kg
 export function exerciseHistory(sessions,exerciseId){const rows=[];for(const s of sessions)for(const item of s.items)if(item.exercise.id===exerciseId)rows.push({date:s.date,completedAt:s.completedAt,name:s.name,mode:item.exercise.mode,sets:item.sets,volume:item.sets.filter(s=>s.kind==='work').reduce((a,set)=>a+(setVolume(item.exercise,set)??0),0)});return rows.sort((a,b)=>a.completedAt.localeCompare(b.completedAt));}
 // Existing records win conflicts; completed snapshots never resurrect as active sessions.
 export function mergeTraining(existing,incoming){const old=validateTraining(existing),next=validateTraining(incoming),out=emptyTraining();for(const name of ['exercises','workoutTemplates','mobilityRoutines','completedWorkouts','completedMobility'])out[name]=[...new Map([...next[name],...old[name]].map(r=>[r.id,r])).values()];for(const [active,completed]of [['activeWorkout','completedWorkouts'],['activeMobility','completedMobility']]){out[active]=old[active]??next[active];if(out[active]&&out[completed].some(s=>s.id===out[active].id))out[active]=null;}out.timer=old.timer??next.timer;if(out.timer&&![out.activeWorkout,out.activeMobility].some(s=>s?.id===out.timer.sessionId&&s.kind===out.timer.kind))out.timer=null;return validateTraining(out);}
+
+export function workoutSummary(session){let workSets=0,warmupSets=0,cardioEntries=0,volume=0;for(const item of session.items)for(const set of item.sets){if(item.exercise.mode==='cardio'){cardioEntries++;continue;}if(set.kind==='warmup'){warmupSets++;continue;}workSets++;volume+=setVolume(item.exercise,set)??0;}return {exercises:session.items.filter(i=>i.sets.length>0).length,plannedExercises:session.items.length,workSets,warmupSets,cardioEntries,volume};}
