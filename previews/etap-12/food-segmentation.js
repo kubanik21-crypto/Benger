@@ -1,4 +1,4 @@
-import { tokenizeFood } from './food-tokenizer.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import { tokenizeFood } from './food-tokenizer.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
 // Ilości są kotwicami. Rozpoznane początki rodzin nazw pozwalają rozdzielić mieszany szyk.
 // Nieznana nazwa z wieloma ilościami pozostaje jednym niepewnym fragmentem.
 export function segmentFoodText(text){

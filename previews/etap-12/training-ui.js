@@ -1,12 +1,12 @@
-import {normalizeText} from './product-model.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
-import {EXERCISES,EQUIPMENT} from './training-library.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
-import {createTrainingRepository,localTrainingDate} from './training-repository.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
-import {emptyTraining,dosage,exerciseHistory,workoutSummary,mobilityUsesRoutine} from './training-model.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
-import {recipeId} from './recipe-id.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
-import {createSpeechRecognitionAdapter} from './speech-recognition.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
-import {understandTraining} from './training-voice.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
-import {storageErrorMessage} from './storage-health.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
-import {chart} from './progress-ui.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {normalizeText} from './product-model.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
+import {EXERCISES,EQUIPMENT} from './training-library.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
+import {createTrainingRepository,localTrainingDate} from './training-repository.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
+import {emptyTraining,dosage,exerciseHistory,workoutSummary,mobilityUsesRoutine} from './training-model.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
+import {recipeId} from './recipe-id.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
+import {createSpeechRecognitionAdapter} from './speech-recognition.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
+import {understandTraining} from './training-voice.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
+import {storageErrorMessage} from './storage-health.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
+import {chart} from './progress-ui.js?v=53a2e0a18804218a8fa2d41124023f39e98df8f7';
 const $=id=>document.getElementById(id);
 const el=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const sides={left:'Lewa',right:'Prawa',both:'Obie'};
@@ -88,6 +88,10 @@ export function initTraining(){
  }
  function renderMobility(root,session,item){
   const routine=mobilityUsesRoutine(session,state.mobilityRoutines),lastExercise=session.index===session.items.length-1,lastSet=item.completedSets+1>=item.dosage.sets;
+  const plan=el('form');plan.id='mobility-sets-form';plan.noValidate=true;
+  const sets=field(plan,'Liczba serii','mobility-sets',item.dosage.sets,'number');sets.min=String(Math.max(1,item.completedSets));sets.max='100';sets.step='1';sets.inputMode='numeric';
+  const saveSets=el('button','Zapisz liczbę serii');saveSets.className='button-secondary';plan.append(saveSets);
+  plan.onsubmit=e=>{e.preventDefault();void run(async()=>{const count=number(sets.value);if(!Number.isInteger(count)||count<1||count>100)throw new Error('Podaj liczbę serii od 1 do 100 (całkowitą).');await repository.configure('mobility',session.id,session.index,{sets:count});status('Liczba serii zapisana dla tego ćwiczenia.');});};root.append(plan);
   root.append(el('p',`Zaliczone serie: ${item.completedSets}/${item.dosage.sets}`));
   if(item.dosage.duration){const start=primary(`Start ${item.dosage.duration} s`,()=>repository.timer('mobility',session.id,item.dosage.duration,'exercise'));start.disabled=item.completedSets>=item.dosage.sets;root.append(start);}
   const label=!lastSet?'Gotowe — kolejna seria':routine&&lastExercise?'Gotowe — zakończ rutynę':'Gotowe → następne';
