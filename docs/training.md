@@ -89,3 +89,5 @@ Dla nowego ćwiczenia bez definicji odpoczynku domyślnie używamy 90 s. Definic
 „Zakończ trening” otwiera podsumowanie czasu, wykonanych ćwiczeń, serii roboczych/rozgrzewkowych, cardio i objętości. Dopiero „Zapisz i zakończ” zapisuje snapshot w historii. Można wrócić do treningu bez zapisu końcowego. Dane, backup v5 i migracja pozostają w dotychczasowym modelu.
 
 Nowe ćwiczenia własne Mobility i nowe elementy Mobility bez własnej definicji mają przerwę 0: aplikacja nie dopisuje odpoczynku do planu fizjoterapeuty. Zapisane wcześniej przerwy pozostają bez zmian.
+
+Zmiany kontrolek odpoczynku nie kasują wpisywanych pól kolejnej serii. Ten roboczy formularz jest zachowywany w otwartej aplikacji, ale nie staje się zapisaną serią ani częścią backupu przed zatwierdzeniem.
