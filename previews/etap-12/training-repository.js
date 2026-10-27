@@ -1,7 +1,7 @@
-import {createProductStorage} from './product-cache.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {recipeId} from './recipe-id.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {EXERCISES} from './training-library.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {TRAINING_PREFIX,trainingFromRecords,trainingRecords,validateExercise,validateTemplate,validateSet,validateSession,emptyTraining,dosage,feeling} from './training-model.js?v=33c644743e722947b363d5bf044844ac22766ed2';
+import {createProductStorage} from './product-cache.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {recipeId} from './recipe-id.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {EXERCISES} from './training-library.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {TRAINING_PREFIX,trainingFromRecords,trainingRecords,validateExercise,validateTemplate,validateSet,validateSession,emptyTraining,dosage,feeling} from './training-model.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
 export function localTrainingDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 export function createTrainingRepository(){
  const storage=createProductStorage();

@@ -1,7 +1,7 @@
-import { sourcePortions } from './source-portions.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } from '../product-model.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import { ProductError } from '../product-errors.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import { createOffJsonClient } from './off-http.js?v=33c644743e722947b363d5bf044844ac22766ed2';
+import { sourcePortions } from './source-portions.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } from '../product-model.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { ProductError } from '../product-errors.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { createOffJsonClient } from './off-http.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
 
 export const OFF_BASE_URL = 'https://world.openfoodfacts.org';
 export const OFF_API_VERSION = '3.6';

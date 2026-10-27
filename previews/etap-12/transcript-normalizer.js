@@ -1,7 +1,7 @@
-import { canonicalWord, FOOD_HEADS } from './food-language.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import { normalizeText } from './product-model.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import { normalizeFoodQuery } from './food-query.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import { replaceSpokenNumbers } from './polish-numbers.js?v=33c644743e722947b363d5bf044844ac22766ed2';
+import { canonicalWord, FOOD_HEADS } from './food-language.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { normalizeText } from './product-model.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { normalizeFoodQuery } from './food-query.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import { replaceSpokenNumbers } from './polish-numbers.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
 
 // Normalizacja językowa, bez produktów, makro, domyślnych porcji i utraty oryginału.
 export function normalizeTranscript(rawTranscript) {

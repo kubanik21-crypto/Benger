@@ -1,5 +1,5 @@
-import {EXERCISES,EQUIPMENT} from './training-library.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {validDate} from './goals.js?v=33c644743e722947b363d5bf044844ac22766ed2';
+import {EXERCISES,EQUIPMENT} from './training-library.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {validDate} from './goals.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
 export const TRAINING_PREFIX='training:';
 export const emptyTraining=()=>({exercises:[],workoutTemplates:[],mobilityRoutines:[],activeWorkout:null,activeMobility:null,completedWorkouts:[],completedMobility:[],timer:null});
 const text=(x,max,empty=false)=>typeof x==='string'&&x.length<=max&&(empty||x.trim().length>0);

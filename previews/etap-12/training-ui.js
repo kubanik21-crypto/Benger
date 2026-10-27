@@ -1,11 +1,11 @@
-import {EXERCISES,EQUIPMENT} from './training-library.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {createTrainingRepository,localTrainingDate} from './training-repository.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {emptyTraining,dosage,exerciseHistory} from './training-model.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {recipeId} from './recipe-id.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {createSpeechRecognitionAdapter} from './speech-recognition.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {understandTraining} from './training-voice.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {storageErrorMessage} from './storage-health.js?v=33c644743e722947b363d5bf044844ac22766ed2';
-import {chart} from './progress-ui.js?v=33c644743e722947b363d5bf044844ac22766ed2';
+import {EXERCISES,EQUIPMENT} from './training-library.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {createTrainingRepository,localTrainingDate} from './training-repository.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {emptyTraining,dosage,exerciseHistory} from './training-model.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {recipeId} from './recipe-id.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {createSpeechRecognitionAdapter} from './speech-recognition.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {understandTraining} from './training-voice.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {storageErrorMessage} from './storage-health.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
+import {chart} from './progress-ui.js?v=80440391adf8148377d397099e9cdc89eb24d8fb';
 const $=id=>document.getElementById(id);
 const el=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const sides={left:'Lewa',right:'Prawa',both:'Obie'};
@@ -18,7 +18,7 @@ export function initTraining(){
  const repository=createTrainingRepository();let state=emptyTraining(),tab='workout',busy=false,revision=0,editor=null,exerciseEditor=null,setDraft=null,focusExercise=false,expiredTimer=null,restoreSection=true,voicePending=null,focusEditor=null;
  const status=message=>$('training-status').textContent=message;
  const catalog=()=>[...EXERCISES,...state.exercises];
- async function run(fn){if(busy)return;busy=true;try{await fn();await refresh();}catch(e){status(storageErrorMessage(e));}finally{busy=false;consumeVoice();}}
+ async function run(fn){if(busy)return;busy=true;status('');try{await fn();await refresh();}catch(e){status(storageErrorMessage(e));$('training-status').scrollIntoView({block:'center'});}finally{busy=false;consumeVoice();}}
  const action=(text,fn)=>{const b=el('button',text);b.type='button';b.className='button-secondary';b.onclick=()=>void run(fn);return b;};
  function field(parent,label,name,value='',type='text',change=()=>{}){const l=el('label',label),input=el(/note/i.test(name)?'textarea':'input');if(input.tagName==='TEXTAREA')input.rows=3;input.id='training-field-'+name;input.name=name;if(input.tagName==='INPUT')input.type=type;input.value=value??'';input.maxLength=type==='text'?2000:100;if(type==='text')input.inputMode=/kg|reps|duration|rest|distance|speed|incline|rir|sets|discomfort|wellbeing|stiffness/.test(name)?'decimal':'text';l.htmlFor=input.id;input.oninput=()=>change(input.value);parent.append(l,input);return input;}
  function select(parent,label,name,values,value,change=()=>{}){const l=el('label',label),s=el('select');s.id='training-field-'+name;s.name=name;for(const [key,text]of values){const o=el('option',text);o.value=key;s.append(o);}s.value=value??values[0]?.[0]??'';l.htmlFor=s.id;s.onchange=()=>change(s.value);parent.append(l,s);return s;}
