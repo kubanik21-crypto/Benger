@@ -1,5 +1,5 @@
-import {sumNutrition} from './nutrition.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
-import {goalsOn,validDate} from './goals.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
+import {sumNutrition} from './nutrition.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
+import {goalsOn,validDate} from './goals.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
 export const shiftDay=(date,n)=>new Date(Date.parse(date)+n*86400000).toISOString().slice(0,10);
 const mean=rows=>rows.length?rows.reduce((a,b)=>a+b,0)/rows.length:null;
 export function buildDashboard(entries,measurements,goals,end,range=7){

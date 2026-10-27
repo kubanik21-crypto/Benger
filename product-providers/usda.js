@@ -1,5 +1,5 @@
-import { canonicalWord } from '../food-language.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
-import { copyProduct, isProduct, normalizeText } from '../product-model.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
+import { canonicalWord } from '../food-language.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
+import { copyProduct, isProduct, normalizeText } from '../product-model.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
 
 export const POLISH_FOOD_TERMS = {
  ryz:'rice',makaron:'pasta',kurczak:'chicken',piers:'breast',wolowina:'beef',wieprzowina:'pork',indyk:'turkey',

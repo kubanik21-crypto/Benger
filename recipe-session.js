@@ -1,8 +1,8 @@
-import { understandRecipe } from './recipe-understanding.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
-import { resolveMealIntents } from './meal-resolution.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
-import { ingredientFromPortion, validateRecipe } from './recipe-model.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
-import { recipeId } from './recipe-id.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
-import { calculateRecipeNutrition } from './recipe-nutrition.js?v=1a902dff05d1ea0fee3d83edf82e3ed6be21ca22';
+import { understandRecipe } from './recipe-understanding.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
+import { resolveMealIntents } from './meal-resolution.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
+import { ingredientFromPortion, validateRecipe } from './recipe-model.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
+import { recipeId } from './recipe-id.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
+import { calculateRecipeNutrition } from './recipe-nutrition.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
 export async function analyzeCookingEvent(raw,{repository,resolver,type,knownIngredients=[],signal}={}){
  const event=understandRecipe(raw,{type,knownIngredients});
  const proposal=await resolveMealIntents(event.intents,{repository,resolver,allowExternal:true,signal});
