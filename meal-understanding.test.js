@@ -59,6 +59,14 @@ const examples = [
   ['cola zero 200 ml', 'cola zero', 200, 'ml'],
   ['jogurt truskawkowy 150 g', 'jogurt truskawkowy', 150, 'g'],
   ['na śniadanie 12,5 g masła', 'maslo', 12.5, 'g', 'breakfast'],
+  ['409 gram mąki', 'maka', 409, 'g'],
+  ['409 gramów mąki', 'maka', 409, 'g'],
+  ['200 g mąki pszennej', 'maka pszenna', 200, 'g'],
+  ['150 g twarogu', 'twarog', 150, 'g'],
+  ['120 g pomidorów', 'pomidor', 120, 'g'],
+  ['250 g kaszy', 'kasza', 250, 'g'],
+  ['180 g mięsa mielonego', 'mieso mielone', 180, 'g'],
+  ['200 g piersi z kurczaka', 'piers z kurczak', 200, 'g'],
 ];
 for (const [text, query, amount, unit, meal = 'snack'] of examples) {
   test(`Rozumienie: ${text}`, () => {

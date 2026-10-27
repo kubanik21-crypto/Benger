@@ -59,6 +59,18 @@ test('wielkość liter, polskie znaki i procenty normalizują się deterministyc
   const { resolver } = await setup();
   assert.equal((await resolver.resolve({ query: 'PLATKI OWSIANE', amount: 50, unit: 'g' })).product.id, 'custom:test-oats');
 });
+test('polskie odmiany nazw są sprowadzane do formy kanonicznej przed resolverem', async () => {
+  assert.equal(normalizeFoodQuery('mąki pszennej'), 'maka pszenna');
+  assert.equal(normalizeFoodQuery('twarogu'), 'twarog');
+  assert.equal(normalizeFoodQuery('pomidorów'), 'pomidor');
+  assert.equal(normalizeFoodQuery('piersi z kurczaka'), 'piers z kurczak');
+  const flour = { ...milk, id: 'off:test-flour', sourceId: 'test-flour', barcode: null, name: 'Mąka pszenna', brand: '', unit: 'g', portions: [] };
+  const { resolver } = await setup([flour]);
+  const result = await resolver.resolve({ query: 'mąki pszennej', amount: 409, unit: 'g' });
+  assert.equal(result.product.id, flour.id);
+  assert.equal(result.reason, 'unique-local-cache');
+});
+
 test('dokładny barcode HIGH; g/ml nigdy nie są przeliczane przez resolver', async () => {
   const { resolver, calls } = await setup();
   const exact = await resolver.resolve({ query: '5901234123457', amount: 200, unit: 'ml' });
