@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta name="benger-storage-namespace" content="preview-etap-13">
+  <meta name="benger-build" content="14a1afe0610a1577e79c4b611da805c03caeca0d">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174d3c">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23174d3c'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='46' fill='%23fffef8'%3Eb%3C/text%3E%3C/svg%3E">
+  <link rel="manifest" href="./manifest.webmanifest?v=14a1afe0610a1577e79c4b611da805c03caeca0d">
+  <link rel="stylesheet" href="./style.css?v=14a1afe0610a1577e79c4b611da805c03caeca0d">
+  <title>Benger · Dziennik żywieniowy</title>
+</head>
+<body>
+<aside style="padding:8px 16px;background:var(--brand,#174d3c);color:var(--brand-contrast,white);font:12px/1.6 system-ui">Podgląd Etapu 13 · Oddzielne dane lokalne. <details><summary>Narzędzia diagnostyczne</summary><a style="color:inherit" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:inherit" href="./speech-diagnostics.html">Speech diagnostics</a> · <a style="color:inherit" href="./voice-test-lab.html">Voice Test Lab</a> · <a style="color:inherit" href="./barcode-test-lab.html">Barcode Test Lab</a> · <a style="color:inherit" href="./catalog-diagnostics.html">Catalog Diagnostics</a> · <a style="color:inherit" href="./pwa-diagnostics.html">PWA Diagnostics</a> · <a style="color:inherit" href="./portion-diagnostics.html">Portion Diagnostics</a> · <a style="color:inherit" href="./portion-test-lab.html">Portion Test Lab</a> · <a style="color:inherit" href="./recipe-diary-test-lab.html">Recipe Diary Test Lab</a> · <a style="color:inherit" href="./recipe-diagnostics.html">Recipe Diagnostics</a></details><a style="color:inherit" href="../../">Wersja główna</a></aside>
+  <main>
+    <header class="site-header">
+      <a href="./" class="brand" aria-label="Benger — strona główna">benger<span aria-hidden="true">●</span></a>
+      <span class="header-note">TWÓJ DZIENNIK. TWOJE TEMPO.</span>
+    </header><section data-app-section="dziennik" id="route-dziennik">
+    <h1 id="page-title" data-route-heading tabindex="-1">Dziennik</h1>
+    <section id="dashboard" class="panel" aria-labelledby="dashboard-title"><h2 id="dashboard-title">Dzisiaj</h2><p id="dashboard-status" role="status"></p><div id="dashboard-content"><div id="dashboard-day"></div><div class="dashboard-shortcuts"><button id="voice-microphone" type="button" class="voice-microphone" aria-label="Rozpocznij rozpoznawanie posiłku" aria-describedby="speech-privacy speech-status" aria-pressed="false">🎙️ Powiedz posiłek</button><button type="button" class="button-secondary" data-progress-shortcut="weight">Dodaj wagę</button><button type="button" class="button-secondary" data-progress-shortcut="pressure">Dodaj ciśnienie</button><button type="button" class="button-secondary" data-progress-shortcut="body">Dodaj obwody</button></div><div class="dashboard-speech"><p id="speech-privacy" class="fine">Rozpoznawanie może wysyłać dźwięk do dostawcy przeglądarki. Benger nie zapisuje nagrań audio.</p><button id="cancel-speech" type="button" class="button-secondary" hidden>Anuluj rozpoznawanie</button><p id="speech-status" class="speech-status" role="status" aria-live="polite"></p><p id="live-transcript" class="live-transcript" aria-live="polite" aria-label="Transkrypcja na żywo"></p></div><div id="dashboard-training"></div><div class="dashboard-health"><div id="dashboard-weight"></div><div id="dashboard-pressure"></div></div><details><summary id="dashboard-week-toggle">Podsumowanie tygodnia i wykresy</summary><div id="dashboard-week"></div><label for="dashboard-range">Zakres raportu do dnia dziennika</label><select id="dashboard-range"><option value="7">7 dni</option><option value="30">30 dni</option><option value="90">90 dni</option></select><p id="dashboard-report-caption"></p><div id="dashboard-kcal-chart" class="progress-chart"></div><div id="dashboard-protein-chart" class="progress-chart"></div><div id="dashboard-weight-chart" class="progress-chart"></div><p>Jedzenie i pomiary pokazujemy obok siebie. Te dane nie dowodzą przyczyny zmiany masy. Pomiary ciśnienia są zapisem, bez diagnozy.</p></details><a href="#/wiecej" id="dashboard-goals-link">Ustaw cele w Więcej</a></div></section>
+    <div class="date-bar">
+      <div>
+        <label for="date">Dzień dziennika</label>
+        <p class="field-help">Data dotyczy nowych wpisów, listy i podsumowania.</p>
+      </div>
+      <div>
+        <input type="date" id="date" form="nutrition-form" required aria-describedby="date-error" aria-invalid="false">
+        <p id="date-error" class="field-error" role="alert"></p>
+      </div>
+    </div>
+    <p id="nutrition-storage-message" class="field-error storage-error" role="alert"></p>
+    <section id="voice-entry" class="panel text-meal" aria-labelledby="text-meal-title">
+      <div class="voice-layout">
+      <div class="voice-input">
+      <p class="eyebrow">TWÓJ POSIŁEK, TWOIMI SŁOWAMI</p>
+      <h2 id="text-meal-title">Co zjadłeś?</h2>
+      <p class="field-help">Naciśnij i powiedz cały posiłek — produkty i ich ilości.</p>
+      <div class="voice-secondary-actions">
+        <button id="scan-barcode" type="button" class="button-secondary">Skanuj kod</button>
+        <button id="use-text-entry" type="button" class="button-secondary">Dodaj z tekstu</button>
+        <button id="use-manual-entry" type="button" class="button-secondary">Dodaj ręcznie</button>
+      </div>
+          <label for="nutrition-meal">Posiłek</label>
+          <select id="nutrition-meal" form="nutrition-form" aria-describedby="nutrition-meal-error" aria-invalid="false"></select>
+          <p id="nutrition-meal-error" class="field-error" role="alert"></p>
+      <form id="meal-text-form" novalidate>
+        <label for="meal-text">Transkrypcja / opis posiłku</label>
+        <textarea id="meal-text" rows="4" maxlength="2000" aria-describedby="meal-text-help meal-text-error" aria-invalid="false" placeholder="Na śniadanie zjadłem 50 g płatków owsianych i 200 ml mleka 2%"></textarea>
+        <p id="meal-text-help" class="field-help">Możesz poprawić tekst przed analizą. Podaj ilości w g lub ml; produkty oddziel „i”, „oraz” lub przecinkiem. Brakujące informacje uzupełnisz w propozycji. Bez nazwy posiłku użyjemy wyboru „Posiłek” powyżej.</p>
+        <p id="meal-text-error" class="field-error" role="alert"></p>
+        <button id="analyze-meal" class="button-secondary" type="submit">Analizuj ponownie</button>
+      </form>
+      <p id="meal-text-status" class="success-message" role="status"></p>
+      </div>
+      <div class="proposal-pane">
+      <p id="proposal-empty" class="proposal-empty">Tutaj sprawdzisz produkty i porcje. Nic nie zapisze się bez Twojego potwierdzenia.</p>
+      <section id="meal-proposal" aria-labelledby="meal-proposal-title" hidden>
+        <h3 id="meal-proposal-title" tabindex="-1">Sprawdź przed zapisaniem</h3>
+        <p id="meal-proposal-context" class="field-help"></p>
+        <div id="meal-proposal-items"></div>
+        <ul id="meal-proposal-issues" class="field-error"></ul>
+        <div id="meal-proposal-summary" class="portion-preview" hidden>
+          <h4 id="proposal-summary-label" class="preview-label">SUMA CAŁEJ PROPOZYCJI</h4>
+          <dl class="nutrition-grid">
+            <div><dt>Energia</dt><dd><output id="proposal-kcal"></output> <span>kcal</span></dd></div>
+            <div><dt>Białko</dt><dd><output id="proposal-protein"></output> <span>g</span></dd></div>
+            <div><dt>Tłuszcz</dt><dd><output id="proposal-fat"></output> <span>g</span></dd></div>
+            <div><dt>Węglowodany</dt><dd><output id="proposal-carbs"></output> <span>g</span></dd></div>
+          </dl>
+        </div>
+        <button id="save-meal-proposal" class="button-primary" type="button" disabled>Dodaj cały posiłek</button>
+      </section>
+      </div>
+      </div>
+      <p class="fine">Najpierw korzystamy z Twoich wyborów i produktów zapisanych lokalnie. Niepewne dopasowania sprawdzisz osobno. Nie zgadujemy gramatury ani makro.</p>
+    </section>
+
+
+
+
+  <section class="day-diary" aria-labelledby="nutrition-title">
+        <h2 id="nutrition-title" tabindex="-1">Twój wybrany dzień</h2>
+        <section id="day-summary" class="panel day-summary" aria-labelledby="summary-title" hidden>
+          <h3 id="summary-title">Podsumowanie dnia</h3>
+          <dl class="nutrition-grid" aria-live="polite" aria-atomic="true">
+            <div><dt>Energia</dt><dd><output id="total-kcal"></output> <span>kcal</span></dd></div>
+            <div><dt>Białko</dt><dd><output id="total-protein"></output> <span>g</span></dd></div>
+            <div><dt>Tłuszcz</dt><dd><output id="total-fat"></output> <span>g</span></dd></div>
+            <div><dt>Węglowodany</dt><dd><output id="total-carbs"></output> <span>g</span></dd></div>
+          </dl>
+        </section>
+        <p id="summary-error" class="field-error" role="alert"></p>
+        <p id="diary-message" class="success-message" role="status"></p>
+        <div id="nutrition-entries"></div>
+      </section></section>
+<section data-app-section="przepisy" id="route-przepisy" hidden aria-labelledby="recipes-title">
+<h1 id="recipes-title" data-route-heading tabindex="-1">Przepisy</h1>
+<p>Twoje składniki, kroki i sposób gotowania. Zapisane na tym urządzeniu.</p>
+<button id="recipe-back" type="button" class="button-secondary" hidden>← Moje przepisy</button><div class="recipe-toolbar"><button id="recipe-new" class="button-secondary" type="button">+ Nowy przepis</button><button id="recipe-cook" class="voice-microphone" type="button">Gotuj z Bengerem</button></div>
+<label for="recipe-search">Szukaj w przepisach i składnikach</label><input id="recipe-search" type="search" maxlength="200">
+<p id="recipe-list-status" role="status"></p><div id="recipe-drafts"></div><div id="recipe-list"></div>
+<section id="recipe-detail" class="panel" hidden aria-label="Szczegóły przepisu"></section>
+<section id="recipe-editor" class="panel" hidden aria-labelledby="recipe-editor-title">
+<h2 id="recipe-editor-title" tabindex="-1">Gotuj z Bengerem</h2>
+<label for="recipe-name">Nazwa przepisu</label><input id="recipe-name" maxlength="200">
+<p id="recipe-last-change" class="success-message" role="status"></p><p id="recipe-autosave" role="status" aria-live="polite"></p>
+<button id="recipe-mic" class="voice-microphone" type="button" aria-pressed="false">🎙️ Powiedz składnik lub krok</button><button id="recipe-cancel-mic" class="button-secondary" type="button" hidden>Anuluj rozpoznawanie</button>
+<p id="recipe-speech-status" role="status"></p><p class="fine">Rozpoznawanie mowy może korzystać z usługi przeglądarki i sieci. Benger nie zapisuje audio. Możesz zawsze użyć tekstu.</p>
+<form id="recipe-event-form" novalidate><label for="recipe-text">Napisz, co robisz</label><textarea id="recipe-text" maxlength="2000" rows="3" placeholder="Dodaję 500 g piersi z kurczaka"></textarea><button class="button-secondary" id="recipe-analyze" type="submit">Przeanalizuj wypowiedź</button></form>
+<section id="recipe-event-review" class="recipe-event-review" hidden aria-labelledby="recipe-event-title"><h3 id="recipe-event-title" tabindex="-1">Sprawdź wypowiedź</h3><p id="recipe-event-raw"></p>
+<label for="recipe-event-type">Rodzaj wypowiedzi</label><select id="recipe-event-type"><option value="INGREDIENT">Składnik</option><option value="STEP">Krok</option><option value="INGREDIENT_AND_STEP">Składnik i krok</option><option value="YIELD">Wydajność dania</option><option value="NAME">Nazwa</option><option value="NOTE">Notatka</option><option value="UNKNOWN">Do doprecyzowania</option></select>
+<div id="recipe-event-items"></div><p id="recipe-event-description"></p><button id="recipe-event-accept" class="button-primary" type="button">Zaakceptuj do szkicu</button><button id="recipe-event-discard" class="button-secondary" type="button">Odrzuć wypowiedź</button></section>
+<div class="recipe-columns"><section><h3>Składniki</h3><p class="field-help">Brakujące produkty możesz uzupełnić później. Pominięcie w makro wymaga Twojej decyzji.</p><a href="#/produkty">Wyszukaj lub zeskanuj składnik</a><div id="recipe-ingredients"></div></section><section><h3>Kroki</h3><div id="recipe-steps"></div><label for="recipe-step-text">Dodaj krok ręcznie</label><textarea id="recipe-step-text" maxlength="1000" rows="2"></textarea><button id="recipe-add-step" class="button-secondary" type="button">Dodaj krok</button></section></div>
+<fieldset><legend>Ile gotowego dania wyszło?</legend><p class="field-help">Pola są opcjonalne. Końcowa masa nie jest sumą surowych składników.</p><label for="recipe-servings">Liczba porcji</label><input id="recipe-servings" inputmode="decimal" maxlength="12"><label for="recipe-weight">Masa gotowego dania (g)</label><input id="recipe-weight" inputmode="decimal" maxlength="12"><label for="recipe-volume">Objętość gotowego dania (ml)</label><input id="recipe-volume" inputmode="decimal" maxlength="12"></fieldset>
+<label for="recipe-notes">Notatki</label><textarea id="recipe-notes" maxlength="5000" rows="2"></textarea>
+<div id="recipe-nutrition" aria-live="polite"></div><p id="recipe-error" class="field-error" role="alert"></p>
+<button id="recipe-finish" class="button-primary" type="button">Zakończ i zapisz przepis</button><button id="recipe-close" class="button-secondary" type="button">Zachowaj szkic i zamknij</button>
+</section></section>
+<section data-app-section="produkty" id="route-produkty" hidden><h1 data-route-heading tabindex="-1">Produkty</h1><button id="scan-shortcut" type="button" class="button-secondary">Skanuj produkt</button><section id="product-catalog" class="panel product-catalog" aria-labelledby="catalog-title">
+      <p class="eyebrow">ZNAJDŹ SWÓJ PRODUKT</p>
+      <h2 id="catalog-title">Dodaj ręcznie · katalog produktów</h2>
+      <button id="create-custom" type="button" class="button-secondary">Utwórz własny produkt</button>
+      <button id="create-from-barcode" type="button" class="button-secondary" hidden>Dodaj produkt z tym kodem</button>
+      <label class="fine"><input id="search-internet" type="checkbox"> Uwzględnij wyniki Open Food Facts</label>
+      <form id="product-search-form" class="catalog-search" role="search" novalidate>
+        <label for="product-search">Szukaj produktu po nazwie lub marce</label>
+        <div class="search-line">
+          <input id="product-search" type="search" maxlength="120" placeholder="np. mleko łaciate 2%" aria-describedby="search-help catalog-message" autocomplete="off">
+          <button id="search-products" type="submit" class="button-secondary">Szukaj</button>
+        </div>
+        <p id="search-help" class="field-help">Minimum 3 znaki. Szukamy dopiero po kliknięciu lub Enter. Maksymalnie 20 wyników.</p>
+      </form>
+      <details class="barcode-lookup">
+        <summary>Masz kod kreskowy?</summary>
+        <form id="barcode-form" novalidate>
+          <label for="barcode">Kod kreskowy EAN / UPC</label>
+          <div class="search-line">
+            <input id="barcode" type="text" inputmode="numeric" maxlength="24" placeholder="np. 5901234123457" autocomplete="off" aria-describedby="catalog-message">
+            <button id="find-barcode" class="button-secondary" type="submit">Znajdź</button>
+          </div>
+        </form>
+      </details>
+      <p id="catalog-connection" class="field-help" role="status"></p>
+      <p id="catalog-storage-message" class="field-error" role="status"></p>
+      <p id="catalog-message" class="catalog-message" role="status" aria-live="polite"></p>
+      <ul id="search-results" class="product-list search-results" aria-label="Wyniki wyszukiwania" aria-busy="false"></ul>
+      <div class="saved-catalogs">
+        <section aria-labelledby="recent-title"><h3 id="recent-title">Ostatnio używane</h3><ul id="recent-products" class="product-list"></ul></section>
+        <section aria-labelledby="favorites-title"><h3 id="favorites-title">Ulubione</h3><p class="field-help">20 ostatnio oznaczonych. Pozostałe znajdziesz przez wyszukiwanie lokalne.</p><ul id="favorite-products" class="product-list"></ul></section>
+      </div>
+      <p class="fine">Dane społeczności Open Food Facts mogą zawierać błędy. Sprawdź produkt i etykietę przed dodaniem. B/T/W to gramy białka, tłuszczu i węglowodanów.</p>
+    </section><section class="panel calculator" aria-labelledby="calculator-title">
+        <p class="eyebrow">DODAJ COŚ DOBREGO</p>
+        <h2 id="calculator-title">Nowa porcja</h2>
+        <details><summary>Twoje produkty</summary><ul id="custom-products" class="product-list"></ul><button id="export-custom" type="button" class="button-secondary">Eksportuj własne produkty</button></details>
+      <form id="nutrition-form" novalidate><label for="manual-meal">Posiłek</label><select id="manual-meal"></select><p id="manual-date" class="field-help"></p><a href="#/dziennik">Zmień dzień w dzienniku</a>
+          <p id="selected-product-label" class="field-label">Wybrany produkt</p>
+          <div id="product" class="selected-product" role="group" tabindex="-1" aria-labelledby="selected-product-label" aria-describedby="product-error" aria-invalid="false"></div>
+          <p id="product-error" class="field-error" role="alert"></p>
+          <label for="amount">Ilość</label>
+          <div class="amount-field">
+            <input id="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="np. 50 lub 50,5" aria-describedby="amount-unit amount-help amount-error" aria-invalid="false">
+            <span id="amount-unit"></span>
+          </div>
+          <p id="amount-help" class="field-help">Możesz użyć przecinka lub kropki.</p>
+          <p id="amount-error" class="field-error" role="alert"></p>
+          <div id="portion-preview" class="portion-preview" aria-live="polite" hidden>
+            <p class="preview-label">W TWOJEJ PORCJI</p>
+            <dl class="nutrition-grid">
+              <div><dt>Energia</dt><dd><output id="portion-kcal"></output> <span>kcal</span></dd></div>
+              <div><dt>Białko</dt><dd><output id="portion-protein"></output> <span>g</span></dd></div>
+              <div><dt>Tłuszcz</dt><dd><output id="portion-fat"></output> <span>g</span></dd></div>
+              <div><dt>Węglowodany</dt><dd><output id="portion-carbs"></output> <span>g</span></dd></div>
+            </dl>
+          </div>
+          <button id="add-nutrition" class="button-primary" type="submit">Dodaj do dziennika <span aria-hidden="true">+</span></button>
+          <button id="recipe-add-selected" class="button-secondary" type="button">Dodaj wybrany składnik do przepisu</button><p id="recipe-selected-status" role="status"></p><p id="calculator-message" class="success-message" role="status"></p>
+        </form>
+        <p class="fine">Wartości historyczne są zapisywane jako kopia. Aktualizacja katalogu nie zmieni Twoich wcześniejszych wpisów.</p>
+      </section></section>
+<section data-app-section="historia" id="route-historia" hidden><h1 data-route-heading tabindex="-1">Historia dziennika</h1><p>Wybierz dzień, aby wrócić do jego wpisów.</p><div id="diary-history"></div></section>
+<section data-app-section="wiecej" id="route-wiecej" hidden><h1 data-route-heading tabindex="-1">Więcej</h1><a data-route="produkty" href="#/produkty">Produkty</a><a data-route="historia" href="#/historia">Historia dziennika</a><section class="panel" id="goals" aria-labelledby="goals-title"><h2 id="goals-title">Cele</h2><p>Wszystkie cele są opcjonalne. Zapis tworzy nowy okres od wybranej daty; puste pola oznaczają brak celu w tym okresie. Nie kopiujemy ich automatycznie. Wczytaj poprzednie, jeśli chcesz je zachować. Jedna data = jeden okres. Dzisiejsze cele można zastąpić po potwierdzeniu. Starsze okresy pozostają niezmienione; kolejna zmiana wymaga nowej daty. Jawne wsteczne datowanie zmienia raporty od tej daty.</p><form id="goals-form" novalidate><label for="goals-from">Obowiązują od</label><input id="goals-from" name="effectiveFrom" type="date" required><button id="goals-copy" type="button" class="button-secondary">Wczytaj poprzednie cele</button><label for="goal-kcal">Energia (kcal/dzień)</label><input id="goal-kcal" name="kcal" type="text" inputmode="decimal" maxlength="20"><label for="goal-protein">Białko (g/dzień)</label><input id="goal-protein" name="protein" type="text" inputmode="decimal" maxlength="20"><label for="goal-fat">Tłuszcz (g/dzień)</label><input id="goal-fat" name="fat" type="text" inputmode="decimal" maxlength="20"><label for="goal-carbs">Węglowodany (g/dzień)</label><input id="goal-carbs" name="carbs" type="text" inputmode="decimal" maxlength="20"><label for="goal-kg">Masa docelowa (kg)</label><input id="goal-kg" name="kg" type="text" inputmode="decimal" maxlength="20"><label for="goal-target-date">Opcjonalna data celu masy</label><input id="goal-target-date" name="targetDate" type="date"><details><summary>Cele obwodów (cm)</summary><div id="goals-body-fields"></div></details><button class="button-primary">Zapisz nowy okres celów</button></form><p id="goals-status" role="status"></p><details><summary>Historia celów</summary><div id="goals-history"></div></details></section><section class="panel" aria-labelledby="backup-title"><h2 id="backup-title">Dane i kopia zapasowa</h2>    <p id="connection-status" class="field-help" role="status"></p>
+    <p id="pwa-status" class="fine" role="status">Przygotowujemy tryb offline…</p>
+    <button id="install-app" class="button-secondary" type="button" hidden>Zainstaluj Benger</button>
+    <button id="update-app" class="button-secondary" type="button" hidden>Aktualizuj aplikację</button>
+
+    <p>Dane są zapisane na tym urządzeniu. Backup pozwala przenieść dziennik, przepisy, szkice, własne produkty, ulubione i skróty. Tryb „Zastąp” zastępuje dane zawarte w kopii, w tym dziennik, przepisy, szkice, cele i treningi. Kopia v6 przywraca także ustawienia; starsza kopia ich nie zmienia.</p>
+    <button id="backup-export" type="button" class="button-secondary">Eksportuj backup JSON</button>
+    <label for="backup-file">Wybierz backup (maks. 10 MiB)</label><input id="backup-file" type="file" accept=".json,application/json">
+    <label for="backup-mode">Tryb importu</label><select id="backup-mode"><option value="merge">Połącz z obecnymi danymi — zachowaj istniejące wpisy</option><option value="replace">Zastąp dane zawarte w kopii, także cele i treningi</option></select>
+    <label><input id="backup-confirm" type="checkbox"> Rozumiem wybrany tryb importu i potwierdzam zmianę danych; zamknąłem inne karty Bengera.</label>
+    <button id="backup-import" type="button" class="button-secondary" disabled>Potwierdź i importuj</button>
+    <button type="button" id="backup-export-photos" class="button-secondary">Pełny backup ze zdjęciami</button><p>Standardowy backup obejmuje pomiary, ale nie fotografie. Import lekkiej kopii pozostawia istniejące zdjęcia; zastąpienie pełną kopią zastępuje także fotografie. Pełny backup zawiera również zdjęcia; limit 35 MB zdjęć.</p><p id="backup-status" role="status"></p>
+  </section><section class="panel" aria-labelledby="portion-settings-title"><details><summary id="portion-settings-title">Moje porcje i naczynia</summary>
+    <p>Porcje dotyczą konkretnego produktu. Zmiana definicji nie zmienia historii dziennika.</p>
+    <form id="portion-settings-form" novalidate>
+      <label for="portion-cup">Moja szklanka (ml, opcjonalnie)</label><input id="portion-cup" name="cupMl" inputmode="decimal" maxlength="12">
+      <label for="portion-mug">Mój kubek (ml, opcjonalnie)</label><input id="portion-mug" name="mugMl" inputmode="decimal" maxlength="12">
+      <button class="button-secondary" type="submit">Zapisz objętości</button>
+    </form><button id="portion-settings-refresh" class="button-secondary" type="button">Odśwież listę moich porcji</button>
+    <ul id="portion-memory-list"></ul><p id="portion-settings-status" role="status"></p>
+  </details></section><section class="panel"><h2>Źródła danych</h2><p>Żywność ogólna: <a href="https://fdc.nal.usda.gov/">USDA FoodData Central</a> — public domain / CC0. Produkty markowe: <a href="https://world.openfoodfacts.org/">Open Food Facts</a> — ODbL, zdjęcia CC BY-SA. Własne produkty pozostają lokalnie.</p><details><summary>Licencje skanera</summary><a href="./vendor/zxing/LICENSE-browser.txt">ZXing Browser — MIT</a> · <a href="./vendor/zxing/LICENSE-library.txt">ZXing Library — Apache-2.0</a> · <a href="./vendor/zxing/LICENSE-ts-custom-error.txt">ts-custom-error — MIT</a></details></section><aside class="data-attribution fine" aria-label="Źródła i licencje danych">
+      Dane: <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener noreferrer">Open Food Facts i współtwórcy</a>.
+      Baza: <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener noreferrer">ODbL 1.0</a>;
+      zawartość: <a href="https://opendatacommons.org/licenses/dbcl/1-0/" target="_blank" rel="noopener noreferrer">DbCL 1.0</a>;
+      zdjęcia: <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>, autorzy na karcie produktu. Zdjęcia bez zmian, ładowane ze źródła.
+    </aside><section id="storage-health" class="panel"></section><footer>Wpisy są zapisane tylko w tej przeglądarce i pod tym adresem strony. Wyczyszczenie jej danych usunie dziennik. Kopię dziennika i własnych produktów pobierzesz w sekcji „Dane i kopia zapasowa”.</footer></section>
+<section data-app-section="progres" id="route-progres" hidden><h1 data-route-heading tabindex="-1">Progres</h1><p>Pomiary i zdjęcia są lokalne na urządzeniu. Benger ich nigdzie nie wysyła. Brak synchronizacji urządzeń. Osoba z dostępem do profilu przeglądarki lub urządzenia może mieć dostęp do danych. Dane nie są szyfrowane przez Benger.</p><div id="progress-dashboard" class="panel"></div><p id="progress-status" role="status"></p><details class="panel" open><summary>Waga</summary><form id="progress-weight-form"><label for="weight-date">Data</label><input id="weight-date" name="date" type="date" maxlength="32" required><label for="weight-time">Godzina</label><input id="weight-time" name="time" type="time" maxlength="32" required><label for="weight-kg">Masa kg</label><input id="weight-kg" name="kg" type="text" maxlength="32" inputmode="decimal" required><label for="weight-note">Notatka</label><input id="weight-note" name="note" type="text" maxlength="1000"><button class="button-primary">Zapisz pomiar</button></form><label for="weight-range">Zakres</label><select id="weight-range"><option value="30">30 dni</option><option value="90">90 dni</option><option value="0">Wszystko</option></select><div id="weight-chart" class="progress-chart"></div><div id="progress-weight-history"></div></details><details class="panel"><summary>Ciśnienie i tętno</summary><form id="progress-pressure-form"><label for="pressure-date">Data</label><input id="pressure-date" name="date" type="date" maxlength="32" required><label for="pressure-time">Godzina</label><input id="pressure-time" name="time" type="time" maxlength="32" required><label for="pressure-systolic">Skurczowe</label><input id="pressure-systolic" name="systolic" type="text" maxlength="32" inputmode="decimal" required><label for="pressure-diastolic">Rozkurczowe</label><input id="pressure-diastolic" name="diastolic" type="text" maxlength="32" inputmode="decimal" required><label for="pressure-pulse">Puls</label><input id="pressure-pulse" name="pulse" type="text" maxlength="32" inputmode="decimal" required><label for="pressure-note">Notatka</label><input id="pressure-note" name="note" type="text" maxlength="1000"><label for="pressure-period">Pora</label><select name="period" id="pressure-period"><option value="morning">Rano</option><option value="noon">Południe</option><option value="evening">Wieczór</option><option value="other">Inne</option></select><p>Zapis pomiarów i trendów — bez diagnoz i automatycznych porad medycznych.</p><button class="button-primary">Zapisz pomiar</button></form><div id="pressure-chart" class="progress-chart"></div><div id="progress-pressure-history"></div></details><details class="panel"><summary>Obwody</summary><form id="progress-body-form"><label for="body-date">Data</label><input id="body-date" name="date" type="date" maxlength="32" required><label for="body-time">Godzina</label><input id="body-time" name="time" type="time" maxlength="32" required><label for="body-neck">Szyja</label><input id="body-neck" name="neck" type="text" maxlength="32" inputmode="decimal"><label for="body-chest">Klatka</label><input id="body-chest" name="chest" type="text" maxlength="32" inputmode="decimal"><label for="body-waist">Talia</label><input id="body-waist" name="waist" type="text" maxlength="32" inputmode="decimal"><label for="body-abdomen">Brzuch</label><input id="body-abdomen" name="abdomen" type="text" maxlength="32" inputmode="decimal"><label for="body-hips">Biodra</label><input id="body-hips" name="hips" type="text" maxlength="32" inputmode="decimal"><label for="body-thighLeft">Udo lewe</label><input id="body-thighLeft" name="thighLeft" type="text" maxlength="32" inputmode="decimal"><label for="body-thighRight">Udo prawe</label><input id="body-thighRight" name="thighRight" type="text" maxlength="32" inputmode="decimal"><label for="body-calfLeft">Łydka lewa</label><input id="body-calfLeft" name="calfLeft" type="text" maxlength="32" inputmode="decimal"><label for="body-calfRight">Łydka prawa</label><input id="body-calfRight" name="calfRight" type="text" maxlength="32" inputmode="decimal"><label for="body-armLeft">Ramię lewe</label><input id="body-armLeft" name="armLeft" type="text" maxlength="32" inputmode="decimal"><label for="body-armRight">Ramię prawe</label><input id="body-armRight" name="armRight" type="text" maxlength="32" inputmode="decimal"><label for="body-note">Notatka</label><input id="body-note" name="note" type="text" maxlength="1000"><button class="button-primary">Zapisz pomiar</button></form><label for="body-choice">Obwód na wykresie</label><select id="body-choice"><option value="neck">Szyja</option><option value="chest">Klatka</option><option value="waist">Talia</option><option value="abdomen">Brzuch</option><option value="hips">Biodra</option><option value="thighLeft">Udo lewe</option><option value="thighRight">Udo prawe</option><option value="calfLeft">Łydka lewa</option><option value="calfRight">Łydka prawa</option><option value="armLeft">Ramię lewe</option><option value="armRight">Ramię prawe</option></select><p id="body-summary"></p><div id="body-chart" class="progress-chart"></div><div id="progress-body-history"></div></details><details class="panel"><summary>Zdjęcia</summary><form id="progress-photo-form"><label for="photo-date">Data sesji</label><input id="photo-date" name="date" type="date" required><label for="photo-note">Notatka</label><input id="photo-note" name="note" maxlength="1000"><label for="photo-front">Przód</label><input id="photo-front" name="front" type="file" accept="image/jpeg,image/png"><label for="photo-side">Bok</label><input id="photo-side" name="side" type="file" accept="image/jpeg,image/png"><label for="photo-back">Tył</label><input id="photo-back" name="back" type="file" accept="image/jpeg,image/png"><button class="button-primary">Zapisz zdjęcia lokalnie</button></form><div id="progress-gallery"></div><h2>Porównaj zdjęcia</h2><label for="compare-a">Pierwsza sesja</label><select id="compare-a"></select><label for="compare-b">Druga sesja</label><select id="compare-b"></select><div id="progress-compare"></div></details></section><section data-app-section="trening" id="route-trening" hidden><h1 data-route-heading tabindex="-1">Trening</h1><details class="training-safety"><summary>Mobility / rehabilitacja — ważna informacja</summary><p>Benger nie diagnozuje i nie zastępuje fizjoterapeuty. Przy istniejących problemach kręgosłupa ćwiczenia rehabilitacyjne powinny być zgodne z zaleceniami lekarza lub fizjoterapeuty. Ich dokładny plan możesz zapisać jako własną rutynę.</p></details><nav class="training-tabs" aria-label="Sekcje treningu"><button type="button" data-training-tab="workout">Trening</button><button type="button" data-training-tab="mobility">Mobility</button><button type="button" data-training-tab="plans">Plany</button><button type="button" data-training-tab="history">Historia</button><button type="button" data-training-tab="exercises">Ćwiczenia</button></nav><p id="training-status" role="status" aria-live="polite"></p><section class="training-timer panel" aria-label="Odliczanie"><output id="training-timer">Timer nie jest uruchomiony.</output><button id="training-rest-plus" type="button" class="button-secondary" hidden>+30 s</button><button id="training-rest-restart" type="button" class="button-secondary" hidden>Uruchom ponownie</button><button id="training-stop-timer" type="button" class="button-secondary">Zatrzymaj timer</button></section><div id="training-content" class="panel"></div></section></main>
+
+
+
+  <dialog id="scanner-dialog" aria-labelledby="scanner-title">
+    <h2 id="scanner-title">Skanuj kod produktu</h2>
+    <p>Używamy aparatu tylko do odczytu kodu. Nie zapisujemy ani nie wysyłamy wideo.</p>
+    <div class="camera-preview"><video id="scanner-video" muted playsinline></video><span class="scan-frame" aria-hidden="true"></span></div>
+    <p id="scanner-status" role="status">Umieść kod w ramce.</p>
+    <button id="cancel-scanner" type="button" class="button-secondary">Anuluj</button>
+  </dialog>
+  <dialog id="custom-dialog" aria-labelledby="custom-title">
+    <h2 id="custom-title">Własny produkt</h2><p>Przepisz wartości z etykiety na 100 g lub 100 ml.</p>
+    <form id="custom-form" novalidate>
+      <label for="custom-name">Nazwa</label><input id="custom-name" maxlength="240" required>
+      <label for="custom-brand">Marka (opcjonalnie)</label><input id="custom-brand" maxlength="240">
+      <label for="custom-barcode">Kod EAN / UPC (opcjonalnie)</label><input id="custom-barcode" inputmode="numeric" maxlength="24">
+      <label for="custom-unit">Wartości na 100</label><select id="custom-unit"><option value="g">g</option><option value="ml">ml</option></select>
+      <label for="custom-kcal">kcal</label><input id="custom-kcal" inputmode="decimal" maxlength="12">
+      <label for="custom-protein">Białko (g)</label><input id="custom-protein" inputmode="decimal" maxlength="12">
+      <label for="custom-fat">Tłuszcz (g)</label><input id="custom-fat" inputmode="decimal" maxlength="12">
+      <label for="custom-carbs">Węglowodany (g)</label><input id="custom-carbs" inputmode="decimal" maxlength="12">
+      <details><summary>Porcje tego produktu (opcjonalnie)</summary>
+        <label for="custom-package">Całe opakowanie (g/ml zgodnie z produktem)</label><input id="custom-package" inputmode="decimal" maxlength="12">
+        <p>Podaj masę lub objętość jednej porcji tego produktu. Nie zmienia to wartości na 100 g/ml.</p>
+        <div id="custom-portion-rows"></div><button id="custom-add-portion" class="button-secondary" type="button">+ Dodaj porcję</button>
+      </details>
+      <p id="custom-error" class="field-error" role="alert"></p>
+      <button id="custom-save" type="submit" class="button-primary">Zapisz produkt</button>
+      <button id="custom-cancel" type="button" class="button-secondary">Anuluj</button>
+    </form>
+  </dialog>
+<nav id="app-nav" class="app-nav" aria-label="Główna nawigacja"><a data-route="dziennik" href="#/dziennik">Dziennik</a><a data-route="trening" href="#/trening">Trening</a><a data-route="przepisy" href="#/przepisy">Przepisy</a><a data-route="progres" href="#/progres">Progres</a><a data-route="wiecej" href="#/wiecej">Więcej</a></nav>
+  <script type="module" src="./app.js?v=14a1afe0610a1577e79c4b611da805c03caeca0d"></script>
+</body>
+</html>
