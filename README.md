@@ -322,3 +322,9 @@ Spójny jasny/ciemny/systemowy motyw, kompaktowy Dziennik, szybkie akcje oraz Wi
 Backup v6 obejmuje preferencje wyglądu i ekranu startowego; import v1–v5 nadal działa i nie resetuje obecnych ustawień. Szczegóły bezpieczeństwa danych i testu prawdziwej aktualizacji z Etapu 12: [Product Polish](docs/product-polish.md).
 
 `npm run build:web -- /tmp/benger-release` przygotowuje publiczny statyczny artefakt z dokładnym build SHA do sprawdzenia. Nie publikuje go i nie zmienia produkcji.
+
+## Etap 14 — kalendarz treningów
+
+W Treningu zakładka **Kalendarz** pokazuje miesiąc, wybrany dzień i bieżący tydzień. Zaplanuj trening/Mobility jednorazowo lub na wybrane dni tygodnia; opcjonalnie podaj godzinę, datę końcową i notatkę. Jeden dzień można pominąć, a cykl zmienić od wskazanej daty bez przepisywania wcześniejszych dni. Plan i wykonanie pozostają oddzielne. Z dzisiejszego planu uruchomisz dotychczasowy flow treningu, a wykonanie trafi także do Historii.
+
+Backup v7 obejmuje harmonogram i references wykonań. Kopie v1–v6 nadal działają i nie usuwają istniejącego kalendarza. Całość działa lokalnie/offline, bez powiadomień i usług kalendarzowych. Szczegóły: [Kalendarz treningów](docs/training-calendar.md).

@@ -1,8 +1,8 @@
-name: Stage 13 preview
+name: Stage 14 preview
 
 on:
   push:
-    branches: [etap-13-product-polish]
+    branches: [etap-14-training-calendar]
   workflow_dispatch:
 
 permissions:
@@ -10,12 +10,12 @@ permissions:
   pages: write
 
 concurrency:
-  group: benger-stage-13-preview
+  group: benger-stage-14-preview
   cancel-in-progress: true
 
 jobs:
   preview:
-    if: github.repository == 'kubanik21-crypto/Benger' && github.ref == 'refs/heads/etap-13-product-polish'
+    if: github.repository == 'kubanik21-crypto/Benger' && github.ref == 'refs/heads/etap-14-training-calendar'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -39,7 +39,7 @@ jobs:
         run: node scripts/prepare-preview.mjs /tmp/benger-preview "$GITHUB_SHA"
       - uses: actions/upload-artifact@v4
         with:
-          name: benger-stage-13-preview
+          name: benger-stage-14-preview
           path: /tmp/benger-preview/
           include-hidden-files: true
           retention-days: 7
@@ -62,5 +62,5 @@ jobs:
         run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
       - name: Preview link
         run: |
-          printf '%s\n' 'Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-13/' >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' 'Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-14/' >> "$GITHUB_STEP_SUMMARY"
           printf 'Source commit: %s\n' "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"

@@ -346,3 +346,31 @@ button:disabled { opacity:.65; }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; } }
 
 .button-danger,.remove-entry { color:var(--danger); border-color:var(--danger); background:var(--surface); }
+/* Training calendar: civil dates, visible symbols and one compact mobile agenda. */
+.calendar-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px; }
+.calendar-toolbar h3 { flex:1 1 100%; text-align:center; text-transform:capitalize; margin:6px 0; order:-1; }
+.calendar-toolbar button { padding:8px; font-size:13px; }
+.calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; margin:12px -6px; }
+.calendar-grid > span { text-align:center; font-size:13px; padding:4px 0; }
+#training-content .calendar-day { min-height:72px; min-width:0; padding:5px 1px; display:flex; flex-direction:column; align-items:center; gap:2px; border-radius:8px; background:var(--surface); color:var(--text); border:1px solid var(--border); }
+.calendar-day strong { font-size:16px; }
+.calendar-day[aria-pressed=true] { outline:2px solid var(--brand); outline-offset:-2px; background:var(--elevated)!important; }
+.calendar-day[aria-current=date] strong { text-decoration:underline; text-underline-offset:3px; }
+.calendar-day small,.calendar-markers { font-size:11px; line-height:1.2; overflow-wrap:anywhere; }
+.calendar-week { margin-block:16px; }
+.calendar-occurrence { margin:12px 0; }
+.calendar-occurrence h4 { margin:4px 0; }
+.calendar-occurrence button { margin:4px 4px 4px 0; }
+#training-schedule-form { scroll-margin-top:16px; }
+#training-schedule-form fieldset { display:flex; flex-wrap:wrap; gap:8px; }
+#training-schedule-form fieldset label { display:flex; align-items:center; gap:4px; min-height:48px; margin:0; }
+#training-schedule-form fieldset input { min-height:22px; }
+#dashboard-schedule article { border-top:1px solid var(--border); padding-block:8px; }
+#dashboard-schedule button { min-height:48px; }
+@media(min-width:640px) { .training-tabs { grid-template-columns:repeat(6,minmax(0,1fr)); } .calendar-grid { max-width:700px; margin-inline:auto; } }
+#training-content > .calendar-toolbar { display:flex; }
+#training-content > .calendar-grid { gap:3px; }
+.training-tabs button { background:var(--elevated); color:var(--text); border:1px solid var(--border); border-radius:10px; }
+#training-content > .calendar-toolbar { display:grid; grid-template-columns:48px minmax(0,1fr) 48px; gap:4px; }
+.calendar-toolbar h3 { order:initial; margin:0; font-size:16px; }
+.calendar-toolbar button:last-child { grid-column:1/-1; justify-self:center; }
