@@ -305,7 +305,7 @@ main { padding-top:12px; padding-bottom:calc(108px + env(safe-area-inset-bottom)
 .header-note { font-size:10px; }
 h1 { font-size:clamp(28px,5vw,38px); letter-spacing:-1px; margin:16px 0; }
 .panel { border-radius:var(--radius); box-shadow:var(--shadow); }
-button,input,select,textarea,summary { min-height:44px; }
+button,input,select,textarea,summary { min-height:48px; }
 input[type=checkbox] { min-height:22px; width:22px; }
 button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
 button:disabled { opacity:.65; }
