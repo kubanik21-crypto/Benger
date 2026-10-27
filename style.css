@@ -246,3 +246,24 @@ body { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
 .dashboard-shortcuts { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .dashboard-shortcuts button { font-size:14px; }
 #dashboard { padding:16px; }
+/* Training and Mobility: large controls, single exercise runner, bounded grids. */
+.training-tabs,.training-actions { display:flex; flex-wrap:wrap; gap:.5rem; margin:.8rem 0; }
+.training-tabs button { flex:1 1 80px; min-height:48px; padding:.6rem; }
+.training-tabs [aria-pressed=true] { background:#174d3c; color:white; }
+#training-content form,#training-content > div { display:grid; gap:.6rem; min-width:0; }
+#training-content input,#training-content select { max-width:100%; min-width:0; }
+#training-content button { min-height:48px; overflow-wrap:anywhere; }
+#training-content p,#training-content summary { overflow-wrap:anywhere; }
+#training-content details { border-top:1px solid #d4dccb; padding:.6rem 0; }
+#training-content summary { cursor:pointer; min-height:44px; padding:.4rem; }
+#training-content article { margin:.7rem 0; }
+.training-timer output { display:block; font-size:clamp(20px,4vw,30px); font-weight:700; }
+#dashboard-training { font-size:14px; border-top:1px solid #d4dccb; padding-block:.5rem; }
+#dashboard-training a { display:inline-block; padding:.5rem 0; min-height:44px; }
+@media(max-width:430px) { #training-content { padding:14px; } }
+.training-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+.training-timer { position:sticky; top:0; z-index:3; padding:12px; }
+.training-timer output { font-size:20px; }
+.training-safety summary { min-height:44px; cursor:pointer; }
+#training-content > p { margin:.5rem 0; font-size:14px; }
+@media(min-width:640px) { .training-tabs { grid-template-columns:repeat(5,minmax(0,1fr)); } }

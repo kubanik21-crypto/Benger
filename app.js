@@ -1,3 +1,4 @@
+import {initTraining} from './training-ui.js';
 import {initDashboard} from './dashboard-ui.js';
 import {initProgress} from './progress-ui.js';
 import { validDiaryEntry,copyDiaryEntry } from './diary-entry.js';
@@ -23,6 +24,7 @@ initNavigation();
 await recoverPendingImport();
 const progressUI=initProgress();
 const dashboardUI=initDashboard();
+const trainingUI=initTraining();
 
 const $ = id => document.getElementById(id);
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
@@ -367,4 +369,4 @@ void productSearch.seedRecent(nutritionEntries).catch(() => {});
 
 void initPwa();
 
-initBackupUi({beforeRead:async()=>{await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});
+initBackupUi({beforeRead:async()=>{await trainingUI.flush();await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});

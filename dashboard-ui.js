@@ -1,3 +1,4 @@
+import {createTrainingRepository,localTrainingDate} from './training-repository.js';
 import {BODY,createProgressStore} from './progress.js';
 import {chart} from './progress-ui.js';
 import {createGoalsStore,goalsOn} from './goals.js';
@@ -13,7 +14,7 @@ const labels={kcal:'kcal',protein:'Białko',fat:'Tłuszcz',carbs:'Węglowodany'}
 function localDay(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function readNumber(field){const raw=field.value.trim();if(!raw)return undefined;if(!/^\d+(?:[.,]\d+)?$/.test(raw))throw new Error('Podaj poprawną liczbę, np. 80,5.');return Number(raw.replace(',','.'));}
 export function initDashboard(){
- const goals=createGoalsStore(),progress=createProgressStore();let revision=0,busy=false;
+ const training=createTrainingRepository(),goals=createGoalsStore(),progress=createProgressStore();let revision=0,busy=false;
  const status=text=>$('goals-status').textContent=text;
  const form=$('goals-form');form.elements.effectiveFrom.value=localDay();
  for(const [key,label]of Object.entries(BODY)){const labelNode=el('label',label+' — cel (cm)'),input=el('input');input.id='goal-body-'+key;input.name='body-'+key;input.type='text';input.inputMode='decimal';input.maxLength=20;labelNode.htmlFor=input.id;$('goals-body-fields').append(labelNode,input);}
@@ -27,9 +28,11 @@ export function initDashboard(){
   if(document.documentElement.dataset.route!=='dziennik')return;
   const raw=JSON.parse(localStorage.getItem(NUTRITION_STORAGE_KEY)??'[]');if(!Array.isArray(raw)||raw.some(r=>!validDiaryEntry(r)))throw new Error('Nie można odczytać dziennika do podsumowania. Dane pozostają bez zmian.');
   const measurements=await progress.measurements();if(tick!==revision)return;
+  const activity=await training.snapshot();if(tick!==revision)return;
   const end=$('date').value;if(!end){$('dashboard-status').textContent='Wybierz dzień dziennika.';$('dashboard-content').hidden=true;return;}
   const week=buildDashboard(raw,measurements,periods,end,7),report=buildDashboard(raw,measurements,periods,end,Number($('dashboard-range').value));
   $('dashboard-status').textContent='';$('dashboard-content').hidden=false;$('dashboard-title').textContent=end===localDay()?'Dzisiaj':`Dzień ${end}`;
+  const block=$('dashboard-training'),start=new Date(Date.parse(end)-6*86400000).toISOString().slice(0,10),past=rows=>rows.filter(s=>s.date<=end).sort((a,b)=>b.completedAt.localeCompare(a.completedAt)),workouts=past(activity.completedWorkouts),mobility=past(activity.completedMobility);block.replaceChildren(el('p',`Trening: ostatni ${workouts[0]?.date??'brak'} · ${workouts.filter(s=>s.date>=start).length} w ostatnich 7 dniach. Mobility: ostatnia ${mobility[0]?.date??'brak'} · ${mobility.filter(s=>s.date>=start).length} sesji / 7 dni.`));const activityLink=el('a',activity.activeWorkout?'Wznów trening':'Rozpocznij trening');activityLink.href='#/trening';block.append(activityLink);
   const root=$('dashboard-day');root.replaceChildren();const total=week.today?.total;
   for(const key of Object.keys(labels)){const goal=week.goal?.nutrition[key],used=total?.[key]??0,unit=key==='kcal'?'kcal':'g',line=el('div');line.className='dashboard-metric';line.append(el('strong',`${labels[key]}: ${num(used)} ${unit}`));if(goal){line.append(el('span',` / ${num(goal)} ${unit} · ${used<=goal?'pozostało '+num(goal-used):'powyżej celu o '+num(used-goal)} ${unit}`));const bar=el('progress');bar.max=goal;bar.value=Math.min(used,goal);bar.setAttribute('aria-label',`${labels[key]} — realizacja celu ${num(used/goal*100)}%`);line.append(bar);}else line.append(el('span',' · bez celu'));root.append(line);}
   root.append(el('p',`Pozycje: ${week.today?.entries??0} · posiłki: ${week.today?.meals??0}`));
@@ -42,5 +45,5 @@ export function initDashboard(){
  }catch(e){if(tick===revision){$('dashboard-status').textContent=storageErrorMessage(e);$('dashboard-content').hidden=true;}}}
  function datedChart(root,points,label){if(!points.length){root.replaceChildren(el('p',`${label}: brak danych w tym zakresie.`));return;}chart(root,[{name:label,values:points.map(p=>p.value),dates:points.map(p=>p.date)}]);const circles=root.querySelectorAll('circle');points.forEach((p,i)=>{const title=document.createElementNS('http://www.w3.org/2000/svg','title');title.textContent=`${p.date}: ${num(p.value)}`;circles[i]?.append(title);});const details=el('details'),summary=el('summary','Daty i wartości — '+label);details.append(summary);for(const p of points)details.append(el('p',`${p.date} · ${num(p.value)}`));root.append(details);}
  for(const button of document.querySelectorAll('[data-progress-shortcut]'))button.onclick=()=>{navigate('progres');const f=$('progress-'+button.dataset.progressShortcut+'-form');f.closest('details').open=true;f.scrollIntoView({block:'start'});f.querySelector('input').focus();};
- $('dashboard-range').onchange=()=>void refresh();for(const name of ['benger:diary','benger:progress','benger:route','storage','focus'])window.addEventListener(name,()=>void refresh());$('date').addEventListener('change',()=>void refresh());void refresh();return {async flush(){if(busy)throw new Error('Poczekaj na zapis celów przed backupem.');}};
+ $('dashboard-range').onchange=()=>void refresh();for(const name of ['benger:training','benger:diary','benger:progress','benger:route','storage','focus'])window.addEventListener(name,()=>void refresh());$('date').addEventListener('change',()=>void refresh());void refresh();return {async flush(){if(busy)throw new Error('Poczekaj na zapis celów przed backupem.');}};
 }
