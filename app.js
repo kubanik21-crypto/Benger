@@ -1,3 +1,4 @@
+import {initProductPolish} from './product-polish-ui.js';
 import {initTraining} from './training-ui.js';
 import {initDashboard} from './dashboard-ui.js';
 import {initProgress} from './progress-ui.js';
@@ -20,8 +21,9 @@ import { createProductRepository } from './product-repository.js';
 import { initProductSearch } from './product-search-ui.js';
 import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 
-initNavigation();
 await recoverPendingImport();
+const polish=await initProductPolish();
+initNavigation({startRoute:polish.settings.startRoute});
 const progressUI=initProgress();
 const dashboardUI=initDashboard();
 const trainingUI=initTraining();
@@ -230,8 +232,8 @@ function renderNutritionEntries() {
   if (selectedEntries.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'empty';
-    empty.textContent = 'Ten dzień czeka na pierwszy posiłek.';
-    box.append(empty);
+    empty.textContent = 'Nie masz jeszcze wpisów na ten dzień.';
+    const add=document.createElement('a');add.href='#/produkty';add.textContent='Dodaj produkt';empty.append(document.createElement('br'),add);box.append(empty);
   }
   for (const [meal, label] of Object.entries(MEAL_LABELS)) {
     const items = selectedEntries.filter(entry => entry.meal === meal);
@@ -315,6 +317,7 @@ function updateProposalButton() {
 
 function removeNutritionEntry(id) {
   const entry = nutritionEntries.find(item => item.id === id);
+  if(!entry||!confirm(`Usunąć wpis „${entry.recipeName??entry.productName}” z dziennika?`))return;
   if (updateNutritionEntries(current => current.filter(item => item.id !== id))) {
     $('diary-message').textContent = `Usunięto: ${entry?.recipeName ?? entry?.productName ?? 'produkt'}.`;
     const nextButton = $('nutrition-entries').querySelector('button');

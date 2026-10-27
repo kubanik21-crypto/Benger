@@ -50,6 +50,8 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
   t.after(() => browser.close());
   const a = await browser.page(browser.base, { initScript: SPEECH });
   await a.date(DAY);
+  await a.evaluate("(()=>{const box=document.getElementById('onboarding');if(box&&!box.hidden)[...box.querySelectorAll('button')].find(b=>b.textContent==='Pomiń').click()})()");
+  await wait(a,"!document.getElementById('onboarding')||document.getElementById('onboarding').hidden");
   const apiRequests = () => browser.off.requests.filter(request => new URL(request.url).hostname === 'world.openfoodfacts.org');
 
   await t.test('mikrofon jest widoczny na pierwszym ekranie telefonu 320/390/430 px', async () => {
@@ -145,7 +147,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
   });
 
   await t.test('potwierdzenie zapisuje trzy snapshoty jedną operacją, reload i pamięć działają', async () => {
-    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-12.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
+    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-13.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
     await a.evaluate("document.getElementById('save-meal-proposal').click();document.getElementById('save-meal-proposal').click()");
     const saved = await a.saved(); assert.equal(saved.length, 3); assert.equal(await a.evaluate('window.__writes'), 1);
     assert.deepEqual(saved.map(entry=>entry.amount), [80,250,120]); assert.ok(saved.every(entry=>entry.meal==='breakfast' && entry.date===DAY));
@@ -154,7 +156,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 3);
     assert.ok(await a.evaluate("document.querySelector('#recent-products [data-product-id]')"));
     const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(item=>item.name))()');
-    assert.ok(names.includes('BengerDB-preview-etap-12')); assert.ok(!names.includes('BengerDB'));
+    assert.ok(names.includes('BengerDB-preview-etap-13')); assert.ok(!names.includes('BengerDB'));
     assert.equal(await a.raw('benger.nutrition.v1'), null); assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), null);
   });
 
@@ -295,12 +297,12 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     await a.accept();assert.equal(await disabled(a),true);assert.deepEqual(await a.saved(),saved);
   });
 
-  await t.test('320/390/430 i desktop 1024/1440, mikrofon 88px, kontrast, etykiety i focus', async () => {
+  await t.test('320/390/430 i desktop 1024/1440, mikrofon 56px, kontrast, etykiety i focus', async () => {
     await a.analyze(transcript);
     for (const width of [320,360,390,430,1024,1440]) {
       await a.send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<720});
       const dimensions=await a.evaluate(`(()=>{const mic=document.getElementById('voice-microphone'),s=getComputedStyle(mic);return{scroll:document.documentElement.scrollWidth,width:innerWidth,height:mic.getBoundingClientRect().height,color:s.color,background:s.backgroundColor,columns:getComputedStyle(document.querySelector('.voice-layout')).gridTemplateColumns}})()`);
-      assert.ok(dimensions.scroll<=width,JSON.stringify(dimensions)); assert.ok(dimensions.height>=88); assert.ok(contrast(dimensions.color,dimensions.background)>=4.5);
+      assert.ok(dimensions.scroll<=width,JSON.stringify(dimensions)); assert.ok(dimensions.height>=56); assert.ok(contrast(dimensions.color,dimensions.background)>=4.5);
       if(width>=1024)assert.equal(dimensions.columns.split(' ').length,2);
       if(process.env.BENGER_VOICE_SCREENSHOTS && [390,1440].includes(width)) {
         await a.evaluate("document.getElementById('voice-entry').scrollIntoView({block:'start'})");

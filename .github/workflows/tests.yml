@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, etap-3-katalog-produktow, etap-4-voice-first, etap-5-smart-voice, etap-6-pwa-catalog-scanner, etap-7-household-portions, etap-8-recipes-navigation, etap-9-recipe-diary-hardening, etap-10-progress, etap-11-dashboard-goals, etap-12-training]
+    branches: [main, etap-3-katalog-produktow, etap-4-voice-first, etap-5-smart-voice, etap-6-pwa-catalog-scanner, etap-7-household-portions, etap-8-recipes-navigation, etap-9-recipe-diary-hardening, etap-10-progress, etap-11-dashboard-goals, etap-12-training, etap-13-product-polish]
 
 permissions:
   contents: read
