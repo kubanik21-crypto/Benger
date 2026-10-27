@@ -1,3 +1,4 @@
+import {initDashboard} from './dashboard-ui.js';
 import {initProgress} from './progress-ui.js';
 import { validDiaryEntry,copyDiaryEntry } from './diary-entry.js';
 import {createRecipeRepository} from './recipe-repository.js';
@@ -21,6 +22,7 @@ import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 initNavigation();
 await recoverPendingImport();
 const progressUI=initProgress();
+const dashboardUI=initDashboard();
 
 const $ = id => document.getElementById(id);
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
@@ -209,6 +211,7 @@ function createNutritionArticle(entry) {
 }
 
 function renderNutritionEntries() {
+  window.dispatchEvent(new Event('benger:diary'));
   renderDiaryHistory(nutritionStorageOK?nutritionEntries:[],date=>{dateInput.value=date;dateInput.dispatchEvent(new Event('change'));navigate('dziennik');});
   if($('manual-date'))$('manual-date').textContent=`Dzień zapisu: ${dateInput.value}`;
   const box = $('nutrition-entries');
@@ -364,4 +367,4 @@ void productSearch.seedRecent(nutritionEntries).catch(() => {});
 
 void initPwa();
 
-initBackupUi({beforeRead:async()=>{await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});
+initBackupUi({beforeRead:async()=>{await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});
