@@ -1,12 +1,12 @@
-import {normalizeText} from './product-model.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import {EXERCISES,EQUIPMENT} from './training-library.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import {createTrainingRepository,localTrainingDate} from './training-repository.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import {emptyTraining,dosage,exerciseHistory,workoutSummary} from './training-model.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import {recipeId} from './recipe-id.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import {createSpeechRecognitionAdapter} from './speech-recognition.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import {understandTraining} from './training-voice.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import {storageErrorMessage} from './storage-health.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import {chart} from './progress-ui.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import {normalizeText} from './product-model.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {EXERCISES,EQUIPMENT} from './training-library.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {createTrainingRepository,localTrainingDate} from './training-repository.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {emptyTraining,dosage,exerciseHistory,workoutSummary,mobilityUsesRoutine} from './training-model.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {recipeId} from './recipe-id.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {createSpeechRecognitionAdapter} from './speech-recognition.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {understandTraining} from './training-voice.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {storageErrorMessage} from './storage-health.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import {chart} from './progress-ui.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
 const $=id=>document.getElementById(id);
 const el=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const sides={left:'Lewa',right:'Prawa',both:'Obie'};
@@ -64,6 +64,7 @@ export function initTraining(){
    if(item)renderWorkoutOptions(root,session,item);
    const finish=el('form');finish.id='training-finish-workout';finish.append(submit('Zakończ trening'));finish.onsubmit=e=>{e.preventDefault();void run(async()=>{finishPreview=session.id;focusExercise=true;});};root.append(finish);
   }else{
+   renderMobilityList(root,session);
    const finish=el('form');finish.id='training-finish-mobility';const optional=el('details');optional.append(el('summary','Opcjonalnie: samopoczucie po Mobility'));feelingFields(optional,'after-');finish.append(optional,submit('Zakończ Mobility'));finish.onsubmit=e=>{e.preventDefault();void run(async()=>{await repository.finish(kind,session.id,readFeeling(finish,'after-'));setDraft=null;focusExercise=true;status('Mobility zapisane w historii.');});};root.append(finish);
   }
   root.append(action(kind==='workout'?'Porzuć trening':'Porzuć Mobility',async()=>{if(confirm('Porzucić niezakończony trening / Mobility? Wykonanie nie trafi do historii.')){await repository.discard(kind,session.id);finishPreview=null;focusExercise=true;}}));
@@ -81,13 +82,26 @@ export function initTraining(){
   for(const item of session.items)root.append(el('h4',item.exercise.name),el('p',item.sets.length?item.sets.map(s=>setLabel(item.exercise,s)).join(' · '):'Bez zapisanych serii'));
   const form=el('form');form.id='training-confirm-finish';form.append(submit('Zapisz i zakończ'));form.onsubmit=e=>{e.preventDefault();void run(async()=>{await repository.finish('workout',session.id);finishPreview=null;setDraft=null;focusExercise=true;status('Trening zapisany w historii.');});};root.append(form,action('Wróć do treningu',async()=>{finishPreview=null;focusExercise=true;}));
  }
+ function renderMobilityList(root,session){
+  const list=el('nav');list.id='mobility-today';list.className='training-today';list.setAttribute('aria-label','Dzisiejsze Mobility');list.append(el('h3','Dzisiejsze Mobility'));
+  for(const[index,item]of session.items.entries()){const button=action(`${index===session.index?'●':item.completedSets>=item.dosage.sets?'✓':'○'} ${item.exercise.name} · ${item.completedSets}/${item.dosage.sets}`,async()=>{focusExercise=true;await repository.select('mobility',session.id,index);});button.dataset.mobilityItem=String(index);button.setAttribute('aria-pressed',String(index===session.index));list.append(button);}root.append(list);
+ }
  function renderMobility(root,session,item){
+  const routine=mobilityUsesRoutine(session,state.mobilityRoutines),lastExercise=session.index===session.items.length-1,lastSet=item.completedSets+1>=item.dosage.sets;
   root.append(el('p',`Zaliczone serie: ${item.completedSets}/${item.dosage.sets}`));
-  if(item.dosage.duration)root.append(primary(`Start ${item.dosage.duration} s`,()=>repository.timer('mobility',session.id,item.dosage.duration,'exercise')));
-  const lastSet=item.completedSets+1>=item.dosage.sets,done=primary(lastSet?'Gotowe → następne':'Gotowe — kolejna seria',async()=>{await repository.completeMobilitySet(session.id,session.index,{advance:true});if(lastSet&&session.index===session.items.length-1)focusEditor='training-finish-mobility';else focusExercise=true;});done.disabled=item.completedSets>=item.dosage.sets;root.append(done);
+  if(item.dosage.duration){const start=primary(`Start ${item.dosage.duration} s`,()=>repository.timer('mobility',session.id,item.dosage.duration,'exercise'));start.disabled=item.completedSets>=item.dosage.sets;root.append(start);}
+  const label=!lastSet?'Gotowe — kolejna seria':routine&&lastExercise?'Gotowe — zakończ rutynę':'Gotowe → następne';
+  const done=primary(label,async()=>{
+   const result=await repository.completeMobilitySet(session.id,session.index,{advance:routine});
+   if(result.exerciseComplete&&!routine)pendingPicker={kind:'mobility',id:session.id};
+   else if(result.exerciseComplete&&lastExercise){focusEditor='training-finish-mobility';status('Rutyna wykonana. Możesz zakończyć Mobility.');}
+   else focusExercise=true;
+  });done.disabled=item.completedSets>=item.dosage.sets;root.append(done);
   const nav=el('div');nav.className='training-actions';nav.append(action('← Wstecz',()=>{focusExercise=true;return repository.select('mobility',session.id,session.index-1);}),action('Dalej →',()=>{focusExercise=true;return repository.select('mobility',session.id,session.index+1);}));root.append(nav);
+  if(!routine)root.append(viewPrimary('Wybierz następne ćwiczenie',()=>openExercisePicker('mobility',session.id)));
   if(item.dosage.rest>0)root.append(action(`Odpoczynek ${item.dosage.rest} s`,()=>repository.timer('mobility',session.id,item.dosage.rest,'rest')));
  }
+
  function renderSets(root,session,item){
   const history=el('div');history.id='training-active-sets';
   item.sets.forEach((set,index)=>{const row=el('article');row.className='training-set-row';row.append(el('h4',`${item.exercise.mode==='cardio'?'Wpis cardio':'Seria'} ${index+1}`),el('p',setLabel(item.exercise,set)));const options=el('details');options.append(el('summary','Zmień'),action('Edytuj serię',async()=>{setDraft={...set};focusNextField=item.exercise.mode==='cardio'||item.exercise.mode==='time'?'duration':'reps';}),action('Usuń serię',()=>repository.removeSet('workout',session.id,session.index,set.id)));row.append(options);history.append(row);});root.append(history);
@@ -120,8 +134,8 @@ export function initTraining(){
  function renderTrainingVoice(root){
   const voice=el('details');voice.append(el('summary','🎙 Głos lub opis serii'));const mic=el('button',speech.getState()==='listening'?'■ Zakończ dyktowanie':'🎙 Podyktuj jedną serię');mic.type='button';mic.className='button-secondary';mic.onclick=()=>{if(speech.getState()==='listening')speech.stop();else if(!busy)speech.start();};mic.id='training-mic';mic.setAttribute('aria-pressed',String(speech.getState()==='listening'));mic.disabled=!speech.supported||speech.getState()==='processing';voice.append(el('p','Rozpoznawanie może wysyłać dźwięk do dostawcy przeglądarki i wymagać internetu. Benger nie zapisuje audio.'),mic);field(voice,'Opis serii (głos lub tekst)','voice-text',voiceText,'text',v=>voiceText=v);voice.append(action('Odczytaj serię do sprawdzenia',voicePreview));root.append(voice);
  }
- const picker=el('dialog');picker.id='training-exercise-picker';picker.setAttribute('aria-labelledby','training-picker-title');const pickerTitle=el('h2','Wybierz ćwiczenie');pickerTitle.id='training-picker-title';picker.append(pickerTitle);const pickerSearch=field(picker,'Szukaj ćwiczenia','picker-query',''),pickerResults=el('div');pickerResults.className='training-picker-results';picker.append(pickerResults);const cancelPicker=el('button','Wróć do treningu');cancelPicker.type='button';cancelPicker.className='button-secondary';cancelPicker.onclick=()=>picker.close();picker.append(cancelPicker);$('route-trening').append(picker);let pickerContext=null;
- function openExercisePicker(kind,id){const active=current(kind);if(!active||active.id!==id)return;pickerContext={kind,id};pickerTitle.textContent=active.items.length?'Następne ćwiczenie':'Dodaj pierwsze ćwiczenie';pickerSearch.value='';drawExercisePicker();if(!picker.open)picker.showModal();pickerSearch.focus();}
+ const picker=el('dialog');picker.id='training-exercise-picker';picker.setAttribute('aria-labelledby','training-picker-title');const pickerTitle=el('h2','Wybierz ćwiczenie');pickerTitle.id='training-picker-title';picker.append(pickerTitle);const pickerSearch=field(picker,'Szukaj ćwiczenia','picker-query',''),pickerResults=el('div');pickerResults.className='training-picker-results';picker.append(pickerResults);const cancelPicker=el('button','Wróć do treningu');cancelPicker.type='button';cancelPicker.className='button-secondary';cancelPicker.onclick=()=>picker.close();picker.append(cancelPicker);const finishPicker=viewAction('Zakończ Mobility',()=>{picker.close();const form=$('training-finish-mobility');if(form){form.scrollIntoView({block:'start'});form.querySelector('button[type=submit],button:not([type])')?.focus({preventScroll:true});}});finishPicker.hidden=true;picker.append(finishPicker);$('route-trening').append(picker);let pickerContext=null;
+ function openExercisePicker(kind,id){const active=current(kind);if(!active||active.id!==id)return;pickerContext={kind,id};pickerTitle.textContent=active.items.length?(kind==='mobility'?'Wybierz następne ćwiczenie':'Następne ćwiczenie'):'Dodaj pierwsze ćwiczenie';cancelPicker.textContent=kind==='mobility'?'Wróć do Mobility':'Wróć do treningu';finishPicker.hidden=kind!=='mobility';pickerSearch.value='';drawExercisePicker();if(!picker.open)picker.showModal();pickerSearch.focus();}
  function drawExercisePicker(){pickerResults.replaceChildren();if(!pickerContext)return;const {kind,id}=pickerContext,q=normalizeText(pickerSearch.value);for(const exercise of catalog().filter(e=>(kind==='mobility'?e.mode==='mobility':e.mode!=='mobility')&&normalizeText(e.name+' '+e.category).includes(q))){const index=current(kind)?.items.findIndex(i=>i.exercise.id===exercise.id)??-1;const button=action(exercise.name+(index>=0?' · dodane — wróć':''),async()=>{picker.close();setDraft=null;focusExercise=true;if(index>=0)await repository.select(kind,id,index);else await repository.addExercise(kind,id,exercise.id);});button.dataset.chooseTrainingExercise=exercise.id;pickerResults.append(button);}if(!pickerResults.childElementCount)pickerResults.append(el('p','Brak pasujących ćwiczeń. Własne ćwiczenie dodasz w sekcji Ćwiczenia.'));}
  pickerSearch.oninput=drawExercisePicker;
 

@@ -1,8 +1,8 @@
-import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import { itemPortionResolution } from './meal-resolution.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import { productSourceLabel } from './product-model.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import { itemPortionResolution } from './meal-resolution.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import { productSourceLabel } from './product-model.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
-import { MEAL_LABELS } from './meal-understanding.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { MEAL_LABELS } from './meal-understanding.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
 
 export function node(tag, className, text) {
   const element = document.createElement(tag);

@@ -1,8 +1,8 @@
-import { createProductRepository } from './product-repository.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import { createProductResolver } from './product-resolver.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import { understandMeal } from './meal-understanding.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import { resolvePortion } from './portion-resolver.js?v=da43694aa0e945596b60a6c60b611939356d178b';
-import { HOUSEHOLD_UNITS } from './portion-model.js?v=da43694aa0e945596b60a6c60b611939356d178b';
+import { createProductRepository } from './product-repository.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import { createProductResolver } from './product-resolver.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import { understandMeal } from './meal-understanding.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import { resolvePortion } from './portion-resolver.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
+import { HOUSEHOLD_UNITS } from './portion-model.js?v=d0bfb762d335dbab773d2675feb24d1ee1075ec5';
 const repository=createProductRepository(),$=id=>document.getElementById(id);
 const show=(id,value)=>{$(id).textContent=JSON.stringify(value,null,2);};
 const options=(select,products)=>{select.replaceChildren();for(const product of products){const option=document.createElement('option');option.value=product.id;option.textContent=`${product.name} · ${product.id}`;select.append(option);}};
