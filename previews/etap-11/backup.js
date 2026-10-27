@@ -1,23 +1,23 @@
-import {validateGoals,GOALS_KEY} from './goals.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import {exportProgress,validateProgress,decodeProgress,createProgressStore} from './progress.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import {validDiaryEntry,copyDiaryEntry} from './diary-entry.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import {recipeQuery} from './recipe-resolver.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { validateRecipe } from './recipe-model.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { validPortionSnapshot, copyPortionSnapshot, isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { validPortionSettings } from './portion-repository.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { normalizeCustomProduct } from './product-providers/custom.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { normalizeFoodQuery } from './food-query.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { LEGACY_PRODUCT_IDS } from './legacy-product-references.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import {validateGoals,GOALS_KEY} from './goals.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import {exportProgress,validateProgress,decodeProgress,createProgressStore} from './progress.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import {validDiaryEntry,copyDiaryEntry} from './diary-entry.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import {recipeQuery} from './recipe-resolver.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { validateRecipe } from './recipe-model.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { validPortionSnapshot, copyPortionSnapshot, isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { validPortionSettings } from './portion-repository.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { normalizeCustomProduct } from './product-providers/custom.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { normalizeFoodQuery } from './food-query.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { LEGACY_PRODUCT_IDS } from './legacy-product-references.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
 const JOURNAL='backup-import-journal-v1';
 export const BACKUP_LIMIT_BYTES=64*1024*1024;
 function fail(message='Nieprawidłowy format backupu.'){throw new TypeError(message);}
 function safeTree(value,depth=0){if(depth>30)fail('Backup ma zbyt złożoną strukturę.');if(!value||typeof value!=='object')return;for(const key of Object.keys(value)){if(['__proto__','constructor','prototype'].includes(key))fail('Niedozwolony klucz w backupie.');safeTree(value[key],depth+1);}}
 const text=(value,max=240)=>typeof value==='string'&&value.trim().length>0&&value.length<=max;
 const list=(value,max)=>{if(!Array.isArray(value)||value.length>max)fail('Przekroczony limit elementów backupu.');return value;};
-export { validDiaryEntry } from './diary-entry.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+export { validDiaryEntry } from './diary-entry.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
 export function validateBackup(value){
  safeTree(value);if(value?.app!=='Benger'||![1,2,3,4].includes(value.schemaVersion)||!value.data)fail('Nieobsługiwana wersja backupu Bengera.');
  const data=value.data;const progress=validateProgress(data.progress);const goals=data.goals==null?null:validateGoals(data.goals);

@@ -1,5 +1,5 @@
-import {storageErrorMessage} from './storage-health.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
-import { HOUSEHOLD_UNITS } from './portion-model.js?v=e5e2683694aa22c2d2bf65ce0625b1d2de834970';
+import {storageErrorMessage} from './storage-health.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
+import { HOUSEHOLD_UNITS } from './portion-model.js?v=56f28c9d01b814b9120b39fb0ac266cab7f710a7';
 export function initCustomProducts({repository,onChanged,onSelect}){
  const $=id=>document.getElementById(id);let editing=null;
  function addPortion(definition=null){
