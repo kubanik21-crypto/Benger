@@ -312,3 +312,5 @@ Dziennik pokazuje dzienną realizację opcjonalnych celów, ostatnie pomiary i p
 Preview: https://kubanik21-crypto.github.io/Benger/previews/etap-12/#/trening
 
 Lokalne plany, serie, cardio, aktywne sesje, timery, historia/progres oraz własne rutyny Mobility. Hantle zapisujemy jako ciężar jednego hantla. Głos wypełnia serię do zatwierdzenia. Brak diagnoz, szacowania spalonych kcal i automatycznej zmiany celów. Backup v5 zachowuje aktywne sesje i obsługuje starsze wersje. [Model, ograniczenia i checklista Samsunga](docs/training.md).
+
+Dogrywka UX Etapu 12: trening bez planu prowadzi przez wybór ćwiczenia, kolejne serie z przygotowanymi polami i automatyczny odpoczynek. Timery wynikają z kontekstu; zakończenie treningu wymaga zatwierdzenia podsumowania. Model danych i backup v5 pozostają bez zmian.

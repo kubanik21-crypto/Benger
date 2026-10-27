@@ -73,3 +73,19 @@ Nowe moduły są w precache PWA. Preview ma namespace `preview-etap-12` i scope 
 8. Sprawdź historię/progres i małe podsumowanie na Dashboardzie; cele kcal nie rosną od treningu.
 9. Po gotowości PWA przełącz telefon offline i wykonaj manualny trening/Mobility.
 10. Zrób backup z aktywną sesją i przywróć na preview; sprawdź stare dane, zdjęcia i cele.
+
+## Dogrywka UX — cykl treningu
+
+Główny flow to: ćwiczenie → seria → automatyczny odpoczynek → kolejna seria → następne ćwiczenie. Trening bez planu otwiera od razu wybór pierwszego ćwiczenia. Biblioteka jest lokalna, wybór przełącza od razu do wykonania; widoczny „Dzisiejszy trening” pozwala wrócić do poprzednich ćwiczeń.
+
+„Trening w toku” to niezależny, rosnący czas całego treningu od `startedAt`. Dla siłowych/bodyweight nie ma wyboru celu timera ani timera wykonania. Nowa seria i jej odpoczynek zapisują się w **jednej transakcji**, również przy szybkim powtarzaniu. Edycja starej serii nie uruchamia nowej przerwy. Po zapisie pozostaje formularz kolejnej serii z ciężarem/reps/RIR poprzedniej, nowym ID i domyślnym rodzajem robocza; fokus przechodzi do wyniku kolejnej serii.
+
+Dla nowego ćwiczenia bez definicji odpoczynku domyślnie używamy 90 s. Definicja planu/własnego ćwiczenia ma pierwszeństwo. W treningu bez planu pamiętamy ostatni jawnie ustawiony czas przez istniejący snapshot ukończonego wykonania tego ćwiczenia — bez nowej kolekcji lub wersji backupu. Ustawienie 0 wyłącza automatyczną przerwę. Historyczne wartości i aktywne treningi sprzed poprawki pozostają nienaruszone.
+
+`+30 s` wydłuża bieżącą przerwę, „Pomiń” ją kończy, „Uruchom ponownie” restartuje odliczanie jej długości. Tymczasowe wydłużenie nie zmienia bazowej przerwy następnej serii; bazę zmieniamy jawnie w ustawieniu odpoczynku ćwiczenia. Przełączenie na inne ćwiczenie usuwa poprzednie odliczanie tego treningu, nie zmieniając całkowitego czasu. Zmiana route lub reload nie resetuje odliczania.
+
+Ćwiczenie czasowe ma planowany czas i przycisk „Start … s”, a wykonanie wymaga jawnego zapisu. Sam upływ czasu nie zapisuje serii. Bieżnia ma formularz czasu/dystansu i „Zapisz cardio”, bez automatycznej przerwy. Mobility pokazuje numer ćwiczenia, własne dawkowanie i kontekstowy „Start … s”, jeśli czas istnieje. „Gotowe” zalicza jedną serię, a po ostatniej przechodzi do następnego ćwiczenia; nie oznacza automatycznie całej rutyny jako wykonanej. Odpoczynek Mobility występuje wyłącznie z zapisanej definicji.
+
+„Zakończ trening” otwiera podsumowanie czasu, wykonanych ćwiczeń, serii roboczych/rozgrzewkowych, cardio i objętości. Dopiero „Zapisz i zakończ” zapisuje snapshot w historii. Można wrócić do treningu bez zapisu końcowego. Dane, backup v5 i migracja pozostają w dotychczasowym modelu.
+
+Nowe ćwiczenia własne Mobility i nowe elementy Mobility bez własnej definicji mają przerwę 0: aplikacja nie dopisuje odpoczynku do planu fizjoterapeuty. Zapisane wcześniej przerwy pozostają bez zmian.
