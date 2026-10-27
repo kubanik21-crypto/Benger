@@ -1,0 +1,2 @@
+export const REPOSITORY='kubanik21-crypto/Benger';
+export function canDeploy(event,currentMain,repository=REPOSITORY){const r=event?.workflow_run;return repository===REPOSITORY&&r?.name==='Tests'&&r.status==='completed'&&r.conclusion==='success'&&r.event==='push'&&r.head_branch==='main'&&r.head_repository?.full_name===repository&&typeof r.head_sha==='string'&&/^[a-f0-9]{40}$/.test(r.head_sha)&&r.head_sha===currentMain;}
