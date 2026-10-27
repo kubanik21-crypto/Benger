@@ -374,3 +374,18 @@ button:disabled { opacity:.65; }
 #training-content > .calendar-toolbar { display:grid; grid-template-columns:48px minmax(0,1fr) 48px; gap:4px; }
 .calendar-toolbar h3 { order:initial; margin:0; font-size:16px; }
 .calendar-toolbar button:last-child { grid-column:1/-1; justify-self:center; }
+/* Offline exercise guide is an informational overlay: no training rerender. */
+.exercise-guide { width:min(760px,calc(100vw - 24px)); max-height:88dvh; overflow:auto; padding:18px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+.exercise-guide header { position:sticky; top:-18px; padding:12px 0; background:var(--surface); z-index:1; border-bottom:1px solid var(--border); }
+.exercise-guide h2 { font-size:22px; margin:4px 0 12px; overflow-wrap:anywhere; }
+.exercise-guide h3 { margin:18px 0 8px; }
+.exercise-guide li { margin-block:8px; line-height:1.5; }
+.exercise-guide p,.exercise-guide li { overflow-wrap:anywhere; }
+.exercise-visual-pair { display:grid; grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr); align-items:center; gap:8px; margin-block:16px; }
+.exercise-visual-pair figure { margin:0; min-width:0; text-align:center; }
+.exercise-visual-pair svg { display:block; width:100%; max-height:230px; }
+.exercise-visual-pair figcaption { font-weight:750; padding:8px; }
+.visual-sequence-arrow { text-align:center; color:var(--brand); font-size:24px; }
+.exercise-user-note { padding:12px; border:1px solid var(--border); border-radius:10px; background:var(--elevated); }
+.verbatim-note { white-space:pre-wrap; }
+@media(max-width:360px) { .exercise-visual-pair { grid-template-columns:1fr; } .visual-sequence-arrow { transform:rotate(90deg); } .exercise-visual-pair svg { max-height:180px; } }

@@ -1,0 +1,2 @@
+import {readFile,writeFile} from 'node:fs/promises';import {resolve} from 'node:path';
+export async function syncAppVersion(root){const{version}=JSON.parse(await readFile(resolve(root,'package.json'),'utf8'));if(!/^\d+\.\d+\.\d+(?:-[a-z0-9.-]+)?$/.test(version))throw new Error('Nieprawidłowa wersja produktu.');await writeFile(resolve(root,'app-version.js'),`// Generated from package.json by the build.\nexport const APP_VERSION=${JSON.stringify(version)};\n`);return version;}
