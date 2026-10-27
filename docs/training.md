@@ -91,3 +91,15 @@ Dla nowego ćwiczenia bez definicji odpoczynku domyślnie używamy 90 s. Definic
 Nowe ćwiczenia własne Mobility i nowe elementy Mobility bez własnej definicji mają przerwę 0: aplikacja nie dopisuje odpoczynku do planu fizjoterapeuty. Zapisane wcześniej przerwy pozostają bez zmian.
 
 Zmiany kontrolek odpoczynku nie kasują wpisywanych pól kolejnej serii. Ten roboczy formularz jest zachowywany w otwartej aplikacji, ale nie staje się zapisaną serią ani częścią backupu przed zatwierdzeniem.
+
+## Mobility bez rutyny — domknięcie flow
+
+Po ostatniej serii ćwiczenia w swobodnym Mobility otwieramy „Wybierz następne ćwiczenie”. Nie próbujemy przejść poza koniec listy. Można dodawać kolejne ćwiczenia, wracać przez „Dzisiejsze Mobility”, anulować picker i otworzyć go ponownie lub zakończyć Mobility także z pickera. Sam picker nie zatrzymuje ani nie blokuje odpoczynku.
+
+Gotowa rutyna przechodzi po ostatniej serii do kolejnej zapisanej pozycji bez pickera. Ostatnia pozycja ma „Gotowe — zakończ rutynę” i prowadzi do zakończenia Mobility. Przy wielu seriach zaliczamy tylko jedną na kliknięcie; dopiero ostatnia kończy ćwiczenie.
+
+Zaliczenie usuwa dotychczasowy timer tego Mobility. Zdefiniowana przerwa uruchamia `rest`; przy przerwie 0 nie zostaje timer wykonywania ćwiczenia. Przerwa może liczyć również podczas wyboru/dodawania kolejnego ćwiczenia. Timer innego aktywnego treningu nie jest usuwany przy braku przerwy Mobility.
+
+Nowe Mobility mają małą opcjonalną informację `routineBased` o sposobie startu. Pozwala to zachować tryb po reloadzie, imporcie i usunięciu źródłowej rutyny, nawet gdy nazywała się po prostu „Mobility”. Nie zmieniamy struktury ćwiczeń, serii, pomiarów ani wersji backupu v5. Walidator przyjmuje stare zapisy bez tego pola i nie dopisuje go do istniejących danych. Dla dawnych zapisów pochodzenie odtwarzamy z nazwy i zgodności pełnej definicji rutyny; nie przepisujemy historii. Brak jednoznacznej definicji dla dawnego domyślnego „Mobility” pozostawia swobodny wybór następnego ćwiczenia i ręczne zakończenie.
+
+Oddzielny test Samsung regresji obejmuje: jedno Open book → Gotowe → picker → Cat-cow → trzecie ćwiczenie → powrót do pierwszego → reload offline → historia. Dodatkowo testujemy 3 serie, timery z przerwą 0 i 15 s, zachowanie odliczania po wybraniu kolejnego ćwiczenia oraz rutynę usuniętą już po rozpoczęciu wykonania.
