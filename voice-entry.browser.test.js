@@ -145,7 +145,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
   });
 
   await t.test('potwierdzenie zapisuje trzy snapshoty jedną operacją, reload i pamięć działają', async () => {
-    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-11.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
+    await a.evaluate(`window.__writes=0;window.__setItem=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='benger.preview-etap-12.nutrition.v1')window.__writes++;return window.__setItem.call(this,key,value)};`);
     await a.evaluate("document.getElementById('save-meal-proposal').click();document.getElementById('save-meal-proposal').click()");
     const saved = await a.saved(); assert.equal(saved.length, 3); assert.equal(await a.evaluate('window.__writes'), 1);
     assert.deepEqual(saved.map(entry=>entry.amount), [80,250,120]); assert.ok(saved.every(entry=>entry.meal==='breakfast' && entry.date===DAY));
@@ -154,7 +154,7 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     await a.reload(); await a.date(DAY); assert.equal((await a.visible()).length, 3);
     assert.ok(await a.evaluate("document.querySelector('#recent-products [data-product-id]')"));
     const names = await a.evaluate('(async()=> (await indexedDB.databases()).map(item=>item.name))()');
-    assert.ok(names.includes('BengerDB-preview-etap-11')); assert.ok(!names.includes('BengerDB'));
+    assert.ok(names.includes('BengerDB-preview-etap-12')); assert.ok(!names.includes('BengerDB'));
     assert.equal(await a.raw('benger.nutrition.v1'), null); assert.equal(await a.raw('benger.preview-etap-3.nutrition.v1'), null);
   });
 
