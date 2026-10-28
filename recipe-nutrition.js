@@ -1,4 +1,4 @@
-import { sumNutrition } from './nutrition.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { sumNutrition } from './nutrition.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 export function calculateRecipeNutrition(ingredients,yieldInfo={}){
  const included=ingredients.filter(i=>!i.excludedFromNutrition),unresolvedCount=included.filter(i=>i.resolutionStatus!=='RESOLVED').length;
  const knownTotal=sumNutrition(included.filter(i=>i.resolutionStatus==='RESOLVED').map(i=>i.nutrition));

@@ -1,16 +1,16 @@
-import {pickRecipeIngredient} from './recipe-ingredient-picker.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import {reorderRecipeStep,updateStepMeasure} from './recipe-editor.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import {storageErrorMessage} from './storage-health.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createRecipeRepository } from './recipe-repository.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createRecipeDraft, ingredientFromPortion } from './recipe-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createProductResolver } from './product-resolver.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { analyzeCookingEvent, applyCookingEvent } from './recipe-session.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createProposalCard, updateProposalCard, renderProposalChoices } from './meal-proposal-ui.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { editMealItem, updateMealItemPortion, portionFor } from './meal-resolution.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { calculateRecipeNutrition } from './recipe-nutrition.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { recipeId } from './recipe-id.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { navigate } from './navigation.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import {pickRecipeIngredient} from './recipe-ingredient-picker.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {reorderRecipeStep,updateStepMeasure} from './recipe-editor.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {storageErrorMessage} from './storage-health.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createRecipeRepository } from './recipe-repository.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createRecipeDraft, ingredientFromPortion } from './recipe-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createProductResolver } from './product-resolver.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { analyzeCookingEvent, applyCookingEvent } from './recipe-session.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createProposalCard, updateProposalCard, renderProposalChoices } from './meal-proposal-ui.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { editMealItem, updateMealItemPortion, portionFor } from './meal-resolution.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { calculateRecipeNutrition } from './recipe-nutrition.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { recipeId } from './recipe-id.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { navigate } from './navigation.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 const $=id=>document.getElementById(id),node=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;};
 const number=new Intl.NumberFormat('pl-PL',{maximumFractionDigits:2});
 const macro=n=>`${number.format(n.kcal)} kcal · B ${number.format(n.protein)} / T ${number.format(n.fat)} / W ${number.format(n.carbs)} g`;
@@ -75,7 +75,7 @@ export function initRecipes({repository,recipes=createRecipeRepository(),onAddTo
  function rowCard(item){const card=createProposalCard(item,{
   onInput:patch=>{if(!pending)return;generation++;const changed=updateMealItemPortion(pending.proposal.items.find(i=>i.id===item.id),patch);replacePending(changed);updateProposalCard(card,changed);},
   onQuery:query=>{if(!pending)return;generation++;const old=pending.proposal.items.find(i=>i.id===item.id);const changed={...old,intent:{...old.intent,query},resolution:{product:null,confidence:'LOW',alternatives:[],reason:'query-changed'},portion:null};replacePending(changed);updateProposalCard(card,changed);},
-  onSearch:async query=>{const version=generation;pendingOperations++;buttons();try{const result=await repository.searchProducts(query,{forceExternal:true});if(version!==generation||!pending)return;renderProposalChoices(card,result.products,id=>void chooseIngredient(item.id,id));}catch(f){if(pending)error(storageErrorMessage(f));}finally{pendingOperations--;buttons();}},
+  onSearch:async query=>{const version=generation;pendingOperations++;buttons();try{const match=await resolver.resolveProductQuery(query,{allowExternal:false});if(version!==generation||!pending)return;if(match.bestMatch&&match.resolution.identityConfirmed){await chooseIngredient(item.id,match.bestMatch.id);return;}const result=await repository.searchProducts(query,{forceExternal:true});if(version!==generation||!pending)return;renderProposalChoices(card,result.products,id=>void chooseIngredient(item.id,id));}catch(f){if(pending)error(storageErrorMessage(f));}finally{pendingOperations--;buttons();}},
   onChoose:id=>void chooseIngredient(item.id,id),
   onPortion:async(definition,remember)=>{const version=generation;pendingOperations++;buttons();try{if(remember)await repository.portions.remember({...definition,source:'USER'});if(version!==generation||!pending)return;const old=pending.proposal.items.find(i=>i.id===item.id),changed={...old,definitionId:definition.id,portionDefinitions:[definition,...(old.portionDefinitions??[]).filter(d=>d.id!==definition.id)]};changed.portion=portionFor(changed.intent,changed.resolution,changed);replacePending(changed);updateProposalCard(card,changed);}catch(f){if(pending)error(storageErrorMessage(f));}finally{pendingOperations--;buttons();}},
  });card.querySelector('[data-meal]').closest('div').hidden=true;return card;}

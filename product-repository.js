@@ -1,11 +1,13 @@
-import { createPortionRepository } from './portion-repository.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createUsdaProvider } from './product-providers/usda.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createCustomProvider } from './product-providers/custom.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createProductCache } from './product-cache.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { ProductError } from './product-errors.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { defaultSearchProvider } from './product-providers/off-search.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import {parseProductQuery} from './product-query.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {rankProductCandidates} from './product-matching.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createPortionRepository } from './portion-repository.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createUsdaProvider } from './product-providers/usda.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createCustomProvider } from './product-providers/custom.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createProductCache } from './product-cache.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { ProductError } from './product-errors.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { defaultSearchProvider } from './product-providers/off-search.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 
 export const SEARCH_INTERVAL_MS = 6500; // poniżej 10 wyszukiwań/minutę
 export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minutę
@@ -16,12 +18,13 @@ export function createProductRepository({ portions = createPortionRepository(), 
     if(id.startsWith('usda:'))return await generic.getById(id).catch(()=>null) ?? (await cache.getProduct(id))?.product ?? null;
     return await custom.getById(id) ?? (await cache.getProduct(id))?.product ?? null;
   };
-  const localMatches = async query => {
+  const localMatches = async raw => {
+    const query=parseProductQuery(raw).normalizedQuery;
     const [own, starred, used, cached, usda] = await Promise.all([custom.list(), productsFor(await cache.favoriteIds()), productsFor(await cache.recentIds()), cache.allProducts(), generic.search(query).catch(()=>[])]);
-    const alias = await cache.resolveAlias(query);
-    return deduplicateProducts([...(alias ? await productsFor([alias]) : []), ...searchProducts([...own,...starred,...used,...cached.map(p=>usda.find(fresh=>fresh.id===p.id)??p)],query), ...usda]).slice(0,20);
+    const alias = await cache.resolveAlias(raw)??await cache.resolveAlias(parseProductQuery(raw).intent.query)??await cache.resolveAlias(query);
+    return rankProductCandidates(deduplicateProducts([...(alias ? await productsFor([alias]) : []), ...searchProducts([...own,...starred,...used,...cached.map(p=>usda.find(fresh=>fresh.id===p.id)??p)],query), ...usda]),query).slice(0,20).map(r=>r.product);
   };
-  const merge = products => deduplicateProducts(products).slice(0, 20);
+  const merge = (products,query) => rankProductCandidates(deduplicateProducts(products),query).slice(0,20).map(r=>r.product);
   async function request(key, kind, operation) {
     if (inFlight.has(key)) return inFlight.get(key);
     const pending = (async () => {
@@ -48,25 +51,27 @@ export function createProductRepository({ portions = createPortionRepository(), 
     customProducts: custom.list,
     saveCustomProduct: (input,id) => custom.save(input,id),
     deleteCustomProduct: id => custom.remove(id),
-    genericMatches: query => generic.search(query).catch(()=>[]),
+    genericMatches: query => generic.search(parseProductQuery(query).normalizedQuery).catch(()=>[]),
+    findLocalProducts: localMatches,
+    async similarProducts(query){const term=parseProductQuery(query).normalizedQuery;const cached=await this.allCachedProducts(),genericSuggestions=await generic.search(term,{partial:true}).catch(()=>[]);return rankProductCandidates(deduplicateProducts([...cached,...genericSuggestions]),term).filter(r=>r.similarity>=.5).sort((a,b)=>b.similarity-a.similarity||b.score-a.score).slice(0,5).map(r=>r.product);},
     async allCachedProducts() { return deduplicateProducts([...(await custom.list()), ...(await cache.allProducts())]); },
     getProductById: fromCache,
     persistent: cache.persistent,
     async searchProducts(query, options = {}) {
-      const term = typeof query === 'string' ? query.trim().replace(/\s+/g, ' ') : '';
+      const term = typeof query === 'string' ? parseProductQuery(query).normalizedQuery : '';
       if (term.length < 3 || term.length > 120) throw new ProductError('query');
-      const available = await localMatches(term);
+      const available = await localMatches(query);
       if (available.some(p=>p.source==='usda'||p.source==='custom') && !options.forceExternal) return {products:available,status:isOnline()?'local':'offline',error:isOnline()?null:new ProductError('offline')};
       if (!isOnline()) return { products: available, status: 'offline', error: new ProductError('offline') };
       const searchKey = `${searchProvider.id ?? 'custom'}:${term}`;
       const cached = await cache.getSearch(searchKey);
-      if (cached !== null) return { products: merge(options.forceExternal?[...cached,...available]:[...available,...cached]), status: 'cached', error: null };
+      if (cached !== null) return { products: merge(options.forceExternal?[...cached,...available]:[...available,...cached],term), status: 'cached', error: null };
       try {
         const products = await request(`search:${normalizeText(searchKey)}`, 'search', () => searchProvider.searchProducts(term, options));
         await cache.putProducts(products);
         await cache.putSearch(searchKey, products);
         const normalized = await productsFor(products.map(product => product.id));
-        return { products: merge(options.forceExternal?[...normalized,...(await localMatches(term))]:[...(await localMatches(term)),...normalized]), status: 'online', error: null };
+        return { products: merge(options.forceExternal?[...normalized,...(await localMatches(term))]:[...(await localMatches(term)),...normalized],term), status: 'online', error: null };
       } catch (error) {
         return { products: available, status: 'fallback', error: failure(error) };
       }

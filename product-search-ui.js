@@ -1,10 +1,10 @@
-import { navigate } from './navigation.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createBarcodeScanner } from './barcode-scanner.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { initCustomProducts } from './custom-product-ui.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { copyProduct, productSourceLabel } from './product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createProductRepository } from './product-repository.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { productErrorMessage } from './product-errors.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createProductResolver } from './product-resolver.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { navigate } from './navigation.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createBarcodeScanner } from './barcode-scanner.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { initCustomProducts } from './custom-product-ui.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { copyProduct, productSourceLabel } from './product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createProductRepository } from './product-repository.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { productErrorMessage } from './product-errors.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createProductResolver } from './product-resolver.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
@@ -163,7 +163,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
       if(byBarcode && !result.product) $('create-from-barcode').hidden=false;
       resultsPhrase = byBarcode ? null : value.trim();
       if (!byBarcode) {
-        const resolution = await resolver.resolve({ query: value }, { allowExternal: false });
+        const {resolution}=await resolver.resolveProductQuery(value,{allowExternal:false});
         if (version !== revision) return;
         if (resolution.product) results = [resolution.product, ...results.filter(product => product.id !== resolution.product.id)].slice(0, 20);
       }

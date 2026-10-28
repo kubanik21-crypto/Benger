@@ -1,6 +1,7 @@
-import { replaceSpokenNumbers } from './polish-numbers.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { canonicalWord } from './food-language.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { normalizeText } from './product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import {rankProductCandidates} from './product-matching.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { replaceSpokenNumbers } from './polish-numbers.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { canonicalWord } from './food-language.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { normalizeText } from './product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 
 export function normalizeFoodQuery(value, {canonical=true} = {}) {
   if (typeof value !== 'string') return '';
@@ -9,10 +10,7 @@ export function normalizeFoodQuery(value, {canonical=true} = {}) {
 }
 
 export function matchesFoodQuery(product, query) {
-  const tokens = value => normalizeFoodQuery(value).match(/[a-z0-9]+(?:\.\d+)?%?/g) ?? [];
-  const words = tokens(query);
-  const actual = new Set(tokens(`${product.name} ${product.brand ?? ''}`));
-  return words.length > 0 && words.every(word => actual.has(word));
+  return rankProductCandidates([product],query)[0]?.score>0;
 }
 
 export function hasPercentageConflict(product, query) {

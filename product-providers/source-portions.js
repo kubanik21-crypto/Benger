@@ -1,5 +1,5 @@
-import { normalizeText } from '../product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { isPortionDefinition } from '../portion-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { normalizeText } from '../product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { isPortionDefinition } from '../portion-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 const positive=value=>(typeof value==='number'||typeof value==='string'&&/^\d+(?:\.\d+)?$/.test(value.trim()))&&Number.isFinite(Number(value))&&Number(value)>0?Number(value):null;
 function quantity(text){
  if(typeof text!=='string'||text.length>120)return null;

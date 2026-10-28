@@ -1,15 +1,15 @@
-import { createRecipeResolver } from './recipe-resolver.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import {createRecipeRepository} from './recipe-repository.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import {createRecipeCard,updateRecipeCard} from './recipe-proposal-ui.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import {resolveRecipePortion} from './recipe-portion-resolver.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { navigate } from './navigation.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { recordAnalysis } from './analysis-history.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { understandMeal, MEAL_LABELS } from './meal-understanding.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createProductResolver } from './product-resolver.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal, portionFor } from './meal-resolution.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { productErrorMessage } from './product-errors.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { createRecipeResolver } from './recipe-resolver.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {createRecipeRepository} from './recipe-repository.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {createRecipeCard,updateRecipeCard} from './recipe-proposal-ui.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {resolveRecipePortion} from './recipe-portion-resolver.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { navigate } from './navigation.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { recordAnalysis } from './analysis-history.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createSpeechRecognitionAdapter, SPEECH_MESSAGES } from './speech-recognition.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { understandMeal, MEAL_LABELS } from './meal-understanding.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createProductResolver } from './product-resolver.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { resolveMealIntents, editMealItem, updateMealItemPortion, summarizeMealProposal, portionFor } from './meal-resolution.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { createProposalCard, updateProposalCard, renderProposalChoices, readProposalFields, node } from './meal-proposal-ui.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { productErrorMessage } from './product-errors.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });

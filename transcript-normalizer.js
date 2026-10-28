@@ -1,7 +1,7 @@
-import { canonicalWord, FOOD_HEADS } from './food-language.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { normalizeText } from './product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { normalizeFoodQuery } from './food-query.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { replaceSpokenNumbers } from './polish-numbers.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { canonicalWord, FOOD_HEADS } from './food-language.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { normalizeText } from './product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { normalizeFoodQuery } from './food-query.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { replaceSpokenNumbers } from './polish-numbers.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 
 // Normalizacja językowa, bez produktów, makro, domyślnych porcji i utraty oryginału.
 export function normalizeTranscript(rawTranscript) {
@@ -24,7 +24,7 @@ export function normalizeTranscript(rawTranscript) {
     return liquids.has(previousHead) ? `${amount} ml` : full;
   });
   text = text.replace(/\bmniej wiecej(?: tak)?\b/g,'okolo');
-  const household={piece:['sztuka','sztuki','sztuk'],slice:['kromka','kromki','kromek'],slab:['plaster','plastry','plastrow'],tablespoon:['lyzka','lyzki','lyzek','lyzke'],teaspoon:['lyzeczka','lyzeczki','lyzeczek','lyzeczke'],cup:['szklanka','szklanki','szklanek','szklanke'],mug:['kubek','kubki','kubkow','kubka'],package:['opakowanie','opakowania','opakowan'],serving:['porcja','porcje','porcji'],handful:['garsc','garsci','garscie'],scoop:['miarka','miarki','miarek']};
+  const household={piece:['sztuka','sztuki','sztuk'],slice:['kromka','kromki','kromek'],slab:['plaster','plastry','plastrow'],tablespoon:['lyzka','lyzki','lyzek','lyzke','lyzkach'],teaspoon:['lyzeczka','lyzeczki','lyzeczek','lyzeczke','lyzeczkach'],cup:['szklanka','szklanki','szklanek','szklanke'],mug:['kubek','kubki','kubkow','kubka'],package:['opakowanie','opakowania','opakowan'],serving:['porcja','porcje','porcji'],handful:['garsc','garsci','garscie'],scoop:['miarka','miarki','miarek']};
   for(const [unit,forms]of Object.entries(household)){
     const pattern=new RegExp('\\b('+forms.join('|')+')\\b','g');
     text=text.replace(pattern,(_match,_word,offset,whole)=>/\d[.,\d]*\s*$/.test(whole.slice(0,offset))?unit:`1 ${unit}`);

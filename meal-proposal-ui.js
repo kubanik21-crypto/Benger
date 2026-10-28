@@ -1,8 +1,8 @@
-import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { itemPortionResolution } from './meal-resolution.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { productSourceLabel } from './product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { itemPortionResolution } from './meal-resolution.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { productSourceLabel } from './product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
-import { MEAL_LABELS } from './meal-understanding.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { MEAL_LABELS } from './meal-understanding.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 
 export function node(tag, className, text) {
   const element = document.createElement(tag);
@@ -18,6 +18,7 @@ export function readProposalFields(card) {
 }
 export function updateProposalCard(card, item, message = '') {
   const product = item.resolution.product;
+  const customLink=card.querySelector('[data-custom-product-link]');if(customLink)customLink.hidden=Boolean(product);
   const conversion=itemPortionResolution(item);
   const approximation = card.querySelector('[data-approximation]');
   if (approximation) approximation.textContent = `ok. ${item.intent.amount ?? '…'} ${householdUnitLabel(item.intent.unit,item.intent.amount)} — ilość przybliżona.`;
@@ -39,6 +40,7 @@ export function updateProposalCard(card, item, message = '') {
   const controls=card.querySelector('[data-portion-controls]');
   if(controls&&card.portionHandlers)renderPortionControls(controls,item,card.portionHandlers);
   const amount = card.querySelector('[data-amount]');
+  if(item.resetAmount)amount.value='';
   amount.setAttribute('aria-invalid', String(!item.intent.amount));
 }
 export function renderProposalChoices(card, products, onChoose) {
@@ -96,6 +98,7 @@ export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose,
   const controls=node('div','portion-controls');controls.dataset.portionControls='';card.portionHandlers={onPortion};
   card.append(status, fields, detail, controls, values, edit);
   renderProposalChoices(card, item.resolution.alternatives, onChoose);
+  const customLink=node('a','field-help','Nie ma produktu? Dodaj własny w katalogu.');customLink.dataset.customProductLink='';customLink.href='#/produkty';card.append(customLink);
   updateProposalCard(card, item);
   return card;
 }

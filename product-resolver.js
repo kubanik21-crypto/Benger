@@ -1,6 +1,8 @@
-import { variantCompatible, phraseSimilarity } from './product-variants.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
-import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import {parseProductQuery} from './product-query.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {obviousProduct,rankProductCandidates} from './product-matching.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { variantCompatible, phraseSimilarity } from './product-variants.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
 
 function validIntent(intent) {
   return intent && typeof intent === 'object'
@@ -17,9 +19,12 @@ const result = (product, confidence, alternatives, reason, extra = {}) => ({
 // Rozstrzyga tożsamość produktu. Nigdy nie pobiera makro z intentu ani nie zapisuje dziennika.
 export function createProductResolver({ repository }) {
   async function resolve(intent, { allowExternal = false, signal } = {}) {
+    if(typeof intent==='string')intent={query:intent};
     if (!validIntent(intent)) return result(null, 'LOW', [], 'invalid-intent');
-    const query = typeof intent.query === 'string' ? intent.query.trim() : '';
-    const aliasId=await repository.resolveAlias?.(query);
+    const rawQuery=typeof intent.query==='string'?intent.query.trim():'';
+    const parsed=normalizeBarcode(rawQuery)?null:parseProductQuery(rawQuery);
+    const query=parsed?.normalizedQuery??rawQuery;intent={...intent,query};
+    const aliasId=await repository.resolveAlias?.(rawQuery)??await repository.resolveAlias?.(parsed?.intent?.query??query)??await repository.resolveAlias?.(query);
     if(aliasId){const product=await repository.getProductById(aliasId);if(product && compatible(product,intent))return result(product,'HIGH',[],'explicit-user-alias');}
     const barcode = normalizeBarcode(intent.barcode ?? query);
     if (intent.barcode !== undefined && !barcode) return result(null, 'LOW', [], 'invalid-barcode');
@@ -51,32 +56,47 @@ export function createProductResolver({ repository }) {
     const related=deduplicateProducts((await Promise.all(similar.map(row=>repository.getProductById(row.choice.productId)))).filter(product=>product && compatible(product,intent) && matchesFoodQuery(product,query)));
     if(related.length===1)return result(related[0],'MEDIUM',[],'similar-confirmed-phrase');
     const eligible = all.filter(product => compatible(product, intent) && matchesFoodQuery(product, query));
+    const obvious=obviousProduct(eligible,query);
+    if(obvious&&eligible.length>1)return result(obvious,'HIGH',eligible.filter(p=>p.id!==obvious.id),'obvious-name-match',{identityConfirmed:true});
     if (eligible.length === 1) {
       const product = eligible[0];
       const origin = recent.some(item => item.id === product.id) ? 'recent' : favorites.some(item => item.id === product.id) ? 'favorite' : 'local-cache';
-      return result(product, 'MEDIUM', [], `unique-${origin}`);
+      return result(product, 'MEDIUM', [], `unique-${origin}`,{identityConfirmed:obvious?.id===product.id});
     }
     if (eligible.length > 1) return result(null, 'LOW', eligible, 'ambiguous-products');
     const localMismatch=all.filter(product=>matchesFoodQuery(product,query));
     if(localMismatch.length)return result(null,'LOW',localMismatch,'unit-or-variant-mismatch');
-    const generic=(await repository.genericMatches?.(query) ?? []).filter(product=>compatible(product,intent));
+    const generic=rankProductCandidates((await repository.genericMatches?.(query) ?? []).filter(product=>compatible(product,intent)),query).filter(r=>r.score>0).map(r=>r.product);
+    const genericObvious=obviousProduct(generic,query);
+    if(genericObvious)return result(genericObvious,'HIGH',generic.filter(p=>p.id!==genericObvious.id),'obvious-name-match',{identityConfirmed:true});
     if(generic.length===1)return result(generic[0],'MEDIUM',[],'unique-generic');
     if(generic.length>1)return result(null,'LOW',generic,'ambiguous-generic-products');
     if (allowExternal) {
       const response = await repository.searchProducts(query, { signal });
       const products = deduplicateProducts(response.products).filter(product => compatible(product, intent) && matchesFoodQuery(product, query));
       if (products.length === 1) return result(products[0], 'MEDIUM', [], 'unique-external-match', { error: response.error?.code ?? null });
-      return result(null, 'LOW', products, products.length ? 'ambiguous-products' : 'not-found', { error: response.error?.code ?? null });
+      return result(null, 'LOW', products.length?products:await repository.similarProducts?.(query)??[], products.length ? 'ambiguous-products' : 'not-found', { error: response.error?.code ?? null });
     }
     const differentUnit = all.filter(product => matchesFoodQuery(product, query));
-    return result(null, 'LOW', differentUnit, differentUnit.length ? 'unit-or-variant-mismatch' : 'not-found');
+    const suggestions=differentUnit.length?differentUnit:await repository.similarProducts?.(query)??[];
+    return result(null, 'LOW', suggestions, differentUnit.length ? 'unit-or-variant-mismatch' : 'not-found');
   }
   return {
     resolve,
+    resolveProductQuery:(query,options={})=>resolveProductQuery(query,{...options,repository,resolver:{resolve}}),
     async rememberUserChoice(query, productId) {
       const product = await repository.getProductById(productId);
       if (!product) throw new TypeError('Nie można zapamiętać produktu spoza katalogu.');
       await repository.rememberSelection(query, product);
     },
   };
+}
+
+// Public API shared by search, diary and recipes; legacy resolve(intent) stays compatible.
+export async function resolveProductQuery(query,{repository,resolver=createProductResolver({repository}),allowExternal=false,signal,...options}={}){
+ const parsed=normalizeBarcode(query)?{query,rawText:query,normalizedQuery:query,canonicalName:query,parsedAmount:null,parsedUnit:null}:parseProductQuery(query);
+ const resolution=await resolver.resolve({query},{allowExternal,signal,...options});
+ if(resolution.product&&resolution.confidence==='HIGH')resolution.identityConfirmed=true;
+ const status=resolution.product?'matched':resolution.alternatives.length&&resolution.reason.startsWith('ambiguous')?'ambiguous':'unmatched';
+ return {...parsed,bestMatch:resolution.product,candidates:[resolution.product,...resolution.alternatives].filter(Boolean),confidence:resolution.identityConfirmed?0.97:resolution.confidence==='HIGH'?0.99:resolution.confidence==='MEDIUM'?0.85:0,status,resolution};
 }
