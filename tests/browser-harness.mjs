@@ -14,11 +14,12 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const CHROMIUM_STARTUP_TIMEOUT_MS = 45_000;
 // Osobny hosting wyłącznie plików publicznych, bez uruchamiania server.js.
 // Przy /Benger/ nie ma zasobów pod root domeny, które mogłyby zamaskować błędne ścieżki.
-export async function startStaticHost(prefix, previewBuild = false, productionBuild = false) {
+export async function startStaticHost(prefix, previewBuild = false, productionBuild = false, productPreview = false) {
   const directory = await mkdtemp(join(tmpdir(), 'benger-static-host-'));
   let server;
   try {
-    if (productionBuild) await preparePreview(directory, 'a'.repeat(40),{preview:false});
+    if(productPreview) await preparePreview(directory, 'a'.repeat(40),{namespace:'preview-global-product-resolution',publicOnly:true});
+    else if (productionBuild) await preparePreview(directory, 'a'.repeat(40),{preview:false});
     else if (previewBuild) await preparePreview(directory, 'a'.repeat(40));
     else for (const name of STATIC_ASSETS) { await mkdir(dirname(join(directory, name)), { recursive: true }); await copyFile(new URL(name, ROOT_URL), join(directory, name)); }
     const types = { js: 'text/javascript', css: 'text/css', html: 'text/html', txt: 'text/plain', json: 'application/json', png: 'image/png', webmanifest: 'application/manifest+json' };
@@ -28,7 +29,7 @@ export async function startStaticHost(prefix, previewBuild = false, productionBu
         response.writeHead(301, { Location: prefix }); response.end(); return;
       }
       const file = pathname.startsWith(prefix) ? pathname.slice(prefix.length) || 'index.html' : null;
-      if (!(productionBuild?[...PRODUCTION_ASSETS,'release-metadata.json']:[...STATIC_ASSETS,'release-metadata.json']).includes(file)) { response.writeHead(404); response.end(); return; }
+      if (!(productionBuild?[...PRODUCTION_ASSETS,'release-metadata.json']:[...STATIC_ASSETS,'release-metadata.json','preview-build.json']).includes(file)) { response.writeHead(404); response.end(); return; }
       try {
         response.setHeader('Content-Type', `${types[file.split('.').at(-1)]}; charset=utf-8`);
         response.end(await readFile(join(directory, file)));
@@ -52,7 +53,7 @@ export async function startStaticHost(prefix, previewBuild = false, productionBu
   }
 }
 
-export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild = false, productionBuild = false, respectProxy = false, seedProducts = false } = {}) {
+export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild = false, productionBuild = false, respectProxy = false, seedProducts = false, productPreview = false } = {}) {
   const profile = await mkdtemp(join(tmpdir(), 'benger-browser-test-'));
   const processes = [];
   let staticSite;
@@ -92,7 +93,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       app.stderr.on('data', data => { serverErrors += data; });
       base = `http://127.0.0.1:${port}`;
     } else {
-      staticSite = await startStaticHost(staticPrefix, previewBuild, productionBuild);
+      staticSite = await startStaticHost(staticPrefix, previewBuild, productionBuild, productPreview);
       base = staticSite.base;
     }
     let ready = false;

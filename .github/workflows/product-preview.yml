@@ -1,0 +1,70 @@
+name: Product resolution preview
+on:
+  push:
+    branches: [feature/global-product-resolution]
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - run: npm test
+      - run: npm run test:browser
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+  publish:
+    needs: tests
+    if: github.repository == 'kubanik21-crypto/Benger' && github.ref == 'refs/heads/feature/global-product-resolution'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pages: write
+    concurrency:
+      group: benger-production-release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Verify existing Pages source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/pages" --jq 'select(.build_type == "legacy" and .source.branch == "gh-pages" and .source.path == "/") | .html_url' > "$RUNNER_TEMP/preview-pages-url"
+          test -s "$RUNNER_TEMP/preview-pages-url"
+      - run: node scripts/build-product-preview.mjs "$RUNNER_TEMP/product-preview"
+      - name: Publish only the isolated preview folder
+        id: publish
+        run: node scripts/publish-product-preview.mjs --push "$RUNNER_TEMP/product-preview"
+      - name: Request static Pages rebuild
+        if: steps.publish.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
+      - name: Wait for the exact preview build
+        if: steps.publish.outputs.skipped != 'true'
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "https://kubanik21-crypto.github.io/Benger/previews/global-product-resolution/preview-build.json?build=$EXPECTED_SHA" | EXPECTED_SHA="$EXPECTED_SHA" node -e 'let b="";process.stdin.on("data",d=>b+=d);process.stdin.on("end",()=>{try{process.exit(JSON.parse(b).sha===process.env.EXPECTED_SHA?0:1)}catch{process.exit(1)}})'; then
+              exit 0
+            fi
+            sleep 10
+          done
+          exit 1
+      - name: Smoke test the live preview
+        if: steps.publish.outputs.skipped != 'true'
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: node scripts/smoke-product-preview.mjs "https://kubanik21-crypto.github.io/Benger/previews/global-product-resolution/" "${{ github.sha }}"

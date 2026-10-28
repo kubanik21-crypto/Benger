@@ -1,22 +1,13 @@
 import { canonicalWord } from '../food-language.js';
 import { copyProduct, isProduct, normalizeText } from '../product-model.js';
 
-export const POLISH_FOOD_TERMS = {
- ryz:'rice',makaron:'pasta',kurczak:'chicken',piers:'breast',wolowina:'beef',wieprzowina:'pork',indyk:'turkey',
- banan:'banana',jablko:'apple',ziemniaki:'potato',ziemniak:'potato',marchew:'carrot',jajko:'egg',jajka:'egg',mleko:'milk',maslo:'butter',oliwa:'olive oil',
- platki:'oats',owsiane:'',pieczywo:'bread',chleb:'bread',bulka:'roll',warzywa:'vegetable',owoce:'fruit',ryba:'fish',losos:'salmon',tunczyk:'tuna',dorsz:'cod',
- ser:'cheese',twarog:'cottage cheese',jogurt:'yogurt',kefir:'kefir',kasza:'',gryczana:'buckwheat',jaglana:'millet',fasola:'beans',soczewica:'lentils',ciecierzyca:'chickpeas',
- pomidor:'tomato',ogorek:'cucumber',salata:'lettuce',szpinak:'spinach',brokuly:'broccoli',kalafior:'cauliflower',cebula:'onion',czosnek:'garlic',papryka:'pepper',
- truskawki:'strawberry',maliny:'raspberry',borowki:'blueberry',gruszka:'pear',pomarancza:'orange',cytryna:'lemon',winogrona:'grape',arbuz:'watermelon',
- orzechy:'nuts',migdal:'almond',migdaly:'almond',wloskie:'walnuts',pestki:'seeds',slonecznik:'sunflower',slonecznika:'sunflower',dynia:'pumpkin',awokado:'avocado',
- cukier:'sugar',sol:'salt',miod:'honey',kakao:'cocoa',czekolada:'chocolate',kawa:'coffee',herbata:'tea',woda:'water',sok:'juice',olej:'oil',rzepakowy:'canola',
- zolty:'cheddar',naturalny:'plain',udko:'thigh',udka:'thigh',schab:'pork loin',cukinia:'zucchini',brokul:'broccoli',burak:'beet',buraki:'beet',seler:'celery',pietruszka:'parsley',por:'leek',groszek:'peas',kukurydza:'corn',rzodkiewka:'radish',baklazan:'eggplant',pieczarki:'mushrooms',ogorki:'cucumber',
- brzoskwinia:'peach',morela:'apricot',sliwka:'plum',wisnie:'cherry',ananas:'pineapple',mango:'mango',kiwi:'kiwi',grejpfrut:'grapefruit',daktyle:'dates',rodzynki:'raisins',kapusta:'cabbage',brukselka:'brussels sprouts',szparagi:'asparagus',maka:'flour',pszenna:'wheat',zytnia:'rye',jeczmien:'barley',komosa:'quinoa',ryzowa:'',sledz:'herring',makrela:'mackerel',pstrag:'trout',krewetki:'shrimp',smietana:'cream',mozzarella:'mozzarella',tofu:'tofu',soja:'soy',laskowe:'hazelnuts',orzeszki:'',ziemne:'peanuts',sezam:'sesame',siemie:'flaxseed',lniane:'',jablkowy:'apple',dyni:'pumpkin',
- gotowany:'cooked',gotowane:'cooked',gotowana:'cooked',surowy:'raw',surowe:'raw',surowa:'raw',suchy:'dry',suche:'dry',smazony:'fried',pieczony:'roasted',z:'',bez:'without',skory:'skin',
-};
+export {POLISH_FOOD_TERMS} from '../product-vocabulary.js';
+import {POLISH_FOOD_TERMS} from '../product-vocabulary.js';
+import {canonicalProductName} from '../product-matching.js';
+
 const terms=text=>normalizeText(text).match(/[a-z0-9]+/g)??[];
 const stem=word=>word.endsWith('ies')?word.slice(0,-3)+'y':word.endsWith('oes')?word.slice(0,-2):word.length>3&&word.endsWith('s')?word.slice(0,-1):word;
-export const genericQueryTokens=query=>[...new Set(terms(query).map(canonicalWord).flatMap(word=>terms(Object.hasOwn(POLISH_FOOD_TERMS,word)?POLISH_FOOD_TERMS[word]:word)).map(stem))];
+export const genericQueryTokens=query=>[...new Set(terms(canonicalProductName(query)).map(canonicalWord).flatMap(word=>terms(Object.hasOwn(POLISH_FOOD_TERMS,word)?POLISH_FOOD_TERMS[word]:word)).map(stem))];
 export function normalizeUsdaProduct(food){
  if(!food || !Number.isSafeInteger(food.fdcId) || food.fdcId<=0 || typeof food.description!=='string' || !food.description.trim())return null;
  const values=new Map();
@@ -52,9 +43,10 @@ export function createUsdaProvider({base=new URL('../data/usda/',import.meta.url
  async function chunk(file){if(!/^chunk-\d{4}\.json$/.test(file))return[];if(loaded.has(file)){const data=loaded.get(file);loaded.delete(file);loaded.set(file,data);return data;}const data=(await json(file)).filter(p=>isProduct(p)&&p.source==='usda');loaded.set(file,data);if(loaded.size>8)loaded.delete(loaded.keys().next().value);return data;}
  return {
   async getById(id){if(!/^usda:\d+$/.test(id))return null;const idx=await index(),file=idx.byId[id];return file?(await chunk(file)).find(p=>p.id===id)??null:null;},
-  async search(query){const words=genericQueryTokens(query);if(!words.length)return[];const idx=await index();
-   const groups=words.map(word=>Object.hasOwn(idx.tokens,word)?idx.tokens[word]:(idx.prefixes[word.slice(0,3)]??[]).filter(token=>word.length>=3&&token.startsWith(word)).flatMap(token=>idx.tokens[token]));
-   if(groups.some(group=>!group.length))return[];
+  async search(query,{partial=false}={}){const words=genericQueryTokens(query);if(!words.length)return[];const idx=await index();
+   let groups=words.map(word=>Object.hasOwn(idx.tokens,word)?idx.tokens[word]:(idx.prefixes[word.slice(0,3)]??[]).filter(token=>word.length>=3&&token.startsWith(word)).flatMap(token=>idx.tokens[token]));
+   if(partial)groups=groups.filter(group=>group.length);
+   if(!groups.length||groups.some(group=>!group.length))return[];
    const sets=groups.map(group=>new Set(group));
    const score=id=>idx.rank[id]+(words.includes(idx.heads[id])?0:80);
    const ids=[...new Set(groups[0])].filter(id=>sets.every(group=>group.has(id))).sort((a,b)=>score(a)-score(b));

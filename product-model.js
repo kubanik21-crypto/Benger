@@ -1,10 +1,9 @@
 import { isPortionDefinition, copyPortionDefinition } from './portion-model.js';
 export const NUTRIENTS = ['kcal', 'protein', 'fat', 'carbs'];
 
-export function normalizeText(value) {
-  return String(value ?? '').normalize('NFKD').replace(/\p{M}/gu, '').replace(/ł/g, 'l')
-    .replace(/Ł/g, 'L').toLowerCase().replace(/\s+/g, ' ').trim();
-}
+import {normalizeText} from './normalize-text.js';
+export {normalizeText} from './normalize-text.js';
+import {rankProductCandidates} from './product-matching.js';
 
 export function normalizeBarcode(value) {
   if (typeof value !== 'string') return null;
@@ -78,18 +77,8 @@ export function deduplicateProducts(products) {
 }
 
 export function searchProducts(products, query, limit = 20) {
-  const text = normalizeText(query);
-  const words = text.split(' ').filter(Boolean);
-  return deduplicateProducts(products)
-    .map(product => {
-      const name = normalizeText(product.name);
-      const combined = `${name} ${normalizeText(product.brand)}`;
-      const matches = words.every(word => combined.includes(word));
-      return { product, score: name === text ? 3 : name.startsWith(text) ? 2 : 1, matches };
-    })
-    .filter(item => item.matches)
-    .sort((a, b) => b.score - a.score || a.product.name.localeCompare(b.product.name, 'pl'))
-    .slice(0, limit).map(item => item.product);
+  if(!normalizeText(query))return deduplicateProducts(products).slice(0,limit);
+  return rankProductCandidates(deduplicateProducts(products),query).filter(row=>row.score>0).slice(0,limit).map(row=>row.product);
 }
 
 export const productSourceLabel = product => ({openfoodfacts:'Open Food Facts',benger:'Archiwalny produkt',usda:'USDA · żywność ogólna',custom:'Własny produkt'})[product.source] ?? product.source;

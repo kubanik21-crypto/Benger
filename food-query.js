@@ -1,3 +1,4 @@
+import {rankProductCandidates} from './product-matching.js';
 import { replaceSpokenNumbers } from './polish-numbers.js';
 import { canonicalWord } from './food-language.js';
 import { normalizeText } from './product-model.js';
@@ -9,10 +10,7 @@ export function normalizeFoodQuery(value, {canonical=true} = {}) {
 }
 
 export function matchesFoodQuery(product, query) {
-  const tokens = value => normalizeFoodQuery(value).match(/[a-z0-9]+(?:\.\d+)?%?/g) ?? [];
-  const words = tokens(query);
-  const actual = new Set(tokens(`${product.name} ${product.brand ?? ''}`));
-  return words.length > 0 && words.every(word => actual.has(word));
+  return rankProductCandidates([product],query)[0]?.score>0;
 }
 
 export function hasPercentageConflict(product, query) {
