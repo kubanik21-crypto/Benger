@@ -1,0 +1,295 @@
+import { copyProduct, isProduct, normalizeText } from './product-model.js?v=4ec45dff6c12283d10ab94890f11e8bac8c5eb07';
+import { PRODUCT_DB_NAME } from './app-storage.js?v=4ec45dff6c12283d10ab94890f11e8bac8c5eb07';
+import { normalizeFoodQuery } from './food-query.js?v=4ec45dff6c12283d10ab94890f11e8bac8c5eb07';
+
+export const PRODUCT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+export const SEARCH_TTL_MS = 15 * 60 * 1000;
+// Rev 2: nazwy marek z API 3.6. Starsze kopie pozostają dostępne offline, ale nie są świeże.
+// Revision 3 fetches serving/package metadata once online; older products remain usable offline.
+export const PRODUCT_CACHE_REVISION = 3;
+const STORES = ['products', 'usage', 'searches', 'meta', 'selections','recipes','recipeDrafts','recipeHistory'];
+function availableIndexedDB() {
+  try { return globalThis.indexedDB; } catch { return null; }
+}
+const validUsage = record => record && typeof record.key === 'string' && typeof record.favorite === 'boolean'
+  && (record.lastUsedAt === null || Number.isFinite(record.lastUsedAt)) && Number.isFinite(record.order);
+const recentUsage = records => records.filter(validUsage).filter(record => record.lastUsedAt !== null)
+  .sort((a, b) => b.lastUsedAt - a.lastUsedAt || b.order - a.order).slice(0, 20);
+const validSelection = record => record && typeof record.key === 'string' && record.key.length >= 3 && record.key.length <= 120
+  && normalizeText(record.key) === record.key && Array.isArray(record.choices) && record.choices.length > 0 && record.choices.length <= 5
+  && record.choices.every(choice => choice && typeof choice.productId === 'string' && choice.productId.length > 0 && choice.productId.length <= 240
+    && Number.isSafeInteger(choice.count) && choice.count > 0 && Number.isFinite(choice.lastUsedAt) && choice.lastUsedAt >= 0)
+  && new Set(record.choices.map(choice => choice.productId)).size === record.choices.length;
+const protectedIds = (records, selections = []) => new Set([
+  ...recentUsage(records).map(record => record.key), ...records.filter(validUsage).filter(record => record.favorite).map(record => record.key),
+  ...selections.filter(validSelection).flatMap(record => record.choices.map(choice => choice.productId)),
+]);
+
+// Produkty OFF są oddzielnym zbiorem. usage przechowuje tylko referencje i preferencje użytkownika.
+export function createProductStorage({ indexedDBFactory = availableIndexedDB(), name = PRODUCT_DB_NAME } = {}) {
+  const memory = Object.fromEntries(STORES.map(store => [store, new Map()]));
+  let pendingDb;
+  let persistent = false;
+  let degraded = !indexedDBFactory;
+  async function database() {
+    if (degraded) return null;
+    if (!pendingDb) pendingDb = new Promise(resolve => {
+      let settled = false;
+      const finish = db => {
+        if (settled) { db?.close(); return; }
+        settled = true; clearTimeout(timer); persistent = Boolean(db); degraded = !db; resolve(db);
+      };
+      const timer = setTimeout(() => finish(null), 3000);
+      try {
+        const request = indexedDBFactory.open(name, 3);
+        request.onupgradeneeded = () => {
+          for (const store of STORES) if (!request.result.objectStoreNames.contains(store)) request.result.createObjectStore(store, { keyPath: 'key' });
+        };
+        request.onsuccess = () => {
+          const db = request.result;
+          db.onversionchange = () => { db.close(); pendingDb = null; persistent = false; };
+          finish(db);
+        };
+        request.onerror = () => finish(null);
+        request.onblocked = () => finish(null);
+      } catch { finish(null); }
+    });
+    return pendingDb;
+  }
+  function degrade() { degraded = true; persistent = false; void pendingDb?.then(db => db?.close()); }
+  async function read(store, key) {
+    const db = await database();
+    if (db) {
+      try {
+        const value = await new Promise((resolve, reject) => {
+          const tx = db.transaction(store, 'readonly');
+          const request = key === undefined ? tx.objectStore(store).getAll() : tx.objectStore(store).get(key);
+          let result;
+          request.onsuccess = () => { result = request.result; };
+          tx.oncomplete = () => resolve(result);
+          tx.onerror = tx.onabort = () => reject(tx.error);
+        });
+        if (key === undefined) memory[store] = new Map(value.map(record => [record.key, record]));
+        else if (value === undefined) memory[store].delete(key);
+        else memory[store].set(key, value);
+        return structuredClone(value);
+      } catch { degrade(); }
+    }
+    return structuredClone(key === undefined ? [...memory[store].values()] : memory[store].get(key));
+  }
+  async function mutate(store, key, change) {
+    const db = await database();
+    let next;
+    if (db) {
+      try {
+        next = await new Promise((resolve, reject) => {
+          const tx = db.transaction(store, 'readwrite');
+          const objectStore = tx.objectStore(store);
+          const request = objectStore.get(key);
+          request.onsuccess = () => {
+            try {
+              next = change(request.result);
+              if (next === null) objectStore.delete(key); else objectStore.put({ ...next, key });
+            } catch (error) { tx.abort(); reject(error); }
+          };
+          tx.oncomplete = () => resolve(next);
+          tx.onerror = tx.onabort = () => reject(tx.error);
+        });
+      } catch(error) { if(error?.name==='QuotaExceededError')throw error;degrade(); }
+    }
+    if (!persistent) next = change(structuredClone(memory[store].get(key)));
+    if (next === null) memory[store].delete(key); else memory[store].set(key, { ...next, key });
+    return structuredClone(next);
+  }
+  async function removeUnprotectedProducts(keys) {
+    if (!keys.length) return;
+    const db = await database();
+    let removed;
+    if (db) {
+      try {
+        removed = await new Promise((resolve, reject) => {
+          // Sprawdzenie preferencji i usuwanie w jednej transakcji: inna karta nie utraci ulubionego.
+          const tx = db.transaction(['products', 'usage', 'selections'], 'readwrite');
+          const request = tx.objectStore('usage').getAll();
+          const selectionRequest = tx.objectStore('selections').getAll();
+          let usage, selections;
+          let deleted = [];
+          const remove = () => {
+            if (!usage || !selections) return;
+            const pinned = protectedIds(usage, selections);
+            deleted = keys.filter(key => !pinned.has(key));
+            for (const key of deleted) tx.objectStore('products').delete(key);
+          };
+          request.onsuccess = () => { usage = request.result; remove(); };
+          selectionRequest.onsuccess = () => { selections = selectionRequest.result; remove(); };
+          tx.oncomplete = () => resolve(deleted);
+          tx.onerror = tx.onabort = () => reject(tx.error);
+        });
+      } catch { degrade(); }
+    }
+    if (!persistent) {
+      const pinned = protectedIds([...memory.usage.values()], [...memory.selections.values()]);
+      removed = keys.filter(key => !pinned.has(key));
+    }
+    for (const key of removed) memory.products.delete(key);
+  }
+  return {
+    read, mutate, removeUnprotectedProducts, ready: database, persistent: () => persistent,
+    async transact(names,change){
+      if(!Array.isArray(names)||!names.length||names.some(n=>!STORES.includes(n)))throw new TypeError('Nieznany magazyn.');
+      const db=await database();if(!db)throw new Error('Zapis przepisu wymaga dostępnej IndexedDB. Zmiany nie zostały zapisane.');
+      return new Promise((resolve,reject)=>{const tx=db.transaction(names,'readwrite'),state={};let remaining=names.length,result;
+       for(const name of names){const request=tx.objectStore(name).getAll();request.onsuccess=()=>{state[name]=request.result;if(--remaining===0){try{result=change(state);for(const storeName of names){const store=tx.objectStore(storeName);store.clear();for(const row of state[storeName])store.put(row);}}catch(error){tx.abort();reject(error);}}};}
+       tx.oncomplete=()=>resolve(structuredClone(result));tx.onerror=tx.onabort=()=>reject(tx.error??new Error('Nie udało się zapisać przepisu.'));
+      });
+    },
+    async snapshot() {
+      const db=await database();if(!db)throw new Error('Backup wymaga dostępnej pamięci IndexedDB.');
+      return new Promise((resolve,reject)=>{const tx=db.transaction(STORES,'readonly'),result={};for(const name of STORES){const request=tx.objectStore(name).getAll();request.onsuccess=()=>{result[name]=request.result;};}tx.oncomplete=()=>resolve(result);tx.onerror=tx.onabort=()=>reject(tx.error);});
+    },
+    async replace(snapshot) {
+      const db=await database();if(!db)throw new Error('Import wymaga dostępnej pamięci IndexedDB.');
+      await new Promise((resolve,reject)=>{const tx=db.transaction(STORES,'readwrite');try{for(const name of STORES){const store=tx.objectStore(name);store.clear();for(const row of snapshot[name]??[])store.put(row);}}catch(error){tx.abort();reject(error);}tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(tx.error);});
+      for(const name of STORES)memory[name]=new Map((snapshot[name]??[]).map(row=>[row.key,structuredClone(row)]));
+    },
+    async close() { const db = await pendingDb; db?.close(); pendingDb = null; persistent = false; },
+  };
+}
+
+export function createProductCache({ storage = createProductStorage(), now = () => Date.now(), maxProducts = 300 } = {}) {
+  const fresh = (timestamp, ttl) => Number.isFinite(timestamp) && now() - timestamp >= 0 && now() - timestamp < ttl;
+  const freshProduct = record => record.revision === PRODUCT_CACHE_REVISION && fresh(record.fetchedAt, PRODUCT_TTL_MS);
+  const validRecord = record => record && Number.isFinite(record.fetchedAt) && record.fetchedAt >= 0
+    && isProduct(record.product) && ['openfoodfacts','usda'].includes(record.product.source) && record.key === record.product.id;
+  const getRecord = async id => {
+    const record = await storage.read('products', id);
+    return validRecord(record) ? record : null;
+  };
+  async function usage() {
+    return (await storage.read('usage')).filter(validUsage);
+  }
+  async function recentIds() {
+    return recentUsage(await usage()).map(record => record.key);
+  }
+  async function prune() {
+    const records = (await storage.read('products')).filter(validRecord);
+    const pinned = protectedIds(await usage(), await storage.read('selections'));
+    const ordinary = records.filter(record => !pinned.has(record.key)).sort((a, b) => a.fetchedAt - b.fetchedAt);
+    await storage.removeUnprotectedProducts(ordinary.slice(0, Math.max(0, ordinary.length - maxProducts)).map(record => record.key));
+    const searches = await storage.read('searches');
+    for (const record of searches.sort((a, b) => (b.fetchedAt ?? 0) - (a.fetchedAt ?? 0)).slice(50)) {
+      await storage.mutate('searches', record.key, () => null);
+    }
+  }
+  async function putProducts(products, fetchedAt = now(), shouldPrune = true) {
+    for (const product of products) {
+      const normalized = copyProduct(product);
+      if (!['openfoodfacts','usda'].includes(normalized.source)) continue;
+      await storage.mutate('products', normalized.id, previous => {
+        // Nie zastępujemy jawnej podstawy 100 ml starszą odpowiedzią bez tej informacji.
+        if (validRecord(previous) && freshProduct(previous)
+            && previous.product.basis === 'declared' && normalized.basis === 'legacy') return previous;
+        return { key: normalized.id, product: normalized, fetchedAt, revision: PRODUCT_CACHE_REVISION };
+      });
+    }
+    if (shouldPrune) await prune();
+  }
+  async function ensureProducts(products) {
+    for (const product of products) {
+      copyProduct(product);
+      if (['openfoodfacts','usda'].includes(product.source) && !(await getRecord(product.id))) await putProducts([product], now(), false);
+    }
+  }
+  async function setFavorite(product, favorite) {
+    copyProduct(product);
+    await storage.mutate('usage', product.id, previous => ({
+      key: product.id, lastUsedAt: previous?.lastUsedAt ?? null, order: previous?.order ?? 0,
+      favorite: Boolean(favorite), favoriteAt: now(),
+    }));
+    await ensureProducts([product]);
+    await prune();
+  }
+  return {
+    ready: storage.ready, persistent: storage.persistent, close: storage.close,
+    putProducts,
+    async getProduct(id) { const record = await getRecord(id); return record ? { product: copyProduct(record.product), fetchedAt: record.fetchedAt, fresh: freshProduct(record) } : null; },
+    async allProducts() { return (await storage.read('products')).filter(validRecord).map(record => copyProduct(record.product)); },
+    async getSearch(query) {
+      const record = await storage.read('searches', normalizeText(query));
+      if (!record || record.revision !== PRODUCT_CACHE_REVISION || !Array.isArray(record.ids) || !fresh(record.fetchedAt, SEARCH_TTL_MS)) return null;
+      const records = await Promise.all(record.ids.map(getRecord));
+      if (records.some(record => !record || !freshProduct(record))) return null;
+      return records.map(record => copyProduct(record.product));
+    },
+    async putSearch(query, products) {
+      const key = normalizeText(query);
+      await storage.mutate('searches', key, () => ({ key, ids: products.map(product => product.id), fetchedAt: now(), revision: PRODUCT_CACHE_REVISION }));
+      await prune();
+    },
+    async selectionHistory() { return (await storage.read('selections')).filter(validSelection).map(record=>structuredClone(record)); },
+    async createAlias(query, product) {
+      const key=normalizeFoodQuery(query);
+      if(key.length<3 || key.length>114)throw new TypeError('Skrót musi mieć 3–114 znaków.');
+      copyProduct(product);
+      await storage.mutate('selections',`alias ${key}`,()=>({key:`alias ${key}`,choices:[{productId:product.id,count:1,lastUsedAt:now()}]}));
+      await ensureProducts([product]);
+      await storage.mutate('meta',`alias:${key}`,()=>({key:`alias:${key}`,phrase:key,productId:product.id}));
+    },
+    async listAliases(){return (await storage.read('meta')).filter(x=>typeof x?.key==='string' && x.key===`alias:${x.phrase}` && typeof x.productId==='string').map(x=>({phrase:x.phrase,productId:x.productId}));},
+    async resolveAlias(query){const phrase=normalizeFoodQuery(query),record=await storage.read('meta',`alias:${phrase}`);if(typeof record?.productId==='string')return record.productId;const ids=[...new Set((await storage.read('meta')).filter(row=>row.key?.startsWith('alias:')&&normalizeFoodQuery(row.phrase)===phrase).map(row=>row.productId).filter(id=>typeof id==='string'))];return ids.length===1?ids[0]:null;},
+    async removeAlias(query){const key=normalizeFoodQuery(query);for(const row of await storage.read('meta'))if(row.key?.startsWith('alias:')&&normalizeFoodQuery(row.phrase)===key){await storage.mutate('meta',row.key,()=>null);await storage.mutate('selections',`alias ${row.phrase}`,()=>null);}},
+    recentIds,
+    async favoriteIds() { return (await usage()).filter(record => record.favorite).sort((a, b) => (b.favoriteAt ?? 0) - (a.favoriteAt ?? 0)).map(record => record.key); },
+    setFavorite,
+    async selectionMemory(query) {
+      const key=normalizeFoodQuery(query), records=(await storage.read('selections')).filter(validSelection).filter(row=>normalizeFoodQuery(row.key)===key);
+      const choices=new Map();
+      for(const record of records)for(const choice of record.choices){const previous=choices.get(choice.productId);choices.set(choice.productId,{...choice,count:Math.min(1000000,choice.count+(previous?.count??0)),lastUsedAt:Math.max(choice.lastUsedAt,previous?.lastUsedAt??0)});}
+      return [...choices.values()].sort((a,b)=>b.count-a.count || b.lastUsedAt-a.lastUsedAt || a.productId.localeCompare(b.productId));
+    },
+    async rememberSelection(query, product) {
+      const key = normalizeFoodQuery(query);
+      if (key.length < 3 || key.length > 120) throw new TypeError('Nieprawidłowa fraza dopasowania.');
+      copyProduct(product);
+      await storage.mutate('selections', key, previous => {
+        const choices = validSelection(previous) ? structuredClone(previous.choices) : [];
+        const choice = choices.find(item => item.productId === product.id);
+        if (choice) { choice.count = Math.min(choice.count + 1, 1000000); choice.lastUsedAt = now(); }
+        else choices.push({ productId: product.id, count: 1, lastUsedAt: now() });
+        choices.sort((a, b) => b.count - a.count || b.lastUsedAt - a.lastUsedAt || a.productId.localeCompare(b.productId));
+        return { key, choices: choices.slice(0, 5) };
+      });
+      await ensureProducts([product]);
+      const records = (await storage.read('selections')).filter(validSelection).filter(record=>!record.key.startsWith('alias ')).sort((a, b) =>
+        Math.max(...b.choices.map(choice => choice.lastUsedAt)) - Math.max(...a.choices.map(choice => choice.lastUsedAt)));
+      for (const record of records.slice(200)) await storage.mutate('selections', record.key, () => null);
+      await prune();
+    },
+    async markUsed(products, usedAt = now()) {
+      products.forEach(copyProduct);
+      for (const product of products) {
+        const sequence = await storage.mutate('meta', 'usage-sequence', previous => ({ key: 'usage-sequence', value: (Number.isSafeInteger(previous?.value) ? previous.value : 0) + 1 }));
+        await storage.mutate('usage', product.id, previous => ({
+          key: product.id, favorite: previous?.favorite === true, favoriteAt: previous?.favoriteAt ?? 0,
+          lastUsedAt: usedAt, order: sequence.value,
+        }));
+      }
+      await ensureProducts(products);
+      await prune();
+    },
+    async reserveRequest(kind, interval) {
+      const key = `off:${kind}:next`;
+      let delay = 0;
+      await storage.mutate('meta', key, previous => {
+        delay = Math.max(0, (Number.isFinite(previous?.value) ? previous.value : 0) - now());
+        return { key, value: delay > 0 ? previous.value : now() + interval };
+      });
+      return delay;
+    },
+    async blockRequests(delay) {
+      for (const kind of ['search', 'product']) await storage.mutate('meta', `off:${kind}:next`, previous => ({
+        key: `off:${kind}:next`, value: Math.max(previous?.value ?? 0, now() + delay),
+      }));
+    },
+  };
+}
