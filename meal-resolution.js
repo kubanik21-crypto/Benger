@@ -1,7 +1,7 @@
-import {resolveRecipePortion} from './recipe-portion-resolver.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { resolvePortion, portionLabel } from './portion-resolver.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { calculatePortion, sumNutrition } from './nutrition.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { copyProduct } from './product-model.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
+import {resolveRecipePortion} from './recipe-portion-resolver.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { resolvePortion, portionLabel } from './portion-resolver.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { calculatePortion, sumNutrition } from './nutrition.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { copyProduct } from './product-model.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
 
 export function portionFor(intent, resolution, context = {}) {
   if (!resolution.product || resolution.confidence === 'LOW') return null;

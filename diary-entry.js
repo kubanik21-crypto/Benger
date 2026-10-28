@@ -1,5 +1,5 @@
-import { validPortionSnapshot,copyPortionSnapshot } from './portion-model.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { isUuid } from './recipe-model.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
+import { validPortionSnapshot,copyPortionSnapshot } from './portion-model.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { isUuid } from './recipe-model.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
 const text=(v,max=240)=>typeof v==='string'&&v.trim().length>0&&v.length<=max;
 const number=(n,max)=>typeof n==='number'&&Number.isFinite(n)&&n>0&&n<=max;
 export function validDiaryEntry(row){

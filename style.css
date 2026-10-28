@@ -230,11 +230,16 @@ body { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
 #route-progres figure { margin:8px 0; min-width:0; }
 #route-progres img { max-width:100%; height:auto; object-fit:contain; }
 #progress-gallery img { max-width:160px; }
-.progress-history-card { display:grid; gap:14px; border:1px solid var(--border); border-radius:14px; padding:16px; margin:10px 0; background:var(--surface); min-width:0; }
+.progress-history-item { border:1px solid var(--border); border-radius:14px; margin:10px 0; background:var(--surface); overflow:hidden; }
+.progress-history-item > summary { min-height:52px; padding:12px 16px; display:flex; align-items:center; gap:8px; list-style:none; }
+.progress-history-item > summary::-webkit-details-marker { display:none; }
+.progress-history-item > summary::after { content:'⌄'; margin-left:auto; color:var(--muted); font-size:20px; line-height:1; transition:transform .15s ease; }
+.progress-history-item[open] > summary::after { transform:rotate(180deg); }
+.progress-history-summary strong { font-size:15px; }
+.progress-history-summary span { color:var(--muted); font-size:13px; font-weight:500; }
+.progress-history-card { display:grid; gap:14px; padding:14px 16px 16px; border-top:1px solid var(--border); background:var(--surface); min-width:0; }
 .progress-history-meta { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; min-width:0; }
-.progress-history-meta strong { font-size:15px; }
-.progress-history-meta > span { color:var(--muted); font-size:14px; }
-.progress-history-period { padding:3px 8px; border-radius:999px; background:var(--elevated); color:var(--text)!important; font-size:12px!important; font-weight:650; }
+.progress-history-period { width:max-content; padding:3px 8px; border-radius:999px; background:var(--elevated); color:var(--text)!important; font-size:12px!important; font-weight:650; }
 .progress-history-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; min-width:0; }
 .progress-history-metric { min-width:0; padding:12px; border-radius:12px; background:var(--elevated); display:grid; grid-template-columns:1fr auto; align-items:baseline; gap:2px 8px; }
 .progress-history-metric > span { grid-column:1 / -1; color:var(--muted); font-size:12px; }

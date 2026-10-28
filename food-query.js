@@ -1,6 +1,6 @@
-import { replaceSpokenNumbers } from './polish-numbers.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { canonicalWord } from './food-language.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { normalizeText } from './product-model.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
+import { replaceSpokenNumbers } from './polish-numbers.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { canonicalWord } from './food-language.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { normalizeText } from './product-model.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
 
 export function normalizeFoodQuery(value, {canonical=true} = {}) {
   if (typeof value !== 'string') return '';

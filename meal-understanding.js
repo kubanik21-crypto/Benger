@@ -1,11 +1,11 @@
-import { HOUSEHOLD_UNITS } from './portion-model.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { canonicalWord } from './food-language.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { normalizeTranscript } from './transcript-normalizer.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { segmentFoodText } from './food-segmentation.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { tokenizeFood } from './food-tokenizer.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { normalizeText } from './product-model.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { normalizeFoodQuery } from './food-query.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import { readPolishNumber } from './polish-numbers.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
+import { HOUSEHOLD_UNITS } from './portion-model.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { canonicalWord } from './food-language.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { normalizeTranscript } from './transcript-normalizer.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { segmentFoodText } from './food-segmentation.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { tokenizeFood } from './food-tokenizer.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { normalizeText } from './product-model.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { normalizeFoodQuery } from './food-query.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { readPolishNumber } from './polish-numbers.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
 
 export const MEAL_LABELS = { breakfast: 'Śniadanie', lunch: 'Obiad', dinner: 'Kolacja', snack: 'Przekąska' };
 const meals = { sniadanie: 'breakfast', sniadania: 'breakfast', obiad: 'lunch', obiadu: 'lunch', kolacja: 'dinner', kolacje: 'dinner', kolacji: 'dinner', przekaska: 'snack', przekaske: 'snack', przekaski: 'snack' };

@@ -1,5 +1,5 @@
-import {BODY} from './progress.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
-import {createProductStorage} from './product-cache.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
+import {BODY} from './progress.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import {createProductStorage} from './product-cache.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
 export const GOALS_KEY='goal-periods-v1';
 export const validDate=s=>typeof s==='string'&&/^\d{4}-\d\d-\d\d$/.test(s)&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString().slice(0,10)===s;
 const bounded=(v,min,max)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
