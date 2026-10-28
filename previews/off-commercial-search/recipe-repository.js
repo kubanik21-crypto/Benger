@@ -1,9 +1,9 @@
-import { createProductStorage } from './product-cache.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { createRecipeDraft, validateRecipe } from './recipe-model.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { calculateRecipeNutrition } from './recipe-nutrition.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { recipeId } from './recipe-id.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { recipeQuery } from './recipe-resolver.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { normalizeText } from './product-model.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
+import { createProductStorage } from './product-cache.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { createRecipeDraft, validateRecipe } from './recipe-model.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { calculateRecipeNutrition } from './recipe-nutrition.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { recipeId } from './recipe-id.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { recipeQuery } from './recipe-resolver.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { normalizeText } from './product-model.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
 const stores=['recipes','recipeDrafts','recipeHistory'];
 export function createRecipeRepository({storage=createProductStorage()}={}){
  async function read(name,key){if(storage.ready&&!await storage.ready())throw new Error('Pamięć przepisów jest niedostępna. Sprawdź uprawnienia przeglądarki.');return storage.read(name,key);}

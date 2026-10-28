@@ -1,12 +1,10 @@
-import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { createOffJsonClient } from './off-http.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { ProductError } from '../product-errors.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
+import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { createOffJsonClient } from './off-http.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { ProductError } from '../product-errors.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
 
-export function validateSearchQuery(query) {
-  const term = typeof query === 'string' ? query.trim().replace(/\s+/g, ' ') : '';
-  if (term.length < 3 || term.length > 120) throw new ProductError('query');
-  return term;
-}
+import{validateSearchQuery}from'./off-search-query.js';
+export{validateSearchQuery}from'./off-search-query.js';
+import{createOffSearchBridgeProvider}from'./off-search-bridge.js';
 
 export function cgiSearchUrl(query) {
   const url = new URL('/cgi/search.pl', OFF_BASE_URL);
@@ -35,4 +33,7 @@ export function createCgiSearchProvider({ fetchImpl = globalThis.fetch, timeoutM
   };
 }
 
-export const defaultSearchProvider = createCgiSearchProvider;
+export function defaultSearchProvider(options={}){
+ const endpoint=globalThis.document?.querySelector?.('meta[name=\"benger-off-search-endpoint\"]')?.content;
+ return endpoint?createOffSearchBridgeProvider({...options,endpoint}):createCgiSearchProvider(options);
+}

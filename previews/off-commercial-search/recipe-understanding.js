@@ -1,7 +1,7 @@
-import {isKnownProductPhrase} from './product-matching.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import {parseProductQuery,normalizeProductInput} from './product-query.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { normalizeFoodQuery } from './food-query.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { understandMeal } from './meal-understanding.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
+import {isKnownProductPhrase} from './product-matching.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import {parseProductQuery,normalizeProductInput} from './product-query.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { normalizeFoodQuery } from './food-query.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { understandMeal } from './meal-understanding.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
 export const RECIPE_EVENT_TYPES=['INGREDIENT','STEP','INGREDIENT_AND_STEP','YIELD','NAME','NOTE','UNKNOWN'];
 const addition=/^(?:daje|dodaje|wrzucam|wlewam|wsypuje|dokladam|uzywam)\s+/;
 const action=/\b(?:kroje|siekam|mieszam|blenduje|gotuje|smaze|podsmazam|pieke|dusze|doprawiam|odstawiam)\b/;

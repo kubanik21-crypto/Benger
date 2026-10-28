@@ -1,7 +1,7 @@
-import {rankProductCandidates} from './product-matching.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { replaceSpokenNumbers } from './polish-numbers.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { canonicalWord } from './food-language.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
-import { normalizeText } from './product-model.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
+import {rankProductCandidates} from './product-matching.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { replaceSpokenNumbers } from './polish-numbers.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { canonicalWord } from './food-language.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { normalizeText } from './product-model.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
 
 export function normalizeFoodQuery(value, {canonical=true} = {}) {
   if (typeof value !== 'string') return '';
