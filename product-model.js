@@ -1,9 +1,9 @@
-import { isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 export const NUTRIENTS = ['kcal', 'protein', 'fat', 'carbs'];
 
-import {normalizeText} from './normalize-text.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-export {normalizeText} from './normalize-text.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import {rankProductCandidates} from './product-matching.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {normalizeText} from './normalize-text.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+export {normalizeText} from './normalize-text.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {rankProductCandidates} from './product-matching.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 
 export function normalizeBarcode(value) {
   if (typeof value !== 'string') return null;

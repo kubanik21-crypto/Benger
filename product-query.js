@@ -1,8 +1,8 @@
-import {HOUSEHOLD_UNITS} from './portion-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import {canonicalWord} from './food-language.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import {canonicalProductName,isKnownProductPhrase} from './product-matching.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import {normalizeTranscript} from './transcript-normalizer.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import {readPolishNumber,replaceSpokenNumbers} from './polish-numbers.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {HOUSEHOLD_UNITS} from './portion-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {canonicalWord} from './food-language.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {canonicalProductName,isKnownProductPhrase} from './product-matching.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {normalizeTranscript} from './transcript-normalizer.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {readPolishNumber,replaceSpokenNumbers} from './polish-numbers.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 const unitNames = { ...Object.fromEntries(Object.keys(HOUSEHOLD_UNITS).map(unit=>[unit,unit])), piece:'piece',slice:'slice',tablespoon:'tablespoon',teaspoon:'teaspoon', g: 'g', gram: 'g', grama: 'g', gramy: 'g', gramow: 'g', ml: 'ml', mililitr: 'ml', mililitra: 'ml', mililitry: 'ml', mililitrow: 'ml' };
 const quantityPattern = () => /(?<![\d.,+\-])([+\-]?[\d.,]+)\s*(piece|slice|slab|tablespoon|teaspoon|cup|mug|package|serving|handful|scoop|mililitrow|mililitry|mililitra|mililitr|ml|gramow|gramy|grama|gram|g)(?![a-z])/g;
 const helpers = /\b(?:zjadlem|zjadlam|jadlem|jadlam|wypilem|wypilam|pije|jem|dzisiaj|dzis|potem|nastepnie|takze|mialem|mialam|jeszcze|chyba|do tego|na koniec)\b/g;

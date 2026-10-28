@@ -1,13 +1,13 @@
-import {parseProductQuery} from './product-query.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import {rankProductCandidates} from './product-matching.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { createPortionRepository } from './portion-repository.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { createUsdaProvider } from './product-providers/usda.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { createCustomProvider } from './product-providers/custom.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { createProductCache } from './product-cache.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { ProductError } from './product-errors.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { defaultSearchProvider } from './product-providers/off-search.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {parseProductQuery} from './product-query.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {rankProductCandidates} from './product-matching.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { createPortionRepository } from './portion-repository.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { createUsdaProvider } from './product-providers/usda.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { createCustomProvider } from './product-providers/custom.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { createProductCache } from './product-cache.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { ProductError } from './product-errors.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { defaultSearchProvider } from './product-providers/off-search.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 
 export const SEARCH_INTERVAL_MS = 6500; // poniżej 10 wyszukiwań/minutę
 export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minutę
@@ -58,22 +58,25 @@ export function createProductRepository({ portions = createPortionRepository(), 
     getProductById: fromCache,
     persistent: cache.persistent,
     async searchProducts(query, options = {}) {
-      const term = typeof query === 'string' ? parseProductQuery(query).normalizedQuery : '';
+      // Keep the user's commercial name, brand and Polish accents for OFF.
+      const term = typeof query === 'string' ? query.trim().replace(/\s+/g,' ') : '';
       if (term.length < 3 || term.length > 120) throw new ProductError('query');
       const available = await localMatches(query);
-      if (available.some(p=>p.source==='usda'||p.source==='custom') && !options.forceExternal) return {products:available,status:isOnline()?'local':'offline',error:isOnline()?null:new ProductError('offline')};
+      if (options.allowExternal === false) return {products:available,status:isOnline()?'local':'offline',error:null};
+      if (available.some(p=>p.source==='usda'||p.source==='custom') && !options.forceExternal && !options.refreshExternal) return {products:available,status:isOnline()?'local':'offline',error:isOnline()?null:new ProductError('offline')};
       if (!isOnline()) return { products: available, status: 'offline', error: new ProductError('offline') };
       const searchKey = `${searchProvider.id ?? 'custom'}:${term}`;
       const cached = await cache.getSearch(searchKey);
-      if (cached !== null) return { products: merge(options.forceExternal?[...cached,...available]:[...available,...cached],term), status: 'cached', error: null };
+      if (cached !== null && !options.refreshExternal) return { products: merge(options.forceExternal?[...cached,...available]:[...available,...cached],term), status: 'cached', error: null };
       try {
-        const products = await request(`search:${normalizeText(searchKey)}`, 'search', () => searchProvider.searchProducts(term, options));
+        let diagnostics=null;
+        const products = await request(`search:${normalizeText(searchKey)}`, 'search', () => searchProvider.searchProducts(term, {...options,onDiagnostics:value=>{diagnostics=value;}}));
         await cache.putProducts(products);
         await cache.putSearch(searchKey, products);
         const normalized = await productsFor(products.map(product => product.id));
-        return { products: merge(options.forceExternal?[...normalized,...(await localMatches(term))]:[...(await localMatches(term)),...normalized],term), status: 'online', error: null };
+        return { products: merge(options.forceExternal?[...normalized,...(await localMatches(term))]:[...(await localMatches(term)),...normalized],term), status: 'online', remoteCount:normalized.length, rejectedCount:diagnostics?.rejected??0, error: null };
       } catch (error) {
-        return { products: available, status: 'fallback', error: failure(error) };
+        return { products: merge([...available,...(cached??[])],term), status: 'fallback', error: failure(error) };
       }
     },
     async getProductByBarcode(value, options = {}) {

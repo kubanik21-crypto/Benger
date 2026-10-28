@@ -1,9 +1,9 @@
-import { canonicalWord } from '../food-language.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { copyProduct, isProduct, normalizeText } from '../product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { canonicalWord } from '../food-language.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { copyProduct, isProduct, normalizeText } from '../product-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 
-export {POLISH_FOOD_TERMS} from '../product-vocabulary.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import {POLISH_FOOD_TERMS} from '../product-vocabulary.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import {canonicalProductName} from '../product-matching.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+export {POLISH_FOOD_TERMS} from '../product-vocabulary.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {POLISH_FOOD_TERMS} from '../product-vocabulary.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {canonicalProductName} from '../product-matching.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 
 const terms=text=>normalizeText(text).match(/[a-z0-9]+/g)??[];
 const stem=word=>word.endsWith('ies')?word.slice(0,-3)+'y':word.endsWith('oes')?word.slice(0,-2):word.length>3&&word.endsWith('s')?word.slice(0,-1):word;

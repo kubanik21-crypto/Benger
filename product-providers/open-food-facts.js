@@ -1,7 +1,7 @@
-import { sourcePortions } from './source-portions.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } from '../product-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { ProductError } from '../product-errors.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { createOffJsonClient } from './off-http.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { sourcePortions } from './source-portions.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { barcodeKey, copyProduct, isProduct, normalizeBarcode, safeImageUrl } from '../product-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { ProductError } from '../product-errors.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { createOffJsonClient } from './off-http.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 
 export const OFF_BASE_URL = 'https://world.openfoodfacts.org';
 export const OFF_API_VERSION = '3.6';
@@ -80,7 +80,9 @@ export function createOpenFoodFactsProvider({ fetchImpl = globalThis.fetch, time
       const data = await getJson(url(`/api/v${OFF_API_VERSION}/product/${code}`), signal);
       if (data === null || data?.status === 0 || data?.result?.id === 'product_not_found') return null;
       if (!data || typeof data !== 'object' || !data.product) throw new ProductError('response');
+      if(barcodeKey(normalizeBarcode(String(data.product.code??'')))!==barcodeKey(code))throw new ProductError('response');
       const product = normalizeOffProduct(data.product);
+      if(!product)throw new ProductError('nutrition');
       if (product && barcodeKey(product.barcode) !== barcodeKey(code)) throw new ProductError('response');
       return product;
     },

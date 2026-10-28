@@ -1,4 +1,4 @@
-import {validateRecipe} from './recipe-model.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import {validateRecipe} from './recipe-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 // Pure manual operations, shared by UI and tests. No language model or network.
 export function reorderRecipeStep(draft,id,direction){
  if(![-1,1].includes(direction))throw new TypeError('Nieprawidłowy kierunek.');

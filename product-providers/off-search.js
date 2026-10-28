@@ -1,12 +1,10 @@
-import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { createOffJsonClient } from './off-http.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
-import { ProductError } from '../product-errors.js?v=963d8df5fa23bacbd584e97be484d52eb2c76bf7';
+import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { createOffJsonClient } from './off-http.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { ProductError } from '../product-errors.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
 
-export function validateSearchQuery(query) {
-  const term = typeof query === 'string' ? query.trim().replace(/\s+/g, ' ') : '';
-  if (term.length < 3 || term.length > 120) throw new ProductError('query');
-  return term;
-}
+import{validateSearchQuery}from'./off-search-query.js';
+export{validateSearchQuery}from'./off-search-query.js';
+import{createOffSearchBridgeProvider}from'./off-search-bridge.js';
 
 export function cgiSearchUrl(query) {
   const url = new URL('/cgi/search.pl', OFF_BASE_URL);
@@ -23,11 +21,19 @@ export function normalizeSearchResponse(data) {
 export function createCgiSearchProvider({ fetchImpl = globalThis.fetch, timeoutMs = 10000 } = {}) {
   // Produkcyjny pomiar z Pages: Accept-only zwraca JSON+CORS, wariant z XUA zawiódł.
   // Nie udajemy custom User-Agent parametrem GET. Lookup nadal używa XUA.
-  const getJson = createOffJsonClient({ fetchImpl, timeoutMs, headers: { Accept: 'application/json' } });
+  const getJson = createOffJsonClient({ fetchImpl, timeoutMs, cacheMode: 'no-store', headers: { Accept: 'application/json' } });
   return {
     id: 'off-cgi-v3.6-accept',
-    async searchProducts(query, { signal } = {}) { return normalizeSearchResponse(await getJson(cgiSearchUrl(query), signal)); },
+    async searchProducts(query, { signal, onDiagnostics } = {}) {
+      const data=await getJson(cgiSearchUrl(query),signal);
+      const products=normalizeSearchResponse(data);
+      onDiagnostics?.({received:data.products.slice(0,20).length,rejected:data.products.slice(0,20).length-products.length});
+      return products;
+    },
   };
 }
 
-export const defaultSearchProvider = createCgiSearchProvider;
+export function defaultSearchProvider(options={}){
+ const endpoint=globalThis.document?.querySelector?.('meta[name=\"benger-off-search-endpoint\"]')?.content;
+ return endpoint?createOffSearchBridgeProvider({...options,endpoint}):createCgiSearchProvider(options);
+}
