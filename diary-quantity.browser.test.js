@@ -52,5 +52,6 @@ test('collapsible meals and in-place quantity editing preserve diary snapshots a
   await p.evaluate(`localStorage.setItem('benger.nutrition.v1',JSON.stringify([...JSON.parse(localStorage.getItem('benger.nutrition.v1')),${JSON.stringify(recipe)}]))`);await p.reload();await p.date('2026-10-28');await edit(p,'snack');await amount(p,'1,5');await click(p,'#diary-edit-save');
   const saved=(await p.saved()).find(row=>row.id===recipe.id);assert.equal(saved.amount,1.5);assert.equal(saved.nutrition.kcal,300);assert.equal(saved.recipeVersion,2);assert.deepEqual(saved.recipeYieldSnapshot,{servings:5});assert.equal(saved.recipeId,recipe.recipeId);
  });
+ await t.test('removing the last item in an expanded meal returns focus to a visible summary',async()=>{await p.remove('recipe-snapshot');assert.equal((await p.saved()).length,3);assert.equal(await p.evaluate("document.activeElement.tagName"),'SUMMARY');});
  assert.deepEqual(b.errors,[]);
 });

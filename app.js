@@ -393,7 +393,7 @@ function removeNutritionEntry(id) {
   if(!entry||!confirm(`Usunąć wpis „${entry.recipeName??entry.productName}” z dziennika?`))return;
   if (updateNutritionEntries(current => current.filter(item => item.id !== id))) {
     $('diary-message').textContent = `Usunięto: ${entry?.recipeName ?? entry?.productName ?? 'produkt'}.`;
-    const nextButton = $('nutrition-entries').querySelector('button');
+    const nextButton = $('nutrition-entries').querySelector('.meal-group[open] .edit-entry')??$('nutrition-entries').querySelector('summary');
     (nextButton ?? $('nutrition-title')).focus();
   }
 }
