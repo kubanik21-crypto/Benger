@@ -230,6 +230,19 @@ body { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
 #route-progres figure { margin:8px 0; min-width:0; }
 #route-progres img { max-width:100%; height:auto; object-fit:contain; }
 #progress-gallery img { max-width:160px; }
+.progress-history-card { display:grid; gap:14px; border:1px solid var(--border); border-radius:14px; padding:16px; margin:10px 0; background:var(--surface); min-width:0; }
+.progress-history-meta { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; min-width:0; }
+.progress-history-meta strong { font-size:15px; }
+.progress-history-meta > span { color:var(--muted); font-size:14px; }
+.progress-history-period { padding:3px 8px; border-radius:999px; background:var(--elevated); color:var(--text)!important; font-size:12px!important; font-weight:650; }
+.progress-history-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; min-width:0; }
+.progress-history-metric { min-width:0; padding:12px; border-radius:12px; background:var(--elevated); display:grid; grid-template-columns:1fr auto; align-items:baseline; gap:2px 8px; }
+.progress-history-metric > span { grid-column:1 / -1; color:var(--muted); font-size:12px; }
+.progress-history-metric strong { font-size:24px; line-height:1.15; overflow-wrap:anywhere; }
+.progress-history-metric small { color:var(--muted); font-size:11px; }
+.progress-history-note { margin:0; padding-top:12px; border-top:1px solid var(--border); line-height:1.5; overflow-wrap:anywhere; }
+.progress-history-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.progress-history-actions button { width:100%; min-width:0; }
 /* Dziennik: compact overview, then existing voice-first flow. */
 .dashboard-metric { margin:.6rem 0; overflow-wrap:anywhere; }
 .dashboard-metric progress { display:block; width:100%; height:.65rem; accent-color:var(--brand); }
