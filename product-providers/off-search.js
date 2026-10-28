@@ -26,7 +26,12 @@ export function createCgiSearchProvider({ fetchImpl = globalThis.fetch, timeoutM
   const getJson = createOffJsonClient({ fetchImpl, timeoutMs, headers: { Accept: 'application/json' } });
   return {
     id: 'off-cgi-v3.6-accept',
-    async searchProducts(query, { signal } = {}) { return normalizeSearchResponse(await getJson(cgiSearchUrl(query), signal)); },
+    async searchProducts(query, { signal, onDiagnostics } = {}) {
+      const data=await getJson(cgiSearchUrl(query),signal);
+      const products=normalizeSearchResponse(data);
+      onDiagnostics?.({received:data.products.slice(0,20).length,rejected:data.products.slice(0,20).length-products.length});
+      return products;
+    },
   };
 }
 

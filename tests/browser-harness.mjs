@@ -18,7 +18,7 @@ export async function startStaticHost(prefix, previewBuild = false, productionBu
   const directory = await mkdtemp(join(tmpdir(), 'benger-static-host-'));
   let server;
   try {
-    if(productPreview) await preparePreview(directory, 'a'.repeat(40),{namespace:'preview-global-product-resolution',publicOnly:true});
+    if(productPreview) await preparePreview(directory, 'a'.repeat(40),{namespace:'preview-off-commercial-search',publicOnly:true});
     else if (productionBuild) await preparePreview(directory, 'a'.repeat(40),{preview:false});
     else if (previewBuild) await preparePreview(directory, 'a'.repeat(40));
     else for (const name of STATIC_ASSETS) { await mkdir(dirname(join(directory, name)), { recursive: true }); await copyFile(new URL(name, ROOT_URL), join(directory, name)); }
@@ -60,6 +60,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
   let socket;
   const errors = [];
   const requests = [];
+  const networkRequests = [];
   const responses = [];
   const failures = [];
   const pending = new Map();
@@ -130,7 +131,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       if (message.method === 'Runtime.exceptionThrown') errors.push(message.params.exceptionDetails);
       if (message.method === 'Log.entryAdded' && message.params.entry.level === 'error') errors.push(message.params.entry);
       if (message.method === 'Runtime.consoleAPICalled' && message.params.type === 'error') errors.push(message.params.args);
-      if (message.method === 'Network.requestWillBeSent') requests.push(message.params.request.url);
+      if (message.method === 'Network.requestWillBeSent') {requests.push(message.params.request.url);networkRequests.push({url:message.params.request.url,method:message.params.request.method,type:message.params.type});}
       if (message.method === 'Network.responseReceived') responses.push({ url: message.params.response.url, status: message.params.response.status });
       if (message.method === 'Network.loadingFailed') failures.push({ error: message.params.errorText, cors: message.params.corsErrorStatus ?? null, canceled: message.params.canceled ?? false });
       if (message.method === 'Fetch.requestPaused') void fulfillOFF(message.params, message.sessionId).catch(error => {
@@ -159,6 +160,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
     }
     async function fulfillOFF({ requestId, request }, sessionId) {
       off.requests.push({ url: request.url, method: request.method, headers: request.headers });
+      if(off.mode==='network')return command('Fetch.failRequest',{requestId,errorReason:'InternetDisconnected'},sessionId);
       const image = new URL(request.url).hostname === 'images.openfoodfacts.org';
       const cors = [
         { name: 'Access-Control-Allow-Origin', value: '*' },
@@ -274,6 +276,6 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       }
       return { send, evaluate, reload, navigate, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
     }
-    return { staticDirectory:staticSite?.directory, base, page, errors, requests, responses, failures, off, close, serverErrors: () => serverErrors };
+    return { staticDirectory:staticSite?.directory, base, page, errors, requests, networkRequests, responses, failures, off, close, serverErrors: () => serverErrors };
   } catch (error) { await close(); throw error; }
 }

@@ -34,7 +34,7 @@ test('Etap 6 — PWA, offline katalog, aparat, backup i bezpieczny update',{time
  });
  await t.test('nieznany kod proponuje własny produkt z wpisanym kodem',async()=>{
   browser.off.mode='empty';await a.evaluate("window.__advanceClock(65000);document.getElementById('barcode').value='4006381333931';document.getElementById('barcode-form').requestSubmit()");await wait(a,"document.getElementById('search-results').getAttribute('aria-busy')==='false'");
-  assert.match(await a.evaluate("document.getElementById('catalog-message').textContent"),/Nie znaleźliśmy/);await click(a,'create-from-barcode');assert.equal(await a.evaluate("document.getElementById('custom-barcode').value"),'4006381333931');await click(a,'custom-cancel');browser.off.mode='ok';
+  assert.match(await a.evaluate("document.getElementById('catalog-message').textContent"),/Nie znaleziono produktu o tym kodzie w Open Food Facts/);await click(a,'create-from-barcode');assert.equal(await a.evaluate("document.getElementById('custom-barcode').value"),'4006381333931');await click(a,'custom-cancel');browser.off.mode='ok';
  });
  await t.test('custom create, barcode lokalnie, voice, ulubione i alias',async()=>{
   await click(a,'create-custom');await a.evaluate("(()=>{const values={name:'Moje paliwo',brand:'Moja marka',barcode:'5901234123457',unit:'g',kcal:'200',protein:'10',fat:'4',carbs:'30'};for(const[k,v]of Object.entries(values))document.getElementById('custom-'+k).value=v;document.getElementById('custom-form').requestSubmit()})()");
