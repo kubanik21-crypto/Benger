@@ -8,7 +8,7 @@ Dodatkowo checkbox wyłączony nie był twardym zakazem sieci: przy braku lokaln
 
 ## Nowy przepływ
 
-- Formularz OFF włączony: `forceExternal:true`, `refreshExternal:true`, `allowExternal:true`. Świadomy submit odczytuje lokalne produkty, ale nie kończy na cache zapytania. Wysyła oryginalną frazę (tylko trim/scalenie spacji), łączy wyniki API z lokalnymi, deduplikuje i rankuje maksymalnie 20 pozycji.
+- Formularz OFF włączony: `forceExternal:true`, `refreshExternal:true`, `allowExternal:true`. Świadomy submit odczytuje lokalne produkty, ale nie kończy na cache zapytania. Używa także fetch `cache:'no-store'`, bez dodawania ręcznych nagłówków Cache-Control/preflight. Wysyła oryginalną frazę (tylko trim/scalenie spacji), łączy wyniki API z lokalnymi, deduplikuje i rankuje maksymalnie 20 pozycji.
 - Formularz OFF wyłączony: `allowExternal:false` gwarantuje brak requestu, nawet bez lokalnego dopasowania.
 - `forceExternal` bez `refreshExternal` zachowuje dotychczasowy cache dla innych konsumentów repozytorium. Nie zmieniamy budżetu resolvera/voice/recipe.
 - Powtórzenie submita za szybko nadal respektuje współdzielony limit 6500 ms, limiter między kartami i HTTP 429. Nie obchodzimy limitów i nie wykonujemy automatycznych serii wariantów query. UI jawnie wyjaśnia ograniczenie; po odczekaniu nowy submit ponownie odpytuje OFF.

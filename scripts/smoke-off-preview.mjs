@@ -17,13 +17,14 @@ export async function smokeOffPreview(p,b,{mocked=false}={}){
   const before=searches().length;lastRequestAt=Date.now();await search(query,true);
   assert.equal(searches().length,before+1,'Enabled OFF must create a real GET: '+query);
   const url=searches().at(-1).url;assert.equal(new URL(url).searchParams.get('search_terms'),query);
-  const responses=b.responses.filter(r=>r.url===url),text=await message();
+  const responses=b.networkResponses.filter(r=>r.url===url),text=await message();
+  const response=responses.at(-1);if(response){assert.equal(response.fromDiskCache,false,'OFF response must bypass browser HTTP cache');assert.equal(response.fromServiceWorker,false,'SW must not intercept OFF');assert.equal(response.fromPrefetchCache,false);}
   const http=responses.at(-1)?.status??null;
   if(http===200)assert.match(text,/katalog \+ Open Food Facts|Nie udało się pobrać wyników/);
   else assert.match(text,/Nie udało się pobrać wyników z Open Food Facts/);
   const visibleProducts=await p.evaluate("[...document.querySelectorAll('#search-results .product-name')].map(n=>n.textContent)");
   const disabledBefore=searches().length;await search(query,false);assert.equal(searches().length,disabledBefore,'Unchecked OFF must make no request');
-  report.push({query,repeatedQuery:i===1,networkGET:true,url,http,onlineSuccess:text.includes('katalog + Open Food Facts'),uncheckedGETs:0,message:text,visibleProducts:visibleProducts.slice(0,5)});
+  report.push({query,repeatedQuery:i===1,networkGET:true,url,http,fromDiskCache:response?.fromDiskCache??null,fromServiceWorker:response?.fromServiceWorker??null,onlineSuccess:text.includes('katalog + Open Food Facts'),uncheckedGETs:0,message:text,visibleProducts:visibleProducts.slice(0,5)});
   rateLimited=http===429||text.includes('ogranicza liczbę zapytań');
  }
  let barcode;

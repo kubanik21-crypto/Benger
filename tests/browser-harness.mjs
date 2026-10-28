@@ -62,6 +62,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
   const requests = [];
   const networkRequests = [];
   const responses = [];
+  const networkResponses = [];
   const failures = [];
   const pending = new Map();
   const off = { mode: 'ok', requests: [], products: mockOFF ? JSON.parse(await readFile(new URL('tests/fixtures/off-products.json', ROOT_URL))).products : [] };
@@ -132,7 +133,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       if (message.method === 'Log.entryAdded' && message.params.entry.level === 'error') errors.push(message.params.entry);
       if (message.method === 'Runtime.consoleAPICalled' && message.params.type === 'error') errors.push(message.params.args);
       if (message.method === 'Network.requestWillBeSent') {requests.push(message.params.request.url);networkRequests.push({url:message.params.request.url,method:message.params.request.method,type:message.params.type});}
-      if (message.method === 'Network.responseReceived') responses.push({ url: message.params.response.url, status: message.params.response.status });
+      if (message.method === 'Network.responseReceived') {const r=message.params.response;responses.push({url:r.url,status:r.status});networkResponses.push({url:r.url,status:r.status,fromDiskCache:Boolean(r.fromDiskCache),fromServiceWorker:Boolean(r.fromServiceWorker),fromPrefetchCache:Boolean(r.fromPrefetchCache)});}
       if (message.method === 'Network.loadingFailed') failures.push({ error: message.params.errorText, cors: message.params.corsErrorStatus ?? null, canceled: message.params.canceled ?? false });
       if (message.method === 'Fetch.requestPaused') void fulfillOFF(message.params, message.sessionId).catch(error => {
         // Wymiana/usunięcie img unieważnia przechwycenie. Chrome nie zawsze wysyła
@@ -276,6 +277,6 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       }
       return { send, evaluate, reload, navigate, date, choose, submit, raw, setRaw, saved, visible, outputs, remove, analyze, accept };
     }
-    return { staticDirectory:staticSite?.directory, base, page, errors, requests, networkRequests, responses, failures, off, close, serverErrors: () => serverErrors };
+    return { staticDirectory:staticSite?.directory, base, page, errors, requests, networkRequests, networkResponses, responses, failures, off, close, serverErrors: () => serverErrors };
   } catch (error) { await close(); throw error; }
 }

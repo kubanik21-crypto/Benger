@@ -23,7 +23,7 @@ export function normalizeSearchResponse(data) {
 export function createCgiSearchProvider({ fetchImpl = globalThis.fetch, timeoutMs = 10000 } = {}) {
   // Produkcyjny pomiar z Pages: Accept-only zwraca JSON+CORS, wariant z XUA zawiódł.
   // Nie udajemy custom User-Agent parametrem GET. Lookup nadal używa XUA.
-  const getJson = createOffJsonClient({ fetchImpl, timeoutMs, headers: { Accept: 'application/json' } });
+  const getJson = createOffJsonClient({ fetchImpl, timeoutMs, cacheMode: 'no-store', headers: { Accept: 'application/json' } });
   return {
     id: 'off-cgi-v3.6-accept',
     async searchProducts(query, { signal, onDiagnostics } = {}) {
