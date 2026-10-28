@@ -702,14 +702,14 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     assert.equal(await a.evaluate(`(async()=>{const {createProductRepository}=await import('./product-repository.js');const repo=createProductRepository();const memory=await repo.selectionMemory('mleko 2%');await repo.close();return memory[0].count;})()`), 1);
     assert.deepEqual(await a.outputs('total'), ['100', '6,8', '4', '9,6']);
   });
-  await t.test('ulubione i cache są trwałe po odświeżeniu; produkt i świeży query bez kolejnego fetch', async () => {
+  await t.test('ulubione i cache są trwałe; produkt z pamięci, jawne wyszukiwanie odświeżane online', async () => {
     await a.evaluate("document.querySelector('#product .favorite-product').click()");
     await waitFor(a, "document.querySelector('#favorite-products .favorite-product')?.getAttribute('aria-pressed') === 'true'");
     await a.reload(); await a.date(DAY);
     assert.equal(await a.evaluate("document.querySelectorAll('#favorite-products [data-product-id]').length"), 1);
     const before = apiRequests().length;
-    await search('MLEKO 2%'); assert.equal(apiRequests().length, before);
-    await barcode('5901234123457'); assert.equal(apiRequests().length, before);
+    await advance(); await search('MLEKO 2%'); assert.equal(apiRequests().length, before+1);
+    await barcode('5901234123457'); assert.equal(apiRequests().length, before+1);
     assert.equal(await resultCount(), 1);
     const stored = await a.evaluate(`(async () => {
       const {createProductStorage}=await import('./product-cache.js'); const storage=createProductStorage();
@@ -747,10 +747,10 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     await a.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
     await waitFor(a, 'navigator.onLine === true');
   });
-  await t.test('puste wyniki i brak makro są czytelne; puste wyniki mają cache', async () => {
+  await t.test('puste wyniki i brak makro są czytelne; jawny refresh nie udaje cache jako online', async () => {
     browser.off.mode = 'empty'; await advance(); await search('nieznany produkt');
-    assert.equal(await resultCount(), 0); assert.match(await message(), /Brak wyników/);
-    const before = apiRequests().length; await search('nieznany produkt'); assert.equal(apiRequests().length, before);
+    assert.equal(await resultCount(), 0); assert.match(await message(), /Open Food Facts nie zwróciło/);
+    const before = apiRequests().length; await search('nieznany produkt'); assert.equal(apiRequests().length, before);assert.match(await message(),/Odczekaj/);await advance();await search('nieznany produkt');assert.equal(apiRequests().length,before+1);
     browser.off.mode = 'invalid'; await advance(); await search('produkt bez danych'); assert.equal(await resultCount(), 0);
   });
   await t.test('429 i szybkie kolejne query nie spamują API', async () => {
@@ -781,7 +781,7 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     assert.match(await a.evaluate("document.getElementById('search-results').textContent"), /Jogurt/);
     assert.ok(apiRequests().some(request => new URL(request.url).pathname === '/api/v3.6/product/5901234123464'));
     browser.off.mode = 'empty'; await advance(); await barcode('4006381333931');
-    assert.equal(await resultCount(), 0); assert.match(await message(), /Nie znaleźliśmy tego produktu/);
+    assert.equal(await resultCount(), 0); assert.match(await message(), /Nie znaleziono produktu o tym kodzie w Open Food Facts/);
     const before = apiRequests().length; await barcode('123'); assert.match(await message(), /prawidłowy kod/); assert.equal(apiRequests().length, before);
   });
   await t.test('XSS z API jest tekstem, nie kodem; snapshot nie zmienia się po aktualizacji OFF', async () => {
@@ -844,8 +844,8 @@ test('Etap 3 — katalog OFF, prawdziwy fetch/CORS i IndexedDB pod /Benger/', { 
     await advance(); await b.evaluate('window.__advanceClock(6500)');
     const before = apiRequests().length;
     await Promise.all([
-      a.evaluate("document.getElementById('product-search').value='karta pierwsza';document.getElementById('product-search-form').requestSubmit()"),
-      b.evaluate("document.getElementById('product-search').value='karta druga';document.getElementById('product-search-form').requestSubmit()"),
+      a.evaluate("document.getElementById('search-internet').checked=true;document.getElementById('product-search').value='karta pierwsza';document.getElementById('product-search-form').requestSubmit()"),
+      b.evaluate("document.getElementById('search-internet').checked=true;document.getElementById('product-search').value='karta druga';document.getElementById('product-search-form').requestSubmit()"),
     ]);
     await waitFor(a, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'");
     await waitFor(b, "document.getElementById('search-results').getAttribute('aria-busy') === 'false'");

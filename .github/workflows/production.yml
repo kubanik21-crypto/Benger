@@ -54,8 +54,15 @@ jobs:
         run: |
           gh api "repos/$GITHUB_REPOSITORY/pages" --jq 'select(.build_type == "legacy" and .source.branch == "gh-pages" and .source.path == "/") | .html_url' > "$RUNNER_TEMP/benger-pages-url"
           test -s "$RUNNER_TEMP/benger-pages-url"
+      - name: Verify live OFF bridge before production publication
+        if: steps.current.outputs.deploy == 'true'
+        env:
+          BENGER_OFF_SEARCH_PREVIEW_URL: https://benger-off-search-preview.kubanik-21.workers.dev/search
+        run: node scripts/off-bridge-live.mjs
       - name: Build clean production artifact
         if: steps.current.outputs.deploy == 'true'
+        env:
+          BENGER_OFF_SEARCH_URL: https://benger-off-search-preview.kubanik-21.workers.dev/search
         run: npm run build:web -- "$RUNNER_TEMP/benger-production"
       - name: Publish tested root and retire old previews
         if: steps.current.outputs.deploy == 'true'
@@ -66,3 +73,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
+      - name: Wait for exact production build
+        if: steps.current.outputs.deploy == 'true'
+        env:
+          EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        shell: bash
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "https://kubanik21-crypto.github.io/Benger/release-metadata.json?build=$EXPECTED_SHA" | EXPECTED_SHA="$EXPECTED_SHA" node -e 'let b="";process.stdin.on("data",d=>b+=d);process.stdin.on("end",()=>{try{process.exit(JSON.parse(b).build===process.env.EXPECTED_SHA?0:1)}catch{process.exit(1)}})'; then
+              exit 0
+            fi
+            sleep 10
+          done
+          exit 1
+      - name: Smoke test public production in Chromium
+        if: steps.current.outputs.deploy == 'true'
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: node scripts/smoke-off-production.mjs "${{ github.event.workflow_run.head_sha }}"

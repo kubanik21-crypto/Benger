@@ -15,9 +15,9 @@
 
 ## Local-first / dane
 
-Nie ma kont, naszego backendu ani synchronizacji urządzeń. Dziennik, przepisy, plany, pomiary i zdjęcia progresu pozostają w pamięci przeglądarki na danym urządzeniu. Instalacja PWA korzysta z danych tej samej witryny. Wyczyszczenie danych witryny lub automatyczne usunięcie przez przeglądarkę może spowodować ich utratę — regularnie eksportuj backup.
+Nie ma kont ani synchronizacji urządzeń. Dziennik, przepisy, plany, pomiary i zdjęcia progresu pozostają w pamięci przeglądarki na danym urządzeniu. Instalacja PWA korzysta z danych tej samej witryny. Wyczyszczenie danych witryny lub automatyczne usunięcie przez przeglądarkę może spowodować ich utratę — regularnie eksportuj backup.
 
-To nie oznacza braku całej komunikacji z internetem: Web Speech może przesyłać dźwięk do usługi przeglądarki; zewnętrzne wyszukiwanie/barcode wysyła zapytania do Open Food Facts, a zdjęcia produktów są pobierane ze źródła. Mikrofon i aparat uruchamiasz jawnie. Benger nie zapisuje nagrań i nie wysyła własnych przepisów ani pomiarów. Dane lokalne nie są szyfrowane przez Bengera.
+To nie oznacza braku całej komunikacji z internetem: Web Speech może przesyłać dźwięk do usługi przeglądarki; zewnętrzne wyszukiwanie wysyła frazę do Open Food Facts przez ograniczony adapter Cloudflare Workers, barcode korzysta bezpośrednio z OFF, a zdjęcia produktów są pobierane ze źródła. Cloudflare obsługuje frazę i techniczne dane połączenia (np. IP), ale nie otrzymuje dziennika, przepisów, zdjęć ani pomiarów. Mikrofon i aparat uruchamiasz jawnie. Benger nie zapisuje nagrań i nie wysyła własnych przepisów ani pomiarów. Dane lokalne nie są szyfrowane przez Bengera.
 
 Produkcyjny adres i magazyn pozostają stałe: **https://kubanik21-crypto.github.io/Benger/**. Nie ma migracji do nowego namespace w wersji 1.0. Dane oddzielnych wcześniejszych preview nie są automatycznie scalane z produkcją; przenosi się je przez backup.
 

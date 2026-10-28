@@ -58,22 +58,25 @@ export function createProductRepository({ portions = createPortionRepository(), 
     getProductById: fromCache,
     persistent: cache.persistent,
     async searchProducts(query, options = {}) {
-      const term = typeof query === 'string' ? parseProductQuery(query).normalizedQuery : '';
+      // Keep the user's commercial name, brand and Polish accents for OFF.
+      const term = typeof query === 'string' ? query.trim().replace(/\s+/g,' ') : '';
       if (term.length < 3 || term.length > 120) throw new ProductError('query');
       const available = await localMatches(query);
-      if (available.some(p=>p.source==='usda'||p.source==='custom') && !options.forceExternal) return {products:available,status:isOnline()?'local':'offline',error:isOnline()?null:new ProductError('offline')};
+      if (options.allowExternal === false) return {products:available,status:isOnline()?'local':'offline',error:null};
+      if (available.some(p=>p.source==='usda'||p.source==='custom') && !options.forceExternal && !options.refreshExternal) return {products:available,status:isOnline()?'local':'offline',error:isOnline()?null:new ProductError('offline')};
       if (!isOnline()) return { products: available, status: 'offline', error: new ProductError('offline') };
       const searchKey = `${searchProvider.id ?? 'custom'}:${term}`;
       const cached = await cache.getSearch(searchKey);
-      if (cached !== null) return { products: merge(options.forceExternal?[...cached,...available]:[...available,...cached],term), status: 'cached', error: null };
+      if (cached !== null && !options.refreshExternal) return { products: merge(options.forceExternal?[...cached,...available]:[...available,...cached],term), status: 'cached', error: null };
       try {
-        const products = await request(`search:${normalizeText(searchKey)}`, 'search', () => searchProvider.searchProducts(term, options));
+        let diagnostics=null;
+        const products = await request(`search:${normalizeText(searchKey)}`, 'search', () => searchProvider.searchProducts(term, {...options,onDiagnostics:value=>{diagnostics=value;}}));
         await cache.putProducts(products);
         await cache.putSearch(searchKey, products);
         const normalized = await productsFor(products.map(product => product.id));
-        return { products: merge(options.forceExternal?[...normalized,...(await localMatches(term))]:[...(await localMatches(term)),...normalized],term), status: 'online', error: null };
+        return { products: merge(options.forceExternal?[...normalized,...(await localMatches(term))]:[...(await localMatches(term)),...normalized],term), status: 'online', remoteCount:normalized.length, rejectedCount:diagnostics?.rejected??0, error: null };
       } catch (error) {
-        return { products: available, status: 'fallback', error: failure(error) };
+        return { products: merge([...available,...(cached??[])],term), status: 'fallback', error: failure(error) };
       }
     },
     async getProductByBarcode(value, options = {}) {

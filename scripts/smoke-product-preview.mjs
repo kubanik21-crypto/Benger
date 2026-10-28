@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {smokeOffPreview} from './smoke-off-preview.mjs';
+import {appendFile} from 'node:fs/promises';
 import {startBrowser} from '../tests/browser-harness.mjs';
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 async function wait(p,expression){const end=Date.now()+20000;while(Date.now()<end){if(await p.evaluate(expression))return;await pause(50);}throw new Error('Timeout: '+expression);}
@@ -9,7 +11,7 @@ export const QUERIES=['marchewka','200 g marchewki','sos sojowy','15 g sosu sojo
 // Real deployed frontend and real bundled USDA records; no mocked product responses or seeded aliases.
 export async function smokeProductPreview(p,sha){
  assert.equal(await p.evaluate("document.querySelector('meta[name=benger-build]').content"),sha);
- assert.equal(await p.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"),'preview-global-product-resolution');
+ assert.equal(await p.evaluate("document.querySelector('meta[name=benger-storage-namespace]').content"),'preview-off-commercial-search');
  assert.equal(await p.evaluate("(async()=>typeof(await import('./product-resolver.js')).resolveProductQuery)()"),'function');
  const results=[];await p.date('2026-10-28');
  for(const query of QUERIES){
@@ -45,6 +47,6 @@ export async function smokeProductPreview(p,sha){
  return {sha,scope,offlineReload:true,results};
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const [url,sha]=process.argv.slice(2);assert.equal(url,'https://kubanik21-crypto.github.io/Benger/previews/global-product-resolution/');assert.match(sha,/^[a-f0-9]{40}$/);
- const b=await startBrowser({staticPrefix:'/',respectProxy:true});try{const p=await b.page(url);console.log(JSON.stringify(await smokeProductPreview(p,sha),null,2));assert.deepEqual(b.errors,[]);}finally{await b.close();}
+ const [url,sha]=process.argv.slice(2);assert.equal(url,'https://kubanik21-crypto.github.io/Benger/previews/off-commercial-search/');assert.match(sha,/^[a-f0-9]{40}$/);
+ const b=await startBrowser({staticPrefix:'/',respectProxy:true});try{const p=await b.page(url);const global=await smokeProductPreview(p,sha);assert.deepEqual(b.errors,[]);const off=await smokeOffPreview(p,b);const report={global,off};console.log(JSON.stringify(report,null,2));if(process.env.GITHUB_STEP_SUMMARY)await appendFile(process.env.GITHUB_STEP_SUMMARY,'## Live preview smoke\n```json\n'+JSON.stringify(report,null,2)+'\n```\n');for(const row of [...off.searches,off.barcode]){const message=JSON.stringify(row).replaceAll('%','%25').replaceAll('\n','%0A').replaceAll('\r','%0D');console.log(`::notice title=OFF preview network smoke::${message}`);}if(off.networkFailures.length)console.log('::notice title=OFF preview network failures::'+JSON.stringify(off.networkFailures).replaceAll('%','%25').replaceAll('\n','%0A'));if(off.searches.some(r=>r.http!==200||!r.onlineSuccess))console.log('::warning title=OFF external service::Some real OFF requests did not return readable HTTP 200; see diagnostics. Preview remains available for phone acceptance.');}finally{await b.close();}
 }

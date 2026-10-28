@@ -106,6 +106,7 @@ test('search ogranicza fields i wyniki oraz używa simple GET z samym Accept, be
   const products = await provider.search('mleko łaciate 2%');
   assert.equal(products.length, 20);
   assert.equal(captured.url.pathname, '/cgi/search.pl');
+  assert.equal(captured.options.cache,'no-store');
   assert.equal(captured.url.searchParams.get('search_terms'), 'mleko łaciate 2%');
   assert.equal(captured.url.searchParams.get('api_version'), '3.6');
   assert.equal(captured.url.searchParams.get('page_size'), '20');

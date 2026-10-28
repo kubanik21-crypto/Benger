@@ -80,7 +80,9 @@ export function createOpenFoodFactsProvider({ fetchImpl = globalThis.fetch, time
       const data = await getJson(url(`/api/v${OFF_API_VERSION}/product/${code}`), signal);
       if (data === null || data?.status === 0 || data?.result?.id === 'product_not_found') return null;
       if (!data || typeof data !== 'object' || !data.product) throw new ProductError('response');
+      if(barcodeKey(normalizeBarcode(String(data.product.code??'')))!==barcodeKey(code))throw new ProductError('response');
       const product = normalizeOffProduct(data.product);
+      if(!product)throw new ProductError('nutrition');
       if (product && barcodeKey(product.barcode) !== barcodeKey(code)) throw new ProductError('response');
       return product;
     },
