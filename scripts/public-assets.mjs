@@ -1,6 +1,7 @@
 import { readdirSync } from 'node:fs';
 // Jawna lista publikacji: bez serwera, testów, fixture, .git i konfiguracji.
 export const PUBLIC_ASSETS = [
+  'recipe-editor.js','recipe-ingredient-picker.js',
   'barcode-test-lab.html','catalog-diagnostics.html','pwa-diagnostics.html','stage6-diagnostics.js',
   'portion-diagnostics.html','portion-test-lab.html','portion-diagnostics.js','recipe-test-lab.html','recipe-diagnostics.html','recipe-diagnostics.js','app-version.js','exercise-guides.js','exercise-visuals.js','exercise-guide-ui.js','settings.js','product-polish-ui.js','navigation.js','diary-history.js','recipe-id.js','recipe-model.js','recipe-nutrition.js','recipe-repository.js','recipe-understanding.js','recipe-session.js','recipe-ui.js','recipe-resolver.js','recipe-portion-resolver.js','recipe-proposal-ui.js','recipe-diary-ui.js','diary-entry.js','storage-health.js','recipe-diary-test-lab.html','recipe-diary-test-lab.js','backup.js','backup-ui.js','portion-model.js','portion-resolver.js','portion-references.js','portion-repository.js','portion-settings-ui.js','product-providers/usda-portions.js','product-providers/source-portions.js',
   'service-worker.js','sw-assets.js','pwa.js','progress.js','progress-ui.js','goals.js','dashboard.js','dashboard-ui.js','training-calendar.js','training-calendar-ui.js','training-library.js','training-model.js','training-repository.js','training-ui.js','training-voice.js','barcode-scanner.js','barcode-utils.js','custom-product-ui.js',
