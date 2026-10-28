@@ -1,6 +1,6 @@
-import {normalizeText} from './normalize-text.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {canonicalWord,FOOD_HEADS,FOOD_FORMS} from './food-language.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {POLISH_FOOD_TERMS} from './product-vocabulary.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {normalizeText} from './normalize-text.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {canonicalWord,FOOD_HEADS,FOOD_FORMS} from './food-language.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {POLISH_FOOD_TERMS} from './product-vocabulary.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 const synonyms={kartofel:'ziemniaki',mleczko:'mleko'};
 const vocabulary=[...new Set([...FOOD_HEADS,...Object.keys(synonyms),...Object.values(FOOD_FORMS),...Object.keys(POLISH_FOOD_TERMS),'sojowy','kokosowy','ciemny','jasny','filet'])];
 // Productive endings are checked against known lemmas. Unknown words/brands are retained.

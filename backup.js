@@ -1,26 +1,26 @@
-import {emptySchedule,validateSchedule,mergeSchedule} from './training-calendar.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {SETTINGS_KEY,validateSettings,readSettings} from './settings.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {validateTraining,trainingFromRecords,trainingRecords,mergeTraining,TRAINING_PREFIX} from './training-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {validateGoals,GOALS_KEY} from './goals.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {exportProgress,validateProgress,decodeProgress,createProgressStore} from './progress.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {validDiaryEntry,copyDiaryEntry} from './diary-entry.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {recipeQuery} from './recipe-resolver.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { validateRecipe } from './recipe-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { validPortionSnapshot, copyPortionSnapshot, isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { validPortionSettings } from './portion-repository.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { normalizeCustomProduct } from './product-providers/custom.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { normalizeFoodQuery } from './food-query.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { LEGACY_PRODUCT_IDS } from './legacy-product-references.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {emptySchedule,validateSchedule,mergeSchedule} from './training-calendar.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {SETTINGS_KEY,validateSettings,readSettings} from './settings.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {validateTraining,trainingFromRecords,trainingRecords,mergeTraining,TRAINING_PREFIX} from './training-model.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {validateGoals,GOALS_KEY} from './goals.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {exportProgress,validateProgress,decodeProgress,createProgressStore} from './progress.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {validDiaryEntry,copyDiaryEntry} from './diary-entry.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {recipeQuery} from './recipe-resolver.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { validateRecipe } from './recipe-model.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { validPortionSnapshot, copyPortionSnapshot, isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { validPortionSettings } from './portion-repository.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { normalizeCustomProduct } from './product-providers/custom.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { createProductStorage, PRODUCT_CACHE_REVISION } from './product-cache.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { NUTRITION_STORAGE_KEY } from './app-storage.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { copyProduct, isProduct, normalizeText, barcodeKey } from './product-model.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { normalizeFoodQuery } from './food-query.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { LEGACY_PRODUCT_IDS } from './legacy-product-references.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 const JOURNAL='backup-import-journal-v1';
 export const BACKUP_LIMIT_BYTES=64*1024*1024;
 function fail(message='Nieprawidłowy format backupu.'){throw new TypeError(message);}
 function safeTree(value,depth=0){if(depth>30)fail('Backup ma zbyt złożoną strukturę.');if(!value||typeof value!=='object')return;for(const key of Object.keys(value)){if(['__proto__','constructor','prototype'].includes(key))fail('Niedozwolony klucz w backupie.');safeTree(value[key],depth+1);}}
 const text=(value,max=240)=>typeof value==='string'&&value.trim().length>0&&value.length<=max;
 const list=(value,max)=>{if(!Array.isArray(value)||value.length>max)fail('Przekroczony limit elementów backupu.');return value;};
-export { validDiaryEntry } from './diary-entry.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+export { validDiaryEntry } from './diary-entry.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 export function validateBackup(value){
  safeTree(value);if(value?.app!=='Benger'||![1,2,3,4,5,6,7].includes(value.schemaVersion)||!value.data)fail('Nieobsługiwana wersja backupu Bengera.');
  const data=value.data;const trainingSchedule=value.schemaVersion>=7?validateSchedule(data.trainingSchedule):null;const settings=value.schemaVersion>=6?validateSettings(data.settings):null;const training=validateTraining(data.training);if(training)delete training.schedule;const progress=validateProgress(data.progress);const goals=data.goals==null?null:validateGoals(data.goals);

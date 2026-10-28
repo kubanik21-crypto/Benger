@@ -1,10 +1,10 @@
-import {APP_VERSION} from './app-version.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {loadSettings,saveSettings,applyTheme} from './settings.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {createProductStorage} from './product-cache.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {createProgressStore} from './progress.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {NUTRITION_STORAGE_KEY} from './app-storage.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {navigate} from './navigation.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {storageErrorMessage} from './storage-health.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {APP_VERSION} from './app-version.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {loadSettings,saveSettings,applyTheme} from './settings.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {createProductStorage} from './product-cache.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {createProgressStore} from './progress.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {NUTRITION_STORAGE_KEY} from './app-storage.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {navigate} from './navigation.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {storageErrorMessage} from './storage-health.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 const $=id=>document.getElementById(id),el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
 const INTRO_KEY='onboarding-v1';
 export function hasExistingProfile(snapshot,progress,diary){return Boolean(diary&&diary!=='[]'||['products','recipes','recipeHistory','recipeDrafts','usage','selections'].some(k=>snapshot[k]?.length)||snapshot.meta?.some(r=>r.key!==INTRO_KEY&&r.key!=='app-settings-v1'&&(r.key.startsWith('custom:')||r.key.startsWith('alias:')||r.key.startsWith('portion:')||r.key.startsWith('recipe-')||r.key==='goal-periods-v1'&&r.periods?.length||r.key.startsWith('training:')&&meaningful(r)))||['measurements','sessions','photos'].some(k=>progress[k]?.length));}

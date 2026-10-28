@@ -1,8 +1,8 @@
-import {parseProductQuery} from './product-query.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {obviousProduct,rankProductCandidates} from './product-matching.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { variantCompatible, phraseSimilarity } from './product-variants.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {parseProductQuery} from './product-query.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {obviousProduct,rankProductCandidates} from './product-matching.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { variantCompatible, phraseSimilarity } from './product-variants.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode } from './product-model.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import { hasPercentageConflict, matchesFoodQuery, normalizeFoodQuery } from './food-query.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 
 function validIntent(intent) {
   return intent && typeof intent === 'object'

@@ -1,6 +1,6 @@
-import {validateSchedule,validateScheduled,mergeSchedule,emptySchedule} from './training-calendar.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {EXERCISES,EQUIPMENT} from './training-library.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {validDate} from './goals.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {validateSchedule,validateScheduled,mergeSchedule,emptySchedule} from './training-calendar.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {EXERCISES,EQUIPMENT} from './training-library.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {validDate} from './goals.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 export const TRAINING_PREFIX='training:';
 export const emptyTraining=()=>({exercises:[],workoutTemplates:[],mobilityRoutines:[],activeWorkout:null,activeMobility:null,completedWorkouts:[],completedMobility:[],timer:null});
 const text=(x,max,empty=false)=>typeof x==='string'&&x.length<=max&&(empty||x.trim().length>0);

@@ -1,4 +1,4 @@
-import { ProductError } from '../product-errors.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { ProductError } from '../product-errors.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 
 function retryDelay(value) {
   if (value === null) return 60_000;

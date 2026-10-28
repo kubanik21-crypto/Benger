@@ -1,6 +1,6 @@
-import {createProposalCard,updateProposalCard,renderProposalChoices} from './meal-proposal-ui.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {loadItemPortions,updateMealItemPortion,portionFor} from './meal-resolution.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
-import {ingredientFromPortion} from './recipe-model.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import {createProposalCard,updateProposalCard,renderProposalChoices} from './meal-proposal-ui.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {loadItemPortions,updateMealItemPortion,portionFor} from './meal-resolution.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
+import {ingredientFromPortion} from './recipe-model.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 export async function pickRecipeIngredient({ingredient,repository,resolver,onSelect}){
  const e=(t,text)=>{const n=document.createElement(t);if(text)n.textContent=text;return n;};
  const opener=document.activeElement,dialog=e('dialog'),title=e('h2','Wybierz produkt i ilość'),status=e('p'),accept=e('button','Użyj składnika'),cancel=e('button','Anuluj');

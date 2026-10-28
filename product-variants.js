@@ -1,4 +1,4 @@
-import { normalizeFoodQuery } from './food-query.js?v=7ccd9af2bbcc74b2cab4be6ca70b27205bc6ab7e';
+import { normalizeFoodQuery } from './food-query.js?v=41ae0a36171b59d53a296d6b9884312c9019f06d';
 export function variantFeatures(text){
  const value=normalizeFoodQuery(text);
  return {percent:[...value.matchAll(/\b\d+(?:\.\d+)?%/g)].map(x=>x[0]),flavor:['waniliowy','truskawkowy','czekoladowy','naturalny','bananowy'].filter(word=>value.includes(word)),zero:/\bzero\b/.test(value)};
