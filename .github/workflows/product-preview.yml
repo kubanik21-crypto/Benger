@@ -51,6 +51,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"
       - name: Wait for the exact preview build
+        if: steps.publish.outputs.skipped != 'true'
         env:
           EXPECTED_SHA: ${{ github.sha }}
         shell: bash
@@ -63,6 +64,7 @@ jobs:
           done
           exit 1
       - name: Smoke test the live preview
+        if: steps.publish.outputs.skipped != 'true'
         env:
           CHROMIUM_PATH: /usr/bin/google-chrome
         run: node scripts/smoke-product-preview.mjs "https://kubanik21-crypto.github.io/Benger/previews/global-product-resolution/" "${{ github.sha }}"

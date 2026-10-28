@@ -31,5 +31,5 @@ export async function publishProductPreview({root,artifact,sha,push=false}){
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  if(process.argv.length!==4||!['--push','--dry-run'].includes(process.argv[2]))throw new Error('Użycie: --push|--dry-run ARTEFAKT');
  const root=fileURLToPath(new URL('../',import.meta.url)),sha=git(root,['rev-parse','HEAD']),result=await publishProductPreview({root,artifact:resolve(process.argv[3]),sha,push:process.argv[2]==='--push'});
- if(process.env.GITHUB_OUTPUT)await appendFile(process.env.GITHUB_OUTPUT,'changed='+Boolean(result.published)+'\n');console.log(JSON.stringify(result));
+ if(process.env.GITHUB_OUTPUT)await appendFile(process.env.GITHUB_OUTPUT,'changed='+Boolean(result.published)+'\nskipped='+Boolean(result.skipped)+'\n');console.log(JSON.stringify(result));
 }
