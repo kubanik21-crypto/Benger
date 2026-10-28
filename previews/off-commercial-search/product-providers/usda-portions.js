@@ -1,5 +1,5 @@
-import { normalizeText } from '../product-model.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
-import { isPortionDefinition } from '../portion-model.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
+import { normalizeText } from '../product-model.js?v=4b08409364df21d546782bfb81ac63458f986959';
+import { isPortionDefinition } from '../portion-model.js?v=4b08409364df21d546782bfb81ac63458f986959';
 // Match descriptions, not dataset-specific measure_unit IDs. Unrecognized measures remain diagnostics only.
 export function usdaPortionUnit(description) {
  const text=normalizeText(description);

@@ -1,6 +1,6 @@
-import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
-import { createOffJsonClient } from './off-http.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
-import { ProductError } from '../product-errors.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
+import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js?v=4b08409364df21d546782bfb81ac63458f986959';
+import { createOffJsonClient } from './off-http.js?v=4b08409364df21d546782bfb81ac63458f986959';
+import { ProductError } from '../product-errors.js?v=4b08409364df21d546782bfb81ac63458f986959';
 
 export function validateSearchQuery(query) {
   const term = typeof query === 'string' ? query.trim().replace(/\s+/g, ' ') : '';
@@ -23,7 +23,7 @@ export function normalizeSearchResponse(data) {
 export function createCgiSearchProvider({ fetchImpl = globalThis.fetch, timeoutMs = 10000 } = {}) {
   // Produkcyjny pomiar z Pages: Accept-only zwraca JSON+CORS, wariant z XUA zawiódł.
   // Nie udajemy custom User-Agent parametrem GET. Lookup nadal używa XUA.
-  const getJson = createOffJsonClient({ fetchImpl, timeoutMs, headers: { Accept: 'application/json' } });
+  const getJson = createOffJsonClient({ fetchImpl, timeoutMs, cacheMode: 'no-store', headers: { Accept: 'application/json' } });
   return {
     id: 'off-cgi-v3.6-accept',
     async searchProducts(query, { signal, onDiagnostics } = {}) {

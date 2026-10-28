@@ -1,5 +1,5 @@
-import {storageErrorMessage} from './storage-health.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
-import { exportBackup, parseBackup, importBackup, BACKUP_LIMIT_BYTES } from './backup.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
+import {storageErrorMessage} from './storage-health.js?v=4b08409364df21d546782bfb81ac63458f986959';
+import { exportBackup, parseBackup, importBackup, BACKUP_LIMIT_BYTES } from './backup.js?v=4b08409364df21d546782bfb81ac63458f986959';
 export function initBackupUi({beforeRead=async()=>{}}={}){
  const $=id=>document.getElementById(id);let raw=null,importing=false;
  $('backup-export').onclick=async()=>{try{await beforeRead();const backup=await exportBackup(),url=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='benger-backup.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('backup-status').textContent='Backup pobrany. Przechowuj go bezpiecznie — zawiera Twój dziennik.';}catch(error){$('backup-status').textContent=storageErrorMessage(error);}};

@@ -1,4 +1,4 @@
-import { ProductError } from '../product-errors.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
+import { ProductError } from '../product-errors.js?v=4b08409364df21d546782bfb81ac63458f986959';
 
 function retryDelay(value) {
   if (value === null) return 60_000;
@@ -8,7 +8,7 @@ function retryDelay(value) {
   return Number.isFinite(date) ? Math.max(60_000, date - Date.now()) : 60_000;
 }
 
-export function createOffJsonClient({ fetchImpl = globalThis.fetch, timeoutMs = 10000, headers = {} } = {}) {
+export function createOffJsonClient({ fetchImpl = globalThis.fetch, timeoutMs = 10000, headers = {}, cacheMode = 'default' } = {}) {
   async function getJson(url, signal) {
     if (signal?.aborted) throw new ProductError('cancelled');
     const controller = new AbortController();
@@ -19,7 +19,7 @@ export function createOffJsonClient({ fetchImpl = globalThis.fetch, timeoutMs = 
     try {
       const operation = (async () => {
         const response = await fetchImpl(url.href, {
-          method: 'GET', mode: 'cors', credentials: 'omit',
+          method: 'GET', mode: 'cors', credentials: 'omit', cache: cacheMode,
           headers, signal: controller.signal,
         });
         if (response.status === 429) throw new ProductError('rate-limit', retryDelay(response.headers.get('Retry-After')));

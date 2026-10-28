@@ -1,4 +1,4 @@
-import {normalizeText} from './product-model.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
+import {normalizeText} from './product-model.js?v=4b08409364df21d546782bfb81ac63458f986959';
 export function understandTraining(text,catalog,current=null){
  const raw=normalizeText(text).replace(/,/g,'.');if(/(?:^|\s)-\s*\d|\d\.\d+\.|\.\./.test(raw))throw new Error('Sprawdź znak i format liczby.');if(raw.length>500)throw new Error('Użyj krótkiego opisu jednej serii.');let exercise=current;
  const aliases=[['wyciskanie hantli','builtin:db-bench'],['podciaganie','builtin:pull-up'],['plank','builtin:plank'],['bieznia','builtin:treadmill']];

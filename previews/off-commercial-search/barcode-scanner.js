@@ -1,4 +1,4 @@
-import { normalizeScannedBarcode } from './barcode-utils.js?v=3928bb31182ca57f6ec22debc759e1d19548012b';
+import { normalizeScannedBarcode } from './barcode-utils.js?v=4b08409364df21d546782bfb81ac63458f986959';
 export const SCANNER_FORMATS=['ean_13','ean_8','upc_a','upc_e'];
 const zxingFormats={6:'ean_8',7:'ean_13',14:'upc_a',15:'upc_e'};
 export async function loadZxing(){await import('./vendor/zxing/zxing-browser-0.2.1.min.js');return globalThis.ZXingBrowser;}
