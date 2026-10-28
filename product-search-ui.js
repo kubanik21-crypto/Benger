@@ -163,7 +163,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
       if(byBarcode && !result.product) $('create-from-barcode').hidden=false;
       resultsPhrase = byBarcode ? null : value.trim();
       if (!byBarcode) {
-        const resolution = await resolver.resolve({ query: value }, { allowExternal: false });
+        const {resolution}=await resolver.resolveProductQuery(value,{allowExternal:false});
         if (version !== revision) return;
         if (resolution.product) results = [resolution.product, ...results.filter(product => product.id !== resolution.product.id)].slice(0, 20);
       }

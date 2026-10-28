@@ -201,9 +201,9 @@ test('Etap 4 — głos, wspólny parser, częściowa weryfikacja i izolowany pre
     const added=(await a.saved()).slice(-2); assert.equal(added[0].meal,'breakfast'); assert.equal(added[1].meal,'snack'); assert.equal(added[1].amount,120.5);
   });
 
-  await t.test('konflikt g/ml wymaga ponownego podania ilości po jawnym wyborze produktu', async () => {
+  await t.test('konflikt g/ml wymaga ponownego podania ilości po poprawieniu jednostki', async () => {
     await a.analyze('200 g mleka 2% i banan 120 g'); assert.equal(await disabled(a),true);
-    await a.evaluate("document.querySelector('[data-item-id=food-1] [data-choice-id]').click()");
+    await a.evaluate("var unit=document.querySelector('[data-item-id=food-1] [data-unit]');unit.value='ml';unit.dispatchEvent(new Event('change'))");
     await wait(a,"document.querySelector('[data-item-id=food-1] [data-unit]').value==='ml'");
     assert.equal(await a.evaluate("document.querySelector('[data-item-id=food-1] [data-amount]').value"),'');
     assert.equal(await disabled(a),true); await fillRow(a,'food-1','200');
