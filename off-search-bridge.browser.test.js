@@ -1,10 +1,10 @@
 import test from'node:test';import assert from'node:assert/strict';import{startBrowser}from'./tests/browser-harness.mjs';import{createOffSearchBridge}from'./workers/off-search/worker.js';
 const pause=ms=>new Promise(r=>setTimeout(r,ms));async function wait(p,e){for(let i=0;i<350;i++){if(await p.evaluate(e))return;await pause(30);}throw new Error(e);}
-test('native browser → independent OFF bridge → normalized product → diary; refresh, CORS errors and direct barcode',{timeout:90000},async t=>{
+for(const production of [false,true])test((production?'production root: ':'preview: ')+'native browser → independent OFF bridge → normalized product → diary; refresh, CORS errors and direct barcode',{timeout:90000},async t=>{
  let clock=Date.now(),calls=0,origin,mode='ok';const hits=[{code:'28077565',product_name:'Chude mięso mielone',brands:['Mięsne Specjały'],nutriments:{'energy-kcal_100g':140,proteins_100g:20,fat_100g:6,carbohydrates_100g:1.5}}];
  const worker=createOffSearchBridge({now:()=>clock,fetchImpl:async()=>{calls++;return mode==='ok'?new Response(JSON.stringify({hits})):new Response('unavailable',{status:503});}});
- const previous=process.env.BENGER_OFF_SEARCH_PREVIEW_URL;process.env.BENGER_OFF_SEARCH_PREVIEW_URL='https://benger-off-search-preview.example.workers.dev/search';
- let b;try{b=await startBrowser({staticPrefix:'/Benger/previews/off-commercial-search/',productPreview:true,mockOFF:true,bridgeHandler:r=>worker.fetch(r,{OFF_ALLOWED_ORIGINS:origin})});}finally{if(previous===undefined)delete process.env.BENGER_OFF_SEARCH_PREVIEW_URL;else process.env.BENGER_OFF_SEARCH_PREVIEW_URL=previous;}
+ const envKey=production?'BENGER_OFF_SEARCH_URL':'BENGER_OFF_SEARCH_PREVIEW_URL';const previous=process.env[envKey];process.env[envKey]='https://benger-off-search-preview.example.workers.dev/search';
+ let b;try{b=await startBrowser({staticPrefix:production?'/Benger/':'/Benger/previews/off-commercial-search/',productPreview:!production,productionBuild:production,mockOFF:true,bridgeHandler:r=>worker.fetch(r,{OFF_ALLOWED_ORIGINS:origin})});}finally{if(previous===undefined)delete process.env[envKey];else process.env[envKey]=previous;}
  t.after(()=>b.close());origin=new URL(b.base).origin;const p=await b.page(b.base);await p.date('2026-10-28');
  const tick=async()=>{clock+=7000;await p.evaluate('window.__advanceClock(7000)');};
  async function search(q,enabled=true){await p.evaluate(`location.hash='/produkty';document.getElementById('search-internet').checked=${enabled};document.getElementById('product-search').value=${JSON.stringify(q)};document.getElementById('product-search-form').requestSubmit()`);await wait(p,"document.getElementById('search-results').getAttribute('aria-busy')==='false'");}

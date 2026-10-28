@@ -23,7 +23,8 @@ export async function preparePreview(destination, revision, {preview=true,namesp
   const output = resolve(destination);
   if (output === root || root.startsWith(output + '/')) throw new Error('Katalog docelowy nie może obejmować repozytorium.');
   if(!preview||publicOnly){const existing=await readdir(output).catch(error=>{if(error.code==='ENOENT')return [];throw error;});if(existing.length)throw new Error('Użyj pustego katalogu dla czystego artefaktu produkcyjnego.');}
-  const bridge=preview&&namespace==='preview-off-commercial-search'&&process.env.BENGER_OFF_SEARCH_PREVIEW_URL?validateOffSearchEndpoint(process.env.BENGER_OFF_SEARCH_PREVIEW_URL):null;
+  const endpoint=preview?(namespace==='preview-off-commercial-search'?process.env.BENGER_OFF_SEARCH_PREVIEW_URL:null):process.env.BENGER_OFF_SEARCH_URL;
+  const bridge=endpoint?validateOffSearchEndpoint(endpoint):null;
   const version=await syncAppVersion(root),assets=preview&&!publicOnly?PUBLIC_ASSETS:PRODUCTION_ASSETS;
   for (const file of assets) {
     const source = await safeAssetSource(root, file);

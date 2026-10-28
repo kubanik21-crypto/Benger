@@ -54,3 +54,7 @@ Właściciel podał publiczny endpoint `https://benger-off-search-preview.kubani
 ### Zgodność runtime Cloudflare
 
 Cloudflare Workers nie obsługuje `redirect: error` w fetch (oficjalna dokumentacja Request). Adapter używa `redirect: manual` i odrzuca odpowiedzi 3xx, zamiast podążać do innego hosta. To zachowuje ochronę stałego upstream bez TypeError przed wysłaniem requestu. Test Node samego standardowego fetch nie wykrywa tej różnicy runtime. Przy ręcznym wdrożeniu przez panel trzeba wkleić aktualny worker.js ponownie.
+
+## Publikacja produkcyjna po akceptacji preview
+
+Po potwierdzeniu testu na telefonie właściciel autoryzował scalenie i produkcję. Produkcyjny build używa osobnej jawnej zmiennej `BENGER_OFF_SEARCH_URL`, ustawionej w Tests (artefakt) i Deploy production na ten sam sprawdzony URL Workera. Zmienna preview nadal nie wpływa na produkcję. Nie zmieniamy `BengerDB`, `benger.nutrition.v1`, manifest identity ani scope `/Benger/`. Nazwa usługi zawiera historyczne słowo preview, ale jest to ten sam ograniczony adapter bez AI; nie zmieniamy jego wdrożenia ani planu konta. Deploy wymaga zielonego Tests dla dokładnego aktualnego main, sprawdza realne OFF przed publikacją i wykonuje Chromium smoke na ROOT po aktualizacji Pages. `scripts/smoke-off-production.mjs` wymaga poprawnych odpowiedzi online, świeżych requestów, braku sieci po odznaczeniu OFF i zachowanej tożsamości produkcyjnych danych/SW. Dane testowego preview nie są przenoszone do produkcji.

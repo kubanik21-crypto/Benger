@@ -30,6 +30,8 @@ jobs:
           "$CHROMIUM_PATH" --version
           npm run test:browser 2>&1 | tee "$RUNNER_TEMP/benger-browser-tests.log"
       - name: Build production release candidate
+        env:
+          BENGER_OFF_SEARCH_URL: https://benger-off-search-preview.kubanik-21.workers.dev/search
         run: npm run build:web -- "$RUNNER_TEMP/benger-production"
       - uses: actions/upload-artifact@v4
         with:
