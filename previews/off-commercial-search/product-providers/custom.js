@@ -1,7 +1,7 @@
-import { sourcePortions } from './source-portions.js?v=4b08409364df21d546782bfb81ac63458f986959';
-import { isPortionDefinition, copyPortionDefinition } from '../portion-model.js?v=4b08409364df21d546782bfb81ac63458f986959';
-import { createProductStorage } from '../product-cache.js?v=4b08409364df21d546782bfb81ac63458f986959';
-import { copyProduct, isProduct, normalizeBarcode, barcodeKey, searchProducts } from '../product-model.js?v=4b08409364df21d546782bfb81ac63458f986959';
+import { sourcePortions } from './source-portions.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
+import { isPortionDefinition, copyPortionDefinition } from '../portion-model.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
+import { createProductStorage } from '../product-cache.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
+import { copyProduct, isProduct, normalizeBarcode, barcodeKey, searchProducts } from '../product-model.js?v=ae06bc5eefd7d232fb6a8b9cf658d6a28d2331bb';
 let counter=0;
 export function normalizeCustomProduct(input, previous=null){
  const name=typeof input.name==='string'?input.name.trim():'';
