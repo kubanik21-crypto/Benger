@@ -10,7 +10,7 @@ function annotation(row){console.log('::notice title=OFF connection evidence::'+
 const b=await startBrowser({staticPrefix:'/',respectProxy:true});
 try{
  const p=await b.page('https://kubanik21-crypto.github.io/Benger/previews/off-commercial-search/');
- const cases=[['node-world-cgi',cgi,'node'],['browser-world-cgi',cgi,'browser'],['browser-pl-cgi',polish,'browser'],['browser-searchalicious',sal,'browser'],['browser-v2-brand',brand,'browser']];
+ const cases=[['node-searchalicious',sal,'node'],['node-world-cgi',cgi,'node'],['browser-world-cgi',cgi,'browser'],['browser-pl-cgi',polish,'browser'],['browser-searchalicious',sal,'browser'],['browser-v2-brand',brand,'browser']];
  for(const[label,url,transport]of cases){
   let row={label,url:url.href};
   if(transport==='node'){
