@@ -56,7 +56,7 @@ export function createOffSearchBridge({fetchImpl=globalThis.fetch,now=Date.now,t
   for(const[k,v]of Object.entries({q:literal,langs:'pl,en',page:1,page_size:20,fields:FIELDS}))upstream.searchParams.set(k,v);
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{
-   const response=await fetchImpl(upstream.href,{method:'GET',redirect:'error',cache:'no-store',headers:{Accept:'application/json','User-Agent':USER_AGENT},signal:controller.signal});
+   const response=await fetchImpl(upstream.href,{method:'GET',redirect:'manual',cache:'no-store',headers:{Accept:'application/json','User-Agent':USER_AGENT},signal:controller.signal});
    if(response.status===429){const seconds=Number(response.headers.get('Retry-After'));const delay=Number.isFinite(seconds)&&seconds>0?Math.max(60,Math.min(3600,seconds)):60;blockedUntil=now()+delay*1000;return json(429,{error:'rate-limit'},{'Retry-After':String(delay)});}
    if(!response.ok)return json(response.status>=500?503:502,{error:'upstream'});
    const data=await boundedJson(response);

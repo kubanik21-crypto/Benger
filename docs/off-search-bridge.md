@@ -50,3 +50,7 @@ Unit: origin/method/query/SSRF guard, whitelista pól, 429/cooldown/timeout/rozm
 ## Podłączenie testowe
 
 Właściciel podał publiczny endpoint `https://benger-off-search-preview.kubanik-21.workers.dev/search`. Workflow preview używa go jawnie jako publicznej konfiguracji (nie sekretu). Zastępuje to wcześniejszy krok ustawiania zmiennej repozytorium. Publikacja wymaga sukcesu testów i rzeczywistego wywołania wdrożonego adaptera, z poprawnym CORS i znormalizowanymi produktami. Produkcyjny build nadal nie otrzymuje endpointu.
+
+### Zgodność runtime Cloudflare
+
+Cloudflare Workers nie obsługuje `redirect: error` w fetch (oficjalna dokumentacja Request). Adapter używa `redirect: manual` i odrzuca odpowiedzi 3xx, zamiast podążać do innego hosta. To zachowuje ochronę stałego upstream bez TypeError przed wysłaniem requestu. Test Node samego standardowego fetch nie wykrywa tej różnicy runtime. Przy ręcznym wdrożeniu przez panel trzeba wkleić aktualny worker.js ponownie.
