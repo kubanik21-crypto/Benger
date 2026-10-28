@@ -262,7 +262,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       const saved = async () => evaluate("(async()=>{const {NUTRITION_STORAGE_KEY}=await import('./app-storage.js');return JSON.parse(localStorage.getItem(NUTRITION_STORAGE_KEY)||'[]')})()");
       const visible = () => evaluate("[...document.querySelectorAll('#nutrition-entries article')].map(article => ({ id: article.dataset.entryId, text: article.textContent }))");
       const outputs = prefix => evaluate(`['kcal', 'protein', 'fat', 'carbs'].map(key => document.getElementById(${JSON.stringify(prefix)} + '-' + key).textContent)`);
-      const remove = id => evaluate(`[...document.querySelectorAll('#nutrition-entries article')].find(article => article.dataset.entryId === ${JSON.stringify(id)}).querySelector('button').click()`);
+      const remove = id => evaluate(`[...document.querySelectorAll('#nutrition-entries article')].find(article => article.dataset.entryId === ${JSON.stringify(id)}).querySelector('.remove-entry').click()`);
       const analyze = async text => {
         await evaluate("(async()=>{const{navigate}=await import('./navigation.js');navigate('dziennik')})()");
         await evaluate(`document.getElementById('meal-text').value = ${JSON.stringify(text)}; document.getElementById('meal-text').dispatchEvent(new Event('input')); document.getElementById('analyze-meal').click();`);

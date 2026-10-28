@@ -65,7 +65,14 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .day-diary > h2 { margin-top: 0; }
 .day-summary { background: var(--elevated); }
 .day-summary h3 { margin-top: 0; }
-.meal-group h3 { border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.meal-group { border: 1px solid var(--border); border-radius: 14px; margin: 12px 0; padding: 0 12px; }
+.meal-group > summary { min-height: 56px; padding: 14px 0; }
+.meal-heading { display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; width: calc(100% - 24px); vertical-align: middle; }
+.meal-heading h3 { margin: 0; font-size: 17px; overflow-wrap: anywhere; }
+.meal-total { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.entry-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.diary-edit-dialog { width: min(460px, calc(100% - 24px)); max-height: calc(100dvh - 32px); overflow-y: auto; box-sizing: border-box; }
+.diary-edit-dialog .button-primary { margin-top: 0; justify-content: center; }
 .food-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin: 10px 0; }
 .food-entry h4 { font-size: 16px; margin: 0; overflow-wrap: anywhere; }
 .entry-amount { margin: 0; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }

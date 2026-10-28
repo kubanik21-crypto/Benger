@@ -28,9 +28,16 @@ export function calculatePortion(product, amount) {
   }
   validateNutrition(product.per100);
 
+  return scaleNutrition(product.per100, amount / 100);
+}
+
+// Scales a saved snapshot without reading today's product/recipe catalog.
+export function scaleNutrition(nutrition, factor) {
+  validateNutrition(nutrition);
+  if (!Number.isFinite(factor) || factor <= 0) throw new RangeError('Nieprawidłowa ilość.');
   const result = {};
   for (const nutrient of NUTRIENTS) {
-    result[nutrient] = product.per100[nutrient] * (amount / 100);
+    result[nutrient] = nutrition[nutrient] * factor;
   }
   validateNutrition(result);
   return result;
