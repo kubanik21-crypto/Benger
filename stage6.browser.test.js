@@ -77,7 +77,7 @@ test('Etap 6 — PWA, offline katalog, aparat, backup i bezpieczny update',{time
  await t.test('SW update nie odświeża edycji sam, po zgodzie zmienia cache bez utraty danych',async()=>{
   assert.ok(browser.staticDirectory);const before=await a.saved();await a.evaluate("document.getElementById('meal-text').value='Niezapisana edycja'");
   const source=await readFile(join(browser.staticDirectory,'sw-assets.js'),'utf8');await writeFile(join(browser.staticDirectory,'sw-assets.js'),source.replace(/self.BENGER_VERSION="[^"]+"/,'self.BENGER_VERSION="update-test"'));await (await import('node:fs/promises')).appendFile(join(browser.staticDirectory,'service-worker.js'),'\n// update test\n');
-  await a.evaluate('(async()=>{const r=await navigator.serviceWorker.ready;await r.update()})()');await wait(a,"!document.getElementById('update-app').hidden");assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'Niezapisana edycja');
+  await a.evaluate("window.dispatchEvent(new Event('online'))");await wait(a,"!document.getElementById('update-app').hidden");assert.equal(await a.evaluate("document.getElementById('meal-text').value"),'Niezapisana edycja');
   const old=await a.evaluate('window.__documentId');await click(a,'update-app');await wait(a,`window.__documentId!==${JSON.stringify(old)} && document.getElementById('product-catalog')?.dataset.ready==='true'`);assert.deepEqual(await a.saved(),before);
   const caches=await a.evaluate('caches.keys()');assert.ok(caches.includes('benger-shell:/Benger/:production-sentinel'));assert.equal(caches.filter(k=>k.startsWith('benger-shell:'+prefix)).length,1);assert.ok(caches.some(k=>k.endsWith(':update-test')));
  });
