@@ -1,10 +1,10 @@
-import { navigate } from './navigation.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import { createBarcodeScanner } from './barcode-scanner.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import { initCustomProducts } from './custom-product-ui.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import { copyProduct, productSourceLabel } from './product-model.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import { createProductRepository } from './product-repository.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import { productErrorMessage } from './product-errors.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import { createProductResolver } from './product-resolver.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import { navigate } from './navigation.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { createBarcodeScanner } from './barcode-scanner.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { initCustomProducts } from './custom-product-ui.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { copyProduct, productSourceLabel } from './product-model.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { createProductRepository } from './product-repository.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { productErrorMessage } from './product-errors.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { createProductResolver } from './product-resolver.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
 
 const $ = id => document.getElementById(id);
 const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });

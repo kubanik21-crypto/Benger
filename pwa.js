@@ -12,9 +12,11 @@ export async function initPwa(){
  try{
   const registration=await navigator.serviceWorker.register(new URL('./service-worker.js',import.meta.url),{scope:'./',updateViaCache:'none'});
   const waiting=()=>{const available=Boolean(registration.waiting&&navigator.serviceWorker.controller);update.hidden=!available;banner.hidden=!available;if(available)status.textContent='Dostępna nowa wersja. Zapisz bieżący posiłek przed aktualizacją.';};
+  const checkForUpdate=async()=>{if(!navigator.onLine)return;try{await registration.update();waiting();}catch{/* Aktualizacja nie może blokować pracy offline ani danych lokalnych. */}};
   update.addEventListener('click',async()=>{try{const current=await navigator.serviceWorker.getRegistration(new URL('./',import.meta.url));const worker=current?.waiting;if(!worker){status.textContent='Aktualizacja nie jest już oczekująca. Sprawdź ponownie po odświeżeniu.';return;}reloadRequested=true;worker.postMessage('ACTIVATE_UPDATE');}catch{reloadRequested=false;status.textContent='Nie udało się uruchomić aktualizacji. Spróbuj ponownie.';}});
   navigator.serviceWorker.addEventListener('controllerchange',()=>{update.hidden=true;banner.hidden=true;if(reloadRequested)location.reload();});
   registration.addEventListener('updatefound',()=>{const worker=registration.installing;worker?.addEventListener('statechange',()=>{if(worker.state==='installed')waiting();if(worker.state==='redundant'&&!navigator.serviceWorker.controller)status.textContent='Nie udało się pobrać kompletu plików offline. Sprawdź połączenie i odśwież.';});});
-  waiting();await navigator.serviceWorker.ready;if(!registration.waiting)status.textContent='Gotowe offline — aplikacja i lokalny katalog zapisane na tym urządzeniu.';
+  window.addEventListener('online',()=>void checkForUpdate());
+  waiting();await navigator.serviceWorker.ready;await checkForUpdate();if(!registration.waiting)status.textContent='Gotowe offline — aplikacja i lokalny katalog zapisane na tym urządzeniu.';
  }catch{status.textContent='Nie udało się przygotować trybu offline. Sprawdź połączenie i odśwież stronę.';}
 }

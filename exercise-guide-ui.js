@@ -1,6 +1,6 @@
-import {EXERCISE_GUIDES} from './exercise-guides.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import {renderExerciseVisuals} from './exercise-visuals.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import {EQUIPMENT} from './training-library.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import {EXERCISE_GUIDES} from './exercise-guides.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import {renderExerciseVisuals} from './exercise-visuals.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import {EQUIPMENT} from './training-library.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
 const el=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 export function createExerciseGuide(){
  const dialog=el('dialog');dialog.id='exercise-guide';dialog.className='exercise-guide';dialog.setAttribute('aria-labelledby','exercise-guide-title');document.body.append(dialog);let trigger=null,scroll=null,restoreFocus=true;

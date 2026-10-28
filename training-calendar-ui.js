@@ -1,6 +1,6 @@
-import {emptySchedule,occurrences,monthStart,monthEnd,shiftMonth,weekday,weekStart,addDays,calendarLabel,plannedStatus} from './training-calendar.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import {localTrainingDate} from './training-repository.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
-import {recipeId} from './recipe-id.js?v=a6163b77829fe30299c9537ea06fe57003240c99';
+import {emptySchedule,occurrences,monthStart,monthEnd,shiftMonth,weekday,weekStart,addDays,calendarLabel,plannedStatus} from './training-calendar.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import {localTrainingDate} from './training-repository.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import {recipeId} from './recipe-id.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
 const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
 const kindName=k=>k==='workout'?'Trening':'Mobility';
 export function openTrainingCalendar(date=null){location.hash='/trening/kalendarz';window.dispatchEvent(new CustomEvent('benger:training-tab',{detail:{tab:'calendar',date}}));}
