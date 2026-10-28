@@ -1,5 +1,5 @@
-import { referenceMatches } from './portion-references.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { HOUSEHOLD_UNITS, householdUnitLabel, samePortionUnit, isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import { referenceMatches } from './portion-references.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { HOUSEHOLD_UNITS, householdUnitLabel, samePortionUnit, isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
 // Pure conversion only. Product identity and nutrition calculation belong to other layers.
 export function resolvePortion({product,amount,unit,definitions=[],settings={},definitionId=null,reference=null}={}) {
  const base={inputAmount:amount,inputUnit:unit,normalizedAmount:null,normalizedUnit:product?.unit??null,source:'NONE',confidence:'LOW',status:'UNRESOLVED',estimated:false,description:'Uzupełnij porcję dla tego produktu.',alternatives:[]};

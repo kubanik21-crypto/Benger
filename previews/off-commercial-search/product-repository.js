@@ -1,13 +1,13 @@
-import {parseProductQuery} from './product-query.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import {rankProductCandidates} from './product-matching.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { createPortionRepository } from './portion-repository.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { createUsdaProvider } from './product-providers/usda.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { createCustomProvider } from './product-providers/custom.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { createProductCache } from './product-cache.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { ProductError } from './product-errors.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
-import { defaultSearchProvider } from './product-providers/off-search.js?v=a5088bfa87afa7fbb70214b05617addb7e242943';
+import {parseProductQuery} from './product-query.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import {rankProductCandidates} from './product-matching.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { createPortionRepository } from './portion-repository.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { createUsdaProvider } from './product-providers/usda.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { createCustomProvider } from './product-providers/custom.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { createProductCache } from './product-cache.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { ProductError } from './product-errors.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
+import { defaultSearchProvider } from './product-providers/off-search.js?v=2cd6943878b18f1baff06f924c897fa580672a97';
 
 export const SEARCH_INTERVAL_MS = 6500; // poniżej 10 wyszukiwań/minutę
 export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minutę
