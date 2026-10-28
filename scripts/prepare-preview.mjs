@@ -1,3 +1,4 @@
+import{validateOffSearchEndpoint}from'../product-providers/off-search-bridge.js';
 import { writePwaAssets } from './build-pwa-assets.mjs';
 import { copyFile, mkdir, readFile, readdir, realpath, stat, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -22,6 +23,7 @@ export async function preparePreview(destination, revision, {preview=true,namesp
   const output = resolve(destination);
   if (output === root || root.startsWith(output + '/')) throw new Error('Katalog docelowy nie może obejmować repozytorium.');
   if(!preview||publicOnly){const existing=await readdir(output).catch(error=>{if(error.code==='ENOENT')return [];throw error;});if(existing.length)throw new Error('Użyj pustego katalogu dla czystego artefaktu produkcyjnego.');}
+  const bridge=preview&&namespace==='preview-off-commercial-search'&&process.env.BENGER_OFF_SEARCH_PREVIEW_URL?validateOffSearchEndpoint(process.env.BENGER_OFF_SEARCH_PREVIEW_URL):null;
   const version=await syncAppVersion(root),assets=preview&&!publicOnly?PUBLIC_ASSETS:PRODUCTION_ASSETS;
   for (const file of assets) {
     const source = await safeAssetSource(root, file);
@@ -30,6 +32,7 @@ export async function preparePreview(destination, revision, {preview=true,namesp
     if (file.endsWith('.html')) {
       let html = await readFile(source, 'utf8');
       html = html.replace('<head>', `<head>\n  ${preview?`<meta name="benger-storage-namespace" content="${namespace}">`:''}\n  <meta name="benger-build" content="${revision}">`);
+      if(bridge)html=html.replace('<head>',`<head>\n<meta name=\"benger-off-search-endpoint\" content=\"${bridge}\">`);
       const legacyBanner = `<aside style="padding:8px 16px;background:var(--brand,#174d3c);color:var(--brand-contrast,white);font:12px/1.6 system-ui">Podgląd Etapu 14 · Oddzielne dane lokalne. <details><summary>Narzędzia diagnostyczne</summary><a style="color:inherit" href="./off-diagnostics.html">Sprawdź połączenie OFF</a> · <a style="color:inherit" href="./speech-diagnostics.html">Speech diagnostics</a> · <a style="color:inherit" href="./voice-test-lab.html">Voice Test Lab</a> · <a style="color:inherit" href="./barcode-test-lab.html">Barcode Test Lab</a> · <a style="color:inherit" href="./catalog-diagnostics.html">Catalog Diagnostics</a> · <a style="color:inherit" href="./pwa-diagnostics.html">PWA Diagnostics</a> · <a style="color:inherit" href="./portion-diagnostics.html">Portion Diagnostics</a> · <a style="color:inherit" href="./portion-test-lab.html">Portion Test Lab</a> · <a style="color:inherit" href="./recipe-diary-test-lab.html">Recipe Diary Test Lab</a> · <a style="color:inherit" href="./recipe-diagnostics.html">Recipe Diagnostics</a></details><a style="color:inherit" href="../../">Wersja główna</a></aside>`;
       const banner=namespace==='preview-etap-14'?legacyBanner:`<aside style="padding:10px 16px;background:var(--brand);color:var(--brand-contrast)" aria-label="Wersja testowa">Preview · Globalne produkty + OFF · ${version} · build ${revision.slice(0,7)} · Osobne dane testowe</aside>`;
       if(preview)html = html.replace('<body>', `<body>\n${banner}`);

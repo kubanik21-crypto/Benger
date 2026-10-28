@@ -1,6 +1,7 @@
 import { readdirSync } from 'node:fs';
 // Jawna lista publikacji: bez serwera, testów, fixture, .git i konfiguracji.
 export const PUBLIC_ASSETS = [
+  'product-providers/off-search-query.js','product-providers/off-search-bridge.js',
   'normalize-text.js','product-matching.js','product-query.js','product-vocabulary.js',
   'recipe-editor.js','recipe-ingredient-picker.js',
   'barcode-test-lab.html','catalog-diagnostics.html','pwa-diagnostics.html','stage6-diagnostics.js',

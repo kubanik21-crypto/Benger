@@ -6,7 +6,8 @@ const queries=['Mięsne Specjały','Mięsne Specjały','Mięsne Specjały mięso
 export async function smokeOffPreview(p,b,{mocked=false}={}){
  await p.send('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
  await wait(p,'navigator.onLine===true');
- const searches=()=>b.networkRequests.filter(r=>r.method==='GET'&&r.url.startsWith('https://world.openfoodfacts.org/cgi/search.pl?'));
+ const endpoint=await p.evaluate("document.querySelector('meta[name=\"benger-off-search-endpoint\"]')?.content??null");
+ const searches=()=>b.networkRequests.filter(r=>r.method==='GET'&&(endpoint?r.url.startsWith(endpoint+'?'):r.url.startsWith('https://world.openfoodfacts.org/cgi/search.pl?')));
  const message=()=>p.evaluate("document.getElementById('catalog-message').textContent");
  async function search(query,enabled){await p.evaluate(`location.hash='/produkty';document.getElementById('search-internet').checked=${enabled};document.getElementById('product-search').value=${JSON.stringify(query)};document.getElementById('product-search-form').requestSubmit()`);await wait(p,"document.getElementById('search-results').getAttribute('aria-busy')==='false'");}
  const report=[];let lastRequestAt=0,rateLimited=false;
@@ -16,7 +17,7 @@ export async function smokeOffPreview(p,b,{mocked=false}={}){
   else if(lastRequestAt)await pause(Math.max(0,7000-(Date.now()-lastRequestAt)));
   const before=searches().length;lastRequestAt=Date.now();await search(query,true);
   assert.equal(searches().length,before+1,'Enabled OFF must create a real GET: '+query);
-  const url=searches().at(-1).url;assert.equal(new URL(url).searchParams.get('search_terms'),query);
+  const url=searches().at(-1).url;assert.equal(new URL(url).searchParams.get(endpoint?'q':'search_terms'),query);
   const responses=b.networkResponses.filter(r=>r.url===url),text=await message();
   const response=responses.at(-1);if(response){assert.equal(response.fromDiskCache,false,'OFF response must bypass browser HTTP cache');assert.equal(response.fromServiceWorker,false,'SW must not intercept OFF');assert.equal(response.fromPrefetchCache,false);}
   const http=responses.at(-1)?.status??null;

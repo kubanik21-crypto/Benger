@@ -1,0 +1,10 @@
+name = "benger-off-search-preview"
+main = "worker.js"
+compatibility_date = "2026-10-28"
+workers_dev = true
+
+[vars]
+OFF_ALLOWED_ORIGINS = "https://kubanik21-crypto.github.io"
+
+[observability]
+enabled = false

@@ -53,7 +53,7 @@ export async function startStaticHost(prefix, previewBuild = false, productionBu
   }
 }
 
-export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild = false, productionBuild = false, respectProxy = false, seedProducts = false, productPreview = false } = {}) {
+export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild = false, productionBuild = false, respectProxy = false, seedProducts = false, productPreview = false, bridgeHandler = null } = {}) {
   const profile = await mkdtemp(join(tmpdir(), 'benger-browser-test-'));
   const processes = [];
   let staticSite;
@@ -137,7 +137,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
       if (message.method === 'Network.responseReceived') {const r=message.params.response;responses.push({url:r.url,status:r.status});networkResponses.push({url:r.url,status:r.status,fromDiskCache:Boolean(r.fromDiskCache),fromServiceWorker:Boolean(r.fromServiceWorker),fromPrefetchCache:Boolean(r.fromPrefetchCache)});}
       if(message.method==='Network.responseReceivedExtraInfo'){const p=message.params,h=Object.fromEntries(Object.entries(p.headers).map(([k,v])=>[k.toLowerCase(),v]));wireResponses.push({requestId:p.requestId,status:p.statusCode,allowOrigin:h['access-control-allow-origin']??null,contentType:h['content-type']??null,retryAfter:h['retry-after']??null,cacheControl:h['cache-control']??null});}
       if (message.method === 'Network.loadingFailed') failures.push({ error: message.params.errorText, cors: message.params.corsErrorStatus ?? null, canceled: message.params.canceled ?? false });
-      if (message.method === 'Fetch.requestPaused') void fulfillOFF(message.params, message.sessionId).catch(error => {
+      if (message.method === 'Fetch.requestPaused') void (bridgeHandler&&new URL(message.params.request.url).hostname.endsWith('.workers.dev')?fulfillBridge(message.params,message.sessionId):fulfillOFF(message.params, message.sessionId)).catch(error => {
         // Wymiana/usunięcie img unieważnia przechwycenie. Chrome nie zawsze wysyła
         // loadingFailed dla współdzielonych miniatur. To dotyczy tylko tego konkretnego
         // błędu protokołu mocka; wyjątki JS, błędy API i inne błędy CDP nadal oblewają test.
@@ -161,6 +161,7 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
         socket.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
       });
     }
+    async function fulfillBridge({requestId,request},sessionId){const response=await bridgeHandler(new Request(request.url,{method:request.method,headers:request.headers}));await command('Fetch.fulfillRequest',{requestId,responseCode:response.status,responseHeaders:[...response.headers].map(([name,value])=>({name,value})),body:Buffer.from(await response.arrayBuffer()).toString('base64')},sessionId);}
     async function fulfillOFF({ requestId, request }, sessionId) {
       off.requests.push({ url: request.url, method: request.method, headers: request.headers });
       if(off.mode==='network')return command('Fetch.failRequest',{requestId,errorReason:'InternetDisconnected'},sessionId);
@@ -204,8 +205,8 @@ export async function startBrowser({ staticPrefix, mockOFF = false, previewBuild
         return result.result.value;
       }
       for (const domain of ['Page', 'Runtime', 'Log', 'Network']) await send(`${domain}.enable`);
-      if (mockOFF) {
-        await send('Fetch.enable', { patterns: [{ urlPattern: 'https://world.openfoodfacts.org/*' }, { urlPattern: 'https://images.openfoodfacts.org/*' }] });
+      if (mockOFF||bridgeHandler) {
+        await send('Fetch.enable', { patterns: [...(mockOFF?[{urlPattern:'https://world.openfoodfacts.org/*'},{urlPattern:'https://images.openfoodfacts.org/*'}]:[]),...(bridgeHandler?[{urlPattern:'https://*.workers.dev/*'}]:[])] });
         await send('Page.addScriptToEvaluateOnNewDocument', { source: `
           const actualNow = Date.now;
           Date.now = () => actualNow() + Number(sessionStorage.getItem('test-clock-offset') || 0);
