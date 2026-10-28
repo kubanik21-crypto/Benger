@@ -5,6 +5,21 @@ on:
 permissions:
   contents: read
 jobs:
+  connection-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Observe official OFF endpoints without mocks
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: node scripts/off-connection-diagnostic.mjs
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
