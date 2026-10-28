@@ -1,6 +1,6 @@
-import { recipeId } from './recipe-id.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
-import { calculateRecipeNutrition } from './recipe-nutrition.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
-import { copyPortionSnapshot, validPortionSnapshot, HOUSEHOLD_UNITS } from './portion-model.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
+import { recipeId } from './recipe-id.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
+import { calculateRecipeNutrition } from './recipe-nutrition.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
+import { copyPortionSnapshot, validPortionSnapshot, HOUSEHOLD_UNITS } from './portion-model.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
 export const RECIPE_LIMITS={ingredients:200,steps:300,events:300,recipes:1000,drafts:100,history:2000};
 export const isUuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 const text=(v,max,required=false)=>typeof v==='string'&&v.length<=max&&(!required||v.trim().length>0);

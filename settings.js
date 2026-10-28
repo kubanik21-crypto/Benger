@@ -1,4 +1,4 @@
-import {createProductStorage} from './product-cache.js?v=56f5432cdd25ebff24308c097d37510bf606101a';
+import {createProductStorage} from './product-cache.js?v=f91f7c29b89a84555bbc14b886514c544e0730ba';
 export const SETTINGS_KEY='app-settings-v1';
 export const DEFAULT_SETTINGS=Object.freeze({version:1,theme:'system',startRoute:'dziennik'});
 export function validateSettings(value){if(!value||Object.getPrototypeOf(value)!==Object.prototype||Object.keys(value).some(k=>!['version','theme','startRoute'].includes(k))||value.version!==1||!['system','light','dark'].includes(value.theme)||!['dziennik','trening','progres'].includes(value.startRoute))throw new TypeError('Nieprawidłowe ustawienia aplikacji.');return {version:1,theme:value.theme,startRoute:value.startRoute};}
