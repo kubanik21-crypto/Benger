@@ -1,5 +1,6 @@
 name: OFF commercial search preview
 on:
+  workflow_dispatch:
   push:
     branches: [fix/off-commercial-search]
 permissions:
