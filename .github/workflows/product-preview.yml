@@ -4,6 +4,8 @@ on:
     branches: [fix/off-commercial-search]
 permissions:
   contents: read
+env:
+  BENGER_OFF_SEARCH_PREVIEW_URL: https://benger-off-search-preview.kubanik-21.workers.dev/search
 jobs:
   connection-diagnostic:
     runs-on: ubuntu-latest
@@ -16,7 +18,7 @@ jobs:
         with:
           node-version: '22'
           package-manager-cache: false
-      - name: Verify proposed independent bridge against real OFF
+      - name: Verify deployed independent bridge against real OFF
         env:
           CHROMIUM_PATH: /usr/bin/google-chrome
         run: node scripts/off-bridge-live.mjs
@@ -34,8 +36,8 @@ jobs:
         env:
           CHROMIUM_PATH: /usr/bin/google-chrome
   publish:
-    needs: tests
-    if: github.repository == 'kubanik21-crypto/Benger' && github.ref == 'refs/heads/fix/off-commercial-search' && vars.BENGER_OFF_SEARCH_PREVIEW_URL != ''
+    needs: [tests, connection-diagnostic]
+    if: github.repository == 'kubanik21-crypto/Benger' && github.ref == 'refs/heads/fix/off-commercial-search'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -58,7 +60,7 @@ jobs:
           test -s "$RUNNER_TEMP/preview-pages-url"
       - run: node scripts/build-product-preview.mjs "$RUNNER_TEMP/product-preview"
         env:
-          BENGER_OFF_SEARCH_PREVIEW_URL: ${{ vars.BENGER_OFF_SEARCH_PREVIEW_URL }}
+          BENGER_OFF_SEARCH_PREVIEW_URL: ${{ env.BENGER_OFF_SEARCH_PREVIEW_URL }}
       - name: Publish only the isolated preview folder
         id: publish
         run: node scripts/publish-product-preview.mjs --push "$RUNNER_TEMP/product-preview"

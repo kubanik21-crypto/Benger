@@ -46,3 +46,7 @@ Następnie trzeba wykonać rzeczywisty test wdrożonego Workera i preview. Sukce
 Unit: origin/method/query/SSRF guard, whitelista pól, 429/cooldown/timeout/rozmiar JSON, prototype pollution, wspólna normalizacja Product i brak zgadywania ml. Browser: natywny fetch z odpowiedzią rzeczywistej implementacji Workera (mockowany upstream), CORS, zapis porcji do dziennika, jawny refresh, checkbox off, czytelne 503 i niezmieniony barcode.
 
 `scripts/off-bridge-live.mjs` wykonuje kod Workera w Node z prawdziwym zapytaniem do OFF, bez mockowania upstream. Raport jawnie oznacza `deployed:false` — potrzebny jest jeszcze deployment i test w Cloudflare. `scripts/off-connection-diagnostic.mjs` pozwala ręcznie powtórzyć porównanie oficjalnych endpointów, z przerwami i zatrzymaniem po 429.
+
+## Podłączenie testowe
+
+Właściciel podał publiczny endpoint `https://benger-off-search-preview.kubanik-21.workers.dev/search`. Workflow preview używa go jawnie jako publicznej konfiguracji (nie sekretu). Zastępuje to wcześniejszy krok ustawiania zmiennej repozytorium. Publikacja wymaga sukcesu testów i rzeczywistego wywołania wdrożonego adaptera, z poprawnym CORS i znormalizowanymi produktami. Produkcyjny build nadal nie otrzymuje endpointu.
