@@ -201,7 +201,9 @@ body { padding-bottom: calc(86px + env(safe-area-inset-bottom)); }
 .recipe-card { margin-block: 14px; }
 .recipe-card button, .recipe-ingredient button, #recipe-editor button { min-height: 44px; }
 .recipe-ingredient { border-bottom: 1px solid var(--border); padding-block: 12px; }
-.recipe-step { display: flex; align-items: start; gap: 10px; margin-block: 10px; }
+.recipe-step { display: grid; grid-template-columns: minmax(0,1fr); align-items: start; gap: 8px; margin-block: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; }
+.recipe-step h4 { margin: 0; }
+.recipe-step label { margin: 6px 0 0; }
 .recipe-step textarea { flex: 1; min-width: 0; }
 #recipe-editor input:not([type=checkbox]), #recipe-editor textarea { display: block; width: 100%; }
 #recipe-editor fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-block: 20px; min-width: 0; }

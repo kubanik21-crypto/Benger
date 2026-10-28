@@ -1,6 +1,6 @@
-import { recipeId } from './recipe-id.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { calculateRecipeNutrition } from './recipe-nutrition.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { copyPortionSnapshot, validPortionSnapshot, HOUSEHOLD_UNITS } from './portion-model.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { recipeId } from './recipe-id.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { calculateRecipeNutrition } from './recipe-nutrition.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { copyPortionSnapshot, validPortionSnapshot, HOUSEHOLD_UNITS } from './portion-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
 export const RECIPE_LIMITS={ingredients:200,steps:300,events:300,recipes:1000,drafts:100,history:2000};
 export const isUuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 const text=(v,max,required=false)=>typeof v==='string'&&v.length<=max&&(!required||v.trim().length>0);
@@ -24,7 +24,7 @@ export function validateRecipe(value,{draft=false}={}){
    if(i.amount!==null&&!positive(i.amount,100000))fail();if(i.unit!==null&&!['g','ml',...Object.keys(HOUSEHOLD_UNITS)].includes(i.unit))fail();Object.assign(result,{amount:i.amount,unit:i.unit,productId:null,productName:null,nutrition:null});
   }return result;
  });
- const steps=value.steps.map((s,index)=>{if(!s||!isUuid(s.id)||!text(s.text,1000,true)||!timestamp(s.createdAt)||s.order!==index)fail();return {id:s.id,text:s.text,createdAt:s.createdAt,order:index};});
+ const steps=value.steps.map((s,index)=>{if(!s||!isUuid(s.id)||!text(s.text,1000,true)||!timestamp(s.createdAt)||s.order!==index)fail();const result={id:s.id,text:s.text,createdAt:s.createdAt,order:index};if(s.ingredientIds!==undefined){if(!Array.isArray(s.ingredientIds)||s.ingredientIds.length>200||s.ingredientIds.some(id=>!isUuid(id)))fail();result.ingredientIds=[...new Set(s.ingredientIds)];}if(s.durationMinutes!==undefined&&s.durationMinutes!==null){if(!positive(s.durationMinutes,10080))fail();result.durationMinutes=s.durationMinutes;}if(s.temperatureC!==undefined&&s.temperatureC!==null){if(!Number.isFinite(s.temperatureC)||s.temperatureC<0||s.temperatureC>350)fail();result.temperatureC=s.temperatureC;}if(s.action!==undefined&&s.action!==null){if(!text(s.action,40,true))fail();result.action=s.action;}return result;});
  const events=(value.events??[]).map(e=>{if(!e||!isUuid(e.id)||!text(e.raw,2000)||!timestamp(e.createdAt)||!['INGREDIENT','STEP','INGREDIENT_AND_STEP','YIELD','NAME','NOTE','UNKNOWN','MANUAL'].includes(e.type))fail();return {id:e.id,raw:e.raw,type:e.type,createdAt:e.createdAt};});
  if(!unique(ingredients)||!unique(steps)||!unique(events))fail();
  const yieldInfo={};if(!value.yield||typeof value.yield!=='object'||Array.isArray(value.yield))fail();for(const key of Object.keys(value.yield)){if(!['servings','finalWeight','finalVolume'].includes(key)||!positive(value.yield[key],key==='servings'?10000:1e7))fail();yieldInfo[key]=value.yield[key];}

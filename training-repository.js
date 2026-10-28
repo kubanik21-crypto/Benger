@@ -1,8 +1,8 @@
-import {emptySchedule,validateScheduleRule,validateSchedule,validateScheduled,occurrences,endScheduleFrom,splitSchedule} from './training-calendar.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import {createProductStorage} from './product-cache.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import {recipeId} from './recipe-id.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import {EXERCISES} from './training-library.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import {TRAINING_PREFIX,trainingFromRecords,trainingRecords,validateExercise,validateTemplate,validateSet,validateSession,emptyTraining,dosage,feeling} from './training-model.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import {emptySchedule,validateScheduleRule,validateSchedule,validateScheduled,occurrences,endScheduleFrom,splitSchedule} from './training-calendar.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import {createProductStorage} from './product-cache.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import {recipeId} from './recipe-id.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import {EXERCISES} from './training-library.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import {TRAINING_PREFIX,trainingFromRecords,trainingRecords,validateExercise,validateTemplate,validateSet,validateSession,emptyTraining,dosage,feeling} from './training-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
 export function localTrainingDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function touchScheduleRule(schedule,id,stamp=new Date().toISOString()){const rule=schedule.rules.find(r=>r.id===id);if(rule&&Date.parse(stamp)>Date.parse(rule.updatedAt))rule.updatedAt=stamp;}
 export function createTrainingRepository(){

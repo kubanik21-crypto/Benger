@@ -1,5 +1,5 @@
-import { normalizeText } from './product-model.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { normalizeText } from './product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
 // IDs identify actual imported USDA records. All weights are read from their source definitions.
 export const REFERENCE_FAMILIES=Object.freeze({
  'olive-oil':{productId:'usda:171413',label:'oliwa z oliwek'},

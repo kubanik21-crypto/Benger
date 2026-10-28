@@ -1,11 +1,11 @@
-import { createPortionRepository } from './portion-repository.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { createUsdaProvider } from './product-providers/usda.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { createCustomProvider } from './product-providers/custom.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { createProductCache } from './product-cache.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { ProductError } from './product-errors.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
-import { defaultSearchProvider } from './product-providers/off-search.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { createPortionRepository } from './portion-repository.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { createUsdaProvider } from './product-providers/usda.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { createCustomProvider } from './product-providers/custom.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { barcodeKey, copyProduct, deduplicateProducts, normalizeBarcode, normalizeText, searchProducts } from './product-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { createOpenFoodFactsProvider } from './product-providers/open-food-facts.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { createProductCache } from './product-cache.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { ProductError } from './product-errors.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
+import { defaultSearchProvider } from './product-providers/off-search.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
 
 export const SEARCH_INTERVAL_MS = 6500; // poniżej 10 wyszukiwań/minutę
 export const PRODUCT_INTERVAL_MS = 4500; // poniżej 15 odczytów produktu/minutę

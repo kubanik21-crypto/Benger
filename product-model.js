@@ -1,4 +1,4 @@
-import { isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb';
+import { isPortionDefinition, copyPortionDefinition } from './portion-model.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054';
 export const NUTRIENTS = ['kcal', 'protein', 'fat', 'carbs'];
 
 export function normalizeText(value) {

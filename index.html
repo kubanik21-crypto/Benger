@@ -2,13 +2,13 @@
 <html lang="pl">
 <head>
   
-  <meta name="benger-build" content="448eca0f48fddfb95c9fc7cebc13e5ff58754feb">
+  <meta name="benger-build" content="1a774fcfae3d9d68876363dc3bcb24df18edb054">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#174d3c">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23174d3c'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='46' fill='%23fffef8'%3Eb%3C/text%3E%3C/svg%3E">
-  <link rel="manifest" href="./manifest.webmanifest?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb">
-  <link rel="stylesheet" href="./style.css?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb">
+  <link rel="manifest" href="./manifest.webmanifest?v=1a774fcfae3d9d68876363dc3bcb24df18edb054">
+  <link rel="stylesheet" href="./style.css?v=1a774fcfae3d9d68876363dc3bcb24df18edb054">
   <meta name="description" content="Benger — lokalna aplikacja PWA do żywienia, przepisów, progresu i treningu.">
   <title>Benger · Żywienie, progres i trening</title>
 </head>
@@ -112,7 +112,7 @@
 <section id="recipe-event-review" class="recipe-event-review" hidden aria-labelledby="recipe-event-title"><h3 id="recipe-event-title" tabindex="-1">Sprawdź wypowiedź</h3><p id="recipe-event-raw"></p>
 <label for="recipe-event-type">Rodzaj wypowiedzi</label><select id="recipe-event-type"><option value="INGREDIENT">Składnik</option><option value="STEP">Krok</option><option value="INGREDIENT_AND_STEP">Składnik i krok</option><option value="YIELD">Wydajność dania</option><option value="NAME">Nazwa</option><option value="NOTE">Notatka</option><option value="UNKNOWN">Do doprecyzowania</option></select>
 <div id="recipe-event-items"></div><p id="recipe-event-description"></p><button id="recipe-event-accept" class="button-primary" type="button">Zaakceptuj do szkicu</button><button id="recipe-event-discard" class="button-secondary" type="button">Odrzuć wypowiedź</button></section>
-<div class="recipe-columns"><section><h3>Składniki</h3><p class="field-help">Brakujące produkty możesz uzupełnić później. Pominięcie w makro wymaga Twojej decyzji.</p><a href="#/produkty">Wyszukaj lub zeskanuj składnik</a><div id="recipe-ingredients"></div></section><section><h3>Kroki</h3><div id="recipe-steps"></div><label for="recipe-step-text">Dodaj krok ręcznie</label><textarea id="recipe-step-text" maxlength="1000" rows="2"></textarea><button id="recipe-add-step" class="button-secondary" type="button">Dodaj krok</button></section></div>
+<div class="recipe-columns"><section><h3>Składniki</h3><button id="recipe-manual-ingredient" type="button" class="button-secondary">+ Dodaj składnik z katalogu</button><p class="field-help">Brakujące produkty możesz uzupełnić później. Pominięcie w makro wymaga Twojej decyzji.</p><a href="#/produkty">Wyszukaj lub zeskanuj składnik</a><div id="recipe-ingredients"></div></section><section><h3>Kroki</h3><div id="recipe-steps"></div><label for="recipe-step-text">Dodaj krok ręcznie</label><textarea id="recipe-step-text" maxlength="1000" rows="2"></textarea><button id="recipe-add-step" class="button-secondary" type="button">Dodaj krok</button></section></div>
 <fieldset><legend>Ile gotowego dania wyszło?</legend><p class="field-help">Pola są opcjonalne. Końcowa masa nie jest sumą surowych składników.</p><label for="recipe-servings">Liczba porcji</label><input id="recipe-servings" inputmode="decimal" maxlength="12"><label for="recipe-weight">Masa gotowego dania (g)</label><input id="recipe-weight" inputmode="decimal" maxlength="12"><label for="recipe-volume">Objętość gotowego dania (ml)</label><input id="recipe-volume" inputmode="decimal" maxlength="12"></fieldset>
 <label for="recipe-notes">Notatki</label><textarea id="recipe-notes" maxlength="5000" rows="2"></textarea>
 <div id="recipe-nutrition" aria-live="polite"></div><p id="recipe-error" class="field-error" role="alert"></p>
@@ -240,6 +240,6 @@
     </form>
   </dialog>
 <nav id="app-nav" class="app-nav" aria-label="Główna nawigacja"><a data-route="dziennik" href="#/dziennik">Dziennik</a><a data-route="trening" href="#/trening">Trening</a><a data-route="przepisy" href="#/przepisy">Przepisy</a><a data-route="progres" href="#/progres">Progres</a><a data-route="wiecej" href="#/wiecej">Więcej</a></nav>
-  <script type="module" src="./app.js?v=448eca0f48fddfb95c9fc7cebc13e5ff58754feb"></script>
+  <script type="module" src="./app.js?v=1a774fcfae3d9d68876363dc3bcb24df18edb054"></script>
 </body>
 </html>
