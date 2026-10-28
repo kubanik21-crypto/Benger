@@ -22,7 +22,7 @@ export async function replacePreviewOnly(site,artifact,sha){
  git(site,['add','--',PREVIEW_PREFIX]);const changed=git(site,['diff','--cached','--name-only']).split('\n').filter(Boolean);if(changed.some(p=>!p.startsWith(PREVIEW_PREFIX+'/')))throw new Error('Publikacja próbowała zmienić pliki poza preview.');return changed.length>0;
 }
 export async function publishProductPreview({root,artifact,sha,push=false}){
- if(push&&(process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_EVENT_NAME!=='push'||process.env.GITHUB_REF!=='refs/heads/'+PREVIEW_BRANCH||process.env.GITHUB_REPOSITORY!=='kubanik21-crypto/Benger'))throw new Error('Push preview jest dozwolony wyłącznie w workflow własnej gałęzi testowej.');
+ if(push&&(process.env.GITHUB_ACTIONS!=='true'||!['push','workflow_dispatch'].includes(process.env.GITHUB_EVENT_NAME)||process.env.GITHUB_REF!=='refs/heads/'+PREVIEW_BRANCH||process.env.GITHUB_REPOSITORY!=='kubanik21-crypto/Benger'))throw new Error('Push preview jest dozwolony wyłącznie w workflow własnej gałęzi testowej.');
  if(git(root,['rev-parse','HEAD'])!==sha)throw new Error('Checkout nie odpowiada SHA.');
  const latest=()=>git(root,['ls-remote','origin','refs/heads/'+PREVIEW_BRANCH]).split(/\s/)[0];if(push&&latest()!==sha)return {skipped:true};
  git(root,['fetch','origin','refs/heads/gh-pages:refs/remotes/origin/gh-pages']);const temp=await mkdtemp(join(tmpdir(),'benger-product-preview-')),site=join(temp,'site');let attached=false;
