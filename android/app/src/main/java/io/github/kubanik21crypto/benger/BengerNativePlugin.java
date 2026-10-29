@@ -97,12 +97,13 @@ public class BengerNativePlugin extends Plugin {
         getActivity().runOnUiThread(()->{
             if(id!=null&&id.equals(session)){
                 if(call.getBoolean("abort",false)){if(recognizer!=null)recognizer.cancel();finish(id);}
-                else if(recognizer!=null)recognizer.stopListening();
+                else if(recognizer!=null)recognizer.stopListening();else finish(id);
             }
             call.resolve();
         });
     }
-    @Override protected void handleOnPause(){notifyListeners("background",new JSObject());getActivity().runOnUiThread(()->{if(session!=null){String id=session;emit(id,"error",null,false,"aborted");if(recognizer!=null)recognizer.cancel();finish(id);}});}
+    @Override protected void handleOnPause(){getActivity().runOnUiThread(()->{if(session!=null&&recognizer!=null){String id=session;emit(id,"error",null,false,"aborted");if(recognizer!=null)recognizer.cancel();finish(id);}});}
+    @Override protected void handleOnStop(){notifyListeners("background",new JSObject());}
     @Override protected void handleOnDestroy(){getActivity().runOnUiThread(()->{if(session!=null)finish(session);closeBackup();});}
 
     private OutputStream backupOut;

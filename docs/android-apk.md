@@ -47,3 +47,5 @@ GitHub Actions: sekret `BENGER_ANDROID_SIGNING_BUNDLE` zawiera base64 JSON z key
 ## Licencje
 
 Istniejące OFF ODbL/DbCL, zdjęcia OFF CC BY-SA, USDA CC0/public domain i ZXing MIT/Apache/ts-custom-error MIT pozostają. Capacitor core/Android: MIT (tekst w android/licenses). AndroidX, Android SDK runtime libraries/Cordova/Kotlin, jeśli bundlowane zależnościami Androida: Apache-2.0; sprawdzić raport Gradle dependencies dla faktycznej wersji. Narzędzia JDK/Gradle/SDK nie są dołączane do aplikacji. Nowa ikona Androida jest własnym wektorem Bengera, bez cudzych grafik.
+
+Runtime permissions: samo okno przyznawania dostępu do mikrofonu/aparatu może pauzować Activity. Pending speech bez utworzonego recognizera nie jest anulowane przez onPause; rzeczywiste nagrywanie jest zatrzymywane. Kamera jest dodatkowo zwalniana przy onStop i document.hidden, dzięki czemu pierwszy prompt uprawnień nie zamyka skanera.

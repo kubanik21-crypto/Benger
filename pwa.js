@@ -9,7 +9,7 @@ export async function initPwa(){
  window.addEventListener('appinstalled',()=>{install.hidden=true;status.textContent='Benger został zainstalowany.';});
  const connection=()=>{document.getElementById('connection-status').textContent=navigator.onLine?'':'Offline — dane lokalne są dostępne.';};
  window.addEventListener('online',connection);window.addEventListener('offline',connection);connection();
- if(isAndroidNative()){install.hidden=true;update.hidden=true;banner.hidden=true;status.textContent='Benger Android — pliki aplikacji są na telefonie. Aktualizacje instalujemy z nowego APK, bez usuwania aplikacji.';return;}
+ if(isAndroidNative()||document.querySelector('meta[name="benger-native"]')?.content==='android'){install.hidden=true;update.hidden=true;banner.hidden=true;status.textContent='Benger Android — pliki aplikacji są na telefonie. Aktualizacje instalujemy z nowego APK, bez usuwania aplikacji.';return;}
  if(!('serviceWorker'in navigator)){status.textContent='Ta przeglądarka nie obsługuje trybu PWA. Dane dziennika nadal zapisujemy lokalnie.';return;}
  try{
   const registration=await navigator.serviceWorker.register(new URL('./service-worker.js',import.meta.url),{scope:'./',updateViaCache:'none'});
