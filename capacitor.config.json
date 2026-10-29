@@ -17,5 +17,6 @@
     "CapacitorHttp": {
       "enabled": false
     }
-  }
+  },
+  "loggingBehavior": "none"
 }

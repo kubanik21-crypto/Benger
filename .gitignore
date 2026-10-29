@@ -10,3 +10,9 @@ android-web/
 *.keystore
 *.p12
 signing-private/
+
+# Private Android signing recovery files
+*signing-private*/
+github-secret.txt
+Benger-podpis-PRYWATNE.zip
+password.txt

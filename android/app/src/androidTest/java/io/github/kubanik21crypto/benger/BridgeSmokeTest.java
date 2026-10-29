@@ -1,6 +1,7 @@
 package io.github.kubanik21crypto.benger;
 
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +33,12 @@ public class BridgeSmokeTest {
             scenario.onActivity(a->a.getBridge().getWebView().reload());
             waitFor(scenario,"Boolean(document.getElementById('product-catalog')?.dataset.ready==='true')");
             assertEquals("true",read(scenario,"localStorage.getItem('benger.android.smoke')==='preserved'"));
+            String phase=InstrumentationRegistry.getArguments().getString("phase","");
+            if("seed".equals(phase)){
+                read(scenario,"localStorage.setItem('benger.android.upgrade-proof','retained');localStorage.setItem('benger.nutrition.v1',JSON.stringify([{id:'android-upgrade',date:'2026-10-29',createdAt:'2026-10-29T09:00:00Z',meal:'breakfast',productId:'legacy-oats',productName:'Płatki — snapshot',amount:50,unit:'g',nutrition:{kcal:185,protein:6.5,fat:3.5,carbs:30}}]));true");
+            }else if("verify".equals(phase)){
+                assertEquals("true",read(scenario,"localStorage.getItem('benger.android.upgrade-proof')==='retained'&&JSON.parse(localStorage.getItem('benger.nutrition.v1'))[0].nutrition.kcal===185"));
+            }
             read(scenario,"localStorage.removeItem('benger.android.smoke');true");
         }
     }
