@@ -1,3 +1,5 @@
+import{isAndroidNative}from'../native-platform.js';
+import{createNativeSearchProvider}from'./off-search-native.js';
 import { OFF_API_VERSION, OFF_BASE_URL, OFF_FIELDS, normalizeOffProduct } from './open-food-facts.js';
 import { createOffJsonClient } from './off-http.js';
 import { ProductError } from '../product-errors.js';
@@ -34,6 +36,7 @@ export function createCgiSearchProvider({ fetchImpl = globalThis.fetch, timeoutM
 }
 
 export function defaultSearchProvider(options={}){
+ if(isAndroidNative())return createNativeSearchProvider(options);
  const endpoint=globalThis.document?.querySelector?.('meta[name=\"benger-off-search-endpoint\"]')?.content;
  return endpoint?createOffSearchBridgeProvider({...options,endpoint}):createCgiSearchProvider(options);
 }

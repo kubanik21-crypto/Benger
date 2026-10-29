@@ -1,0 +1,21 @@
+{
+  "appId": "io.github.kubanik21crypto.benger",
+  "appName": "Benger",
+  "webDir": "android-web",
+  "server": {
+    "hostname": "localhost",
+    "androidScheme": "https",
+    "cleartext": false,
+    "errorPath": "android-error.html"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false,
+    "minWebViewVersion": 110
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": false
+    }
+  }
+}

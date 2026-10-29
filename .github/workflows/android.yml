@@ -1,0 +1,70 @@
+name: Android APK
+on:
+  push:
+    branches: [feature/android-apk, main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:browser
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+      - run: npm run android:prepare
+      - name: Android SDK
+        run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-36' 'build-tools;36.0.0'"
+      - name: Compile Android and run lint (no private key needed)
+        working-directory: android
+        run: ./gradlew --no-daemon --console=plain :app:assembleDebug :app:lintDebug
+      - name: Restore private signing identity for trusted builds only
+        id: signing
+        if: github.repository == 'kubanik21-crypto/Benger' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/android-apk')
+        env:
+          SIGNING_BUNDLE: ${{ secrets.BENGER_ANDROID_SIGNING_BUNDLE }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,json,base64,pathlib
+          raw=os.environ.get('SIGNING_BUNDLE','')
+          if not raw:
+              with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('ready=false\n')
+              print('Signing is not configured; Android compilation passed, no installable APK is published.')
+          else:
+              data=json.loads(base64.b64decode(raw,validate=True))
+              expected=pathlib.Path('android/signing-certificate.sha256').read_text().strip()
+              if data['certificateSha256']!=expected:raise SystemExit('Wrong signing identity')
+              target=pathlib.Path(os.environ['RUNNER_TEMP'])/'benger-signing';target.mkdir(mode=0o700)
+              (target/'benger.p12').write_bytes(base64.b64decode(data['keystore'],validate=True))
+              (target/'password.txt').write_text(data['password']+'\n')
+              (target/'signing.json').write_text(json.dumps({'applicationId':'io.github.kubanik21crypto.benger','alias':'benger','certificateSha256':expected}))
+              for p in target.iterdir():p.chmod(0o600)
+              with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('ready=true\n')
+          PY
+      - name: Build signed installable APK
+        if: steps.signing.outputs.ready == 'true'
+        run: node scripts/android/build-apk.mjs "$RUNNER_TEMP/benger-signing" "$RUNNER_TEMP/benger-apk"
+      - uses: actions/upload-artifact@v4
+        if: steps.signing.outputs.ready == 'true'
+        with:
+          name: Benger-Android-APK-${{ github.sha }}
+          path: ${{ runner.temp }}/benger-apk/
+          retention-days: 30
+      - name: Remove private signing files
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/benger-signing"

@@ -1,3 +1,4 @@
+import{isAndroidNative}from'./native-platform.js';
 export async function initPwa(){
  const status=document.getElementById('pwa-status'),install=document.getElementById('install-app'),update=document.getElementById('update-app');
  const banner=document.createElement('aside');banner.id='app-update-banner';banner.className='global-status';banner.hidden=true;banner.setAttribute('role','status');const label=document.createElement('span');label.textContent='Dostępna aktualizacja Bengera';const apply=document.createElement('button');apply.type='button';apply.className='button-secondary';apply.textContent='Zaktualizuj';apply.onclick=()=>update.click();banner.append(label,apply);document.querySelector('.site-header').after(banner);document.querySelector('.site-header').after(document.getElementById('connection-status'));
@@ -8,6 +9,7 @@ export async function initPwa(){
  window.addEventListener('appinstalled',()=>{install.hidden=true;status.textContent='Benger został zainstalowany.';});
  const connection=()=>{document.getElementById('connection-status').textContent=navigator.onLine?'':'Offline — dane lokalne są dostępne.';};
  window.addEventListener('online',connection);window.addEventListener('offline',connection);connection();
+ if(isAndroidNative()){install.hidden=true;update.hidden=true;banner.hidden=true;status.textContent='Benger Android — pliki aplikacji są na telefonie. Aktualizacje instalujemy z nowego APK, bez usuwania aplikacji.';return;}
  if(!('serviceWorker'in navigator)){status.textContent='Ta przeglądarka nie obsługuje trybu PWA. Dane dziennika nadal zapisujemy lokalnie.';return;}
  try{
   const registration=await navigator.serviceWorker.register(new URL('./service-worker.js',import.meta.url),{scope:'./',updateViaCache:'none'});

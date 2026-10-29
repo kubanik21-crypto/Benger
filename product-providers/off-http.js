@@ -1,3 +1,5 @@
+import{isAndroidNative}from'../native-platform.js';
+import{nativeOffFetch}from'../native-off-http.js';
 import { ProductError } from '../product-errors.js';
 
 function retryDelay(value) {
@@ -9,6 +11,7 @@ function retryDelay(value) {
 }
 
 export function createOffJsonClient({ fetchImpl = globalThis.fetch, timeoutMs = 10000, headers = {}, cacheMode = 'default' } = {}) {
+  if(fetchImpl===globalThis.fetch&&isAndroidNative())fetchImpl=nativeOffFetch;
   async function getJson(url, signal) {
     if (signal?.aborted) throw new ProductError('cancelled');
     const controller = new AbortController();

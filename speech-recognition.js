@@ -4,7 +4,7 @@ export const SPEECH_MESSAGES = {
   processing: 'Przetwarzam wypowiedź…',
   completed: 'Zakończono. Sprawdź tekst i propozycję posiłku.',
   cancelled: 'Anulowano rozpoznawanie. Możesz spróbować ponownie lub wpisać tekst.',
-  'permission-denied': 'Brak dostępu do mikrofonu. Sprawdź uprawnienia przeglądarki lub wpisz posiłek.',
+  'permission-denied': 'Brak dostępu do mikrofonu. Sprawdź uprawnienia mikrofonu w ustawieniach aplikacji lub przeglądarki albo wpisz posiłek.',
   'no-speech': 'Nie rozpoznano mowy. Spróbuj ponownie lub wpisz posiłek.',
   timeout: 'Upłynął czas rozpoznawania. Spróbuj krótszej wypowiedzi lub wpisz tekst.',
   'service-error': 'Usługa rozpoznawania jest niedostępna. Spróbuj ponownie lub wpisz posiłek.',

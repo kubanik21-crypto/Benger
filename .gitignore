@@ -3,3 +3,10 @@ node_modules/
 .env.*
 !.env.example
 npm-debug.log*
+
+# Native Android build outputs and private signing material
+android-web/
+*.jks
+*.keystore
+*.p12
+signing-private/

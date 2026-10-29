@@ -1,6 +1,7 @@
 import { readdirSync } from 'node:fs';
 // Jawna lista publikacji: bez serwera, testów, fixture, .git i konfiguracji.
 export const PUBLIC_ASSETS = [
+  'native-platform.js','native-speech.js','native-off-http.js','product-providers/off-search-native.js',
   'diary-quantity.js',
   'product-providers/off-search-query.js','product-providers/off-search-bridge.js',
   'normalize-text.js','product-matching.js','product-query.js','product-vocabulary.js',

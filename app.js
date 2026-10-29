@@ -1,3 +1,4 @@
+import {initNativePlatform} from './native-platform.js';
 import {initProductPolish} from './product-polish-ui.js';
 import {initTraining} from './training-ui.js';
 import {initDashboard} from './dashboard-ui.js';
@@ -22,6 +23,7 @@ import { createProductRepository } from './product-repository.js';
 import { initProductSearch } from './product-search-ui.js';
 import { NUTRITION_STORAGE_KEY } from './app-storage.js';
 
+await initNativePlatform();
 await recoverPendingImport();
 const polish=await initProductPolish();
 initNavigation({startRoute:polish.settings.startRoute});
@@ -405,6 +407,7 @@ populateSelect($('manual-meal'),Object.entries(MEAL_LABELS));
 $('manual-meal').onchange=()=>{mealSelect.value=$('manual-meal').value;mealSelect.dispatchEvent(new Event('change'));};
 $('recipe-add-selected').onclick=async()=>{try{const portion=readPortionInput();await recipesUI.addSelected(portion);$('recipe-selected-status').textContent='Dodano składnik do szkicu.';}catch(error){$('recipe-selected-status').textContent=error.message;}};
 $('scan-shortcut').onclick=()=>$('scan-barcode').click();
+window.addEventListener('benger:native-pause',()=>{if($('scanner-dialog').open)$('cancel-scanner').click();});
 window.addEventListener('benger:route',event=>{if(event.detail.route!=='produkty'&&$('scanner-dialog').open)$('cancel-scanner').click();});
 const productRepository = createProductRepository();
 const recipeRepository=createRecipeRepository();
