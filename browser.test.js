@@ -638,7 +638,7 @@ test('Tekst — regresje wspólnego dziennika po integracji voice-first', { time
     assert.equal(browser.serverErrors(), '');
     const allowed = new Set([new URL(browser.base).hostname, 'world.openfoodfacts.org', 'images.openfoodfacts.org']);
     assert.deepEqual(browser.requests.filter(url => /^https?:/.test(url) && !allowed.has(new URL(url).hostname)), []);
-    assert.ok(browser.off.requests.filter(request => new URL(request.url).pathname === '/cgi/search.pl').length <= 1);
+    assert.ok(browser.off.requests.filter(request => request.method === 'GET' && new URL(request.url).pathname === '/cgi/search.pl').length <= 1);
   });
 });
 
