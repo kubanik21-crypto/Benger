@@ -1,3 +1,4 @@
+import {scanProduct} from './product-scan-ui.js';
 import { HOUSEHOLD_UNITS, householdUnitLabel, humanPortionDescription } from './portion-model.js';
 import { itemPortionResolution } from './meal-resolution.js';
 import { productSourceLabel } from './product-model.js';
@@ -67,10 +68,12 @@ export function renderProposalChoices(card, products, onChoose) {
   }
   render();
 }
-export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose, onPortion }) {
+export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose, onPortion, repository }) {
   const card = node('article', 'food-entry proposal-card'); card.dataset.itemId = item.id;
   const title = node('h4', '', item.resolution.product?.name ?? (item.intent.query || 'Produkt bez nazwy'));
   card.append(title);
+  if(repository){const scan=node('button','button-secondary','Zeskanuj produkt');scan.type='button';scan.dataset.scanProduct='';scan.onclick=async()=>{scan.disabled=true;try{const product=await scanProduct({repository,owner:card});scan.disabled=false;if(!product&&scan.isConnected)scan.focus({preventScroll:true});if(product&&card.isConnected){card.querySelector('[data-query]').value=product.name;onQuery(product.name);onChoose(product.id);}}catch{card.querySelector('[data-status]').textContent='Nie udało się otworzyć skanera. Wyszukaj produkt po nazwie.';}finally{scan.disabled=false;}};card.append(scan);}
+
   const provenance = node('p', 'field-help'); provenance.dataset.provenance = ''; card.append(provenance);
   if (item.intent.amountApproximate) {
     const approximation = node('p', 'field-help'); approximation.dataset.approximation = ''; card.append(approximation);

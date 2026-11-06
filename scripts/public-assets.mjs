@@ -3,7 +3,7 @@ import { readdirSync } from 'node:fs';
 export const PUBLIC_ASSETS = [
   'recipe-execution-ui.js','recipe-execution.js','recipe-plan-2026-data.js','recipe-plan-import.js','training-november-2026.js','training-reminders-ui.js','training-reminders.js',
   'native-platform.js','native-speech.js','native-off-http.js','product-providers/off-search-native.js',
-  'manual-meal.js','manual-meal-ui.js','diary-quantity.js',
+  'product-scan-ui.js','manual-meal.js','manual-meal-ui.js','diary-quantity.js',
   'product-providers/off-search-query.js','product-providers/off-search-bridge.js',
   'normalize-text.js','product-matching.js','product-query.js','product-vocabulary.js',
   'recipe-editor.js','recipe-ingredient-picker.js',

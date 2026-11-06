@@ -439,3 +439,8 @@ button:disabled { opacity:.65; }
 #manual-unit-weight {padding:.6rem;border:1px solid var(--border);border-radius:.8rem;}
 #nutrition-form:not([data-manual-sheet]) #manual-unit,#nutrition-form:not([data-manual-sheet]) label[for="manual-unit"],#nutrition-form:not([data-manual-sheet]) #manual-definition,#nutrition-form:not([data-manual-sheet]) label[for="manual-definition"],#nutrition-form:not([data-manual-sheet]) #manual-last-used,#nutrition-form:not([data-manual-sheet]) #manual-conversion,#nutrition-form:not([data-manual-sheet]) #manual-other-unit,#nutrition-form:not([data-manual-sheet]) #manual-unit-weight {display:none;}
 @media(max-width:600px){#manual-quantity-dialog{margin:auto 0 0;max-width:none;width:100%;border-radius:1.2rem 1.2rem 0 0;padding:1rem;max-height:85dvh;}#manual-quantity-dialog h2{font-size:1.25rem;margin:.25rem 0;}#manual-bottom-bar{font-size:.9rem;}#manual-bottom-bar button{min-width:90px;}}
+
+.product-scan-dialog {width:min(460px,calc(100% - 24px));max-height:90dvh;overflow:auto;}
+.product-scan-dialog video {display:block;width:100%;max-height:40dvh;object-fit:cover;background:var(--surface);border:2px solid var(--border);border-radius:.75rem;}
+.product-scan-dialog form {display:grid;gap:.6rem;}
+.product-scan-dialog button {min-height:44px;margin-block:.4rem;}

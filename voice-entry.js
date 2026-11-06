@@ -79,7 +79,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
       onChoose:async id=>{executionEditors.delete(item.id);const v=revision,rv=nextRowVersion(item.id);pendingPortions.set(item.id,rv);buttonState();try{const recipe=await recipes.get(id);if(!recipe)throw new Error('Przepis został usunięty.');if(revision!==v||rowVersions.get(item.id)!==rv)return;const row=findItem(item.id),resolution={recipe,confidence:'HIGH',alternatives:[],reason:'explicit-recipe-choice'},next={...row,resolution,portion:resolveRecipePortion(recipe,row.intent.amount,row.intent.unit).portion};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();}catch(f){error(f.message);}finally{if(pendingPortions.get(item.id)===rv){pendingPortions.delete(item.id);buttonState();}}},
       onAlias:async phrase=>{const row=findItem(item.id);try{if(row?.resolution.recipe){await recipes.setAlias(phrase,row.resolution.recipe.id);$('meal-text-status').textContent='Alias przepisu zapisany.';}}catch(f){error(f.message);}},
     });
-    return createProposalCard(item, {
+    return createProposalCard(item, {repository,
       onPortion: async (definition,remember) => {
         const row=findItem(item.id);if(!row||!row.resolution.product)return;
         const version=revision,rowVersion=nextRowVersion(item.id);
