@@ -23,8 +23,8 @@ def main():
         mapping={}
         # Remote branches first; local branches are preserved under their own names.
         for ref in refs:
-            if ref.endswith('/HEAD'):
-                continue
+            if ref.endswith('/HEAD') or ref.startswith('refs/remotes/origin/backup-downloads-') or ref.startswith('refs/heads/backup-downloads-'):
+                continue  # Packaging branches are excluded to prevent recursive ZIP growth.
             if ref.startswith('refs/remotes/origin/'):
                 dest='refs/heads/'+ref.removeprefix('refs/remotes/origin/')
             elif ref.startswith(('refs/heads/','refs/tags/')):
