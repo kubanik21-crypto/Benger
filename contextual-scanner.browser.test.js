@@ -26,5 +26,8 @@ test('contextual barcode lookup in recipe drafts, meal proposal and offline cust
  await t.test('closing parent route stops camera; mobile scanner fits and no draft disappears',async()=>{
   await p.evaluate('window.__code=null');await click(p,'#meal-proposal-items [data-scan-product]');await wait(p,"Boolean(document.querySelector('[data-product-scanner] video').srcObject)");for(const width of [320,360,430]){await p.send('Emulation.setDeviceMetricsOverride',{width,height:800,deviceScaleFactor:1,mobile:true});assert.equal(await p.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);}await p.evaluate("location.hash='/przepisy'");await wait(p,"!document.querySelector('[data-product-scanner]')");assert.equal((await read()).ingredients.length,1);
  });
+ await t.test('a lookup finishing immediately after cancel cannot select a product',async()=>{
+  const result=await p.evaluate("(async()=>{window.__code=null;const{scanProduct}=await import('./product-scan-ui.js');const pending=scanProduct({repository:{getProductByBarcode:()=>new Promise(resolve=>window.__lateResolve=resolve)}});document.getElementById('context-scanner-code').value='3017620422003';document.querySelector('[data-product-scanner] form').requestSubmit();document.querySelector('[data-product-scanner] > button:last-child').click();window.__lateResolve({product:window.__custom});return await pending;})()");assert.equal(result,null);
+ });
  assert.deepEqual(b.errors,[]);
 });
