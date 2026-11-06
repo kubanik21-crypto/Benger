@@ -50,6 +50,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
   let results = [];
   let chosen = null;
   let resultsPhrase = null;
+  let parsedSearch=null;
   const resolver = createProductResolver({ repository });
   let busy = false;
   let revision = 0;
@@ -84,12 +85,12 @@ export function initProductSearch({ onSelect, repository = createProductReposito
   function select(product, focus = true, phrase = null) {
     chosen = copyProduct(product);
     renderSelected();
-    onSelect(copyProduct(chosen));
+    const response=onSelect(copyProduct(chosen),phrase?parsedSearch??{}:{});
     // Uczymy wyłącznie jawnego kliknięcia użytkownika; resolve() nigdy sam nie uczy.
     if (phrase) void resolver.rememberUserChoice(phrase, chosen.id).catch(() => {
       $('catalog-storage-message').textContent = 'Nie udało się zapamiętać dopasowania. Wybrany produkt nadal można dodać do dziennika.';
     });
-    if (focus) $('amount').focus();
+    if (focus&&response!==false) $('amount').focus();
   }
 
   function renderList(id, products, emptyMessage) {
@@ -119,7 +120,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
       const link = element('a', 'product-credit', 'Karta produktu i autorzy zdjęcia w Open Food Facts ↗');
       link.href = `https://world.openfoodfacts.org/product/${encodeURIComponent(chosen.sourceId)}`;
       link.target = '_blank'; link.rel = 'noopener noreferrer';
-      container.append(link);
+      let extra=container.querySelector('details');if(!extra){extra=element('details');extra.append(element('summary',null,'Szczegóły produktu'));container.append(extra);}extra.append(link);
     }
     if (chosen.basis === 'legacy') container.append(element('p', 'field-help', 'Brak jednoznacznej podstawy ml. Używamy gramów, bez przeliczania gęstości.'));
     if (chosen.estimated) container.append(element('p', 'field-help', 'Źródło oznacza część wartości jako przybliżone.'));
@@ -162,9 +163,9 @@ export function initProductSearch({ onSelect, repository = createProductReposito
       if (version !== revision) return;
       results = byBarcode ? (result.product ? [result.product] : []) : result.products;
       if(byBarcode && !result.product) { $('create-from-barcode').hidden=false;searchByName.hidden=false; }
-      resultsPhrase = byBarcode ? null : value.trim();
+      resultsPhrase = byBarcode ? null : value.trim();if(byBarcode)parsedSearch=null;
       if (!byBarcode) {
-        const {resolution}=await resolver.resolveProductQuery(value,{allowExternal:false});
+        const parsed=await resolver.resolveProductQuery(value,{allowExternal:false});parsedSearch=parsed;const {resolution}=parsed;
         if (version !== revision) return;
         if (resolution.product) results = [resolution.product, ...results.filter(product => product.id !== resolution.product.id)].slice(0, 20);
       }
@@ -219,6 +220,7 @@ export function initProductSearch({ onSelect, repository = createProductReposito
   const ready = (async () => { await repository.ready(); await refresh(); $('product-catalog').dataset.ready = 'true'; })();
   return {
     ready,
+    clear(){chosen=null;results=[];resultsPhrase=null;parsedSearch=null;$('product-search').value='';renderAll();},
     async recordUsed(products) { await repository.markUsed(products); await refresh(); },
     async seedRecent(entries) { await ready; await repository.seedRecentFromDiary(entries); await refresh(); },
   };

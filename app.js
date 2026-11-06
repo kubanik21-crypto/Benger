@@ -1,3 +1,4 @@
+import {initManualMeal} from './manual-meal-ui.js';
 import {initTrainingReminders} from './training-reminders-ui.js';
 import {initNativePlatform} from './native-platform.js';
 import {initProductPolish} from './product-polish-ui.js';
@@ -40,6 +41,7 @@ const formatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
 const amountFormatter = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 20 });
 const dateInput = $('date');
 let selectedProduct = null;
+let manualBuilder;
 const amountInput = $('amount');
 const mealSelect = $('nutrition-meal');
 const addButton = $('add-nutrition');
@@ -81,6 +83,7 @@ function showError(error, focus = false) {
 }
 
 function readPortionInput() {
+  if(manualBuilder?.active)return manualBuilder.read();
   const product = selectedProduct;
   if (!product) throw fieldError('Wybierz produkt.', 'product');
   const rawAmount = amountInput.value.trim();
@@ -108,7 +111,7 @@ function updatePortionPreview(showEmptyError = false) {
   clearFieldError('product');
   clearFieldError('amount');
   $('calculator-message').textContent = '';
-  $('amount-unit').textContent = selectedProduct?.unit ?? '';
+  $('amount-unit').textContent = manualBuilder?.active?manualBuilder.product?.unit??'':selectedProduct?.unit??'';
   try {
     const { nutrition } = readPortionInput();
     writeNutritionFields('portion', nutrition);
@@ -375,8 +378,9 @@ function addNutritionEntry(event) {
     const date = readDiaryDate();
     const meal = mealSelect.value;
     if (!Object.hasOwn(MEAL_LABELS, meal)) throw fieldError('Wybierz posiłek.', 'nutrition-meal');
-    const { product, amount, nutrition } = readPortionInput();
-    if (appendNutritionPortions([{ product, amount, nutrition }], meal, date)) {
+    const portion=readPortionInput(),{product,amount,nutrition}=portion;
+    if(manualBuilder?.active){const wasEditing=manualBuilder.editing,before=new Set(nutritionEntries.map(e=>e.id));const saved=wasEditing?manualBuilder.edit(portion):appendNutritionPortions([portion],manualBuilder.meal(),manualBuilder.date());if(saved){sideEffect(manualBuilder.added(portion,nutritionEntries.filter(e=>!before.has(e.id))));productSearch.clear();selectedProduct=null;amountInput.value='';$('catalog-message').textContent='Zapisano. Wyszukaj kolejny produkt.';updatePortionPreview();$('product-search-form').tabIndex=-1;$('product-search-form').focus({preventScroll:true});}return;}
+    if (appendNutritionPortions([portion], meal, date)) {
       amountInput.value = '';
       updatePortionPreview();
       $('calculator-message').textContent = `Dodano: ${product.name}, ${amountFormatter.format(amount)} ${product.unit} — ${MEAL_LABELS[meal]}.`;
@@ -417,10 +421,12 @@ const recipeDiary=initRecipeDiary({repository:productRepository,recipes:recipeRe
 const recipesUI=initRecipes({repository:productRepository,recipes:recipeRepository,onAddToDiary:recipeDiary.open});
 initStorageHealth();
 initPortionSettings(productRepository);
-const productSearch = initProductSearch({ repository: productRepository, onSelect(product) {
+const productSearch = initProductSearch({ repository: productRepository, onSelect(product,parsed) {
   selectedProduct = product;
+  if(manualBuilder?.active){void manualBuilder.select(product,parsed);return false;}
   updatePortionPreview();
 } });
+manualBuilder=initManualMeal({repository:productRepository,readDate:readDiaryDate,setDate:value=>{if(!isValidDiaryDate(value))throw new Error('Wybierz prawidłowy dzień.');dateInput.value=value;dateInput.dispatchEvent(new Event('change'));},getMeal:()=>mealSelect.value,setMeal:value=>{mealSelect.value=value;mealSelect.dispatchEvent(new Event('change'));},readEntries:()=>nutritionEntries,replaceEntry:(original,next)=>updateNutritionEntries(current=>{const latest=current.find(e=>e.id===original.id);if(!latest||JSON.stringify(latest)!==JSON.stringify(original))throw new Error('Wpis zmienił się w innej karcie. Otwórz go ponownie.');if(!validDiaryEntry(next))throw new Error('Nieprawidłowe wartości.');return current.map(e=>e.id===next.id?next:e);}),removeEntry:id=>updateNutritionEntries(current=>current.filter(e=>e.id!==id)),onRefresh:updatePortionPreview,onFinish:()=>{$('nutrition-title').focus();}});
 voiceEntry = initVoiceEntry({ repository: productRepository, readDate: readDiaryDate, getMeal: () => mealSelect.value,
   onSave: (portions, date) => appendNutritionPortions(portions, null, date), onDateError: error => showError(error, true),recipes:recipeRepository });
 amountInput.addEventListener('input', () => updatePortionPreview());

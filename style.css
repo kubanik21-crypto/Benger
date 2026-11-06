@@ -416,3 +416,26 @@ button:disabled { opacity:.65; }
 .exercise-user-note { padding:12px; border:1px solid var(--border); border-radius:10px; background:var(--elevated); }
 .verbatim-note { white-space:pre-wrap; }
 @media(max-width:360px) { .exercise-visual-pair { grid-template-columns:1fr; } .visual-sequence-arrow { transform:rotate(90deg); } .exercise-visual-pair svg { max-height:180px; } }
+
+/* Manual meal building. Existing catalog mode retains its base-unit form. */
+.manual-session {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.65rem;}
+.manual-session h2 {grid-column:1/-1;}
+.manual-building #product-search-form {position:sticky;top:0;z-index:25;background:var(--surface);padding:.65rem;border-radius:1rem;box-shadow:0 2px 8px #0002;}
+.manual-building {padding-bottom:190px;}
+.manual-building .calculator:has(#nutrition-form) {display:none;}
+#manual-bottom-bar {position:fixed;z-index:35;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(680px,calc(100% - 24px));display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.65rem 1rem;border:1px solid var(--border);border-radius:1rem;background:var(--surface);box-shadow:0 2px 10px #0003;}
+#manual-bottom-bar[hidden] {display:none;}
+#manual-bottom-bar p {margin:0;}
+#manual-cart article {padding:.6rem 0;border-bottom:1px solid var(--border);}
+#manual-cart button {margin:.2rem;}
+#manual-quantity-dialog {width:min(520px,100%);max-height:85dvh;overflow:auto;overscroll-behavior:contain;}
+#manual-quantity-dialog form {display:grid;gap:.45rem;}
+#manual-quantity-dialog #manual-date,#manual-quantity-dialog a[href="#/dziennik"],#manual-quantity-dialog #recipe-add-selected,#manual-quantity-dialog #recipe-selected-status {display:none;}
+#manual-quantity-dialog .product-thumbnail {display:none;}
+#manual-quantity-dialog .selected-product-info {padding:0;}
+#manual-quantity-dialog .product-details {font-size:.9rem;}
+#manual-quantity-dialog #portion-preview,#manual-quantity-dialog #amount-help {display:none;}
+#manual-conversion {font-weight:600;}
+#manual-unit-weight {padding:.6rem;border:1px solid var(--border);border-radius:.8rem;}
+#nutrition-form:not([data-manual-sheet]) #manual-unit,#nutrition-form:not([data-manual-sheet]) label[for="manual-unit"],#nutrition-form:not([data-manual-sheet]) #manual-definition,#nutrition-form:not([data-manual-sheet]) label[for="manual-definition"],#nutrition-form:not([data-manual-sheet]) #manual-last-used,#nutrition-form:not([data-manual-sheet]) #manual-conversion,#nutrition-form:not([data-manual-sheet]) #manual-other-unit,#nutrition-form:not([data-manual-sheet]) #manual-unit-weight {display:none;}
+@media(max-width:600px){#manual-quantity-dialog{margin:auto 0 0;max-width:none;width:100%;border-radius:1.2rem 1.2rem 0 0;padding:1rem;max-height:85dvh;}#manual-quantity-dialog h2{font-size:1.25rem;margin:.25rem 0;}#manual-bottom-bar{font-size:.9rem;}#manual-bottom-bar button{min-width:90px;}}

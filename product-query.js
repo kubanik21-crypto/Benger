@@ -51,7 +51,7 @@ function readFoodIntent(source, index, meal) {
 }
 
 
-export const COUNTABLE_FOODS=new Set(['marchew','ziemniaki','cebula','pietruszka','seler']);
+export const COUNTABLE_FOODS=new Set(['marchew','ziemniaki','cebula','pietruszka','seler','wafle ryzowa','wafel ryzowy']);
 export function normalizeProductInput(rawText,{normalized=false}={}){
  if(typeof rawText!=='string'||rawText.length>2000)throw new TypeError('Podaj nazwę produktu do 2000 znaków.');
  let text=normalized?rawText:normalizeTranscript(rawText.replace(/(?<![a-z])szt\.?(?=\s|$)/gi,'piece').replace(/\btbsp\b/gi,'tablespoon').replace(/\btsp\b/gi,'teaspoon')).normalizedTranscript;

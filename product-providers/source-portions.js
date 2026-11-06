@@ -15,13 +15,17 @@ export function sourcePortions(raw,product,{source='OFF'}={}) {
  const serving=positive(raw.serving_quantity)&&['g','ml'].includes(raw.serving_quantity_unit)?{amount:Number(raw.serving_quantity),unit:raw.serving_quantity_unit}:null;
  // A free-form declaration must explicitly state the count and mass/volume together.
  const label=typeof raw.serving_size==='string'?normalizeText(raw.serving_size):'';
- const match=label.match(/^(\d+(?:[.,]\d+)?)\s+(slice|slices|piece|pieces|cookie|cookies|tablespoon|tbsp|teaspoon|tsp|scoop|serving|kromka|kromki|plaster|lyzka|lyzeczka|miarka)\s*\(\s*(\d+(?:[.,]\d+)?)\s*(g|ml)\s*\)$/);
- if(match){const word=match[2],unit=/slice|krom/.test(word)?'slice':word==='plaster'?'slab':/tablespoon|tbsp|lyzka/.test(word)?'tablespoon':/teaspoon|tsp|lyzeczka/.test(word)?'teaspoon':/scoop|miarka/.test(word)?'scoop':word==='serving'?'serving':'piece';add(unit,Number(match[1].replace(',','.')),serving??{amount:Number(match[3].replace(',','.')),unit:match[4]},raw.serving_size);}
- else {const exact=serving??quantity(raw.serving_size);if(exact)add('serving',1,exact,`Porcja: ${exact.amount} ${exact.unit}`);}
+ const match=label.match(/^(\d+(?:[.,]\d+)?)\s+(slice|slices|piece|pieces|waffle|waffles|wafel|wafle|wafli|cookie|cookies|tablespoon|tbsp|teaspoon|tsp|scoop|serving|kromka|kromki|plaster|lyzka|lyzeczka|miarka)\s*\(\s*(\d+(?:[.,]\d+)?)\s*(g|ml)\s*\)$/);
+ if(match&&(!serving||serving.unit===match[4]&&serving.amount===Number(match[3].replace(',','.')))){const word=match[2],unit=/slice|krom/.test(word)?'slice':word==='plaster'?'slab':/tablespoon|tbsp|lyzka/.test(word)?'tablespoon':/teaspoon|tsp|lyzeczka/.test(word)?'teaspoon':/scoop|miarka/.test(word)?'scoop':word==='serving'?'serving':'piece';add(unit,Number(match[1].replace(',','.')),serving??{amount:Number(match[3].replace(',','.')),unit:match[4]},raw.serving_size);}
+ else if(!match){const exact=serving??quantity(raw.serving_size);if(exact)add('serving',1,exact,`Porcja: ${exact.amount} ${exact.unit}`);}
  const declaredPack=positive(raw.product_quantity)&&['g','ml'].includes(raw.product_quantity_unit)?{amount:Number(raw.product_quantity),unit:raw.product_quantity_unit}:null;
- const parsedPack=quantity(raw.quantity);
+ const countLabel=typeof raw.quantity==='string'?normalizeText(raw.quantity).replace(/(\d),(?=\d)/g,'$1.'):'';
+ const countMatch=countLabel.match(/^(\d+(?:\.\d+)?)\s*(g|ml)\s*[,;(]?\s*(\d+)\s*(?:pieces|piece|szt\.?|sztuk|sztuki|wafli|wafle|waffles)\s*\)?$/);
+ const counted=countMatch?{amount:Number(countMatch[1]),unit:countMatch[2]}:null;
+ const parsedPack=quantity(raw.quantity)??counted;
  // A contradictory per-item structured quantity cannot stand for the whole multipack.
- const pack=declaredPack&&parsedPack?.multipack&&(declaredPack.unit!==parsedPack.unit||declaredPack.amount!==parsedPack.amount)?null:declaredPack??parsedPack;
+ const pack=declaredPack&&parsedPack&&(declaredPack.unit!==parsedPack.unit||declaredPack.amount!==parsedPack.amount)?null:declaredPack??parsedPack;
+ if(countMatch&&pack&&pack.unit===counted.unit&&pack.amount===counted.amount&&Number(countMatch[3])>0)add('piece',Number(countMatch[3]),pack,raw.quantity);
  if(pack)add('package',1,pack,`Całe opakowanie: ${pack.amount} ${pack.unit}`,'PACKAGE');
  return definitions;
 }
