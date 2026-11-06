@@ -6,6 +6,8 @@ Skanowanie korzysta z istniejącego BarcodeDetector/ZXing i ProductRepository: w
 
 Kamera uruchamia się wyłącznie po kliknięciu. Po odczycie, anulowaniu, zmianie ekranu lub przejściu aplikacji do tła jest zatrzymywana. Anulowanie zachowuje składnik i edytowaną ilość; spóźniony wynik nie jest stosowany do zamkniętego panelu.
 
+Poprawiono również kolejność komunikatu o zapisaniu celów: pojawia się po odświeżeniu podsumowania, aby kolejny zapis nie został pominięty podczas kończenia poprzedniego.
+
 Backup pozostaje v8, dane i magazyny nie zmieniają się. Android używa tego samego nowego podpisu co 1.0.6: instalacja na 1.0.6 jest zwykłą aktualizacją, bez usuwania aplikacji. Przejście ze starego podpisu 1.0.5 nadal wymaga zabezpieczenia świeżego pełnego backupu i jednorazowej reinstalacji.
 
 Bez zmian Workera AI i produkcyjnego main.
