@@ -1,3 +1,5 @@
+import {scaleNutrition} from './nutrition.js';
+import {householdUnitLabel} from './portion-model.js';
 import { recipeId } from './recipe-id.js';
 import { calculateRecipeNutrition } from './recipe-nutrition.js';
 import { copyPortionSnapshot, validPortionSnapshot, HOUSEHOLD_UNITS } from './portion-model.js';
@@ -16,6 +18,8 @@ export function validateRecipe(value,{draft=false}={}){
  const ingredients=value.ingredients.map(i=>{
   if(!i||!isUuid(i.id)||!text(i.originalText,1000)||!text(i.query??'',240)||!['RESOLVED','UNRESOLVED'].includes(i.resolutionStatus)||typeof i.excludedFromNutrition!=='boolean')fail();
   const result={id:i.id,originalText:i.originalText,query:i.query??'',resolutionStatus:i.resolutionStatus,excludedFromNutrition:i.excludedFromNutrition};
+  if(i.quantityText!==undefined){if(!text(i.quantityText,300,true))fail();result.quantityText=i.quantityText;}
+  if(i.catalogMatch!==undefined){const m=i.catalogMatch;if(!m||!['matched','ambiguous','unmatched'].includes(m.status)||!['productId','productName'].every(k=>m[k]===null||text(m[k],240,true))||m.status==='matched'&&(!m.productId||!m.productName))fail();result.catalogMatch={status:m.status,productId:m.productId,productName:m.productName};}
   if(i.resolutionStatus==='RESOLVED'){
    if(!text(i.productId,240,true)||!text(i.productName,240,true)||!positive(i.amount,1e7)||!['g','ml'].includes(i.unit)||!macros(i.nutrition)||!validPortionSnapshot(i))fail();
    Object.assign(result,{productId:i.productId,productName:i.productName,amount:i.amount,unit:i.unit,nutrition:Object.fromEntries(['kcal','protein','fat','carbs'].map(k=>[k,i.nutrition[k]])),...copyPortionSnapshot(i)});
@@ -33,6 +37,7 @@ export function validateRecipe(value,{draft=false}={}){
  if(value.status!==status)fail();
  if(!draft){const actual=value.nutrition;if(!actual||actual.complete!==nutrition.complete||actual.unresolvedCount!==nutrition.unresolvedCount)fail();for(const key of ['knownTotal','total','perServing','per100g','per100ml']){if(nutrition[key]===null){if(actual[key]!==null)fail();}else if(!actual[key]||!['kcal','protein','fat','carbs'].every(k=>Number.isFinite(actual[key][k])&&actual[key][k]===nutrition[key][k]))fail();}}
  const result={id:value.id,name:value.name,createdAt:value.createdAt,updatedAt:value.updatedAt,status,ingredients,steps,yield:yieldInfo,nutrition,notes:value.notes,version:value.version,events};
+ if(value.pack!==undefined){const p=value.pack;if(!p||!text(p.id,100,true)||!text(p.recipeId,100,true)||!text(p.label,200,true)||!['breakfast','lunch','dinner','snack'].includes(p.meal))fail();result.pack={id:p.id,recipeId:p.recipeId,label:p.label,meal:p.meal};}
  if(draft){if(value.recipeId===null&&value.baseVersion!==0||value.recipeId!==null&&(!isUuid(value.recipeId)||value.baseVersion<1)||!Number.isSafeInteger(value.baseVersion)||value.baseVersion<0||!Number.isSafeInteger(value.revision)||value.revision<0)fail();Object.assign(result,{recipeId:value.recipeId,baseVersion:value.baseVersion,revision:value.revision});}
  return result;
 }
@@ -41,4 +46,12 @@ export function createRecipeDraft(name='Nowy przepis'){
 }
 export function ingredientFromPortion(portion,originalText=''){
  const p=portion.product;return {id:recipeId(),originalText,query:p.name,productId:p.id,productName:p.name,brand:p.brand,source:p.source,sourceId:p.sourceId,barcode:p.barcode,amount:portion.amount,unit:p.unit,nutrition:{...portion.nutrition},resolutionStatus:'RESOLVED',excludedFromNutrition:false,...copyPortionSnapshot({productId:p.id,amount:portion.amount,unit:p.unit,displayPortion:portion.displayPortion,portionConversion:portion.portionConversion})};
+}
+
+// Scale a stored ingredient without consulting a live product or losing portion provenance.
+export function scaleRecipeIngredient(ingredient,factor){
+ const next=structuredClone(ingredient);if(ingredient.resolutionStatus!=='RESOLVED')return next;
+ next.amount=ingredient.amount*factor;next.nutrition=scaleNutrition(ingredient.nutrition,factor);
+ if(next.displayPortion){next.displayPortion.amount*=factor;next.displayPortion.label=`${next.displayPortion.amount} ${householdUnitLabel(next.displayPortion.unit,next.displayPortion.amount)}`;next.portionConversion.inputAmount=next.displayPortion.amount;next.portionConversion.normalizedAmount=next.amount;}
+ return next;
 }

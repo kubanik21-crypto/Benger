@@ -1,3 +1,4 @@
+import {validateRecipeVariant,applyRecipeVariant} from './recipe-execution.js';
 import {emptySchedule,validateSchedule,mergeSchedule} from './training-calendar.js';
 import {SETTINGS_KEY,validateSettings,readSettings} from './settings.js';
 import {validateTraining,trainingFromRecords,trainingRecords,mergeTraining,TRAINING_PREFIX} from './training-model.js';
@@ -22,7 +23,7 @@ const text=(value,max=240)=>typeof value==='string'&&value.trim().length>0&&valu
 const list=(value,max)=>{if(!Array.isArray(value)||value.length>max)fail('Przekroczony limit elementów backupu.');return value;};
 export { validDiaryEntry } from './diary-entry.js';
 export function validateBackup(value){
- safeTree(value);if(value?.app!=='Benger'||![1,2,3,4,5,6,7].includes(value.schemaVersion)||!value.data)fail('Nieobsługiwana wersja backupu Bengera.');
+ safeTree(value);if(value?.app!=='Benger'||![1,2,3,4,5,6,7,8].includes(value.schemaVersion)||!value.data)fail('Nieobsługiwana wersja backupu Bengera.');
  const data=value.data;const trainingSchedule=value.schemaVersion>=7?validateSchedule(data.trainingSchedule):null;const settings=value.schemaVersion>=6?validateSettings(data.settings):null;const training=validateTraining(data.training);if(training)delete training.schedule;const progress=validateProgress(data.progress);const goals=data.goals==null?null:validateGoals(data.goals);
  const diary=list(data.diary,20000).map(row=>{try{if(!validDiaryEntry(row))fail();}catch{fail('Nieprawidłowy wpis dziennika.');}return copyDiaryEntry(row);});
  if(new Set(diary.map(row=>row.id)).size!==diary.length)fail('Powtórzone ID wpisów.');
@@ -42,16 +43,20 @@ export function validateBackup(value){
  for(const rows of [recipes,recipeDrafts])if(new Set(rows.map(r=>r.id)).size!==rows.length)fail('Powtórzone ID przepisów.');
  if(new Set(recipeHistory.map(r=>`${r.id}:v${r.version}`)).size!==recipeHistory.length)fail('Powtórzone wersje przepisu.');
  const recipeIds=new Set(recipes.map(r=>r.id));
+ const recipeVariants=list(data.recipeVariants??[],2000).map(validateRecipeVariant);
+ if(new Set(recipeVariants.map(v=>v.id)).size!==recipeVariants.length)fail('Powtórzone warianty.');
+ for(const v of recipeVariants){const base=[...recipes,...recipeHistory].find(r=>r.id===v.baseRecipeId&&r.version===v.baseVersion);if(!base)fail('Brak wersji bazowej wariantu.');applyRecipeVariant(base,v);}
+
  const recipeAliases=list(data.recipeAliases??[],1000).map(a=>{if(!text(a?.phrase,120)||recipeQuery(a.phrase)!==a.phrase||!recipeIds.has(a.recipeId))fail('Nieprawidłowy alias przepisu.');return {phrase:a.phrase,recipeId:a.recipeId};});
  const recipeUsage=list(data.recipeUsage??[],1000).map(u=>{if(!recipeIds.has(u?.recipeId)||typeof u.favorite!=='boolean'||u.lastUsedAt!==null&&(!Number.isFinite(u.lastUsedAt)||u.lastUsedAt<0))fail('Nieprawidłowe preferencje przepisu.');return {recipeId:u.recipeId,favorite:u.favorite,lastUsedAt:u.lastUsedAt};});
  if(new Set(recipeAliases.map(a=>a.phrase)).size!==recipeAliases.length||new Set(recipeUsage.map(u=>u.recipeId)).size!==recipeUsage.length)fail('Powtórzone preferencje przepisów.');
- return {app:'Benger',schemaVersion:value.schemaVersion,exportedAt:value.exportedAt,data:{settings,trainingSchedule,training,goals,progress,recipeAliases,recipeUsage,recipes,recipeDrafts,recipeHistory,diary,products,customProducts,favorites,recent,aliases,selections,portionMemory,portionSettings:{...portionSettings}}};
+ return {app:'Benger',schemaVersion:value.schemaVersion,exportedAt:value.exportedAt,data:{settings,trainingSchedule,training,goals,progress,recipeVariants,recipeAliases,recipeUsage,recipes,recipeDrafts,recipeHistory,diary,products,customProducts,favorites,recent,aliases,selections,portionMemory,portionSettings:{...portionSettings}}};
 }
 export function parseBackup(raw){if(typeof raw!=='string'||new TextEncoder().encode(raw).length>BACKUP_LIMIT_BYTES)fail('Backup jest zbyt duży (limit 64 MiB).');try{return validateBackup(JSON.parse(raw));}catch(error){throw new TypeError(error instanceof SyntaxError?'Plik nie jest prawidłowym JSON.':error.message);}}
 export async function exportBackup({storage=createProductStorage(),local=globalThis.localStorage,includePhotos=false}={}){
  try{const progress=await exportProgress(includePhotos);const state=await storage.snapshot();const training=trainingFromRecords(state.meta),trainingSchedule=training.schedule??emptySchedule();delete training.schedule;const goals=state.meta.find(r=>r.key===GOALS_KEY)?.periods??[];const products=state.products.map(row=>row.product).filter(p=>isProduct(p)&&['openfoodfacts','usda'].includes(p.source)),customProducts=state.meta.filter(row=>row.key.startsWith('custom:')).map(row=>row.product).filter(isProduct);
  const ids=new Set([...products.map(p=>p.id),...customProducts.map(p=>p.id),...LEGACY_PRODUCT_IDS]);
- return validateBackup({app:'Benger',schemaVersion:7,exportedAt:new Date().toISOString(),data:{trainingSchedule,settings:readSettings(state.meta.find(r=>r.key===SETTINGS_KEY)?.value),training,goals,progress,recipeAliases:state.meta.filter(r=>r.key.startsWith('recipe-alias:')).map(({phrase,recipeId})=>({phrase,recipeId})),recipeUsage:state.meta.filter(r=>r.key.startsWith('recipe-usage:')).map(({recipeId,favorite,lastUsedAt})=>({recipeId,favorite:Boolean(favorite),lastUsedAt:lastUsedAt??null})),recipes:(state.recipes??[]).map(r=>r.recipe),recipeDrafts:(state.recipeDrafts??[]).map(r=>r.recipe),recipeHistory:(state.recipeHistory??[]).map(r=>r.recipe),diary:JSON.parse(local.getItem(NUTRITION_STORAGE_KEY)??'[]'),products,customProducts,
+ return validateBackup({app:'Benger',schemaVersion:8,exportedAt:new Date().toISOString(),data:{recipeVariants:state.meta.filter(r=>r.key.startsWith('recipe-variant:')).map(r=>r.variant),trainingSchedule,settings:readSettings(state.meta.find(r=>r.key===SETTINGS_KEY)?.value),training,goals,progress,recipeAliases:state.meta.filter(r=>r.key.startsWith('recipe-alias:')).map(({phrase,recipeId})=>({phrase,recipeId})),recipeUsage:state.meta.filter(r=>r.key.startsWith('recipe-usage:')).map(({recipeId,favorite,lastUsedAt})=>({recipeId,favorite:Boolean(favorite),lastUsedAt:lastUsedAt??null})),recipes:(state.recipes??[]).map(r=>r.recipe),recipeDrafts:(state.recipeDrafts??[]).map(r=>r.recipe),recipeHistory:(state.recipeHistory??[]).map(r=>r.recipe),diary:JSON.parse(local.getItem(NUTRITION_STORAGE_KEY)??'[]'),products,customProducts,
  favorites:state.usage.filter(row=>row.favorite&&ids.has(row.key)).map(row=>row.key),recent:state.usage.filter(row=>row.lastUsedAt&&ids.has(row.key)).sort((a,b)=>b.lastUsedAt-a.lastUsedAt).slice(0,20).map(row=>row.key),
  aliases:state.meta.filter(row=>row.key.startsWith('alias:')&&ids.has(row.productId)).map(row=>({phrase:row.phrase,productId:row.productId})),
  portionMemory:state.meta.filter(row=>row.key.startsWith('portion:')).map(row=>row.definition),
@@ -76,7 +81,7 @@ export async function importBackup(raw,{mode='merge',storage=createProductStorag
   const oldEntries=JSON.parse(oldDiary??'[]');if(!Array.isArray(oldEntries)||oldEntries.some(row=>!validDiaryEntry(row)))fail('Bieżący dziennik jest uszkodzony. Najpierw zabezpiecz jego kopię.');
   local.setItem(NUTRITION_STORAGE_KEY,oldDiary??'[]'); // quota/permission check before mutation
   const progressStore=typeof indexedDB==='undefined'?{snapshot:async()=>({measurements:[],sessions:[],photos:[]}),replace:async()=>{},close:async()=>{}}:createProgressStore(),previousProgress=await progressStore.snapshot();const next=structuredClone(previous),now=Date.now();for(const name of ['recipes','recipeDrafts','recipeHistory'])next[name]??=[];
-  if(mode==='replace'){next.recipes=[];next.recipeDrafts=[];next.recipeHistory=[];next.products=[];next.usage=[];next.selections=[];next.meta=next.meta.filter(row=>!row.key.startsWith('recipe-alias:')&&!row.key.startsWith('recipe-usage:')&&!row.key.startsWith('custom:')&&!row.key.startsWith('alias:')&&!row.key.startsWith('portion:')&&row.key!=='portion-settings');}
+  if(mode==='replace'){next.recipes=[];next.recipeDrafts=[];next.recipeHistory=[];next.products=[];next.usage=[];next.selections=[];next.meta=next.meta.filter(row=>!row.key.startsWith('recipe-variant:')&&!row.key.startsWith('recipe-alias:')&&!row.key.startsWith('recipe-usage:')&&!row.key.startsWith('custom:')&&!row.key.startsWith('alias:')&&!row.key.startsWith('portion:')&&row.key!=='portion-settings');}
   const merge=(old,rows,key)=>[...keyed([...rows,...old],key).values()]; // existing values win in merge mode
   for(const name of ['recipes','recipeDrafts','recipeHistory'])next[name]=merge(next[name],backup.data[name].map(recipe=>({key:name==='recipeHistory'?`${recipe.id}:v${recipe.version}`:recipe.id,recipe})),row=>row.key);
   next.products=merge(next.products,backup.data.products.map(product=>({key:product.id,product,fetchedAt:0,revision:PRODUCT_CACHE_REVISION})),row=>row.key);
@@ -84,8 +89,16 @@ export async function importBackup(raw,{mode='merge',storage=createProductStorag
   if(backup.data.training!==null){const checked=mode==='replace'?backup.data.training:mergeTraining(trainingFromRecords(next.meta),backup.data.training);next.meta=next.meta.filter(r=>!r.key.startsWith(TRAINING_PREFIX));next.meta.push(...trainingRecords(checked));}
   {const current=trainingFromRecords(previous.meta).schedule,restored=trainingFromRecords(next.meta);const schedule=backup.data.trainingSchedule===null?current:mode==='replace'?backup.data.trainingSchedule:mergeSchedule(current??emptySchedule(),backup.data.trainingSchedule);if(schedule!==undefined){restored.schedule=schedule;next.meta=next.meta.filter(r=>!r.key.startsWith(TRAINING_PREFIX));next.meta.push(...trainingRecords(restored));}}
   if(backup.data.settings!==null){const existing=next.meta.find(r=>r.key===SETTINGS_KEY);if(mode==='replace'||!existing){next.meta=next.meta.filter(r=>r.key!==SETTINGS_KEY);next.meta.push({key:SETTINGS_KEY,value:backup.data.settings});}}
-  const importedMeta=[...backup.data.recipeAliases.map(a=>({key:'recipe-alias:'+a.phrase,...a})),...backup.data.recipeUsage.map(u=>({key:'recipe-usage:'+u.recipeId,...u})),...backup.data.portionMemory.map(definition=>({key:`portion:${definition.productId}:${definition.unit}`,definition})),{key:'portion-settings',value:backup.data.portionSettings},...backup.data.customProducts.map(product=>({key:product.id,product})),...backup.data.aliases.map(alias=>({key:`alias:${alias.phrase}`,...alias}))];
+  const importedMeta=[...backup.data.recipeVariants.map(variant=>({key:'recipe-variant:'+variant.id,variant})),...backup.data.recipeAliases.map(a=>({key:'recipe-alias:'+a.phrase,...a})),...backup.data.recipeUsage.map(u=>({key:'recipe-usage:'+u.recipeId,...u})),...backup.data.portionMemory.map(definition=>({key:`portion:${definition.productId}:${definition.unit}`,definition})),{key:'portion-settings',value:backup.data.portionSettings},...backup.data.customProducts.map(product=>({key:product.id,product})),...backup.data.aliases.map(alias=>({key:`alias:${alias.phrase}`,...alias}))];
   next.meta=merge(next.meta,importedMeta,row=>row.key);
+  const variants=next.meta.filter(r=>r.key.startsWith('recipe-variant:')).map(r=>validateRecipeVariant(r.variant));
+  if(variants.length>2000)fail('Limit 2000 wariantów po połączeniu kopii.');
+  for(const variant of variants){let base=[...next.recipes,...next.recipeHistory].map(r=>r.recipe).find(r=>r.id===variant.baseRecipeId&&r.version===variant.baseVersion);
+   if(!base){base=[...backup.data.recipes,...backup.data.recipeHistory].find(r=>r.id===variant.baseRecipeId&&r.version===variant.baseVersion);if(!base)fail('Brak bazowej wersji wariantu po imporcie.');next.recipeHistory.push({key:`${base.id}:v${base.version}`,recipe:base});}
+   applyRecipeVariant(base,variant);
+  }
+  if(next.recipeHistory.length>2000)fail('Limit 2000 wersji historii po połączeniu kopii.');
+
   const usage=keyed(next.usage,row=>row.key);for(const id of backup.data.favorites){const row=usage.get(id)??{key:id,lastUsedAt:null,order:0};usage.set(id,{...row,favorite:true,favoriteAt:now});}
   for(const [index,id]of backup.data.recent.entries()){const row=usage.get(id)??{key:id,favorite:false,order:0};usage.set(id,{...row,lastUsedAt:row.lastUsedAt??now-index,order:index});}next.usage=[...usage.values()];
   const pins=backup.data.aliases.map(alias=>({key:`alias ${alias.phrase}`,choices:[{productId:alias.productId,count:1,lastUsedAt:now}]}));

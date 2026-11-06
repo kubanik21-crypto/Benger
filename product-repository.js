@@ -22,9 +22,9 @@ export function createProductRepository({ portions = createPortionRepository(), 
     const query=parseProductQuery(raw).normalizedQuery;
     const [own, starred, used, cached, usda] = await Promise.all([custom.list(), productsFor(await cache.favoriteIds()), productsFor(await cache.recentIds()), cache.allProducts(), generic.search(query).catch(()=>[])]);
     const alias = await cache.resolveAlias(raw)??await cache.resolveAlias(parseProductQuery(raw).intent.query)??await cache.resolveAlias(query);
-    return rankProductCandidates(deduplicateProducts([...(alias ? await productsFor([alias]) : []), ...searchProducts([...own,...starred,...used,...cached.map(p=>usda.find(fresh=>fresh.id===p.id)??p)],query), ...usda]),query).slice(0,20).map(r=>r.product);
+    return rankProductCandidates(deduplicateProducts([...(alias ? await productsFor([alias]) : []), ...searchProducts([...own,...starred,...used,...cached.map(p=>usda.find(fresh=>fresh.id===p.id)??p)],query), ...usda]),query).filter(r=>r.score>0).slice(0,20).map(r=>r.product);
   };
-  const merge = (products,query) => rankProductCandidates(deduplicateProducts(products),query).slice(0,20).map(r=>r.product);
+  const merge = (products,query) => rankProductCandidates(deduplicateProducts(products),query).filter(r=>r.identityCompatible).slice(0,20).map(r=>r.product);
   async function request(key, kind, operation) {
     if (inFlight.has(key)) return inFlight.get(key);
     const pending = (async () => {
@@ -53,7 +53,7 @@ export function createProductRepository({ portions = createPortionRepository(), 
     deleteCustomProduct: id => custom.remove(id),
     genericMatches: query => generic.search(parseProductQuery(query).normalizedQuery).catch(()=>[]),
     findLocalProducts: localMatches,
-    async similarProducts(query){const term=parseProductQuery(query).normalizedQuery;const cached=await this.allCachedProducts(),genericSuggestions=await generic.search(term,{partial:true}).catch(()=>[]);return rankProductCandidates(deduplicateProducts([...cached,...genericSuggestions]),term).filter(r=>r.similarity>=.5).sort((a,b)=>b.similarity-a.similarity||b.score-a.score).slice(0,5).map(r=>r.product);},
+    async similarProducts(query){const term=parseProductQuery(query).normalizedQuery;const cached=await this.allCachedProducts(),genericSuggestions=await generic.search(term,{partial:true}).catch(()=>[]);return rankProductCandidates(deduplicateProducts([...cached,...genericSuggestions]),term).filter(r=>r.identityCompatible&&r.similarity>=.5).sort((a,b)=>b.similarity-a.similarity||b.score-a.score).slice(0,5).map(r=>r.product);},
     async allCachedProducts() { return deduplicateProducts([...(await custom.list()), ...(await cache.allProducts())]); },
     getProductById: fromCache,
     persistent: cache.persistent,

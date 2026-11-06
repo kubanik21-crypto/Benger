@@ -1,3 +1,4 @@
+import {createExecutionEditor} from './recipe-execution-ui.js';
 import { createRecipeResolver } from './recipe-resolver.js';
 import {createRecipeRepository} from './recipe-repository.js';
 import {createRecipeCard,updateRecipeCard} from './recipe-proposal-ui.js';
@@ -16,6 +17,7 @@ const number = new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 2 });
 const unresolved = () => ({ product: null, confidence: 'LOW', alternatives: [], reason: 'changed-query', requiresConfirmation: true });
 
 export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateError, recipes = createRecipeRepository() }) {
+  const executionEditors=new Map();
   const recipeResolver=createRecipeResolver({repository:recipes});
   const resolver = createProductResolver({ repository });
   const text = $('meal-text'), save = $('save-meal-proposal'), form = $('meal-text-form');
@@ -34,7 +36,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   function invalidate(message = '') {
     revision++; controller?.abort(); controller = null;
     for (const request of rowControllers.values()) request.abort();
-    rowControllers.clear(); rowVersions.clear(); choiceWrites.clear(); pendingPortions.clear(); proposal = null; summaryValid = false;
+    executionEditors.clear();rowControllers.clear(); rowVersions.clear(); choiceWrites.clear(); pendingPortions.clear(); proposal = null; summaryValid = false;
     $('meal-proposal').hidden = true; $('proposal-empty').hidden = false;
     $('meal-proposal-items').replaceChildren(); $('meal-proposal-issues').replaceChildren();
     $('meal-proposal-summary').hidden = true; $('meal-text-status').textContent = message;
@@ -69,10 +71,12 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
   }
   function drawRow(item) {
     if(item.kind==='RECIPE')return createRecipeCard(item,{
-      onInput:patch=>{const row=findItem(item.id);if(!row)return;nextRowVersion(item.id);const next=updateMealItemPortion(row,patch);replaceItem(item.id,next);updateRecipeCard(findCard(item.id),next);summary();},
-      onQuery:query=>{const row=findItem(item.id);if(!row)return;nextRowVersion(item.id);const next={...row,intent:{...row.intent,query},resolution:{recipe:null,alternatives:[],confidence:'LOW'},portion:null};replaceItem(item.id,next);updateRecipeCard(findCard(item.id),next);summary();},
-      onSearch:async query=>{const v=revision,rv=nextRowVersion(item.id);pendingPortions.set(item.id,rv);buttonState();try{const resolution=await recipeResolver.resolve(query);if(revision!==v||rowVersions.get(item.id)!==rv)return;const row=findItem(item.id),next={...row,resolution,portion:resolution.recipe?resolveRecipePortion(resolution.recipe,row.intent.amount,row.intent.unit).portion:null};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();}catch(f){error(f.message);}finally{if(pendingPortions.get(item.id)===rv){pendingPortions.delete(item.id);buttonState();}}},
-      onChoose:async id=>{const v=revision,rv=nextRowVersion(item.id);pendingPortions.set(item.id,rv);buttonState();try{const recipe=await recipes.get(id);if(!recipe)throw new Error('Przepis został usunięty.');if(revision!==v||rowVersions.get(item.id)!==rv)return;const row=findItem(item.id),resolution={recipe,confidence:'HIGH',alternatives:[],reason:'explicit-recipe-choice'},next={...row,resolution,portion:resolveRecipePortion(recipe,row.intent.amount,row.intent.unit).portion};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();}catch(f){error(f.message);}finally{if(pendingPortions.get(item.id)===rv){pendingPortions.delete(item.id);buttonState();}}},
+      onCustomize:async()=>{if(pendingPortions.has(item.id))return;const row=findItem(item.id);if(!row?.portion)return;const v=revision,rv=nextRowVersion(item.id);pendingPortions.set(item.id,rv);buttonState();const dialog=document.createElement('dialog'),heading=document.createElement('h2'),status=document.createElement('p'),apply=document.createElement('button'),cancel=document.createElement('button');heading.textContent='Dostosuj tę porcję';status.setAttribute('role','status');apply.textContent='Użyj w propozycji';cancel.textContent='Anuluj';apply.type=cancel.type='button';dialog.setAttribute('aria-label','Dostosuj tę porcję');let editor;const changed=()=>{try{editor.portion();apply.disabled=false;}catch{apply.disabled=true;}};try{editor=createExecutionEditor({recipes,repository,onChange:changed});const previous=executionEditors.get(item.id)?.snapshot();await editor.open(row.resolution.recipe,row.intent.amount,row.intent.unit,previous?.variantId);if(previous)editor.restore(previous);dialog.append(heading,editor.root,status,apply,cancel);document.body.append(dialog);dialog.addEventListener('close',()=>{dialog.remove();if(pendingPortions.get(item.id)===rv){pendingPortions.delete(item.id);buttonState();}findCard(item.id)?.querySelector('[data-customize-recipe]')?.focus();},{once:true});cancel.onclick=()=>dialog.close();apply.onclick=()=>{try{if(revision!==v||rowVersions.get(item.id)!==rv)throw new Error('Propozycja zmieniła się. Dostosuj ją ponownie.');const next={...findItem(item.id),portion:editor.portion()};executionEditors.set(item.id,editor);replaceItem(item.id,next);updateRecipeCard(findCard(item.id),next);summary();dialog.close();}catch(e){status.textContent=e.message;}};changed();dialog.showModal();}catch(e){error(e.message);pendingPortions.delete(item.id);buttonState();dialog.remove();}},
+
+      onInput:patch=>{const row=findItem(item.id);if(!row)return;nextRowVersion(item.id);const next=updateMealItemPortion(row,patch);const editor=executionEditors.get(item.id);if(editor){editor.rescale(next.intent.amount,next.intent.unit);try{next.portion=editor.portion();}catch{next.portion=null;}}replaceItem(item.id,next);updateRecipeCard(findCard(item.id),next);summary();},
+      onQuery:query=>{executionEditors.delete(item.id);const row=findItem(item.id);if(!row)return;nextRowVersion(item.id);const next={...row,intent:{...row.intent,query},resolution:{recipe:null,alternatives:[],confidence:'LOW'},portion:null};replaceItem(item.id,next);updateRecipeCard(findCard(item.id),next);summary();},
+      onSearch:async query=>{executionEditors.delete(item.id);const v=revision,rv=nextRowVersion(item.id);pendingPortions.set(item.id,rv);buttonState();try{const resolution=await recipeResolver.resolve(query);if(revision!==v||rowVersions.get(item.id)!==rv)return;const row=findItem(item.id),next={...row,resolution,portion:resolution.recipe?resolveRecipePortion(resolution.recipe,row.intent.amount,row.intent.unit).portion:null};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();}catch(f){error(f.message);}finally{if(pendingPortions.get(item.id)===rv){pendingPortions.delete(item.id);buttonState();}}},
+      onChoose:async id=>{executionEditors.delete(item.id);const v=revision,rv=nextRowVersion(item.id);pendingPortions.set(item.id,rv);buttonState();try{const recipe=await recipes.get(id);if(!recipe)throw new Error('Przepis został usunięty.');if(revision!==v||rowVersions.get(item.id)!==rv)return;const row=findItem(item.id),resolution={recipe,confidence:'HIGH',alternatives:[],reason:'explicit-recipe-choice'},next={...row,resolution,portion:resolveRecipePortion(recipe,row.intent.amount,row.intent.unit).portion};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();}catch(f){error(f.message);}finally{if(pendingPortions.get(item.id)===rv){pendingPortions.delete(item.id);buttonState();}}},
       onAlias:async phrase=>{const row=findItem(item.id);try{if(row?.resolution.recipe){await recipes.setAlias(phrase,row.resolution.recipe.id);$('meal-text-status').textContent='Alias przepisu zapisany.';}}catch(f){error(f.message);}},
     });
     return createProposalCard(item, {
@@ -142,7 +146,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
       const result = await repository.searchProducts(query, { signal: request.signal, forceExternal:true });
       if (revision !== version || rowVersions.get(id) !== rowVersion) return;
       // Wyniki wyszukania są propozycjami do jawnego wyboru, nie drugim resolverem.
-      const row = { ...findItem(id), resolution: { ...unresolved(), alternatives: result.products.slice(0, 5) } };
+      const row = { ...findItem(id), resolution: { ...unresolved(), alternatives: result.products.slice(0, 20) } };
       replaceItem(id, row);
       renderProposalChoices(card, row.resolution.alternatives, productId => { void chooseRow(id, productId); });
       updateProposalCard(card, row, result.error ? productErrorMessage(result.error) : result.products.length ? '? Wybierz właściwy produkt z wyników.' : '! Brak wyników. Zmień nazwę lub markę.');
@@ -180,19 +184,20 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
     for (const item of proposal.items) {
       const card = findCard(item.id), fields = readProposalFields(card), query = card.querySelector('[data-query]').value;
       if (query !== item.intent.query) {
-        nextRowVersion(item.id); choiceWrites.delete(item.id);
+        nextRowVersion(item.id); executionEditors.delete(item.id);choiceWrites.delete(item.id);
         const row = { ...item, intent: { ...item.intent, query }, resolution: item.kind==='RECIPE'?{recipe:null,confidence:'LOW',alternatives:[]}:unresolved(), portion: null, learned: false };
         replaceItem(item.id, row); renderProposalChoices(card, [], () => {}); (row.kind==='RECIPE'?updateRecipeCard:updateProposalCard)(card, row); changed = true;
       } else if (Object.entries(fields).some(([key, value]) => value !== item.intent[key])) {
-        nextRowVersion(item.id); const row = updateMealItemPortion(item, fields);
+        nextRowVersion(item.id); const row = updateMealItemPortion(item, fields);const editor=executionEditors.get(item.id);if(editor){editor.rescale(row.intent.amount,row.intent.unit);try{row.portion=editor.portion();}catch{row.portion=null;}}
         replaceItem(item.id, row); (row.kind==='RECIPE'?updateRecipeCard:updateProposalCard)(card, row); changed = true;
       }
     }
     if (changed) { summary(); error('Dane pozycji zmieniły się. Sprawdź aktualny podgląd przed dodaniem.'); return; }
+    const savedEditors=[...executionEditors.values()];
     const current = proposal, pendingChoices = new Map(choiceWrites);
     saving = true; buttonState(); clearError();
     try {
-      for(const item of current.items.filter(i=>i.kind==='RECIPE')){const latest=await recipes.get(item.resolution.recipe.id);if(proposal!==current) return;if(!latest)throw new Error('Przepis został usunięty. Wybierz inny przed zapisaniem.');if(latest.version!==item.resolution.recipe.version){const next={...item,resolution:{...item.resolution,recipe:latest},portion:resolveRecipePortion(latest,item.intent.amount,item.intent.unit).portion};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();error('Przepis zmienił się w innej karcie. Sprawdź nowe wartości przed dodaniem.');return;}}
+      for(const item of current.items.filter(i=>i.kind==='RECIPE')){const latest=await recipes.get(item.resolution.recipe.id);if(proposal!==current) return;if(!latest)throw new Error('Przepis został usunięty. Wybierz inny przed zapisaniem.');if(latest.version!==item.resolution.recipe.version){if(executionEditors.has(item.id))throw new Error('Baza dostosowanego przepisu zmieniła się. Twoje ilości zachowano w propozycji. Wybierz ponownie przepis po sprawdzeniu zmian.');executionEditors.delete(item.id);const next={...item,resolution:{...item.resolution,recipe:latest},portion:resolveRecipePortion(latest,item.intent.amount,item.intent.unit).portion};replaceItem(item.id,next);findCard(item.id).replaceWith(drawRow(next));summary();error('Przepis zmienił się w innej karcie. Sprawdź nowe wartości przed dodaniem.');return;}}
       if(proposal!==current||current.source!==text.value||current.date!==readSafeDate()||current.defaultMeal!==getMeal())return;
       const portions = current.items.map(item => ({ ...item.portion, meal: item.intent.meal }));
       if (onSave(portions, current.date)) {
@@ -212,6 +217,7 @@ export function initVoiceEntry({ repository, readDate, getMeal, onSave, onDateEr
           }
           catch { if (revision === savedRevision) $('meal-text-status').textContent += ' Wpisy zapisane; nie udało się zapamiętać części dopasowań.'; }
         })();
+        for(const editor of savedEditors)await editor.persistenceDialog();
         pendingLearning.add(learning);void learning.finally(()=>{pendingLearning.delete(learning);if(!pendingLearning.size)form.dataset.learningState='idle';});
       }
     } catch (failure) { error(failure.message); }

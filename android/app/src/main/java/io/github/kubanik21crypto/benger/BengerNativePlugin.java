@@ -23,6 +23,30 @@ import java.util.ArrayList;
 
 @CapacitorPlugin(name="BengerNative", permissions={@Permission(alias="microphone", strings={Manifest.permission.RECORD_AUDIO})})
 public class BengerNativePlugin extends Plugin {
+    @Override protected void handleOnResume() {
+        super.handleOnResume();
+        notifyListeners("foreground", new JSObject());
+    }
+
+    @PluginMethod public void openNotificationSettings(PluginCall call) {
+        getActivity().runOnUiThread(() -> {
+            try {
+                Intent intent;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    intent = new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                    intent.putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, getContext().getPackageName());
+                } else {
+                    intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        android.net.Uri.parse("package:" + getContext().getPackageName()));
+                }
+                getActivity().startActivity(intent);
+                call.resolve();
+            } catch (Exception error) {
+                call.reject("Nie można otworzyć ustawień powiadomień.");
+            }
+        });
+    }
+
     private SpeechRecognizer recognizer;
     private String session;
 

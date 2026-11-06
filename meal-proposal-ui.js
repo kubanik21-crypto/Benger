@@ -44,15 +44,28 @@ export function updateProposalCard(card, item, message = '') {
   amount.setAttribute('aria-invalid', String(!item.intent.amount));
 }
 export function renderProposalChoices(card, products, onChoose) {
-  const choices = card.querySelector('[data-choices]'); choices.replaceChildren();
-  for (const product of products.slice(0, 5)) {
-    const button = node('button', 'proposal-choice button-secondary');
-    button.type = 'button'; button.dataset.choiceId = product.id;
-    button.append(node('strong', '', product.name), node('span', 'field-help', `${product.brand ?? 'Bez marki'} · ${number.format(product.per100.kcal)} kcal / 100 ${product.unit}`));
-    button.setAttribute('aria-label', `Wybierz ${product.name}${product.brand ? `, ${product.brand}` : ''}`);
-    button.addEventListener('click', () => onChoose(product.id));
-    choices.append(button);
+  const choices=card.querySelector('[data-choices]'),pageSize=6;
+  const unique=[...new Map(products.map(p=>[p.id,p])).values()];let page=0;
+  function render(moveFocus=false){
+    choices.replaceChildren();if(!unique.length)return;
+    const pages=Math.ceil(unique.length/pageSize),from=page*pageSize;
+    const status=node('p','field-help',`Wyniki ${from+1}–${Math.min(from+pageSize,unique.length)} z ${unique.length} · Strona ${page+1} z ${pages}`);
+    status.dataset.choicePageStatus='';status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.tabIndex=-1;choices.append(status);
+    for(const product of unique.slice(from,from+pageSize)){
+      const button=node('button','proposal-choice button-secondary');button.type='button';button.dataset.choiceId=product.id;
+      button.append(node('strong','',product.name),node('span','field-help',`${product.brand??'Bez marki'} · ${productSourceLabel(product)} · ${number.format(product.per100.kcal)} kcal / 100 ${product.unit}`));
+      button.setAttribute('aria-label',`Wybierz ${product.name}${product.brand?`, ${product.brand}`:''}`);
+      button.addEventListener('click',()=>onChoose(product.id));choices.append(button);
+    }
+    if(pages>1){const nav=node('nav','proposal-choice-pages');nav.setAttribute('aria-label','Strony wyników produktów');
+      for(const [step,label]of [[-1,'← Poprzednia strona'],[1,'Następna strona →']]){
+        const button=node('button','button-secondary',label);button.type='button';button.dataset.choicePage=step<0?'previous':'next';button.disabled=page+step<0||page+step>=pages;
+        button.onclick=()=>{page+=step;render(true);};nav.append(button);
+      }choices.append(nav);
+    }
+    if(moveFocus){status.focus({preventScroll:true});status.scrollIntoView({block:'nearest'});}
   }
+  render();
 }
 export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose, onPortion }) {
   const card = node('article', 'food-entry proposal-card'); card.dataset.itemId = item.id;
@@ -88,7 +101,7 @@ export function createProposalCard(item, { onInput, onQuery, onSearch, onChoose,
   edit.append(node('summary', '', 'Zmień lub wyszukaj produkt'));
   const searchLabel = node('label', '', 'Nazwa produktu / marka'); searchLabel.htmlFor = `${item.id}-query`;
   const query = node('input'); query.id = searchLabel.htmlFor; query.type = 'search'; query.maxLength = 120; query.value = item.intent.query; query.dataset.query = '';
-  query.addEventListener('input', () => onQuery(query.value));
+  query.addEventListener('input', () => { onQuery(query.value); renderProposalChoices(card,[],onChoose); });
   const search = node('button', 'button-secondary', 'Szukaj produktu'); search.type = 'button'; search.dataset.search = '';
   search.addEventListener('click', () => onSearch(query.value));
   query.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); onSearch(query.value); } });

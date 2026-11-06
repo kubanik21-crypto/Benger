@@ -1,6 +1,7 @@
 // Shared semantic vocabulary: product families, not nutritional values or inflection lists.
 export const POLISH_FOOD_TERMS = {
  salatka:'salad',sos:'sauce',sojowy:'soy',kokosowy:'coconut',ciemny:'dark',jasny:'light',filet:'fillet',
+ poledwiczka:'tenderloin',wieprzowy:'pork',wolowy:'beef',
  ryz:'rice',makaron:'pasta',kurczak:'chicken',piers:'breast',wolowina:'beef',wieprzowina:'pork',indyk:'turkey',
  banan:'banana',jablko:'apple',ziemniaki:'potato',ziemniak:'potato',marchew:'carrot',jajko:'egg',jajka:'egg',mleko:'milk',maslo:'butter',oliwa:'olive oil',
  platki:'oats',owsiane:'',pieczywo:'bread',chleb:'bread',bulka:'roll',warzywa:'vegetable',owoce:'fruit',ryba:'fish',losos:'salmon',tunczyk:'tuna',dorsz:'cod',

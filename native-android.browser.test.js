@@ -14,7 +14,7 @@ test('Android web layer uses native HTTP, speech snapshots and backup picker wit
   await p.evaluate("(()=>{const id=window.__native.speechId;for(const [text,final]of [['250',false],['250 ml',false],['250 ml mleka',true]])window.__native.emit('speech',{sessionId:id,type:'result',text,final});window.__native.emit('speech',{sessionId:id,type:'end'})})()");await wait(p,"document.getElementById('meal-text').value==='250 ml mleka'");assert.equal((await p.saved()).length,1);
  });
  await t.test('full backup uses Android document picker, keeping full schema and diary',async()=>{
-  await p.evaluate("location.hash='/dane';document.getElementById('backup-export-photos').click()");await wait(p,'window.__native.calls.backups.length===1');const saved=await p.evaluate('window.__native.calls.backups[0]');assert.equal(saved.filename,'benger-full-backup.json');const backup=JSON.parse(saved.data);assert.equal(backup.schemaVersion,7);assert.equal(backup.data.diary.length,1);assert.equal(backup.data.diary[0].nutrition.kcal,280);assert.match(await p.evaluate("document.getElementById('backup-status').textContent"),/zapisany/);
+  await p.evaluate("location.hash='/dane';document.getElementById('backup-export-photos').click()");await wait(p,'window.__native.calls.backups.length===1');const saved=await p.evaluate('window.__native.calls.backups[0]');assert.equal(saved.filename,'benger-full-backup.json');const backup=JSON.parse(saved.data);assert.equal(backup.schemaVersion,8);assert.equal(backup.data.diary.length,1);assert.equal(backup.data.diary[0].nutrition.kcal,280);assert.match(await p.evaluate("document.getElementById('backup-status').textContent"),/zapisany/);
  });
  assert.equal(b.errors.some(e=>e.exceptionId||Array.isArray(e)),false);
 });

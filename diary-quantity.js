@@ -1,4 +1,5 @@
 import {copyDiaryEntry, validDiaryEntry} from './diary-entry.js';
+import {scaleRecipeIngredient} from './recipe-model.js';
 import {scaleNutrition} from './nutrition.js';
 
 export function parseDiaryAmount(raw) {
@@ -14,7 +15,7 @@ export function resizeDiaryEntry(entry, amount) {
   if(!Number.isFinite(amount)||amount<=0||amount>1e7)throw new Error('Podaj poprawną dodatnią ilość.');
   if(amount===entry.amount)return next;
   next.nutrition=scaleNutrition(entry.nutrition,amount/entry.amount);
-  next.amount=amount;
+  next.amount=amount;if(next.mealSnapshot){next.mealSnapshot.ingredients=next.mealSnapshot.ingredients.map(i=>scaleRecipeIngredient(i,amount/entry.amount));if(next.mealSnapshot.consumedServings!==null)next.mealSnapshot.consumedServings*=amount/entry.amount;}
   // An explicitly entered mass/volume replaces the old household estimate.
   // Keeping its previous spoon/piece count would contradict the new amount.
   delete next.displayPortion;

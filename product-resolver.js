@@ -12,7 +12,7 @@ function validIntent(intent) {
 const compatible = (product, intent) => (!intent.unit || product.unit === intent.unit) && !hasPercentageConflict(product, intent.query ?? '') && variantCompatible(product, intent.query ?? '');
 const result = (product, confidence, alternatives, reason, extra = {}) => ({
   product: product ? copyProduct(product) : null, confidence,
-  alternatives: deduplicateProducts(alternatives).filter(item => item.id !== product?.id).slice(0, 5),
+  alternatives: deduplicateProducts(alternatives).filter(item => item.id !== product?.id).slice(0, 20),
   reason, requiresConfirmation: true, ...extra,
 });
 
@@ -42,7 +42,7 @@ export function createProductResolver({ repository }) {
     ]);
     const preferred = (await Promise.all(memory.map(choice => repository.getProductById(choice.productId)))).filter(Boolean);
     const all = deduplicateProducts([...preferred, ...favorites, ...recent, ...cached]);
-    const remembered = memory.filter(choice => all.some(product => product.id === choice.productId && compatible(product, intent)));
+    const remembered = memory.filter(choice => all.some(product => product.id === choice.productId && compatible(product, intent) && matchesFoodQuery(product,query)));
     const firstChoice = remembered[0];
     if (firstChoice) {
       const product = all.find(item => item.id === firstChoice.productId);
@@ -55,22 +55,22 @@ export function createProductResolver({ repository }) {
     const similar=history.filter(record=>record.key!==phrase && !record.key.startsWith('alias ') && phraseSimilarity(record.key,phrase)>=2/3).flatMap(record=>record.choices.filter(choice=>choice.count>=2).map(choice=>({choice,score:phraseSimilarity(record.key,phrase)}))).sort((a,b)=>b.score-a.score || b.choice.count-a.choice.count);
     const related=deduplicateProducts((await Promise.all(similar.map(row=>repository.getProductById(row.choice.productId)))).filter(product=>product && compatible(product,intent) && matchesFoodQuery(product,query)));
     if(related.length===1)return result(related[0],'MEDIUM',[],'similar-confirmed-phrase');
-    const eligible = all.filter(product => compatible(product, intent) && matchesFoodQuery(product, query));
+    const cachedEligible=all.filter(product=>compatible(product,intent)&&matchesFoodQuery(product,query));
+    const generic=rankProductCandidates((cachedEligible.some(p=>p.source==='custom')?[]:await repository.genericMatches?.(query)??[]).filter(product=>compatible(product,intent)),query).filter(r=>r.score>0).map(r=>r.product);
+    // Look at the local generic catalog even when a single cached product exists.
+    // Cache is retrieval history, not evidence that this is the intended food.
+    // A matching user-defined food retains its existing local-catalog priority.
+    const eligible=rankProductCandidates(deduplicateProducts([...cachedEligible,...generic]),query).filter(r=>r.score>0).map(r=>r.product);
     const obvious=obviousProduct(eligible,query);
-    if(obvious&&eligible.length>1)return result(obvious,'HIGH',eligible.filter(p=>p.id!==obvious.id),'obvious-name-match',{identityConfirmed:true});
-    if (eligible.length === 1) {
-      const product = eligible[0];
-      const origin = recent.some(item => item.id === product.id) ? 'recent' : favorites.some(item => item.id === product.id) ? 'favorite' : 'local-cache';
-      return result(product, 'MEDIUM', [], `unique-${origin}`,{identityConfirmed:obvious?.id===product.id});
+    if(obvious&&(eligible.length>1||!cachedEligible.length))return result(obvious,'HIGH',eligible.filter(p=>p.id!==obvious.id),'obvious-name-match',{identityConfirmed:true});
+    if(eligible.length===1){
+      const product=eligible[0];
+      const origin=recent.some(item=>item.id===product.id)?'recent':favorites.some(item=>item.id===product.id)?'favorite':cachedEligible.some(p=>p.id===product.id)?'local-cache':'generic';
+      return result(product,'MEDIUM',[],`unique-${origin}`,{identityConfirmed:obvious?.id===product.id});
     }
-    if (eligible.length > 1) return result(null, 'LOW', eligible, 'ambiguous-products');
+    if(eligible.length>1){const priority=p=>favorites.some(f=>f.id===p.id)?0:recent.some(r=>r.id===p.id)?1:2;return result(null,'LOW',[...eligible].sort((a,b)=>priority(a)-priority(b)),cachedEligible.length?'ambiguous-products':'ambiguous-generic-products');}
     const localMismatch=all.filter(product=>matchesFoodQuery(product,query));
     if(localMismatch.length)return result(null,'LOW',localMismatch,'unit-or-variant-mismatch');
-    const generic=rankProductCandidates((await repository.genericMatches?.(query) ?? []).filter(product=>compatible(product,intent)),query).filter(r=>r.score>0).map(r=>r.product);
-    const genericObvious=obviousProduct(generic,query);
-    if(genericObvious)return result(genericObvious,'HIGH',generic.filter(p=>p.id!==genericObvious.id),'obvious-name-match',{identityConfirmed:true});
-    if(generic.length===1)return result(generic[0],'MEDIUM',[],'unique-generic');
-    if(generic.length>1)return result(null,'LOW',generic,'ambiguous-generic-products');
     if (allowExternal) {
       const response = await repository.searchProducts(query, { signal });
       const products = deduplicateProducts(response.products).filter(product => compatible(product, intent) && matchesFoodQuery(product, query));

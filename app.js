@@ -1,3 +1,4 @@
+import {initTrainingReminders} from './training-reminders-ui.js';
 import {initNativePlatform} from './native-platform.js';
 import {initProductPolish} from './product-polish-ui.js';
 import {initTraining} from './training-ui.js';
@@ -30,6 +31,7 @@ initNavigation({startRoute:polish.settings.startRoute});
 const progressUI=initProgress();
 const dashboardUI=initDashboard();
 const trainingUI=initTraining();
+void initTrainingReminders();
 
 const $ = id => document.getElementById(id);
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
@@ -199,7 +201,7 @@ function createPortionArticle(entry) {
   if (entry.kind==='RECIPE'||entry.brand || entry.source) {
     const provenance = document.createElement('p');
     provenance.className = 'entry-source';
-    provenance.textContent = entry.kind==='RECIPE'?`Twój przepis · v${entry.recipeVersion}`:[entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Archiwalny produkt' : entry.source].filter(Boolean).join(' · ');
+    provenance.textContent = entry.kind==='RECIPE'?`Twój przepis · v${entry.recipeVersion}${entry.mealSnapshot?.variantName?' · '+entry.mealSnapshot.variantName:''}`:[entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Archiwalny produkt' : entry.source].filter(Boolean).join(' · ');
     article.append(provenance);
   }
   return article;
@@ -411,7 +413,7 @@ window.addEventListener('benger:native-pause',()=>{if($('scanner-dialog').open)$
 window.addEventListener('benger:route',event=>{if(event.detail.route!=='produkty'&&$('scanner-dialog').open)$('cancel-scanner').click();});
 const productRepository = createProductRepository();
 const recipeRepository=createRecipeRepository();
-const recipeDiary=initRecipeDiary({recipes:recipeRepository,readDate:readDiaryDate,getMeal:()=>mealSelect.value,onSave:(portions,date)=>appendNutritionPortions(portions,null,date)});
+const recipeDiary=initRecipeDiary({repository:productRepository,recipes:recipeRepository,readDate:readDiaryDate,getMeal:()=>mealSelect.value,onSave:(portions,date)=>appendNutritionPortions(portions,null,date)});
 const recipesUI=initRecipes({repository:productRepository,recipes:recipeRepository,onAddToDiary:recipeDiary.open});
 initStorageHealth();
 initPortionSettings(productRepository);

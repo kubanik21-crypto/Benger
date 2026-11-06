@@ -2,6 +2,7 @@ import {emptySchedule,validateScheduleRule,validateSchedule,validateScheduled,oc
 import {createProductStorage} from './product-cache.js';
 import {recipeId} from './recipe-id.js';
 import {EXERCISES} from './training-library.js';
+import {installNovember2026} from './training-november-2026.js';
 import {TRAINING_PREFIX,trainingFromRecords,trainingRecords,validateExercise,validateTemplate,validateSet,validateSession,emptyTraining,dosage,feeling} from './training-model.js';
 export function localTrainingDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function touchScheduleRule(schedule,id,stamp=new Date().toISOString()){const rule=schedule.rules.find(r=>r.id===id);if(rule&&Date.parse(stamp)>Date.parse(rule.updatedAt))rule.updatedAt=stamp;}
@@ -13,6 +14,7 @@ export function createTrainingRepository(){
  const completedKey=kind=>kind==='workout'?'completedWorkouts':'completedMobility';
  function active(state,kind,id){const s=state[activeKey(kind)];if(!s||s.id!==id)throw new Error('Ten trening lub Mobility nie jest już aktywne. Odśwież widok.');return s;}
  return {snapshot:()=>transaction(false),close:()=>storage.close(),
+ async installNovemberPlan(){return transaction(true,s=>{Object.assign(s,installNovember2026(s));return {templates:s.workoutTemplates.length+s.mobilityRoutines.length};});},
  async plan(input){const rule=validateScheduleRule(input);return transaction(true,s=>{const next=structuredClone(s.schedule??emptySchedule());if(next.rules.some(r=>r.id===rule.id))throw new Error('Plan o takim identyfikatorze już istnieje.');next.rules.push(rule);s.schedule=validateSchedule(next);return rule;});},
  async skipPlan(ruleId,date){return transaction(true,s=>{const next=structuredClone(s.schedule??emptySchedule());if(!occurrences(next,date,date).some(o=>o.id===ruleId))throw new Error('Plan w tym dniu nie istnieje.');next.exceptions.push({ruleId,date,type:'skip'});s.schedule=validateSchedule(next);});},
  async endPlan(ruleId,date){return transaction(true,s=>{s.schedule=endScheduleFrom(s.schedule??emptySchedule(),ruleId,date);touchScheduleRule(s.schedule,ruleId);});},

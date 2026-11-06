@@ -1,0 +1,1464 @@
+{
+  "sourceBuild": "fb2651dc8571fbf7f1fab70747d4f0c0b0a8bec7",
+  "apkSha256": "98022aa375273c9014698be9ec8d7adc03c79dcff2c5920e761be39bfcbb3854",
+  "certificateSha256": "015487cda5f2738abb6e814780f37a6271da720df5284e8a50f4bbb1f5bc7531",
+  "verifiedApkV2Signature": true,
+  "transformations": [
+    "Remove generated ?v=SHA import/asset queries",
+    "Remove generated build/native/endpoint HTML meta",
+    "Keep source app-storage.js for preview isolation; regenerate SW assets from source",
+    "Omit Capacitor-generated Cordova placeholders; native build regenerates them"
+  ],
+  "files": [
+    {
+      "path": "analysis-history.js",
+      "apkSha256": "9d80db06609f8e0177e3142a70e967fa1be92bd95046d076077681b36c20329b",
+      "restoredSha256": "0b067b276e4c5e7aed1f28d1a6e779ae3a4f2689405daaf63d74118a993d2618"
+    },
+    {
+      "path": "app-version.js",
+      "apkSha256": "21060c4fe308032bae839de1b4b69e85887d5fac98263f2cecda62eace373450",
+      "restoredSha256": "21060c4fe308032bae839de1b4b69e85887d5fac98263f2cecda62eace373450"
+    },
+    {
+      "path": "app.js",
+      "apkSha256": "6148ab08526eca834622e40e410aba3caa91ba3e5bfe4012032c720efe2e44b5",
+      "restoredSha256": "68dda86565b1e6d93716896b4b05bdfbdce716f87671078d9f8352e570d46eee"
+    },
+    {
+      "path": "backup-ui.js",
+      "apkSha256": "004f67bbd94f9beccf1bf2433c1bf58fe0433928bb7b8a17bce6010e60384268",
+      "restoredSha256": "9fee034bf4298be01457aeb854d04a10b372d050df31bb2d6ae6fca44db9e145"
+    },
+    {
+      "path": "backup.js",
+      "apkSha256": "ef22dcc4df0646d6ccb8a06d3b6173d74adbe617f6bce3d0675cd3fc29a2b0e4",
+      "restoredSha256": "953eeda111c2e9ab5746e00803985795b19474cf65ca31b434afaeb9b97a6d53"
+    },
+    {
+      "path": "barcode-scanner.js",
+      "apkSha256": "ffbe4e900eb120a379c615e79ec6344be99c738bccafe79759204d6fe12dc136",
+      "restoredSha256": "dc68b8bbda9fd5fe899b2beb0312284a2eea2a6f8b619622f5c88535902ea806"
+    },
+    {
+      "path": "barcode-utils.js",
+      "apkSha256": "5f49e7142eed387c76aff934930b101bc8f5cb908658bd77456dbdb1f3b08ef8",
+      "restoredSha256": "61168119a1afab17d4108c0962b76f67020cdbe28d829b7d30e63086fd70512c"
+    },
+    {
+      "path": "custom-product-ui.js",
+      "apkSha256": "0f7c0d27e713254cac5a923a914d4c2c31909add4d45226300900b7f7aeddb9d",
+      "restoredSha256": "babc10b4f17c6e203ab3efbd76c116cd7ba8c6f9d9c99c02139fc5b2ce3fc713"
+    },
+    {
+      "path": "dashboard-ui.js",
+      "apkSha256": "f10d40e3a1b63b3f8a8544583764f43a7f18a85c22217d35b585044f6844d7e8",
+      "restoredSha256": "666eb7383b5cf3dc20b43a71eb5f498287f1397c2d443e9053dd023c853b6e27"
+    },
+    {
+      "path": "dashboard.js",
+      "apkSha256": "fedf4b0aa3adbeb98de851cf2f862bde7a5f07f9acb428febb089750cd3e5f84",
+      "restoredSha256": "0089049d3f3f896a1ce123ce90aa6b36043f8d41c597c601cbccd92103ae095f"
+    },
+    {
+      "path": "data/usda/chunk-0000.json",
+      "apkSha256": "af9ef038baa252a3ef5b0066feddde9e25a875e797d1593e3ed68b47e5088b09",
+      "restoredSha256": "af9ef038baa252a3ef5b0066feddde9e25a875e797d1593e3ed68b47e5088b09"
+    },
+    {
+      "path": "data/usda/chunk-0001.json",
+      "apkSha256": "2b34150124ab7290115a241db4319d33693f9c3f0cecb7d9326a2379078de677",
+      "restoredSha256": "2b34150124ab7290115a241db4319d33693f9c3f0cecb7d9326a2379078de677"
+    },
+    {
+      "path": "data/usda/chunk-0002.json",
+      "apkSha256": "05e48434f7a3b0bd4c864d677e72b867a27cde936bd0ed470902a18fc6dabb3a",
+      "restoredSha256": "05e48434f7a3b0bd4c864d677e72b867a27cde936bd0ed470902a18fc6dabb3a"
+    },
+    {
+      "path": "data/usda/chunk-0003.json",
+      "apkSha256": "8fc23cdd1fb7b18a8de5b6126641ec3783e6a97a8e8f6fb8674898ae4501fbe1",
+      "restoredSha256": "8fc23cdd1fb7b18a8de5b6126641ec3783e6a97a8e8f6fb8674898ae4501fbe1"
+    },
+    {
+      "path": "data/usda/chunk-0004.json",
+      "apkSha256": "99fa147e81c0252575c3e72648a6ea62a6830b763191765a3581838e73c49394",
+      "restoredSha256": "99fa147e81c0252575c3e72648a6ea62a6830b763191765a3581838e73c49394"
+    },
+    {
+      "path": "data/usda/chunk-0005.json",
+      "apkSha256": "4fad7d9fccc9ac4475bf4aa24bc9a293717ea598e461995ee7d5aecb3c4e1a9a",
+      "restoredSha256": "4fad7d9fccc9ac4475bf4aa24bc9a293717ea598e461995ee7d5aecb3c4e1a9a"
+    },
+    {
+      "path": "data/usda/chunk-0006.json",
+      "apkSha256": "a2f87d4765ed038077891b2e114626ec6758dbe626d98d02c36952a26d2c9927",
+      "restoredSha256": "a2f87d4765ed038077891b2e114626ec6758dbe626d98d02c36952a26d2c9927"
+    },
+    {
+      "path": "data/usda/chunk-0007.json",
+      "apkSha256": "f8543f9c7595ffef173e967c3f603df88dbbe01fee16235181c117d6e4385ff0",
+      "restoredSha256": "f8543f9c7595ffef173e967c3f603df88dbbe01fee16235181c117d6e4385ff0"
+    },
+    {
+      "path": "data/usda/chunk-0008.json",
+      "apkSha256": "898378998d3e910166533cdddd2ffa359264222896b17b4d79471f78e6000464",
+      "restoredSha256": "898378998d3e910166533cdddd2ffa359264222896b17b4d79471f78e6000464"
+    },
+    {
+      "path": "data/usda/chunk-0009.json",
+      "apkSha256": "78822e819bad519350a1f2e75752d1a6618e33e2c1515c1bd407b3b86f73d799",
+      "restoredSha256": "78822e819bad519350a1f2e75752d1a6618e33e2c1515c1bd407b3b86f73d799"
+    },
+    {
+      "path": "data/usda/chunk-0010.json",
+      "apkSha256": "d0f5bd0453dc7e34d5bae4d65869bfecf6f2c8dc97f11fab85b96e32eeafee2d",
+      "restoredSha256": "d0f5bd0453dc7e34d5bae4d65869bfecf6f2c8dc97f11fab85b96e32eeafee2d"
+    },
+    {
+      "path": "data/usda/chunk-0011.json",
+      "apkSha256": "238d61f2c60af3f9b28c155675081d921ee7e383e9d9e4d449d8df73de2a41f1",
+      "restoredSha256": "238d61f2c60af3f9b28c155675081d921ee7e383e9d9e4d449d8df73de2a41f1"
+    },
+    {
+      "path": "data/usda/chunk-0012.json",
+      "apkSha256": "f6cdf2576b70677f7beab6652e865e8e44f5d387023f940f2a51240b7506af0f",
+      "restoredSha256": "f6cdf2576b70677f7beab6652e865e8e44f5d387023f940f2a51240b7506af0f"
+    },
+    {
+      "path": "data/usda/chunk-0013.json",
+      "apkSha256": "83f74ebb731e7543b2f3ba3b0cbd0b89c32cc1775096deb50036f971b2497dc6",
+      "restoredSha256": "83f74ebb731e7543b2f3ba3b0cbd0b89c32cc1775096deb50036f971b2497dc6"
+    },
+    {
+      "path": "data/usda/chunk-0014.json",
+      "apkSha256": "e0d81d07c9638540188e1440efaea536f9d2561a0727a07fa70234ac4ebaef51",
+      "restoredSha256": "e0d81d07c9638540188e1440efaea536f9d2561a0727a07fa70234ac4ebaef51"
+    },
+    {
+      "path": "data/usda/chunk-0015.json",
+      "apkSha256": "0ad47a0f977b0d68cfd461177e37e9f9ff7a1481bcb3fb4895606db891ccda13",
+      "restoredSha256": "0ad47a0f977b0d68cfd461177e37e9f9ff7a1481bcb3fb4895606db891ccda13"
+    },
+    {
+      "path": "data/usda/chunk-0016.json",
+      "apkSha256": "544f47aee5c428e269a0b90e57d8ce2873fb1b69049931fae2ea5bb3a38a3109",
+      "restoredSha256": "544f47aee5c428e269a0b90e57d8ce2873fb1b69049931fae2ea5bb3a38a3109"
+    },
+    {
+      "path": "data/usda/chunk-0017.json",
+      "apkSha256": "abc624016c0d68327a6948666ddc30a53203194e405e172971cf7304eedbeec0",
+      "restoredSha256": "abc624016c0d68327a6948666ddc30a53203194e405e172971cf7304eedbeec0"
+    },
+    {
+      "path": "data/usda/chunk-0018.json",
+      "apkSha256": "6c2527fb024596f0babf03a26ee9984f796eba437056fd0a5a022bd5d5f39678",
+      "restoredSha256": "6c2527fb024596f0babf03a26ee9984f796eba437056fd0a5a022bd5d5f39678"
+    },
+    {
+      "path": "data/usda/chunk-0019.json",
+      "apkSha256": "42cc0799b91ff22a2e4bc043efb9a8939be27d92bde6ddcf8d495a387a0e6383",
+      "restoredSha256": "42cc0799b91ff22a2e4bc043efb9a8939be27d92bde6ddcf8d495a387a0e6383"
+    },
+    {
+      "path": "data/usda/chunk-0020.json",
+      "apkSha256": "227b1808a36e469f922da8d3923ba20cd8a7463ecfb3822017f3576572d49cec",
+      "restoredSha256": "227b1808a36e469f922da8d3923ba20cd8a7463ecfb3822017f3576572d49cec"
+    },
+    {
+      "path": "data/usda/chunk-0021.json",
+      "apkSha256": "16c4623f0b4b9dd4d11b23af1b687129939de55e68f24ca1a2c51ed7fb2c5338",
+      "restoredSha256": "16c4623f0b4b9dd4d11b23af1b687129939de55e68f24ca1a2c51ed7fb2c5338"
+    },
+    {
+      "path": "data/usda/chunk-0022.json",
+      "apkSha256": "81b5a5371bf793af166465d55b8c8a6ba361497ec7a8e4af4eb6121183e84f1d",
+      "restoredSha256": "81b5a5371bf793af166465d55b8c8a6ba361497ec7a8e4af4eb6121183e84f1d"
+    },
+    {
+      "path": "data/usda/chunk-0023.json",
+      "apkSha256": "fe2d41bb4a82b1ffe95c2d7baac5352f64f4f400d19cbb98284b299b95541419",
+      "restoredSha256": "fe2d41bb4a82b1ffe95c2d7baac5352f64f4f400d19cbb98284b299b95541419"
+    },
+    {
+      "path": "data/usda/chunk-0024.json",
+      "apkSha256": "a91309568490d980a26b5d44e9f6c9e800acbb093a490a2aedac1eb6bd3a79d2",
+      "restoredSha256": "a91309568490d980a26b5d44e9f6c9e800acbb093a490a2aedac1eb6bd3a79d2"
+    },
+    {
+      "path": "data/usda/chunk-0025.json",
+      "apkSha256": "019ead9bf6eed775d59bd6f27471ffe7ce108c0099d7dec2bfcab84715129e21",
+      "restoredSha256": "019ead9bf6eed775d59bd6f27471ffe7ce108c0099d7dec2bfcab84715129e21"
+    },
+    {
+      "path": "data/usda/chunk-0026.json",
+      "apkSha256": "95b17c35a1ce25b08fab09e6eb3be29890668f285177ddfc05ec4fb30651bd0d",
+      "restoredSha256": "95b17c35a1ce25b08fab09e6eb3be29890668f285177ddfc05ec4fb30651bd0d"
+    },
+    {
+      "path": "data/usda/chunk-0027.json",
+      "apkSha256": "a175d46e675902af62399c6db463e8a4bbdb734a9af0b5da690bb3bd0744f81f",
+      "restoredSha256": "a175d46e675902af62399c6db463e8a4bbdb734a9af0b5da690bb3bd0744f81f"
+    },
+    {
+      "path": "data/usda/chunk-0028.json",
+      "apkSha256": "e67e8918658f18441ae84aad41b88a68d153d415f40bb42ac9062f9daa4764b1",
+      "restoredSha256": "e67e8918658f18441ae84aad41b88a68d153d415f40bb42ac9062f9daa4764b1"
+    },
+    {
+      "path": "data/usda/chunk-0029.json",
+      "apkSha256": "95725d9ab5ce8f4e4caf0658131cb2fd9eccee22166bc1ee1257bf26fc7fe0ae",
+      "restoredSha256": "95725d9ab5ce8f4e4caf0658131cb2fd9eccee22166bc1ee1257bf26fc7fe0ae"
+    },
+    {
+      "path": "data/usda/chunk-0030.json",
+      "apkSha256": "963432838b262dd524eb1628e75d0a57c41bc3dbfb25bc7ece53b2ddb6972ba0",
+      "restoredSha256": "963432838b262dd524eb1628e75d0a57c41bc3dbfb25bc7ece53b2ddb6972ba0"
+    },
+    {
+      "path": "data/usda/chunk-0031.json",
+      "apkSha256": "a68992f1fa3ceebb4cde76d1943fe00d5832c51a2e53453bff9837102a18057d",
+      "restoredSha256": "a68992f1fa3ceebb4cde76d1943fe00d5832c51a2e53453bff9837102a18057d"
+    },
+    {
+      "path": "data/usda/chunk-0032.json",
+      "apkSha256": "e0a8356ca23fa0570143d9f5428541d4ee5f71ce0fd35507d587144c96bd92f0",
+      "restoredSha256": "e0a8356ca23fa0570143d9f5428541d4ee5f71ce0fd35507d587144c96bd92f0"
+    },
+    {
+      "path": "data/usda/chunk-0033.json",
+      "apkSha256": "94500e5f8c5c2ddb61528aed7d2eea35829d02cf0da96fd444c551580af7486e",
+      "restoredSha256": "94500e5f8c5c2ddb61528aed7d2eea35829d02cf0da96fd444c551580af7486e"
+    },
+    {
+      "path": "data/usda/chunk-0034.json",
+      "apkSha256": "c4f115bb91c4f4ae462fe77b83b2289d0c72ca86d9ceb8ad828216f597bf2cd5",
+      "restoredSha256": "c4f115bb91c4f4ae462fe77b83b2289d0c72ca86d9ceb8ad828216f597bf2cd5"
+    },
+    {
+      "path": "data/usda/chunk-0035.json",
+      "apkSha256": "07fa7f5b0cda451148107ee38ed7d0454aaa2e69b7cd790fd5ab4b70f969a733",
+      "restoredSha256": "07fa7f5b0cda451148107ee38ed7d0454aaa2e69b7cd790fd5ab4b70f969a733"
+    },
+    {
+      "path": "data/usda/chunk-0036.json",
+      "apkSha256": "27757c4941189765d1779d6acab2c5d5010fd5ce949d3a0813c9e4f9d13e5312",
+      "restoredSha256": "27757c4941189765d1779d6acab2c5d5010fd5ce949d3a0813c9e4f9d13e5312"
+    },
+    {
+      "path": "data/usda/chunk-0037.json",
+      "apkSha256": "0311165944bcd0d9a7937c4bb5df3f751cd7004ba54aa8f563511faa408822bb",
+      "restoredSha256": "0311165944bcd0d9a7937c4bb5df3f751cd7004ba54aa8f563511faa408822bb"
+    },
+    {
+      "path": "data/usda/chunk-0038.json",
+      "apkSha256": "fd7b6d7058e835d6b0bbac70527ba13c800fe7f94abe8be085318be53970b668",
+      "restoredSha256": "fd7b6d7058e835d6b0bbac70527ba13c800fe7f94abe8be085318be53970b668"
+    },
+    {
+      "path": "data/usda/chunk-0039.json",
+      "apkSha256": "9117e813329eb8b15160a1b3c7e3d55882b62ac5f077a5fb231e99f20c31c36e",
+      "restoredSha256": "9117e813329eb8b15160a1b3c7e3d55882b62ac5f077a5fb231e99f20c31c36e"
+    },
+    {
+      "path": "data/usda/chunk-0040.json",
+      "apkSha256": "f9c6c24f7995d692a72d3d2c59c734adf46075e2a64f4555ba54c713c84314d6",
+      "restoredSha256": "f9c6c24f7995d692a72d3d2c59c734adf46075e2a64f4555ba54c713c84314d6"
+    },
+    {
+      "path": "data/usda/chunk-0041.json",
+      "apkSha256": "32aed1ff33a9baad1345b307a3157c3b0fcb0bac1b60d2ae17d00f68a8585c20",
+      "restoredSha256": "32aed1ff33a9baad1345b307a3157c3b0fcb0bac1b60d2ae17d00f68a8585c20"
+    },
+    {
+      "path": "data/usda/chunk-0042.json",
+      "apkSha256": "2ebe09262e60892eda0b17c341eae5a560c605155d3f33cdfbf0376347f2e2f6",
+      "restoredSha256": "2ebe09262e60892eda0b17c341eae5a560c605155d3f33cdfbf0376347f2e2f6"
+    },
+    {
+      "path": "data/usda/chunk-0043.json",
+      "apkSha256": "d6b49215b2cb2af90a0b59dfc5ec05dd0d209f45cf8e69b5f5666a377c6579a9",
+      "restoredSha256": "d6b49215b2cb2af90a0b59dfc5ec05dd0d209f45cf8e69b5f5666a377c6579a9"
+    },
+    {
+      "path": "data/usda/chunk-0044.json",
+      "apkSha256": "080826a897c566a5dc553703bbcbe629b431ee89d72d2fd59d6a3e0ae582a5a0",
+      "restoredSha256": "080826a897c566a5dc553703bbcbe629b431ee89d72d2fd59d6a3e0ae582a5a0"
+    },
+    {
+      "path": "data/usda/chunk-0045.json",
+      "apkSha256": "04926a31c27c3046449c0e454882ee5813c5f3b31e24caf4721035bab9725c1e",
+      "restoredSha256": "04926a31c27c3046449c0e454882ee5813c5f3b31e24caf4721035bab9725c1e"
+    },
+    {
+      "path": "data/usda/chunk-0046.json",
+      "apkSha256": "2309dab204965c8fbdc2c56b3602f2d3e080a97266934e01ef4a1e651d8baf25",
+      "restoredSha256": "2309dab204965c8fbdc2c56b3602f2d3e080a97266934e01ef4a1e651d8baf25"
+    },
+    {
+      "path": "data/usda/chunk-0047.json",
+      "apkSha256": "4b020d1e481de8b70d32757846973ecef1bd4ae00310c6fb48e3fdc1fd19505b",
+      "restoredSha256": "4b020d1e481de8b70d32757846973ecef1bd4ae00310c6fb48e3fdc1fd19505b"
+    },
+    {
+      "path": "data/usda/chunk-0048.json",
+      "apkSha256": "70a88a34671c534539fcea09f092edec58e04f3d71d124b6e7ce2bdd0039762e",
+      "restoredSha256": "70a88a34671c534539fcea09f092edec58e04f3d71d124b6e7ce2bdd0039762e"
+    },
+    {
+      "path": "data/usda/chunk-0049.json",
+      "apkSha256": "038ef792b5d70689313a47b6d5ef18469bffc5d8597930845bdf758e0dd6dcbe",
+      "restoredSha256": "038ef792b5d70689313a47b6d5ef18469bffc5d8597930845bdf758e0dd6dcbe"
+    },
+    {
+      "path": "data/usda/chunk-0050.json",
+      "apkSha256": "144f6a2010965115f8c0f72db1648a308fc06647c727013cc7abdda63b33ac7d",
+      "restoredSha256": "144f6a2010965115f8c0f72db1648a308fc06647c727013cc7abdda63b33ac7d"
+    },
+    {
+      "path": "data/usda/chunk-0051.json",
+      "apkSha256": "c6f56f73ada530266af5b2cf1f560f9f064fe8546ce04cc79cf66b07011110ed",
+      "restoredSha256": "c6f56f73ada530266af5b2cf1f560f9f064fe8546ce04cc79cf66b07011110ed"
+    },
+    {
+      "path": "data/usda/chunk-0052.json",
+      "apkSha256": "2a99f1941713f648d9922191ca5a4f49c3694df8585aa5899e0ff97ff650122f",
+      "restoredSha256": "2a99f1941713f648d9922191ca5a4f49c3694df8585aa5899e0ff97ff650122f"
+    },
+    {
+      "path": "data/usda/chunk-0053.json",
+      "apkSha256": "afbda7448721f191a27dcf8db515221b72deef1b43773b12466f45b55f836621",
+      "restoredSha256": "afbda7448721f191a27dcf8db515221b72deef1b43773b12466f45b55f836621"
+    },
+    {
+      "path": "data/usda/chunk-0054.json",
+      "apkSha256": "88fd2b0fac172ad99680de456334a65c8e64bb6f2bd529d21da92bce014de60f",
+      "restoredSha256": "88fd2b0fac172ad99680de456334a65c8e64bb6f2bd529d21da92bce014de60f"
+    },
+    {
+      "path": "data/usda/chunk-0055.json",
+      "apkSha256": "5806fe859aea966142d74754fb6747402c2ee9d31b050bec53e8198c44f16903",
+      "restoredSha256": "5806fe859aea966142d74754fb6747402c2ee9d31b050bec53e8198c44f16903"
+    },
+    {
+      "path": "data/usda/chunk-0056.json",
+      "apkSha256": "825fe0269704677098445cc01e8bb4c0db1b5a1246d632280aeea2fd78f32c38",
+      "restoredSha256": "825fe0269704677098445cc01e8bb4c0db1b5a1246d632280aeea2fd78f32c38"
+    },
+    {
+      "path": "data/usda/chunk-0057.json",
+      "apkSha256": "82856a7b5044a7d8dafba9a8f1b251e39329b70cd1fe339efae66b8064f6ac59",
+      "restoredSha256": "82856a7b5044a7d8dafba9a8f1b251e39329b70cd1fe339efae66b8064f6ac59"
+    },
+    {
+      "path": "data/usda/chunk-0058.json",
+      "apkSha256": "0653b4e40956831359f5de90b06a1dabe9f7cdb19c154bfc0eb32403c11dc8e9",
+      "restoredSha256": "0653b4e40956831359f5de90b06a1dabe9f7cdb19c154bfc0eb32403c11dc8e9"
+    },
+    {
+      "path": "data/usda/chunk-0059.json",
+      "apkSha256": "3f7e247a80c03119d9a41c6a6189049d11ec2b47e2b9b1711901bb49cf527993",
+      "restoredSha256": "3f7e247a80c03119d9a41c6a6189049d11ec2b47e2b9b1711901bb49cf527993"
+    },
+    {
+      "path": "data/usda/chunk-0060.json",
+      "apkSha256": "be8c65c35ad023b5ee8de50acb2f6e42306c4e7cf4def6418c69581e4b2e500d",
+      "restoredSha256": "be8c65c35ad023b5ee8de50acb2f6e42306c4e7cf4def6418c69581e4b2e500d"
+    },
+    {
+      "path": "data/usda/chunk-0061.json",
+      "apkSha256": "0700b1bb5cff6edfdf8e34f741d68ba0b665e7a9fe87d3f42c6d57c796eb2755",
+      "restoredSha256": "0700b1bb5cff6edfdf8e34f741d68ba0b665e7a9fe87d3f42c6d57c796eb2755"
+    },
+    {
+      "path": "data/usda/chunk-0062.json",
+      "apkSha256": "8c2d430ccf5396766fca9019807d32b75cab490fd0b3f9437ff00522129f9e6a",
+      "restoredSha256": "8c2d430ccf5396766fca9019807d32b75cab490fd0b3f9437ff00522129f9e6a"
+    },
+    {
+      "path": "data/usda/chunk-0063.json",
+      "apkSha256": "15c7c861dc8fce72abd82d9f3aaf0dc775d8f0c3c4bf87a173862ae4d68eb7db",
+      "restoredSha256": "15c7c861dc8fce72abd82d9f3aaf0dc775d8f0c3c4bf87a173862ae4d68eb7db"
+    },
+    {
+      "path": "data/usda/chunk-0064.json",
+      "apkSha256": "2eac1f19964634ac509ca82470cb0eaf976a0724b54df6ffd5c86aefce79eef3",
+      "restoredSha256": "2eac1f19964634ac509ca82470cb0eaf976a0724b54df6ffd5c86aefce79eef3"
+    },
+    {
+      "path": "data/usda/chunk-0065.json",
+      "apkSha256": "00324d235ce5e3f13025064e7a44ea14f550cccaa72aee467c3a59c371d79da2",
+      "restoredSha256": "00324d235ce5e3f13025064e7a44ea14f550cccaa72aee467c3a59c371d79da2"
+    },
+    {
+      "path": "data/usda/chunk-0066.json",
+      "apkSha256": "ebbd7009b93f2327bc7a41e846f4b49b250c3a6548b9478eca7342d3e394371b",
+      "restoredSha256": "ebbd7009b93f2327bc7a41e846f4b49b250c3a6548b9478eca7342d3e394371b"
+    },
+    {
+      "path": "data/usda/chunk-0067.json",
+      "apkSha256": "9817ffb0b20e89e876a5ef5913a5fd6598aecf70e2bd02740db5699186eeaee5",
+      "restoredSha256": "9817ffb0b20e89e876a5ef5913a5fd6598aecf70e2bd02740db5699186eeaee5"
+    },
+    {
+      "path": "data/usda/chunk-0068.json",
+      "apkSha256": "70afe2193cf0c99d298515df743f71cde76d541e69931f14364e97b5cda0f26e",
+      "restoredSha256": "70afe2193cf0c99d298515df743f71cde76d541e69931f14364e97b5cda0f26e"
+    },
+    {
+      "path": "data/usda/chunk-0069.json",
+      "apkSha256": "6839ed13fa46da342565a29822873bf3ee4b46dd1b6e0fd539b3a824695629aa",
+      "restoredSha256": "6839ed13fa46da342565a29822873bf3ee4b46dd1b6e0fd539b3a824695629aa"
+    },
+    {
+      "path": "data/usda/chunk-0070.json",
+      "apkSha256": "2f92f1f5f8b64cb3eefeb21c9685227cec97f916186f3fcd161c23242056ed79",
+      "restoredSha256": "2f92f1f5f8b64cb3eefeb21c9685227cec97f916186f3fcd161c23242056ed79"
+    },
+    {
+      "path": "data/usda/chunk-0071.json",
+      "apkSha256": "67ec8d7fde0f8fc60fe1f015c32a53b57f5d71aa9b132ac2a8af5e3a2c31a140",
+      "restoredSha256": "67ec8d7fde0f8fc60fe1f015c32a53b57f5d71aa9b132ac2a8af5e3a2c31a140"
+    },
+    {
+      "path": "data/usda/chunk-0072.json",
+      "apkSha256": "016a8944a27e290eac3392b26c39c26597678c686e3b13c5f23ac8b0d4382868",
+      "restoredSha256": "016a8944a27e290eac3392b26c39c26597678c686e3b13c5f23ac8b0d4382868"
+    },
+    {
+      "path": "data/usda/chunk-0073.json",
+      "apkSha256": "fc1675107009bf222ce0ddc8c9f713cc3a7d8a7f3ee9ec619822e4077d87b8fe",
+      "restoredSha256": "fc1675107009bf222ce0ddc8c9f713cc3a7d8a7f3ee9ec619822e4077d87b8fe"
+    },
+    {
+      "path": "data/usda/chunk-0074.json",
+      "apkSha256": "5b4b96bdfeb9bea0212ad2bf2e7b8860b25e2451456880081b2ed6df94a7b1d2",
+      "restoredSha256": "5b4b96bdfeb9bea0212ad2bf2e7b8860b25e2451456880081b2ed6df94a7b1d2"
+    },
+    {
+      "path": "data/usda/chunk-0075.json",
+      "apkSha256": "dd9a922b2f246e1de740d45de7f2e6bf079b8801454c64289e98401c2b5b7d4f",
+      "restoredSha256": "dd9a922b2f246e1de740d45de7f2e6bf079b8801454c64289e98401c2b5b7d4f"
+    },
+    {
+      "path": "data/usda/chunk-0076.json",
+      "apkSha256": "3b09107ec636e5a118cdd943f6395cbd5cb1254a1bdb32a897f1a4cc89f28741",
+      "restoredSha256": "3b09107ec636e5a118cdd943f6395cbd5cb1254a1bdb32a897f1a4cc89f28741"
+    },
+    {
+      "path": "data/usda/chunk-0077.json",
+      "apkSha256": "a15710eb8b016fd1e73663547e2601192c15ae6228fc118b65889202157ce642",
+      "restoredSha256": "a15710eb8b016fd1e73663547e2601192c15ae6228fc118b65889202157ce642"
+    },
+    {
+      "path": "data/usda/chunk-0078.json",
+      "apkSha256": "2cd45d35e3d06b61ae032b3f67806d7d2d158c2503a39a19cc56d6d20dd1ac63",
+      "restoredSha256": "2cd45d35e3d06b61ae032b3f67806d7d2d158c2503a39a19cc56d6d20dd1ac63"
+    },
+    {
+      "path": "data/usda/chunk-0079.json",
+      "apkSha256": "df0486834e0789dded72afad052d0e57754db2e847fc6d0cf8a1aac33a58ecb1",
+      "restoredSha256": "df0486834e0789dded72afad052d0e57754db2e847fc6d0cf8a1aac33a58ecb1"
+    },
+    {
+      "path": "data/usda/chunk-0080.json",
+      "apkSha256": "ed9ec1ce980c8870b07b818845253556214eca7af833517e42734231f8b797df",
+      "restoredSha256": "ed9ec1ce980c8870b07b818845253556214eca7af833517e42734231f8b797df"
+    },
+    {
+      "path": "data/usda/chunk-0081.json",
+      "apkSha256": "dadf0bca56ace9c04cc4919f04ae3727b0ef60d5f6c9de2d3d12bf1708e4e465",
+      "restoredSha256": "dadf0bca56ace9c04cc4919f04ae3727b0ef60d5f6c9de2d3d12bf1708e4e465"
+    },
+    {
+      "path": "data/usda/chunk-0082.json",
+      "apkSha256": "365483687eafdb2691adebcf218d9d3af959f6c3d6b00cc34c4434777942e19c",
+      "restoredSha256": "365483687eafdb2691adebcf218d9d3af959f6c3d6b00cc34c4434777942e19c"
+    },
+    {
+      "path": "data/usda/chunk-0083.json",
+      "apkSha256": "1e46a912e8686f2fc150a7bedf8bc80f89eefb45a4f282ff039755f1c8758512",
+      "restoredSha256": "1e46a912e8686f2fc150a7bedf8bc80f89eefb45a4f282ff039755f1c8758512"
+    },
+    {
+      "path": "data/usda/chunk-0084.json",
+      "apkSha256": "5ec0e1f36f8bf76e5709b36c4563ceee2d56dd5daf2fbb229e8072208e7a8ba6",
+      "restoredSha256": "5ec0e1f36f8bf76e5709b36c4563ceee2d56dd5daf2fbb229e8072208e7a8ba6"
+    },
+    {
+      "path": "data/usda/chunk-0085.json",
+      "apkSha256": "770c358a9432501a913a82920ab234064503739ae05201f361350fb2711acf2d",
+      "restoredSha256": "770c358a9432501a913a82920ab234064503739ae05201f361350fb2711acf2d"
+    },
+    {
+      "path": "data/usda/chunk-0086.json",
+      "apkSha256": "bb498e90caf8699d545b081f38096579348ca39f367771ec70cb8a7b25c08138",
+      "restoredSha256": "bb498e90caf8699d545b081f38096579348ca39f367771ec70cb8a7b25c08138"
+    },
+    {
+      "path": "data/usda/chunk-0087.json",
+      "apkSha256": "b63e00c4f40a5c08028be6992a071348200b54118b7a7ddc200187839cb6166a",
+      "restoredSha256": "b63e00c4f40a5c08028be6992a071348200b54118b7a7ddc200187839cb6166a"
+    },
+    {
+      "path": "data/usda/chunk-0088.json",
+      "apkSha256": "a7f3de38fd656ae3dbbef953a80acc227308dfa8a4d52528fce8569819d96753",
+      "restoredSha256": "a7f3de38fd656ae3dbbef953a80acc227308dfa8a4d52528fce8569819d96753"
+    },
+    {
+      "path": "data/usda/chunk-0089.json",
+      "apkSha256": "bf00461430b0fea17f65fac1f075e62fac8398a4fe51f189e273c039667859c4",
+      "restoredSha256": "bf00461430b0fea17f65fac1f075e62fac8398a4fe51f189e273c039667859c4"
+    },
+    {
+      "path": "data/usda/chunk-0090.json",
+      "apkSha256": "92df9d5ffd064652baeedfb0d34bdfb59f307220bdef38026f23e539e960cc40",
+      "restoredSha256": "92df9d5ffd064652baeedfb0d34bdfb59f307220bdef38026f23e539e960cc40"
+    },
+    {
+      "path": "data/usda/chunk-0091.json",
+      "apkSha256": "ccd61c109e356f9a1647771a26aecd0d51aba10ecd9499d802589220df11fbda",
+      "restoredSha256": "ccd61c109e356f9a1647771a26aecd0d51aba10ecd9499d802589220df11fbda"
+    },
+    {
+      "path": "data/usda/chunk-0092.json",
+      "apkSha256": "eb56fcb5c022cbc6c3265921c04a9eece6a173aae0c23dc2d60e101cfc9158d5",
+      "restoredSha256": "eb56fcb5c022cbc6c3265921c04a9eece6a173aae0c23dc2d60e101cfc9158d5"
+    },
+    {
+      "path": "data/usda/chunk-0093.json",
+      "apkSha256": "1586fc309c874cfec5185c7b32be27542384bd7d87b5d9b8621ff5683142914a",
+      "restoredSha256": "1586fc309c874cfec5185c7b32be27542384bd7d87b5d9b8621ff5683142914a"
+    },
+    {
+      "path": "data/usda/chunk-0094.json",
+      "apkSha256": "39c63d5ae80eaf26a0c7f5404b79f6085d5055d89f4760d914e6a7363a7bcf2d",
+      "restoredSha256": "39c63d5ae80eaf26a0c7f5404b79f6085d5055d89f4760d914e6a7363a7bcf2d"
+    },
+    {
+      "path": "data/usda/chunk-0095.json",
+      "apkSha256": "4e7774a65b03aa15bdc19d0cf677fa33542df31dc2cd56462e734af4e8613ded",
+      "restoredSha256": "4e7774a65b03aa15bdc19d0cf677fa33542df31dc2cd56462e734af4e8613ded"
+    },
+    {
+      "path": "data/usda/chunk-0096.json",
+      "apkSha256": "dc31878985bda73b2f6e58b6da189168d1b87cf6ed7a1cecd410b82c55eb5e12",
+      "restoredSha256": "dc31878985bda73b2f6e58b6da189168d1b87cf6ed7a1cecd410b82c55eb5e12"
+    },
+    {
+      "path": "data/usda/chunk-0097.json",
+      "apkSha256": "f400a5345b41339ee314bc5c1e94219b25cc48d503ce517604156d2ac88961f8",
+      "restoredSha256": "f400a5345b41339ee314bc5c1e94219b25cc48d503ce517604156d2ac88961f8"
+    },
+    {
+      "path": "data/usda/chunk-0098.json",
+      "apkSha256": "be6bfe36c7f5c8bca510134a77b3b060fa044d15d2bd2702952200e11558a50d",
+      "restoredSha256": "be6bfe36c7f5c8bca510134a77b3b060fa044d15d2bd2702952200e11558a50d"
+    },
+    {
+      "path": "data/usda/chunk-0099.json",
+      "apkSha256": "f672cbd12b259cb417a982b4530365f8162c4091d1bae7775eac72740860c965",
+      "restoredSha256": "f672cbd12b259cb417a982b4530365f8162c4091d1bae7775eac72740860c965"
+    },
+    {
+      "path": "data/usda/chunk-0100.json",
+      "apkSha256": "60c670a804d8b96ccf07d58b2b7c4f2bdeaf41d731bea5f7e3d982294b53e9cc",
+      "restoredSha256": "60c670a804d8b96ccf07d58b2b7c4f2bdeaf41d731bea5f7e3d982294b53e9cc"
+    },
+    {
+      "path": "data/usda/chunk-0101.json",
+      "apkSha256": "aa6324bd2008de210827a4fd6c8de0d0d5d589cc83498bfd4b7f94b85b35226c",
+      "restoredSha256": "aa6324bd2008de210827a4fd6c8de0d0d5d589cc83498bfd4b7f94b85b35226c"
+    },
+    {
+      "path": "data/usda/chunk-0102.json",
+      "apkSha256": "540d198ff371469e3f8e470092907181d6808a5934c2fcdcd3725371ea527566",
+      "restoredSha256": "540d198ff371469e3f8e470092907181d6808a5934c2fcdcd3725371ea527566"
+    },
+    {
+      "path": "data/usda/chunk-0103.json",
+      "apkSha256": "c5dfebfcf78db8c6fa06b5216edc36b77beddbfb3bb8f0fa802c520d05d918d6",
+      "restoredSha256": "c5dfebfcf78db8c6fa06b5216edc36b77beddbfb3bb8f0fa802c520d05d918d6"
+    },
+    {
+      "path": "data/usda/chunk-0104.json",
+      "apkSha256": "74dbeae16b4271324d9bde03dcd7a735ef6ad06a5f24a3538654d93690329948",
+      "restoredSha256": "74dbeae16b4271324d9bde03dcd7a735ef6ad06a5f24a3538654d93690329948"
+    },
+    {
+      "path": "data/usda/chunk-0105.json",
+      "apkSha256": "76c394b091b842c900eded577bde463ff4078fe6744feb8015ce6f40a80a1efd",
+      "restoredSha256": "76c394b091b842c900eded577bde463ff4078fe6744feb8015ce6f40a80a1efd"
+    },
+    {
+      "path": "data/usda/chunk-0106.json",
+      "apkSha256": "3997328a57259263752d095f3cd298468263de33debfb4fb91d21b229a059e1e",
+      "restoredSha256": "3997328a57259263752d095f3cd298468263de33debfb4fb91d21b229a059e1e"
+    },
+    {
+      "path": "data/usda/chunk-0107.json",
+      "apkSha256": "e1fa14c019e379f9c507a0098364b474466c50d58dcb43de9c4577f562f60fc2",
+      "restoredSha256": "e1fa14c019e379f9c507a0098364b474466c50d58dcb43de9c4577f562f60fc2"
+    },
+    {
+      "path": "data/usda/index.json",
+      "apkSha256": "d3e549021afa250e42aa7378e6c324ae73db1b57fe6553bed1ce608865eb4b08",
+      "restoredSha256": "d3e549021afa250e42aa7378e6c324ae73db1b57fe6553bed1ce608865eb4b08"
+    },
+    {
+      "path": "data/usda/metadata.json",
+      "apkSha256": "4c800be62ad4267195ccaf4206a63b2db0f7001394f3ddc2d964f953373213e4",
+      "restoredSha256": "4c800be62ad4267195ccaf4206a63b2db0f7001394f3ddc2d964f953373213e4"
+    },
+    {
+      "path": "data/usda/portion-0000.json",
+      "apkSha256": "d9a0b7d2caf35ec8a27529c3f4ae343f64ae840b270dc7a20f6ce51f1fb59c1a",
+      "restoredSha256": "d9a0b7d2caf35ec8a27529c3f4ae343f64ae840b270dc7a20f6ce51f1fb59c1a"
+    },
+    {
+      "path": "data/usda/portion-0001.json",
+      "apkSha256": "c99f111374fc4169952b5c1345b5aee420c16d0a2e123067bb6d86c70198c7a2",
+      "restoredSha256": "c99f111374fc4169952b5c1345b5aee420c16d0a2e123067bb6d86c70198c7a2"
+    },
+    {
+      "path": "data/usda/portion-0002.json",
+      "apkSha256": "36cca18b6686efd418d24ff5016d5d531e51e327bcf64f58a05cd14c0ab2b57c",
+      "restoredSha256": "36cca18b6686efd418d24ff5016d5d531e51e327bcf64f58a05cd14c0ab2b57c"
+    },
+    {
+      "path": "data/usda/portion-0003.json",
+      "apkSha256": "6667d84c279ed2f42a36a982cda060ef7936eed787bbcbbf9f95882e48579c97",
+      "restoredSha256": "6667d84c279ed2f42a36a982cda060ef7936eed787bbcbbf9f95882e48579c97"
+    },
+    {
+      "path": "data/usda/portion-0004.json",
+      "apkSha256": "dfb348a68cae60c2f2c0d452650add951ee724b4ca5909d3dfbff459a4465bb4",
+      "restoredSha256": "dfb348a68cae60c2f2c0d452650add951ee724b4ca5909d3dfbff459a4465bb4"
+    },
+    {
+      "path": "data/usda/portion-0005.json",
+      "apkSha256": "e4e21325271db543d525772de4d93a6d3e5c3890095784666e11f3cb23659ad6",
+      "restoredSha256": "e4e21325271db543d525772de4d93a6d3e5c3890095784666e11f3cb23659ad6"
+    },
+    {
+      "path": "data/usda/portion-0006.json",
+      "apkSha256": "e1d185bf30142f5f00f9abbe47e3e9f3b483d73f14bd91d522712e73efd67b37",
+      "restoredSha256": "e1d185bf30142f5f00f9abbe47e3e9f3b483d73f14bd91d522712e73efd67b37"
+    },
+    {
+      "path": "data/usda/portion-0007.json",
+      "apkSha256": "29f11ef5117b72c810c7816b96f7d068315c33f61d8bef30cd3947548d6dcc38",
+      "restoredSha256": "29f11ef5117b72c810c7816b96f7d068315c33f61d8bef30cd3947548d6dcc38"
+    },
+    {
+      "path": "data/usda/portion-0008.json",
+      "apkSha256": "0dcb311db21ba9a977a673082cedf050a134df3b724a1b834c70638ee2511d25",
+      "restoredSha256": "0dcb311db21ba9a977a673082cedf050a134df3b724a1b834c70638ee2511d25"
+    },
+    {
+      "path": "data/usda/portion-0009.json",
+      "apkSha256": "3220d19db1ca5022d31353ca7ee67111c3b40fc41b0601a4457d94044e59ad69",
+      "restoredSha256": "3220d19db1ca5022d31353ca7ee67111c3b40fc41b0601a4457d94044e59ad69"
+    },
+    {
+      "path": "data/usda/portion-0010.json",
+      "apkSha256": "8570ab352f90ec0c173d5ba8e1595afe4bca76170279549857ed4866a538cdc7",
+      "restoredSha256": "8570ab352f90ec0c173d5ba8e1595afe4bca76170279549857ed4866a538cdc7"
+    },
+    {
+      "path": "data/usda/portion-0011.json",
+      "apkSha256": "861154b31fa1ceda50e0064dec0ee9c2324f18c9f910fc3fea5e7bf4b6905751",
+      "restoredSha256": "861154b31fa1ceda50e0064dec0ee9c2324f18c9f910fc3fea5e7bf4b6905751"
+    },
+    {
+      "path": "data/usda/portion-0012.json",
+      "apkSha256": "da763b41e4c7b7609eb59e1826295f0b3dbc966fa7b6e6bb0c75121f9f24c62b",
+      "restoredSha256": "da763b41e4c7b7609eb59e1826295f0b3dbc966fa7b6e6bb0c75121f9f24c62b"
+    },
+    {
+      "path": "data/usda/portion-0013.json",
+      "apkSha256": "f83fadc4074968e53305c2a25be8332d9e968dba9e2da246201b6801f8bac02c",
+      "restoredSha256": "f83fadc4074968e53305c2a25be8332d9e968dba9e2da246201b6801f8bac02c"
+    },
+    {
+      "path": "data/usda/portion-0014.json",
+      "apkSha256": "df77b8b57de1bd3299b50f60f05b93ed31b3d11bc59d5c8b15bb0af59a196176",
+      "restoredSha256": "df77b8b57de1bd3299b50f60f05b93ed31b3d11bc59d5c8b15bb0af59a196176"
+    },
+    {
+      "path": "data/usda/portion-0015.json",
+      "apkSha256": "a24f14ce2b93ab9623ae9bf690bfae01c9849045b8486a74df59edc05ce4549a",
+      "restoredSha256": "a24f14ce2b93ab9623ae9bf690bfae01c9849045b8486a74df59edc05ce4549a"
+    },
+    {
+      "path": "data/usda/portion-0016.json",
+      "apkSha256": "1a9dba809bea70c87460bc33c4bd8ea40a8ebdc51baf46d14ec1b136fedd518c",
+      "restoredSha256": "1a9dba809bea70c87460bc33c4bd8ea40a8ebdc51baf46d14ec1b136fedd518c"
+    },
+    {
+      "path": "data/usda/portion-0017.json",
+      "apkSha256": "40c38d873eaab4457573e42c771cdb80fa0ef98cc4dd9559a00e6a988bedc649",
+      "restoredSha256": "40c38d873eaab4457573e42c771cdb80fa0ef98cc4dd9559a00e6a988bedc649"
+    },
+    {
+      "path": "data/usda/portion-0018.json",
+      "apkSha256": "0186585671eec9714f06a44e92738807cd3cfe0360ef7a0a1a6f659f7b5667c6",
+      "restoredSha256": "0186585671eec9714f06a44e92738807cd3cfe0360ef7a0a1a6f659f7b5667c6"
+    },
+    {
+      "path": "data/usda/portion-0019.json",
+      "apkSha256": "750cbdfe5ab697b5fd7ba64beda9ff6ddb3fe006cdb2bb5db9ca8656e8eefb2c",
+      "restoredSha256": "750cbdfe5ab697b5fd7ba64beda9ff6ddb3fe006cdb2bb5db9ca8656e8eefb2c"
+    },
+    {
+      "path": "data/usda/portion-0020.json",
+      "apkSha256": "4746631db7f15a1221285a150a39fc1f65e7d9e486455377f169dc9a562b2404",
+      "restoredSha256": "4746631db7f15a1221285a150a39fc1f65e7d9e486455377f169dc9a562b2404"
+    },
+    {
+      "path": "data/usda/portion-0021.json",
+      "apkSha256": "82b4525261455424d19db0cddcfeadaee33762af72111ba24a0f1a626eb5a7d8",
+      "restoredSha256": "82b4525261455424d19db0cddcfeadaee33762af72111ba24a0f1a626eb5a7d8"
+    },
+    {
+      "path": "data/usda/portion-0022.json",
+      "apkSha256": "3208910b0d8aeeb94a124be2d73a7060ff12ee60849d73075951f5704d9fe911",
+      "restoredSha256": "3208910b0d8aeeb94a124be2d73a7060ff12ee60849d73075951f5704d9fe911"
+    },
+    {
+      "path": "data/usda/portion-0023.json",
+      "apkSha256": "cbb9e7c6d9b192058dd166251851f16557ad8167b34ab43e2b929b2986c823e3",
+      "restoredSha256": "cbb9e7c6d9b192058dd166251851f16557ad8167b34ab43e2b929b2986c823e3"
+    },
+    {
+      "path": "data/usda/portion-0024.json",
+      "apkSha256": "23c6df3a409eb4e8a81edc2924d8efcb8e9d3ef1b795829f97768dda59ad7c1b",
+      "restoredSha256": "23c6df3a409eb4e8a81edc2924d8efcb8e9d3ef1b795829f97768dda59ad7c1b"
+    },
+    {
+      "path": "data/usda/portion-0025.json",
+      "apkSha256": "19d2696fd02fbb2a46261abd8194515b528308e06a4aa544c2fabbbbaaf90ef8",
+      "restoredSha256": "19d2696fd02fbb2a46261abd8194515b528308e06a4aa544c2fabbbbaaf90ef8"
+    },
+    {
+      "path": "data/usda/portion-0026.json",
+      "apkSha256": "23a8554ad6101c2e1467ad677ebc1ecbeb0244982c5a02564e3e7268603c88af",
+      "restoredSha256": "23a8554ad6101c2e1467ad677ebc1ecbeb0244982c5a02564e3e7268603c88af"
+    },
+    {
+      "path": "data/usda/portion-0027.json",
+      "apkSha256": "6ab0cb377b709e210d29e1aabd4c65fcc02bf07ece88cd4746fb571feea9c7be",
+      "restoredSha256": "6ab0cb377b709e210d29e1aabd4c65fcc02bf07ece88cd4746fb571feea9c7be"
+    },
+    {
+      "path": "data/usda/portion-0028.json",
+      "apkSha256": "aec4b5897138351641287e15fda630c4e61c99c35e39d94cd62967f080a09cea",
+      "restoredSha256": "aec4b5897138351641287e15fda630c4e61c99c35e39d94cd62967f080a09cea"
+    },
+    {
+      "path": "data/usda/portion-0029.json",
+      "apkSha256": "9a3f6da31e4acff8f24553eaa87454bb5c51eff9356c60b75064e07ef4ddb14c",
+      "restoredSha256": "9a3f6da31e4acff8f24553eaa87454bb5c51eff9356c60b75064e07ef4ddb14c"
+    },
+    {
+      "path": "data/usda/portion-0030.json",
+      "apkSha256": "d0dd09bde09aee7355c7420a114be3eec150e37f26656105892a04c221b7d923",
+      "restoredSha256": "d0dd09bde09aee7355c7420a114be3eec150e37f26656105892a04c221b7d923"
+    },
+    {
+      "path": "data/usda/portion-0031.json",
+      "apkSha256": "9ff5a29568d58029ea891191a69b46b1465348d7fcd67909bfb4dc34701ce77c",
+      "restoredSha256": "9ff5a29568d58029ea891191a69b46b1465348d7fcd67909bfb4dc34701ce77c"
+    },
+    {
+      "path": "data/usda/portion-0032.json",
+      "apkSha256": "54a2e0155fa721266bc7bf1f887a49741544f29e83acdf19984e1a361a7cfb2c",
+      "restoredSha256": "54a2e0155fa721266bc7bf1f887a49741544f29e83acdf19984e1a361a7cfb2c"
+    },
+    {
+      "path": "data/usda/portion-0033.json",
+      "apkSha256": "e0e93fb1835d0c35ae511e3b28b0a995ec046b5e0bf4468df4fcaa991284a778",
+      "restoredSha256": "e0e93fb1835d0c35ae511e3b28b0a995ec046b5e0bf4468df4fcaa991284a778"
+    },
+    {
+      "path": "data/usda/portion-0034.json",
+      "apkSha256": "7c67a25e65270fa0d5a8b3d5004887bfc697834e7a12ecc13feba1a7292a0826",
+      "restoredSha256": "7c67a25e65270fa0d5a8b3d5004887bfc697834e7a12ecc13feba1a7292a0826"
+    },
+    {
+      "path": "data/usda/portion-0035.json",
+      "apkSha256": "fd4f19cfc04169e9153880076eaa3dd3acf73a172a18f5d8cf29a4f52aa68728",
+      "restoredSha256": "fd4f19cfc04169e9153880076eaa3dd3acf73a172a18f5d8cf29a4f52aa68728"
+    },
+    {
+      "path": "data/usda/portion-0036.json",
+      "apkSha256": "bc370642bbf6b5c264dc55da23a55a3ab76653a7263c4ff6b3689505d506c7db",
+      "restoredSha256": "bc370642bbf6b5c264dc55da23a55a3ab76653a7263c4ff6b3689505d506c7db"
+    },
+    {
+      "path": "data/usda/portion-0037.json",
+      "apkSha256": "9fea2f90bd72c3b5802fa57bf222c770b41bd0f529fca2fa75107c59b4037250",
+      "restoredSha256": "9fea2f90bd72c3b5802fa57bf222c770b41bd0f529fca2fa75107c59b4037250"
+    },
+    {
+      "path": "data/usda/portion-0038.json",
+      "apkSha256": "c57e2d69a8041b39e6754c8f0b390f4bb1809762abfe2c13a8a5febe87b3d7b9",
+      "restoredSha256": "c57e2d69a8041b39e6754c8f0b390f4bb1809762abfe2c13a8a5febe87b3d7b9"
+    },
+    {
+      "path": "data/usda/portion-0039.json",
+      "apkSha256": "dcada23d1124b0fb6c36a61986f9f49eeab9665465b14b0d3a7f1b99072970a6",
+      "restoredSha256": "dcada23d1124b0fb6c36a61986f9f49eeab9665465b14b0d3a7f1b99072970a6"
+    },
+    {
+      "path": "data/usda/portion-0040.json",
+      "apkSha256": "831d9a51c96d99aa253a5dc0a248159d2199c3c0f2507b68a2557c22b3c51cb2",
+      "restoredSha256": "831d9a51c96d99aa253a5dc0a248159d2199c3c0f2507b68a2557c22b3c51cb2"
+    },
+    {
+      "path": "data/usda/portion-0041.json",
+      "apkSha256": "e100d84e1a86769487091412f61bfd8ebe751e8de9ae118cb6dea83e5d176319",
+      "restoredSha256": "e100d84e1a86769487091412f61bfd8ebe751e8de9ae118cb6dea83e5d176319"
+    },
+    {
+      "path": "data/usda/portion-0042.json",
+      "apkSha256": "951d05ac09b0ff33853b87cb7b6e8c1c54cf510c1f46dc1d19a93d574b171b18",
+      "restoredSha256": "951d05ac09b0ff33853b87cb7b6e8c1c54cf510c1f46dc1d19a93d574b171b18"
+    },
+    {
+      "path": "data/usda/portion-0043.json",
+      "apkSha256": "1c38599297b9b8a1af8976f486e58a0eb7a9751c6e2f98621fa0372ef6a5fb3a",
+      "restoredSha256": "1c38599297b9b8a1af8976f486e58a0eb7a9751c6e2f98621fa0372ef6a5fb3a"
+    },
+    {
+      "path": "data/usda/portion-0044.json",
+      "apkSha256": "510033012351c2c526ab0c8a432666ec1a077e2268fd8b5392439ec26959ec8a",
+      "restoredSha256": "510033012351c2c526ab0c8a432666ec1a077e2268fd8b5392439ec26959ec8a"
+    },
+    {
+      "path": "data/usda/portion-0045.json",
+      "apkSha256": "b7ba986a65489de4ee05c465d27ee37c6da54fb8e2a2cc7bacaba0bfb6438939",
+      "restoredSha256": "b7ba986a65489de4ee05c465d27ee37c6da54fb8e2a2cc7bacaba0bfb6438939"
+    },
+    {
+      "path": "data/usda/portion-0046.json",
+      "apkSha256": "2c1d37a1c8d36c00966099077a84f91d5013e08dc5c3b4cd1c363a68c009b391",
+      "restoredSha256": "2c1d37a1c8d36c00966099077a84f91d5013e08dc5c3b4cd1c363a68c009b391"
+    },
+    {
+      "path": "data/usda/portion-0047.json",
+      "apkSha256": "9b769bfab20daf276094a1bc5f46508a7ba386db65049cbf4d07dd4a02cdf680",
+      "restoredSha256": "9b769bfab20daf276094a1bc5f46508a7ba386db65049cbf4d07dd4a02cdf680"
+    },
+    {
+      "path": "data/usda/portion-0048.json",
+      "apkSha256": "ba3eebc986ec9e7cef83bcc0d06eddf08e96680924f2ef616c894c6e325f55fa",
+      "restoredSha256": "ba3eebc986ec9e7cef83bcc0d06eddf08e96680924f2ef616c894c6e325f55fa"
+    },
+    {
+      "path": "data/usda/portion-0049.json",
+      "apkSha256": "f8ddff4d7c40cd179e0c12846a4ab43f74acb0eb1b2aa5de217e3412080629a1",
+      "restoredSha256": "f8ddff4d7c40cd179e0c12846a4ab43f74acb0eb1b2aa5de217e3412080629a1"
+    },
+    {
+      "path": "data/usda/portion-0050.json",
+      "apkSha256": "59ab20454bfa35b35a8d97231a9c0677df35c2158f61ee759998f4008c93eae4",
+      "restoredSha256": "59ab20454bfa35b35a8d97231a9c0677df35c2158f61ee759998f4008c93eae4"
+    },
+    {
+      "path": "data/usda/portion-0051.json",
+      "apkSha256": "a037fe3958ff97a9c0cd59dd0247205b36bfea7615bcf1af4554da9a4c85128f",
+      "restoredSha256": "a037fe3958ff97a9c0cd59dd0247205b36bfea7615bcf1af4554da9a4c85128f"
+    },
+    {
+      "path": "data/usda/portion-0052.json",
+      "apkSha256": "f859d1d01b840751c16b3468c0e95de47a393f0848632e3186bf5a25dd2c88ea",
+      "restoredSha256": "f859d1d01b840751c16b3468c0e95de47a393f0848632e3186bf5a25dd2c88ea"
+    },
+    {
+      "path": "data/usda/portion-0053.json",
+      "apkSha256": "abf195da098c5e5cb897b0fea7b1968bd0a55f92ca13b48c0071e8a8a8f9014c",
+      "restoredSha256": "abf195da098c5e5cb897b0fea7b1968bd0a55f92ca13b48c0071e8a8a8f9014c"
+    },
+    {
+      "path": "data/usda/portion-0054.json",
+      "apkSha256": "6d4484a0aa25fe98f45b6c4c47a38943dc935068449105eb64b0a9b43c648412",
+      "restoredSha256": "6d4484a0aa25fe98f45b6c4c47a38943dc935068449105eb64b0a9b43c648412"
+    },
+    {
+      "path": "data/usda/portion-0055.json",
+      "apkSha256": "d31befabed81af8d51d0321cd4b344943641c3483bd6c9571ec964e37c435732",
+      "restoredSha256": "d31befabed81af8d51d0321cd4b344943641c3483bd6c9571ec964e37c435732"
+    },
+    {
+      "path": "data/usda/portion-0056.json",
+      "apkSha256": "5ba3a6fe721b87d0798e0cc873b9829a131ad11529976adcb5dc6b02902c8e4d",
+      "restoredSha256": "5ba3a6fe721b87d0798e0cc873b9829a131ad11529976adcb5dc6b02902c8e4d"
+    },
+    {
+      "path": "data/usda/portion-0057.json",
+      "apkSha256": "9e19caf4b7b1a5922137b7e10ae9f16038ade2615bb53f26d46cdb24e10b7a4d",
+      "restoredSha256": "9e19caf4b7b1a5922137b7e10ae9f16038ade2615bb53f26d46cdb24e10b7a4d"
+    },
+    {
+      "path": "data/usda/portion-0058.json",
+      "apkSha256": "dc30d23bf9337d3256716b0cd587f15615d1f496dd056d7c3249aa6560faece3",
+      "restoredSha256": "dc30d23bf9337d3256716b0cd587f15615d1f496dd056d7c3249aa6560faece3"
+    },
+    {
+      "path": "data/usda/portion-0059.json",
+      "apkSha256": "e5fd6955120f3ab5eafe84eb3e7fd46c9f439bba932f31b36d7cb1df0123eed1",
+      "restoredSha256": "e5fd6955120f3ab5eafe84eb3e7fd46c9f439bba932f31b36d7cb1df0123eed1"
+    },
+    {
+      "path": "data/usda/portion-0060.json",
+      "apkSha256": "a356bfff380d58f91f623adca7378cfe02027ff59c921281bb39dfa542ae210d",
+      "restoredSha256": "a356bfff380d58f91f623adca7378cfe02027ff59c921281bb39dfa542ae210d"
+    },
+    {
+      "path": "data/usda/portion-0061.json",
+      "apkSha256": "52a8cb61fee33f3b4ba9d4573e8384a942fdd4a085e610a675c87e55663594d7",
+      "restoredSha256": "52a8cb61fee33f3b4ba9d4573e8384a942fdd4a085e610a675c87e55663594d7"
+    },
+    {
+      "path": "data/usda/portion-0062.json",
+      "apkSha256": "2e7acd7fd0c36691165c45ed4c8412df48152fdd2dfe7b78503113739af1c732",
+      "restoredSha256": "2e7acd7fd0c36691165c45ed4c8412df48152fdd2dfe7b78503113739af1c732"
+    },
+    {
+      "path": "data/usda/portion-0063.json",
+      "apkSha256": "922dbcd93cd1d35b487be1e6b1dd6bbe40fa06bfcbfea49739e1ecdf703ab7d6",
+      "restoredSha256": "922dbcd93cd1d35b487be1e6b1dd6bbe40fa06bfcbfea49739e1ecdf703ab7d6"
+    },
+    {
+      "path": "data/usda/portion-0064.json",
+      "apkSha256": "952aabe53989c949fe4aa00522593041c96f25c2ce582f61acf15100493a038b",
+      "restoredSha256": "952aabe53989c949fe4aa00522593041c96f25c2ce582f61acf15100493a038b"
+    },
+    {
+      "path": "data/usda/portion-0065.json",
+      "apkSha256": "ab3d38cbdad9cb066348cca2a76167ded439da91ca78adbc353978156e65f487",
+      "restoredSha256": "ab3d38cbdad9cb066348cca2a76167ded439da91ca78adbc353978156e65f487"
+    },
+    {
+      "path": "data/usda/portion-0066.json",
+      "apkSha256": "12631e13a9dc6a662ab9fec4fddae734dc15c2c4e093b82c61dcb358b56ebc13",
+      "restoredSha256": "12631e13a9dc6a662ab9fec4fddae734dc15c2c4e093b82c61dcb358b56ebc13"
+    },
+    {
+      "path": "data/usda/portion-0067.json",
+      "apkSha256": "7f418c96fc53d1a9cf4bdc99b1baa35fc4d0b5558c8b310cbd62f951f09ecd08",
+      "restoredSha256": "7f418c96fc53d1a9cf4bdc99b1baa35fc4d0b5558c8b310cbd62f951f09ecd08"
+    },
+    {
+      "path": "data/usda/portion-0068.json",
+      "apkSha256": "e995729b8ecadd4cd7bb06567e9150e729634cd70bc9b69de524fbdcbceb5cae",
+      "restoredSha256": "e995729b8ecadd4cd7bb06567e9150e729634cd70bc9b69de524fbdcbceb5cae"
+    },
+    {
+      "path": "data/usda/portion-0069.json",
+      "apkSha256": "7fa52524bf6dea760744eb3b5f5d5a722fa821770ee7badc98fb304ea76c816c",
+      "restoredSha256": "7fa52524bf6dea760744eb3b5f5d5a722fa821770ee7badc98fb304ea76c816c"
+    },
+    {
+      "path": "data/usda/portion-0070.json",
+      "apkSha256": "aafee3737d56415bd4fc5d5318e24610625200dc7cfd3fa17030309d34a5cdec",
+      "restoredSha256": "aafee3737d56415bd4fc5d5318e24610625200dc7cfd3fa17030309d34a5cdec"
+    },
+    {
+      "path": "data/usda/portion-0071.json",
+      "apkSha256": "ca9a6b92e5af911014fbaa032807bea8073c7e485cc3d711bcf57b22d9868c32",
+      "restoredSha256": "ca9a6b92e5af911014fbaa032807bea8073c7e485cc3d711bcf57b22d9868c32"
+    },
+    {
+      "path": "data/usda/portion-0072.json",
+      "apkSha256": "5f82e5911298fb2af2522d7622d2ecc926db0c3673717adca8a7074cfa9c8861",
+      "restoredSha256": "5f82e5911298fb2af2522d7622d2ecc926db0c3673717adca8a7074cfa9c8861"
+    },
+    {
+      "path": "data/usda/portion-0073.json",
+      "apkSha256": "be4fcbc2bf27d8e9737befe5ffef93d2f63f428472eac71355c46542baa6de08",
+      "restoredSha256": "be4fcbc2bf27d8e9737befe5ffef93d2f63f428472eac71355c46542baa6de08"
+    },
+    {
+      "path": "data/usda/portion-0074.json",
+      "apkSha256": "ea6e6aa66903e085c0fc4999dfbec6e038133badc39f0a08d0262053b22c9817",
+      "restoredSha256": "ea6e6aa66903e085c0fc4999dfbec6e038133badc39f0a08d0262053b22c9817"
+    },
+    {
+      "path": "data/usda/portion-0075.json",
+      "apkSha256": "88d0838d425498ac4d0d180b168030cfb551f2bf52b8e3e5a5976c061cf47f83",
+      "restoredSha256": "88d0838d425498ac4d0d180b168030cfb551f2bf52b8e3e5a5976c061cf47f83"
+    },
+    {
+      "path": "data/usda/portion-index.json",
+      "apkSha256": "ce17519dc73cb345968cb2192b6afce706711bc383b6621ea88285a7ccd87d67",
+      "restoredSha256": "ce17519dc73cb345968cb2192b6afce706711bc383b6621ea88285a7ccd87d67"
+    },
+    {
+      "path": "diary-entry.js",
+      "apkSha256": "e7b797374e5eda07114543a5ea25bd00e8f75680e8a60263c876fce32e68afcc",
+      "restoredSha256": "8822a4459a1f245cd6b3fec812b5a4df46e07f53c564fc300faa63c116532d3f"
+    },
+    {
+      "path": "diary-history.js",
+      "apkSha256": "7c82cec3d4472cb2be0b5c82df0b799ae3a9d5b668097ecfda85b37285f9d071",
+      "restoredSha256": "e109aebbad910627a748bc3818f60e40d9b46eac69772284dcb8280be3dfdf84"
+    },
+    {
+      "path": "diary-quantity.js",
+      "apkSha256": "9c233bf1df8e956072d2beb44dd266efefdc447a8cf1d19393c9ad04f3d47a24",
+      "restoredSha256": "4f668c9b8b85db858bdd7ff4298a0b10d2da12b990c1bb5eb53cc507f8cd979b"
+    },
+    {
+      "path": "exercise-guide-ui.js",
+      "apkSha256": "9083b81dfe5c79fc6d5ade1619681899d3197d22736b94bf23cf8d9ef75dba21",
+      "restoredSha256": "1f213fef6fd3b3c46515f0a621ea26106678a07b399cacc7e1e8fa213b332a79"
+    },
+    {
+      "path": "exercise-guides.js",
+      "apkSha256": "c1da709427986217f46398ae0c17fae2f40fd6c31dbe310efb3b293c296d10db",
+      "restoredSha256": "c1da709427986217f46398ae0c17fae2f40fd6c31dbe310efb3b293c296d10db"
+    },
+    {
+      "path": "exercise-visuals.js",
+      "apkSha256": "5fb02c8ed389b739d22e486f95c57bb3b5de76774cf9c8d17a1f2ff324b2dc2c",
+      "restoredSha256": "5fb02c8ed389b739d22e486f95c57bb3b5de76774cf9c8d17a1f2ff324b2dc2c"
+    },
+    {
+      "path": "food-language.js",
+      "apkSha256": "41bf5dd524aebc6533542d192aca3fa21b970274696baf709a8cf6b5f6793e6e",
+      "restoredSha256": "41bf5dd524aebc6533542d192aca3fa21b970274696baf709a8cf6b5f6793e6e"
+    },
+    {
+      "path": "food-query.js",
+      "apkSha256": "41d25b497f223b748af184564cb44b6df42554d2f77b9d8d8f3d231b12a83ee4",
+      "restoredSha256": "7c96853e27dc656cbf690a0765e5f2737c0fe8a53901b6de5dfc729bce6416e2"
+    },
+    {
+      "path": "food-segmentation.js",
+      "apkSha256": "8e665731b185828e471f84d2f43ee4a20b8f8a4714e3061807bf43282e1f86bf",
+      "restoredSha256": "a7065214269579933a09b3e596fddebdee5c46b20672cc23d71523ff71b92fe0"
+    },
+    {
+      "path": "food-tokenizer.js",
+      "apkSha256": "84a8c55ee3f146a348f4e1a960c7b32ff020a423fcccca1d41322b618b0335df",
+      "restoredSha256": "50e8c1355a249e91feac0c75d6c1848356a32587c2f1cfbbaa2f6bfb5f4f2807"
+    },
+    {
+      "path": "goals.js",
+      "apkSha256": "67bda97b44255407aca9ccad7ffdbd7d72198453c691b23743d5d03482786438",
+      "restoredSha256": "5c90f00654bdfdaf45855f5aef71dca3173b57053fb7109a8892e0a580b13f11"
+    },
+    {
+      "path": "icons/icon-192.png",
+      "apkSha256": "b7b13546ac8578a8d845d9a925883fb6a4f47443302f2755616bddaa62a157d7",
+      "restoredSha256": "b7b13546ac8578a8d845d9a925883fb6a4f47443302f2755616bddaa62a157d7"
+    },
+    {
+      "path": "icons/icon-512.png",
+      "apkSha256": "f110f0e034fe11f53cc94196aaf7a188a8a913bf49d75c44ab4b20a3415b3cec",
+      "restoredSha256": "f110f0e034fe11f53cc94196aaf7a188a8a913bf49d75c44ab4b20a3415b3cec"
+    },
+    {
+      "path": "index.html",
+      "apkSha256": "534175f6c617ff2c1e7a4de252c00d3cd341e0596a4de7e25e57a60af90c2111",
+      "restoredSha256": "2fe6e8393d6fd649aa140180d1fe46069f1f47b0d488e3a5900d576f6ed86e14"
+    },
+    {
+      "path": "legacy-product-references.js",
+      "apkSha256": "208ac6501a8c414795cc176f4b2ec7f9bca2b8e78a4f3029283cc2415710f460",
+      "restoredSha256": "208ac6501a8c414795cc176f4b2ec7f9bca2b8e78a4f3029283cc2415710f460"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "apkSha256": "22318bb27ab502922ca4d001dd7f71a4e234488efb3dd30f15d050318c0ea8ca",
+      "restoredSha256": "22318bb27ab502922ca4d001dd7f71a4e234488efb3dd30f15d050318c0ea8ca"
+    },
+    {
+      "path": "meal-proposal-ui.js",
+      "apkSha256": "1c263e0d8ec802e5af83fca11e0921ef578ab245c1d8ebc612eca6468d3a0705",
+      "restoredSha256": "620d4dd35303c7a49906ad1d3cd3709b0a641a59e5ce72fbfe1d6a1273c87c73"
+    },
+    {
+      "path": "meal-resolution.js",
+      "apkSha256": "f59bc0000b2b9a3713931b893096047da7c6b4dd5df5aa04072350c84a790ea4",
+      "restoredSha256": "a5e2dbc947dcdbcc1dc2b343a0b0631eadaaa0237393d9db3ef2b70d403e5e9c"
+    },
+    {
+      "path": "meal-understanding.js",
+      "apkSha256": "f8053843fe3ccdec56d2401a70a47149adf9b902c6ee1fc86183c413fedae731",
+      "restoredSha256": "94ce6ae5754e582c911c6ebc1ef742d26ea4560c2b763e80ffb755550ae031f6"
+    },
+    {
+      "path": "native-off-http.js",
+      "apkSha256": "5711cd7ac2a9b275b0747de3df73cd6c2a2d135060e15767750200c4887c7f45",
+      "restoredSha256": "5711cd7ac2a9b275b0747de3df73cd6c2a2d135060e15767750200c4887c7f45"
+    },
+    {
+      "path": "native-platform.js",
+      "apkSha256": "7c16737b3bf1b94e83e8e3aeeabc4f22da717ee9bfffe2737a743715bfedcdea",
+      "restoredSha256": "7c16737b3bf1b94e83e8e3aeeabc4f22da717ee9bfffe2737a743715bfedcdea"
+    },
+    {
+      "path": "native-speech.js",
+      "apkSha256": "022f9b33d13bb9849c1b6c0620c7e78e83617b20e8fa61c82037be114cc64172",
+      "restoredSha256": "022f9b33d13bb9849c1b6c0620c7e78e83617b20e8fa61c82037be114cc64172"
+    },
+    {
+      "path": "navigation.js",
+      "apkSha256": "9e9f7077e4a77bbe0fbd290dc441e32dcac6bdcae42cc2e86701623ae1fb026d",
+      "restoredSha256": "9e9f7077e4a77bbe0fbd290dc441e32dcac6bdcae42cc2e86701623ae1fb026d"
+    },
+    {
+      "path": "normalize-text.js",
+      "apkSha256": "081fcfce295c015715a7a8cab82c2efe15dd8926434d3e7de1068ea0ef32220f",
+      "restoredSha256": "081fcfce295c015715a7a8cab82c2efe15dd8926434d3e7de1068ea0ef32220f"
+    },
+    {
+      "path": "nutrition.js",
+      "apkSha256": "480b4cc0452917181fbc57ea4a3f0e4102770aa409398b9cdb74d5266c6f4481",
+      "restoredSha256": "480b4cc0452917181fbc57ea4a3f0e4102770aa409398b9cdb74d5266c6f4481"
+    },
+    {
+      "path": "polish-numbers.js",
+      "apkSha256": "52935944e6bf0d4e331aade2ffd27dd50c404581a93c7c2172f90a8e4d3cc322",
+      "restoredSha256": "52935944e6bf0d4e331aade2ffd27dd50c404581a93c7c2172f90a8e4d3cc322"
+    },
+    {
+      "path": "portion-model.js",
+      "apkSha256": "589cd698e7dd1f0831b3ef821db84456dd92107c3d417db04c04a41feaba0d55",
+      "restoredSha256": "589cd698e7dd1f0831b3ef821db84456dd92107c3d417db04c04a41feaba0d55"
+    },
+    {
+      "path": "portion-references.js",
+      "apkSha256": "659c17e327fa6ab4b8467df2ea894b1b424abda1fb6da75c361ed6023967087b",
+      "restoredSha256": "f0d0a4e50ff13b818e39ef3da48de4320e7f40c19be4d6a2d6067a7dbe7fc0e5"
+    },
+    {
+      "path": "portion-repository.js",
+      "apkSha256": "7658ab6e9378ccf9ffa827a9f3f64283b618cb3cfd56973b1e525494eb64b501",
+      "restoredSha256": "809b3df7e2353e9b91807c3a2afea8b2610714a511b6e4810d44741f9cb9a0ea"
+    },
+    {
+      "path": "portion-resolver.js",
+      "apkSha256": "cf72ace391d00ed3a12e3c4a57362a93bf3ba565b773734c6e3e614dbe168af8",
+      "restoredSha256": "55deac4a56a79fdb90410dac96d843322145a2c32164dbde9b4ccae57cc84c1f"
+    },
+    {
+      "path": "portion-settings-ui.js",
+      "apkSha256": "56bc43eee93d2bb84ff7a720056935bac52c8428c8bec3402cb24bcb1c8c5fbf",
+      "restoredSha256": "7c93d1062644005add649aecd024e6a7d5b95354306e8894d67102add04e06ae"
+    },
+    {
+      "path": "product-cache.js",
+      "apkSha256": "ec6380bb3bf6d23941789a0426c9931fff4ff85402f38040df96d6351e60b9b5",
+      "restoredSha256": "6d7597dfb9e47e5988d9718e016f55f8a8721fbd4f9114757d1aa6a1a5fb1bc5"
+    },
+    {
+      "path": "product-errors.js",
+      "apkSha256": "f7ddbe35cfe591b819e8a01d4739153d1b99bf25d2f6a8d3e223e0e4915083e8",
+      "restoredSha256": "f7ddbe35cfe591b819e8a01d4739153d1b99bf25d2f6a8d3e223e0e4915083e8"
+    },
+    {
+      "path": "product-matching.js",
+      "apkSha256": "5ce2babbda27d90d33370eddd5bf392f164f7af43e5f746290f3084b29f4a2d2",
+      "restoredSha256": "aa8c7702b11f44cb6f507537a36cd04229ed78a1d018617007193fd6d2956078"
+    },
+    {
+      "path": "product-model.js",
+      "apkSha256": "0735410aa2c1ae1b6f8058cd49f9b356e20155fc9c987e0e775a59a01a1c2d60",
+      "restoredSha256": "a51daa690995346398291bedabd9ff2a4d1f0ed0426bf895a266579a1490621d"
+    },
+    {
+      "path": "product-polish-ui.js",
+      "apkSha256": "3a90ef4b3df0d5964ee7bdb4ba3f17cb90ba1155fcc9aa5d201514b517a74409",
+      "restoredSha256": "1f54f206c5ce9c2d6e304883de74a765415250cd644326214d1f7d7a3f2a2b07"
+    },
+    {
+      "path": "product-providers/custom.js",
+      "apkSha256": "16bae9de022a1dfdee153d79b2fa3cef13a4e6659536a22f1b2632d9fbd0ec07",
+      "restoredSha256": "0a4eeb9709bc1628b758d55c6689dd5fdba0e9c865da74cc52a1975f9725b1bc"
+    },
+    {
+      "path": "product-providers/off-http.js",
+      "apkSha256": "a163a46ad033a7f0d5bbaed02923c0c651c1ec2780fbff96e3bfa92510c3140e",
+      "restoredSha256": "3b94bed0b64b1aa97f67b5b9e32c5ed8b7f6a6d8b768a5af630970076b864723"
+    },
+    {
+      "path": "product-providers/off-search-bridge.js",
+      "apkSha256": "24ee87570dc3c0eccfca76855078aeaf3b3ec8586785e63f3e56a2ec1751f4a5",
+      "restoredSha256": "24ee87570dc3c0eccfca76855078aeaf3b3ec8586785e63f3e56a2ec1751f4a5"
+    },
+    {
+      "path": "product-providers/off-search-native.js",
+      "apkSha256": "ac308412d3005165e90b66c09636dc08404c0c51712ebfda1880695b8f82ef0d",
+      "restoredSha256": "ac308412d3005165e90b66c09636dc08404c0c51712ebfda1880695b8f82ef0d"
+    },
+    {
+      "path": "product-providers/off-search-query.js",
+      "apkSha256": "6ab52343de282e35f94d44d3ba52013dd57ce4a371a799ce52e103d2275db458",
+      "restoredSha256": "e7e235ca8af704a041f4845f8ee491dd1b99bc36fa9896e52edf99fd0063e422"
+    },
+    {
+      "path": "product-providers/off-search.js",
+      "apkSha256": "0470738b4a244358f5f7e2b85d29195e13a764c4f0822f40aa2684859e0d06e5",
+      "restoredSha256": "f6194555fc7bf0c82982abc372a77e54c2e6814e3dcdca8e1ecc84f84f18d5ec"
+    },
+    {
+      "path": "product-providers/open-food-facts.js",
+      "apkSha256": "04f2c4c2d66571367024ce41439fe2f0425248aa91351ae7ec11a66b5b91b102",
+      "restoredSha256": "08e95a7630b5d57d586698fed028681d8d4e3a07ab68af5df026233b67667c09"
+    },
+    {
+      "path": "product-providers/source-portions.js",
+      "apkSha256": "9a8c9fc3355d6af9e2e5df1cbccfd8cbd0f77fcec0ae8945cc55b6dd4a19246c",
+      "restoredSha256": "1a039ee6e020e3ee2c615cc1dbefe8b44acc9868ada04083ef4d19ef5840b5d3"
+    },
+    {
+      "path": "product-providers/usda-portions.js",
+      "apkSha256": "457aa70baf74c0a44eb6421840ad6b3f96ac02964da3a337baa73488474ae3a9",
+      "restoredSha256": "e72c9a22a7fc5c22d2b55803a4abd21a522a19a2daef518d01f02fddba2ce242"
+    },
+    {
+      "path": "product-providers/usda.js",
+      "apkSha256": "c10140a744f53fe65a7a1a23c405b37917be845c60cfd662832e80748447bc9a",
+      "restoredSha256": "6e28af4503e1caf2b2ce4abea62226655af697af6cf8d5f27b8173f64237d306"
+    },
+    {
+      "path": "product-query.js",
+      "apkSha256": "9b20daa383d9f2af63872e6eb0c7caccf00ff64f7e95cd48934d76439680bae3",
+      "restoredSha256": "c27c028a28846eba2e40fde42b98f857659352d3bac1f822e71d059afd0252b9"
+    },
+    {
+      "path": "product-repository.js",
+      "apkSha256": "20c81d2e9a49cb5c569636e433f1c4cdffc2db89c3301e2a7ac9a56b0f2f0a7d",
+      "restoredSha256": "9a6119273b7cce37a9d674eecfe3fbf6ce4f75c8abf9e1039ec7bce8a013c622"
+    },
+    {
+      "path": "product-resolver.js",
+      "apkSha256": "7c54cfc87b744923379de98ebbb90579fafec5ef172db4c5cd9ba5f20d82d568",
+      "restoredSha256": "bfaa28bc5e7985b0df5bb072657f70ca9076913e32b337be081d695eee7cc0e5"
+    },
+    {
+      "path": "product-search-ui.js",
+      "apkSha256": "213c1a9c2d0e5ad8d0ea5b57d32d831251134721515ad2275ee8274564558f02",
+      "restoredSha256": "0bc4225bc510e5cd8741cdb66fd9069b6b6d7852b8c78eded960e2291e6f111d"
+    },
+    {
+      "path": "product-variants.js",
+      "apkSha256": "24e89450d405bd57ad5094d60ebe9cdf3a06264e4de6aa6304b8cceaf10b65cd",
+      "restoredSha256": "a4e5397d1fd35e69f540a09ff6aa8975efc929bccef7e60c5b401132de9e83f2"
+    },
+    {
+      "path": "product-vocabulary.js",
+      "apkSha256": "f9d4a17cefa800d2e65f8d5494ad951b2b41e310a53fe83c1ebac50751806fdb",
+      "restoredSha256": "f9d4a17cefa800d2e65f8d5494ad951b2b41e310a53fe83c1ebac50751806fdb"
+    },
+    {
+      "path": "progress-ui.js",
+      "apkSha256": "dcc025d979899b18f7f82869ea405dc51fe719689fe9787c8aa655793a4615bd",
+      "restoredSha256": "dcc025d979899b18f7f82869ea405dc51fe719689fe9787c8aa655793a4615bd"
+    },
+    {
+      "path": "progress.js",
+      "apkSha256": "b737791517d4a09c408f976235476a950ec00878cc0a3061ae0536be8058f4ec",
+      "restoredSha256": "968a3d5834e84413f57b4ec9dfcbd9f057a0ea012393284f26af269c4e88f358"
+    },
+    {
+      "path": "pwa.js",
+      "apkSha256": "ab72c67f43953ddf12e540d36b87a0c5fb018f2b2dc9790a96d6a6678d797fbb",
+      "restoredSha256": "ab72c67f43953ddf12e540d36b87a0c5fb018f2b2dc9790a96d6a6678d797fbb"
+    },
+    {
+      "path": "recipe-diary-ui.js",
+      "apkSha256": "b1d405d1ded792d43306d59bb8aa867efe51f18fd34670a1c27233e164450dcb",
+      "restoredSha256": "ec2a6712f95be1d3261d60a757e06b077eabee3a86796f3b944c44d6a5c75024"
+    },
+    {
+      "path": "recipe-editor.js",
+      "apkSha256": "8ada2817f86306e51933f829540039b44bd59b5ca9dc93be7b69e2944a0060bf",
+      "restoredSha256": "fabfc0961d5b07586d35bac6b4ff8a42270e37ef59b91b572b6327d21bc4f929"
+    },
+    {
+      "path": "recipe-execution-ui.js",
+      "apkSha256": "c1426e1bfae9f6141602a368e1c630a65161afe3c5323965948201f90b0de0c1",
+      "restoredSha256": "252f83fadfa6841814fb1165ecc933ac83fff5b6860b8f975b582f090d71dc10"
+    },
+    {
+      "path": "recipe-execution.js",
+      "apkSha256": "691a15a43b9808f5ca8abac784207cf3797d38a438702ed1ce42217d8097776d",
+      "restoredSha256": "7a472492dfa79df3ec802b91f510452c82dbd515985f4836540cd658eec79d5b"
+    },
+    {
+      "path": "recipe-id.js",
+      "apkSha256": "4944fbf1874271b2650773a7aada09f940ac324acba1dd4916b494a4af136145",
+      "restoredSha256": "4944fbf1874271b2650773a7aada09f940ac324acba1dd4916b494a4af136145"
+    },
+    {
+      "path": "recipe-ingredient-picker.js",
+      "apkSha256": "009d57276f8a404b55357a2ee637a0141fbd123d45a6958132ceb60ce7e9ec1a",
+      "restoredSha256": "0839725b8b463cb31efab7b3d4d4788b4a033ebe25b92c522499ede03e73af24"
+    },
+    {
+      "path": "recipe-model.js",
+      "apkSha256": "43dd381934008e29065e1a056b84c5ab8fdeb4d0f8d83bee356ef7f4a80604c3",
+      "restoredSha256": "bf50dd5a3563aae222a227190369aa60056c1e6c861d17aec7eca3ea0badbdc1"
+    },
+    {
+      "path": "recipe-nutrition.js",
+      "apkSha256": "a8d52c87e32c1a5872ee4451ed8aa21470eac43887010de3d3e6eb8bfade1a06",
+      "restoredSha256": "21e9e5326b296ccf0685cb13f27d88b5f5f95ffeb8c721fcd2b7fc0da3352491"
+    },
+    {
+      "path": "recipe-plan-2026-data.js",
+      "apkSha256": "e24174ffbfb77025fb66e0b18fbc75f41a435f429c560addd3d58694308d0196",
+      "restoredSha256": "e24174ffbfb77025fb66e0b18fbc75f41a435f429c560addd3d58694308d0196"
+    },
+    {
+      "path": "recipe-plan-import.js",
+      "apkSha256": "926864bd5aaa3bfa8477e0539be4bea00d99931f363d39dcbd6d11b6ebbbc5dd",
+      "restoredSha256": "cabfcc13d3edd0b789c32927a85c9969e4cf2c63d6790bf39f51e11253612f04"
+    },
+    {
+      "path": "recipe-portion-resolver.js",
+      "apkSha256": "ae73fa0df9dc7220a77ae359d30f10e2860c3368574cd9987211b6aab290358c",
+      "restoredSha256": "edc17f7b321804842190a77517fb1e7640d55d90681654d85a3ed2ee622cc4c0"
+    },
+    {
+      "path": "recipe-proposal-ui.js",
+      "apkSha256": "31a77c631cbb6a4428a3283d8c424513068730fe093b0a4f325fd91e30146f3c",
+      "restoredSha256": "1155b27c19623dcf3d4a1d28e796190b6b8da35e7461a8fb5a60d4e63556a1eb"
+    },
+    {
+      "path": "recipe-repository.js",
+      "apkSha256": "1db482ef23afa42956be3fb07b285fc1d506338c4fa48e6d6f24f35ab88aa40c",
+      "restoredSha256": "a21111398fa7e735a8f8a8e3497a70e7710e1f861d4cb7d5e466b430a669f134"
+    },
+    {
+      "path": "recipe-resolver.js",
+      "apkSha256": "456047d0c70d35c0c8e2e0abce6492812da44a969157a90e0f011f4186604779",
+      "restoredSha256": "9266199b1074e9005a48420e7be7c8183b17d2f87adeba644cfe2da2d1d2258f"
+    },
+    {
+      "path": "recipe-session.js",
+      "apkSha256": "00fe07cf99b21a1494fd9f8765b97ac3f79838e10ddd5f402af5aadb611c869b",
+      "restoredSha256": "2118c4c967f9720e034e477fd70aa60b41d3f8546c7ee0f7164cb87b06f80385"
+    },
+    {
+      "path": "recipe-ui.js",
+      "apkSha256": "210aa67210b2214dafe80933036586234b5b16d2e3ccdfc3f51b184829d90004",
+      "restoredSha256": "0494554a622c0df36c121ad331341a7d402b02ea5402975efa9aa422b7045881"
+    },
+    {
+      "path": "recipe-understanding.js",
+      "apkSha256": "2cb7bee7bf671881ed7b14a7b136afa68eeef771cd377b4e490dd189692b9f08",
+      "restoredSha256": "3169e8580458ab0af91770cba72823c7be98587d69f3762e71fd2d545395b818"
+    },
+    {
+      "path": "service-worker.js",
+      "apkSha256": "ff310fea6a0f515f896fd924f3881c3750d0618e37d7bb5505bbdc33b8b67e39",
+      "restoredSha256": "ff310fea6a0f515f896fd924f3881c3750d0618e37d7bb5505bbdc33b8b67e39"
+    },
+    {
+      "path": "settings.js",
+      "apkSha256": "2d49288f840cce1e9cbeffcdce1e389a2ff666e0f982a65e4669ad046e10e279",
+      "restoredSha256": "d96e785f9af39d69ba54fd78f6304607b083f3b9709611c8897a2621fbec0899"
+    },
+    {
+      "path": "speech-recognition.js",
+      "apkSha256": "7be03631309a218a3d579dbaec13703e013a746a4658ffef449934075130389f",
+      "restoredSha256": "7be03631309a218a3d579dbaec13703e013a746a4658ffef449934075130389f"
+    },
+    {
+      "path": "storage-health.js",
+      "apkSha256": "8d88ff76192d76be71e1d1258da975a3f1e94cc85b8d01ffd96bfc89dca226e4",
+      "restoredSha256": "8d88ff76192d76be71e1d1258da975a3f1e94cc85b8d01ffd96bfc89dca226e4"
+    },
+    {
+      "path": "style.css",
+      "apkSha256": "8b5d2e24648b70ea9e06038191d7ce64d3d546a301dc4646bc593b9de12cf55d",
+      "restoredSha256": "8b5d2e24648b70ea9e06038191d7ce64d3d546a301dc4646bc593b9de12cf55d"
+    },
+    {
+      "path": "training-calendar-ui.js",
+      "apkSha256": "4574664325e3e95138f0d951580a3ef6efdb3d271717158f07f7f36a9d31b4ee",
+      "restoredSha256": "dd97d0a601939642f58065e53e86ed39967259a7ae7188b58371a486f3abcd65"
+    },
+    {
+      "path": "training-calendar.js",
+      "apkSha256": "c8cac30d73bb292a75feaabe4571044e37ef438e861c31ee8fc4a25e52dcdcf8",
+      "restoredSha256": "c8cac30d73bb292a75feaabe4571044e37ef438e861c31ee8fc4a25e52dcdcf8"
+    },
+    {
+      "path": "training-library.js",
+      "apkSha256": "ce4a0599cde22fc11197c647d3e9701b577efc1f6a4ead4df50574855e27a59e",
+      "restoredSha256": "ce4a0599cde22fc11197c647d3e9701b577efc1f6a4ead4df50574855e27a59e"
+    },
+    {
+      "path": "training-model.js",
+      "apkSha256": "eeb48cacd54355750594646969b07e13387e8b0221d5f72342947302c95c3398",
+      "restoredSha256": "c3275d85ea3fc850849a93ba115bfebb761ed99e54588c33964d5f616c475a61"
+    },
+    {
+      "path": "training-november-2026.js",
+      "apkSha256": "a4377e1af808b78a528709cd2df5875a6bf09cadc25053f668bb8034300e48ce",
+      "restoredSha256": "95175a0d2cf346f76c03ead7774a5e85be6de02987e779a3678db80689052c65"
+    },
+    {
+      "path": "training-reminders-ui.js",
+      "apkSha256": "73293237da272819402f75a65447aa9005559e78831710ce4bab85318a858f86",
+      "restoredSha256": "5ee98d56fffea8d3b3b4960a5a29198df7e2532935930f9ec897785d76dacf4e"
+    },
+    {
+      "path": "training-reminders.js",
+      "apkSha256": "8c59a6e86a3dbd244c4195cb2f3bcce98aca573ea98a05483d7275bb1b27d1b7",
+      "restoredSha256": "757143b3a406b1a9a9d8de111e83575a1ca521f020767114f92bf2a1fe9f6aab"
+    },
+    {
+      "path": "training-repository.js",
+      "apkSha256": "5f46c431fab1bc078078f2a6347a60c99abb95ff7bfe1a3cb59d4396fb2404e0",
+      "restoredSha256": "68a9b68db9f1c0dcd13539110cd8f7348fe0b6dcbc71b44323c00d9897eec855"
+    },
+    {
+      "path": "training-ui.js",
+      "apkSha256": "4a3d5a22542a6704480036e8ac86689acee23a4fc546351c486d61506045fe76",
+      "restoredSha256": "1eb8ee298b8162c3352cfd9e5c075854f8ffd25ca9ea02eb5865003db98829cd"
+    },
+    {
+      "path": "training-voice.js",
+      "apkSha256": "5228ab2ff0d5065ca4556f73e07eff043c3071b209e171f71fbf207f9e3acc99",
+      "restoredSha256": "c89c64ec5ce9be2375de8e1cae2299d9cd3a997d3c7f94eabe54a9fc463206da"
+    },
+    {
+      "path": "transcript-normalizer.js",
+      "apkSha256": "044b2b70603ee2aebfeb7303a5763a6e44a81b1893edc21b16b0aba0d72c1afe",
+      "restoredSha256": "ec96901fd295ca681cec78c5462413c920fb74b1745b886321d3025e7d90f103"
+    },
+    {
+      "path": "vendor/zxing/LICENSE-browser.txt",
+      "apkSha256": "4c26c3077daa7ce4d56ad91f279fafc395bf33c3a0f1ba9ab8cf511bad148ea5",
+      "restoredSha256": "4c26c3077daa7ce4d56ad91f279fafc395bf33c3a0f1ba9ab8cf511bad148ea5"
+    },
+    {
+      "path": "vendor/zxing/LICENSE-library.txt",
+      "apkSha256": "849b3ff4527ff587eecc78736b5685bbba7a44b071f3b944da914e832292f6c0",
+      "restoredSha256": "849b3ff4527ff587eecc78736b5685bbba7a44b071f3b944da914e832292f6c0"
+    },
+    {
+      "path": "vendor/zxing/LICENSE-ts-custom-error.txt",
+      "apkSha256": "659b010fe62ce794cf25e1e36c2d739db17ea10a159f9a46ba2293e1f26d31c7",
+      "restoredSha256": "659b010fe62ce794cf25e1e36c2d739db17ea10a159f9a46ba2293e1f26d31c7"
+    },
+    {
+      "path": "vendor/zxing/zxing-browser-0.2.1.min.js",
+      "apkSha256": "066bc34edfcdd4a33f0964aeec967752a0dea1ccaf36e58e319ac9fcb5070f6a",
+      "restoredSha256": "066bc34edfcdd4a33f0964aeec967752a0dea1ccaf36e58e319ac9fcb5070f6a"
+    },
+    {
+      "path": "voice-entry.js",
+      "apkSha256": "e1f0f4cc1fc96ac96560496cf1425db66f3209a8c0b27032c2dd6440d76562e2",
+      "restoredSha256": "9880bf1f3e8c5a08de1eed1453b59bbc2b3bbeefbd5bf574b466bdc22866e7be"
+    }
+  ]
+}

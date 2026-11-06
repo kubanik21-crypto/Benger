@@ -7,6 +7,7 @@ export async function initNativePlatform(){
  const bridge=getNativePlugin('BengerNative');
  installNativeSpeech(bridge);
  await bridge.addListener('background',()=>globalThis.dispatchEvent(new Event('benger:native-pause')));
+ await bridge.addListener('foreground',()=>globalThis.dispatchEvent(new Event('benger:native-resume')));
 }
 export async function saveNativeBackup(raw,filename){
  if(!isAndroidNative())return null;

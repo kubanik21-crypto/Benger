@@ -12,7 +12,7 @@ function lemma(word){
  const known=canonicalWord(word);if(known!==word)return known;
  if(Object.hasOwn(synonyms,word))return synonyms[word];
  if(vocabulary.includes(word))return word;
- const adjective=word.replace(/owego$/,'owy').replace(/owej$/,'owa');if(vocabulary.includes(adjective))return adjective;
+ const adjective=word.replace(/owego$/,'owy').replace(/owej$/,'owy');if(vocabulary.includes(adjective))return adjective;
  // Fleeting e (marchew/marchwi) and diminutive k share the same family stem.
  const key=stem(word),matches=stems.get(key)??stems.get(key.replace(/e(?=[^aeiouy]+$)/,''));
  if(matches?.size===1){const match=[...matches][0];return synonyms[match]??match;}
@@ -31,20 +31,36 @@ export function canonicalProductName(value){
 const words=value=>canonicalProductName(value).match(/[a-z0-9]+(?:[.,]\d+)?%?/g)??[];
 const enStem=w=>w.endsWith('ies')?w.slice(0,-3)+'y':w.endsWith('oes')?w.slice(0,-2):w.length>3&&w.endsWith('s')?w.slice(0,-1):w;
 export function semanticTokens(value){return words(value).flatMap(w=>(Object.hasOwn(POLISH_FOOD_TERMS,w)?POLISH_FOOD_TERMS[w]:w).match(/[a-z0-9]+(?:[.,]\d+)?%?/g)??[]).map(enStem);}
+// A food named as an ingredient is not any prepared product containing that word.
+// Apply the same boundary to cache, generic foods, OFF and selection memory.
+const ingredientFamilies=new Set(['potato','carrot','apple','banana','rice','oat','chicken','pork','beef','fish','milk']);
+const compoundHeads=new Set(['bun','roll','bread','sandwich','salad','soup','pudding','cake','cookie','biscuit','cracker','chip','crisp','pizza','sausage','hotdog','noodle','pasta','flour','starch','juice','jam','chocolate','sauce','paper','burger']);
+function identityBoundary(wanted,nameTokens){
+ if(wanted.length===1&&ingredientFamilies.has(wanted[0])&&!nameTokens.includes(wanted[0]))return false;
+ const cuts=['tenderloin','breast','thigh','loin'];
+ if(cuts.some(w=>wanted.includes(w)&&!nameTokens.includes(w)))return false;
+ if(wanted.includes('loin')&&!wanted.includes('tenderloin')&&nameTokens.includes('tenderloin'))return false;
+ if(wanted.includes('potato')&&!wanted.includes('skin')&&nameTokens.includes('skin')&&!nameTokens.some(w=>['flesh','with','without'].includes(w)))return false;
+ if(!wanted.some(w=>ingredientFamilies.has(w)))return true;
+ return !nameTokens.some(w=>compoundHeads.has(w)&&!wanted.includes(w));
+}
 export function rankProductCandidates(products,query){
  const q=canonicalProductName(query),wanted=semanticTokens(q);if(!wanted.length)return [];
  return products.map(product=>{
   const name=product.source==='usda'?normalizeText(product.name):canonicalProductName(product.name),tokens=new Set(product.source==='usda'?(normalizeText(product.name).match(/[a-z0-9]+(?:[.,]\d+)?%?/g)??[]).map(enStem):semanticTokens(`${product.name} ${product.brand??''}`));
-  const matches=wanted.every(w=>tokens.has(w));let score=0;
+  const nameTokens=product.source==='usda'?(normalizeText(product.name).match(/[a-z0-9]+/g)??[]).map(enStem):semanticTokens(product.name);
+  const safe=identityBoundary(wanted,nameTokens),matches=safe&&wanted.every(w=>tokens.has(w));let score=0;
   if(matches){score=name===q?100:tokens.size===new Set(wanted).size?99:90;score-=Math.max(0,tokens.size-wanted.length)*.3;
+   if(product.source==='usda'&&wanted.length===1&&wanted[0]==='potato'&&tokens.has('raw'))score=/^potatoes?, flesh and skin, raw$/i.test(product.name)?96:95;
    if(product.source==='usda'&&/^(carrots?|bananas?|apples?), raw$/i.test(product.name)&&wanted.length===1)score=98;
-  }else if(wanted.length&&wanted.every(w=>[...tokens].some(t=>w.length>=5&&t.length>=5&&editDistance(w,t)===1)))score=75;
-  return {product,score,similarity:wanted.filter(w=>tokens.has(w)).length/wanted.length,exact:name===q,canonicalName:q};
+  }else if(safe&&wanted.length&&wanted.every(w=>[...tokens].some(t=>w.length>=5&&t.length>=5&&editDistance(w,t)===1)))score=75;
+  return {product,score,identityCompatible:safe,similarity:wanted.filter(w=>tokens.has(w)).length/wanted.length,exact:name===q,canonicalName:q};
  }).sort((a,b)=>b.score-a.score||(a.score>0?a.product.name.localeCompare(b.product.name,'pl')||a.product.id.localeCompare(b.product.id):0));
 }
 export function obviousProduct(products,query){
  const ranked=rankProductCandidates(products,query).filter(r=>r.score>0);if(!ranked.length)return null;
  const top=ranked[0];if(top.product.brand||top.score<98)return null;
+ if(top.product.source==='usda'&&ranked.length>1&&semanticTokens(query).some(w=>['tenderloin','loin','breast','thigh'].includes(w)))return null;
  // Milk and dairy variants remain meaningful choices, even with one generic label.
  if((/^(?:mleko|jogurt|ser)(?: |$)/.test(canonicalProductName(query))||['sos sojowy','sos','olej','kurczak'].includes(canonicalProductName(query)))&&ranked.length>1)return null;
  const peers=ranked.filter(r=>r.score===top.score);
