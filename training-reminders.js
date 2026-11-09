@@ -58,7 +58,7 @@ export function reminderChanges(wanted,pending){
 }
 
 // One serialized owner of native alarms. A failed operation never poisons later retries.
-export function createTrainingReminderController({plugin,repository,local,onStatus=()=>{},now=()=>Date.now()}){
+export function createTrainingReminderController({plugin,repository,local,preferences=null,onStatus=()=>{},now=()=>Date.now()}){
  let tail=Promise.resolve();
  const queue=fn=>{const task=tail.then(fn);tail=task.catch(()=>{});return task;};
  const status=value=>{onStatus(value);return value;};
@@ -83,14 +83,15 @@ export function createTrainingReminderController({plugin,repository,local,onStat
  }
  const failure=e=>{status({state:'error'});throw e;};
  return {
-  sync:()=>queue(async()=>{try{return await reconcile(loadReminderSettings(local));}catch(e){return failure(e);}}),
+  flush:()=>tail,
+  sync:()=>queue(async()=>{try{return await reconcile(preferences?await preferences.readTraining(local):loadReminderSettings(local));}catch(e){return failure(e);}}),
   save:value=>queue(async()=>{
    try{const checked=validateReminderSettings(value);if(checked.enabled){let permission=await plugin.checkPermissions();if(permission.display!=='granted')permission=await plugin.requestPermissions();if(permission.display!=='granted')throw new Error('Nie udzielono zgody na powiadomienia. Możesz ją włączyć w ustawieniach telefonu.');}
-    local.setItem(REMINDER_SETTINGS_KEY,JSON.stringify(checked));return await reconcile(checked);
+    if(preferences)await preferences.saveTraining(checked);else local.setItem(REMINDER_SETTINGS_KEY,JSON.stringify(checked));return await reconcile(checked);
    }catch(e){return failure(e);}
   }),
   test:()=>queue(async()=>{
-   const settings=loadReminderSettings(local);if(!settings.enabled)throw new Error('Najpierw włącz i zapisz przypomnienia.');
+   const settings=preferences?await preferences.readTraining(local):loadReminderSettings(local);if(!settings.enabled)throw new Error('Najpierw włącz i zapisz przypomnienia.');
    if((await plugin.checkPermissions()).display!=='granted')throw new Error('Powiadomienia są zablokowane w ustawieniach telefonu.');
    await channel();await plugin.schedule({notifications:[{...reminderBase(),id:REMINDER_TEST_ID,title:'Benger · Test powiadomień',body:'Powiadomienia działają. Dotknij, aby wrócić do ustawień Bengera.',extra:{owner:REMINDER_OWNER,type:'test'}}]});
   })

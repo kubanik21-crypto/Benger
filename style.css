@@ -444,3 +444,9 @@ button:disabled { opacity:.65; }
 .product-scan-dialog video {display:block;width:100%;max-height:40dvh;object-fit:cover;background:var(--surface);border:2px solid var(--border);border-radius:.75rem;}
 .product-scan-dialog form {display:grid;gap:.6rem;}
 .product-scan-dialog button {min-height:44px;margin-block:.4rem;}
+
+#routine-reminders fieldset{min-width:0;margin-block:.8rem;padding:.75rem;border:1px solid var(--border);border-radius:.75rem;}
+#routine-reminders legend{font-weight:700;}
+.reminder-weekdays{display:flex;flex-wrap:wrap;gap:.4rem;}
+.reminder-weekdays label{display:flex;align-items:center;gap:.25rem;min-height:44px;padding:.25rem .35rem;}
+#routine-reminders input[type=time]{max-width:100%;}

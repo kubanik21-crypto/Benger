@@ -32,7 +32,6 @@ initNavigation({startRoute:polish.settings.startRoute});
 const progressUI=initProgress();
 const dashboardUI=initDashboard();
 const trainingUI=initTraining();
-void initTrainingReminders();
 
 const $ = id => document.getElementById(id);
 const NUTRIENT_LABELS = { kcal: 'Energia', protein: 'Białko', fat: 'Tłuszcz', carbs: 'Węglowodany' };
@@ -454,6 +453,7 @@ loadNutritionEntries();
 renderNutritionEntries();
 void productSearch.seedRecent(nutritionEntries).catch(() => {});
 
+let remindersUI;const remindersReady=initTrainingReminders().then(value=>{remindersUI=value;}).catch(()=>{const panel=document.getElementById('training-reminders');if(panel){const message=document.createElement('p');message.setAttribute('role','status');message.textContent='Nie udało się uruchomić przypomnień. Otwórz aplikację ponownie; Twoje dane pozostają zapisane.';panel.append(message);}});
 void initPwa();
 
-initBackupUi({beforeRead:async()=>{await trainingUI.flush();await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});
+initBackupUi({beforeRead:async()=>{await remindersReady;await remindersUI?.flush?.();await trainingUI.flush();await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});
