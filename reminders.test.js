@@ -31,3 +31,5 @@ test('training controller shares migrated durable preferences and preserves dail
 test('disabling repeating alarms also clears visible notifications by the exact owned IDs',async()=>{const e=env();await e.controller.save(enabled());const ids=e.calls.scheduled.map(n=>n.id);await e.controller.save(defaultRoutineSettings());assert.deepEqual(e.calls.removed.map(n=>n.id).sort(),ids.sort());});
 
 test('Android 7 without notification channels can still schedule local reminders',async()=>{const e=env(),unavailable=async()=>{throw Object.assign(new Error('not supported'),{code:'UNAVAILABLE'});};e.plugin.createChannel=unavailable;e.plugin.listChannels=unavailable;assert.equal((await e.controller.save(enabled())).state,'ready');assert.equal(e.calls.scheduled.length,3);});
+
+test('empty or partial notification preference objects are not accepted as valid backups',()=>{assert.throws(()=>validateNotificationPreferences({}));assert.throws(()=>validateNotificationPreferences({training:REMINDER_DEFAULTS}));assert.throws(()=>validateNotificationPreferences({training:REMINDER_DEFAULTS,routine:defaultRoutineSettings(),unknown:true}));});
