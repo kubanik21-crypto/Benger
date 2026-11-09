@@ -22,7 +22,7 @@ test('collapsible meals and in-place quantity editing preserve diary snapshots a
  await t.test('50→100 g replaces one entry, recalculates day/dashboard, retains ID and other meals',async()=>{
   await edit(p);await amount(p,'100');assert.match(await p.evaluate("document.getElementById('diary-edit-preview').textContent"),/370 kcal/);
   await click(p,'#diary-edit-save');const rows=await p.saved();assert.equal(rows.length,2);assert.equal(rows[0].id,id);assert.equal(rows[0].amount,100);assert.equal(rows[0].createdAt,initial[0].createdAt);assert.equal(rows[0].nutrition.kcal,370);assert.deepEqual(rows[1],initial[1]);assert.equal((await p.outputs('total'))[0],'470');
-  assert.equal(await p.evaluate("document.querySelector('[data-meal=breakfast]').open"),true);assert.equal(await p.evaluate("document.activeElement.classList.contains('edit-entry')"),true);
+  assert.equal(await p.evaluate("document.querySelector('[data-meal=breakfast]').open"),true);await wait(p,"document.activeElement.classList.contains('edit-entry')");
  });
  await t.test('invalid input hides preview and cannot save; cancel and Escape leave data unchanged',async()=>{
   const before=await p.saved();await edit(p);

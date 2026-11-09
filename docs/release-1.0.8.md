@@ -12,4 +12,6 @@ Kanały Androida: Trening i Mobility, Posiłki, Pomiary. Każdy można wyciszyć
 
 Backup v8 z opcjonalnym polem notificationPreferences obejmuje obie grupy ustawień. Import starych kopii v1–v8 zachowuje obecne preferencje. Import używa istniejącego mechanizmu rollbacku; błąd nie pozostawia częściowo zmienionych ustawień. Zgody Androida nie są częścią backupu.
 
+Poprawiono także obsługę opóźnionego zdarzenia zamknięcia panelu ilości: szybkie otwarcie kolejnej edycji nie może utracić celu edycji ani przenieść formularza poza otwarte okno.
+
 Ten sam applicationId, origin, bazy i podpis co APK 1.0.6/1.0.7. Aktualizacja odbywa się bez odinstalowania. Bez backendu, płatnych usług, telemetrii i zmian Workera AI. Wersja przeglądarkowa nie planuje systemowych alarmów.
