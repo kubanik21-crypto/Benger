@@ -1,7 +1,7 @@
 name: Android APK
 on:
   push:
-    branches: [feature/android-apk, main, recovery/benger-1.0.6, feature/contextual-barcode, feature/daily-reminders, feature/today-widget]
+    branches: [feature/android-apk, main, recovery/benger-1.0.6, feature/contextual-barcode, feature/daily-reminders, feature/today-widget, feature/basketball-widget]
   pull_request:
     branches: [main]
   workflow_dispatch:
