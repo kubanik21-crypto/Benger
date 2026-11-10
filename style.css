@@ -450,3 +450,11 @@ button:disabled { opacity:.65; }
 .reminder-weekdays{display:flex;flex-wrap:wrap;gap:.4rem;}
 .reminder-weekdays label{display:flex;align-items:center;gap:.25rem;min-height:44px;padding:.25rem .35rem;}
 #routine-reminders input[type=time]{max-width:100%;}
+
+/* User-triggered, finite reveal; no home-screen animation loop. */
+.arena-preview{width:min(760px,calc(100vw - 24px));max-width:calc(100vw - 24px);padding:16px;box-sizing:border-box}
+.arena-preview img{display:block;width:100%;height:auto;aspect-ratio:10/3;object-fit:contain;border-radius:14px;animation:arena-reveal .55s ease-out both}
+.arena-preview-score{font-size:clamp(1.1rem,5vw,1.75rem);font-weight:800;font-variant-numeric:tabular-nums}
+.arena-preview button{width:100%;min-height:48px}
+@keyframes arena-reveal{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.arena-preview img{animation:none}}

@@ -63,7 +63,7 @@ public class BengerTodayWidget extends AppWidgetProvider {
     static void updateAll(Context c){for(int id:AppWidgetManager.getInstance(c).getAppWidgetIds(new ComponentName(c,BengerTodayWidget.class)))render(c,id);}
     static void render(Context c,int id){
         int height=AppWidgetManager.getInstance(c).getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,380);
-        RemoteViews v=new RemoteViews(c.getPackageName(),height>0&&height<360?R.layout.benger_match_compact:R.layout.benger_today_widget);
+        RemoteViews v=new RemoteViews(c.getPackageName(),height>0&&height<380?R.layout.benger_match_compact:R.layout.benger_today_widget);
         v.setTextViewText(R.id.widget_header,dayTitle(new Date()));
         v.setViewVisibility(R.id.widget_match_panel,android.view.View.GONE);
         v.setTextViewText(R.id.widget_kcal,"Otwórz Bengera");v.setTextViewText(R.id.widget_goal,"Aby odświeżyć lokalne dane");v.setTextViewText(R.id.widget_training,"Sprawdź dzisiejszy trening");v.setTextViewText(R.id.widget_updated,"Dane wymagają odświeżenia");v.setProgressBar(R.id.widget_progress,100,0,false);
@@ -75,12 +75,12 @@ public class BengerTodayWidget extends AppWidgetProvider {
                 if(row.has("match")){
                     JSONObject match=row.getJSONObject("match");int level=match.getInt("level");v.setViewVisibility(R.id.widget_match_panel,android.view.View.VISIBLE);
                     v.setTextViewText(R.id.widget_score,"TY  "+match.getInt("us")+" : "+match.getInt("them")+"  RYWALE");
-                    String[] levels={"Rozgrzewka","Boisko","Trybuny","Światła","Pełna hala"};v.setTextViewText(R.id.widget_match_caption,"Tydzień od "+match.getString("start").substring(8)+"."+match.getString("start").substring(5,7)+" · "+levels[level]+" "+(level+1)+"/5");
+                    String[] levels={"Rozgrzewka","Trening","Pierwszy mecz","Wielka arena","Pełna hala"};int lead=match.getInt("us")-match.getInt("them");String momentum=lead>0?"Prowadzisz +"+lead:lead<0?"Rywale +"+(-lead):"Remis";v.setTextViewText(R.id.widget_match_caption,"Tydzień od "+match.getString("start").substring(8)+"."+match.getString("start").substring(5,7)+" · "+levels[level]+" "+(level+1)+"/5 · "+momentum);
                     JSONArray matchDays=match.getJSONArray("days");String[] labels={"P","W","Ś","C","P","S","N"};StringBuilder marks=new StringBuilder();StringBuilder description=new StringBuilder();
                     for(int i=0;i<7;i++){JSONObject d=matchDays.getJSONObject(i);if(i>0)marks.append("   ");marks.append(labels[i]).append(" ").append(dayMark(d.getString("status")));description.append(d.getString("date")).append(": ").append(d.getInt("us")).append(":").append(d.getInt("them"));JSONArray reasons=d.getJSONArray("reasons");for(int k=0;k<reasons.length();k++)description.append(", ").append(reasons.getString(k));description.append(". ");}
                     v.setTextViewText(R.id.widget_match_days,marks.toString());v.setContentDescription(R.id.widget_match_days,description.toString());
                     boolean dark=(c.getResources().getConfiguration().uiMode&android.content.res.Configuration.UI_MODE_NIGHT_MASK)==android.content.res.Configuration.UI_MODE_NIGHT_YES;
-                    v.setImageViewBitmap(R.id.widget_court,BasketballCourt.draw(level,dark));v.setContentDescription(R.id.widget_court,"Koszykarskie boisko · "+levels[level]+" · poziom "+(level+1)+" z 5. Dzisiejszy wynik jest tymczasowy.");
+                    v.setImageViewBitmap(R.id.widget_court,BasketballCourt.draw(c,level,dark,match.getInt("us"),match.getInt("them")));v.setContentDescription(R.id.widget_court,"Koszykarskie boisko · "+levels[level]+" · poziom "+(level+1)+" z 5. Dzisiejszy wynik jest tymczasowy.");
                 }
                 v.setTextViewText(R.id.widget_training,row.getString("training"));v.setTextViewText(R.id.widget_updated,"Aktualizacja: "+new SimpleDateFormat("dd.MM HH:mm",new Locale("pl","PL")).format(new Date(data.getLong("generatedAt"))));
             }

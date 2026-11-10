@@ -1,1 +1,1 @@
-<resources><color name="widget_bg">#152D24</color><color name="widget_fg">#C3E8D3</color><color name="widget_muted">#ACC3B7</color></resources>
+<resources><color name="widget_bg">#152D24</color><color name="widget_fg">#C3E8D3</color><color name="widget_muted">#ACC3B7</color><color name="widget_button_bg">#1D3E30</color><color name="widget_button_edge">#355D48</color><color name="widget_score_bg">#0C2118</color><color name="widget_score_text">#F3E8C7</color></resources>

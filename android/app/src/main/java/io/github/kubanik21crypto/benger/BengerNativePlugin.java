@@ -78,6 +78,20 @@ public class BengerNativePlugin extends Plugin {
     @PluginMethod public void clearWidgetSnapshot(PluginCall call){
         getContext().getSharedPreferences(BengerTodayWidget.PREF,android.content.Context.MODE_PRIVATE).edit().clear().apply();BengerTodayWidget.updateAll(getContext());call.resolve();
     }
+    @PluginMethod public void getArenaPreview(PluginCall call){
+        android.graphics.Bitmap image=null;
+        try{
+            int level=BengerTodayWidget.smallInt(call.getData(),"level",4),us=BengerTodayWidget.smallInt(call.getData(),"us",49),them=BengerTodayWidget.smallInt(call.getData(),"them",49);
+            boolean dark=(getContext().getResources().getConfiguration().uiMode&android.content.res.Configuration.UI_MODE_NIGHT_MASK)==android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            image=BasketballCourt.draw(getContext(),level,dark,us,them);
+            try(java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream()){
+                android.graphics.Bitmap.CompressFormat format=android.os.Build.VERSION.SDK_INT>=30?android.graphics.Bitmap.CompressFormat.WEBP_LOSSY:android.graphics.Bitmap.CompressFormat.WEBP;
+                if(!image.compress(format,90,bytes)||bytes.size()>1024*1024)throw new IllegalStateException();
+                JSObject out=new JSObject();out.put("image","data:image/webp;base64,"+android.util.Base64.encodeToString(bytes.toByteArray(),android.util.Base64.NO_WRAP));call.resolve(out);
+            }
+        }catch(Exception error){call.reject("Nie udało się otworzyć podglądu areny.");}
+        finally{if(image!=null)image.recycle();}
+    }
     @PluginMethod public void requestWidgetPin(PluginCall call){getActivity().runOnUiThread(()->{
         try {JSObject out=new JSObject();boolean requested=false;
         if(android.os.Build.VERSION.SDK_INT>=26){android.appwidget.AppWidgetManager m=android.appwidget.AppWidgetManager.getInstance(getContext());if(m.isRequestPinAppWidgetSupported())requested=m.requestPinAppWidget(new android.content.ComponentName(getContext(),BengerTodayWidget.class),null,null);}

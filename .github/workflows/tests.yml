@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, recovery/benger-1.0.6, feature/contextual-barcode, feature/daily-reminders, feature/today-widget, feature/basketball-widget, release-v1.0.0-exercise-guide, feature/conversational-recipes, feature/diary-quantity-edit]
+    branches: [main, recovery/benger-1.0.6, feature/contextual-barcode, feature/daily-reminders, feature/today-widget, feature/basketball-widget, feature/basketball-visual-polish, release-v1.0.0-exercise-guide, feature/conversational-recipes, feature/diary-quantity-edit]
 
 permissions:
   contents: read
