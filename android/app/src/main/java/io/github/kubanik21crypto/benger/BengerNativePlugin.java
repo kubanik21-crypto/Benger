@@ -47,6 +47,44 @@ public class BengerNativePlugin extends Plugin {
         });
     }
 
+    private String pendingWidgetAction;
+    @Override protected void handleOnNewIntent(Intent intent){
+        super.handleOnNewIntent(intent);
+        if(captureWidgetAction(intent))notifyListeners("widgetAction",new JSObject());
+    }
+    private boolean captureWidgetAction(Intent intent){
+        if(intent==null||!BengerTodayWidget.ACTION.equals(intent.getAction()))return false;
+        String action=intent.getStringExtra(BengerTodayWidget.EXTRA);
+        intent.removeExtra(BengerTodayWidget.EXTRA);intent.setAction(Intent.ACTION_MAIN);
+        if(!BengerTodayWidget.allowed(action))return false;
+        pendingWidgetAction=action;return true;
+    }
+    @PluginMethod public void consumeWidgetAction(PluginCall call){getActivity().runOnUiThread(()->{
+        if(pendingWidgetAction==null)captureWidgetAction(getActivity().getIntent());
+        JSObject out=new JSObject();out.put("action",pendingWidgetAction);pendingWidgetAction=null;call.resolve(out);
+    });}
+    @PluginMethod public void widgetStatus(PluginCall call){
+        JSObject out=new JSObject();out.put("count",BengerTodayWidget.count(getContext()));
+        out.put("pinSupported",android.os.Build.VERSION.SDK_INT>=26&&android.appwidget.AppWidgetManager.getInstance(getContext()).isRequestPinAppWidgetSupported());
+        try{out.put("date",BengerTodayWidget.validate(BengerTodayWidget.cached(getContext())).getJSONArray("days").getJSONObject(0).getString("date"));}catch(Exception ignored){out.put("date","");}
+        call.resolve(out);
+    }
+    @PluginMethod public void updateWidgetSnapshot(PluginCall call){
+        try{String raw=call.getString("snapshot");BengerTodayWidget.validate(raw);
+            if(!getContext().getSharedPreferences(BengerTodayWidget.PREF,android.content.Context.MODE_PRIVATE).edit().putString("snapshot",raw).commit())throw new IllegalStateException();
+            BengerTodayWidget.updateAll(getContext());call.resolve();
+        }catch(Exception error){call.reject("Nie można odświeżyć widżetu.");}
+    }
+    @PluginMethod public void clearWidgetSnapshot(PluginCall call){
+        getContext().getSharedPreferences(BengerTodayWidget.PREF,android.content.Context.MODE_PRIVATE).edit().clear().apply();BengerTodayWidget.updateAll(getContext());call.resolve();
+    }
+    @PluginMethod public void requestWidgetPin(PluginCall call){getActivity().runOnUiThread(()->{
+        try {JSObject out=new JSObject();boolean requested=false;
+        if(android.os.Build.VERSION.SDK_INT>=26){android.appwidget.AppWidgetManager m=android.appwidget.AppWidgetManager.getInstance(getContext());if(m.isRequestPinAppWidgetSupported())requested=m.requestPinAppWidget(new android.content.ComponentName(getContext(),BengerTodayWidget.class),null,null);}
+        out.put("requested",requested);call.resolve(out);
+        }catch(Exception error){call.reject("Dodaj widżet przez ekran główny telefonu.");}
+    });}
+
     private SpeechRecognizer recognizer;
     private String session;
 

@@ -1,3 +1,4 @@
+import {initWidget} from './widget-ui.js';
 import {initManualMeal} from './manual-meal-ui.js';
 import {initTrainingReminders} from './training-reminders-ui.js';
 import {initNativePlatform} from './native-platform.js';
@@ -454,6 +455,7 @@ renderNutritionEntries();
 void productSearch.seedRecent(nutritionEntries).catch(() => {});
 
 let remindersUI;const remindersReady=initTrainingReminders().then(value=>{remindersUI=value;}).catch(()=>{const panel=document.getElementById('training-reminders');if(panel){const message=document.createElement('p');message.setAttribute('role','status');message.textContent='Nie udało się uruchomić przypomnień. Otwórz aplikację ponownie; Twoje dane pozostają zapisane.';panel.append(message);}});
+void initWidget().catch(()=>null);
 void initPwa();
 
 initBackupUi({beforeRead:async()=>{await remindersReady;await remindersUI?.flush?.();await trainingUI.flush();await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);}});

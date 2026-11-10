@@ -1,7 +1,7 @@
 name: Android APK
 on:
   push:
-    branches: [feature/android-apk, main, recovery/benger-1.0.6, feature/contextual-barcode, feature/daily-reminders]
+    branches: [feature/android-apk, main, recovery/benger-1.0.6, feature/contextual-barcode, feature/daily-reminders, feature/today-widget]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -38,7 +38,7 @@ jobs:
         run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-36' 'build-tools;36.0.0'"
       - name: Compile Android and run lint (no private key needed)
         working-directory: android
-        run: ./gradlew --no-daemon --console=plain :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
+        run: ./gradlew --no-daemon --console=plain :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug :app:testDebugUnitTest
       - name: Restore private signing identity for trusted builds only
         id: signing
         if: github.repository == 'kubanik21-crypto/Benger' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/android-apk')
