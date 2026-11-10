@@ -61,9 +61,12 @@ public class BengerTodayWidget extends AppWidgetProvider {
         return PendingIntent.getActivity(c,action.hashCode(),i,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
     }
     static void updateAll(Context c){for(int id:AppWidgetManager.getInstance(c).getAppWidgetIds(new ComponentName(c,BengerTodayWidget.class)))render(c,id);}
+    static boolean compactLayout(int minHeight,int maxHeight,boolean portrait){int height=portrait?maxHeight:minHeight;if(height<=0)height=minHeight>0?minHeight:380;return height<380;}
     static void render(Context c,int id){
-        int height=AppWidgetManager.getInstance(c).getAppWidgetOptions(id).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,380);
-        RemoteViews v=new RemoteViews(c.getPackageName(),height>0&&height<380?R.layout.benger_match_compact:R.layout.benger_today_widget);
+        Bundle size=AppWidgetManager.getInstance(c).getAppWidgetOptions(id);
+        boolean portrait=c.getResources().getConfiguration().orientation!=android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        boolean compact=compactLayout(size.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,0),size.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,0),portrait);
+        RemoteViews v=new RemoteViews(c.getPackageName(),compact?R.layout.benger_match_compact:R.layout.benger_today_widget);
         v.setTextViewText(R.id.widget_header,dayTitle(new Date()));
         v.setViewVisibility(R.id.widget_match_panel,android.view.View.GONE);
         v.setTextViewText(R.id.widget_kcal,"Otwórz Bengera");v.setTextViewText(R.id.widget_goal,"Aby odświeżyć lokalne dane");v.setTextViewText(R.id.widget_training,"Sprawdź dzisiejszy trening");v.setTextViewText(R.id.widget_updated,"Dane wymagają odświeżenia");v.setProgressBar(R.id.widget_progress,100,0,false);

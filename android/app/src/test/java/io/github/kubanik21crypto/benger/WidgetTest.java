@@ -2,6 +2,8 @@ package io.github.kubanik21crypto.benger;
 import org.junit.Test;
 import static org.junit.Assert.*;
 public class WidgetTest {
+ @Test public void arenaUsesPortraitHeightRatherThanLandscapeMinimum(){assertFalse(BengerTodayWidget.compactLayout(240,420,true));assertTrue(BengerTodayWidget.compactLayout(240,420,false));assertTrue(BengerTodayWidget.compactLayout(240,0,true));assertFalse(BengerTodayWidget.compactLayout(0,0,true));}
+
  @Test public void arenaScenesCoverAtlasExactlyWithoutNeighborBleed(){int previous=0;for(int level=0;level<5;level++){assertEquals(previous,BasketballCourt.frameTop(level,1536));int bottom=BasketballCourt.frameBottom(level,1536);assertTrue(bottom>previous);previous=bottom;}assertEquals(1536,previous);assertEquals(0,BasketballCourt.frameTop(-1,1536));assertEquals(1536,BasketballCourt.frameBottom(99,1536));}
  @Test public void cameraChangesOnlyWithScoreAndUsesBoundedPhases(){assertEquals(BasketballCourt.cameraPhase(5,2),BasketballCourt.cameraPhase(5,2));assertTrue(BasketballCourt.cameraPhase(5,2)!=BasketballCourt.cameraPhase(6,2));for(int us=0;us<=49;us++)for(int them=0;them<=49;them++){int phase=BasketballCourt.cameraPhase(us,them);assertTrue(phase>=0&&phase<3);}}
 
