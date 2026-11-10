@@ -9,3 +9,7 @@ Po pobraniu przechowuj kopię również poza GitHubem, np. na prywatnym dysku ch
 ## Benger 1.0.9 — widget
 
 Source build `3c9ad30`, branch `feature/today-widget`. Archive: `Benger-source-1.0.9-3c9ad30.zip`. SHA256: `9ed78bda448084c621cb9d6116e4043243f5e8f85c88f75a601ed285d05b665d`. Code and Git history only; no signing keys, passwords or user data.
+
+## Benger 1.0.10 — koszykarski mecz
+
+Source build `42c2e85`, branch `feature/basketball-widget`. Archive: `Benger-source-1.0.10-42c2e85.zip`. SHA256: `3d888fa47a0e5e822498664e256b13eb9246c5ed45eabe82ef3a9ccc6a75e674`. Code and Git history only; no signing keys, passwords or user data.
