@@ -51,15 +51,15 @@ function renderMatches(root,input,today){
 }
 
 export async function openArenaPreview(plugin,match,trigger){
- if(document.getElementById('arena-preview-dialog'))return;
+ const previous=document.getElementById('arena-preview-dialog');if(previous?.open)return;previous?.remove();
  const result=await plugin.getArenaPreview({level:match.level,us:match.us,them:match.them});
  if(typeof result.image!=='string'||result.image.length>1500000||!/^data:image\/webp;base64,[A-Za-z0-9+/]+={0,2}$/.test(result.image))throw new Error('Nieprawidłowy podgląd areny.');
- if(document.getElementById('arena-preview-dialog'))return;
+ const pending=document.getElementById('arena-preview-dialog');if(pending?.open)return;pending?.remove();
  const dialog=document.createElement('dialog');dialog.id='arena-preview-dialog';dialog.className='arena-preview';dialog.setAttribute('aria-labelledby','arena-preview-title');
  const heading=document.createElement('h2');heading.id='arena-preview-title';heading.textContent='Twoja arena';
  const score=document.createElement('p');score.className='arena-preview-score';score.textContent=`Ty ${match.us} : ${match.them} Rywale · poziom ${match.level+1}/5`;
  const image=document.createElement('img');image.src=result.image;image.width=720;image.height=216;image.alt=`Koszykarska arena · poziom ${match.level+1} z 5`;image.decoding='async';
  const help=document.createElement('p');help.textContent='Scena rozwija się wraz z przewagą w tym tygodniu. Wynik bieżącego dnia jest tymczasowy.';
  const close=document.createElement('button');close.type='button';close.textContent='Wróć do Bengera';close.className='button-primary';close.onclick=()=>dialog.close();
- dialog.append(heading,score,image,help,close);dialog.addEventListener('close',()=>{dialog.remove();if(trigger?.isConnected)trigger.focus({preventScroll:true});},{once:true});document.body.append(dialog);dialog.showModal();
+ dialog.append(heading,score,image,help,close);dialog.addEventListener('close',()=>{dialog.remove();if(trigger?.isConnected&&!document.querySelector('dialog[open]'))trigger.focus({preventScroll:true});},{once:true});document.body.append(dialog);dialog.showModal();
 }
