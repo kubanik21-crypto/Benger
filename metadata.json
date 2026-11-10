@@ -1,0 +1,12 @@
+{
+  "app": "Benger",
+  "applicationId": "io.github.kubanik21crypto.benger",
+  "version": "1.0.11",
+  "versionCode": 27118886,
+  "build": "92a319ffe977d3fece0e06a2cdf232fe055e6f9d",
+  "builtAt": "2026-11-10T21:02:09.234Z",
+  "filename": "Benger-1.0.11-92a319f.apk",
+  "bytes": 5166284,
+  "sha256": "eea66f64cef910d19311b3bc1886b2511d666121b6f88595f9de0e22546e81c5",
+  "certificateSha256": "56ab7cec22d03e1a368ec28aa4d01c67e15973675f0fdf28bb8f4d4ba1f3ecf2"
+}
