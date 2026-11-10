@@ -13,3 +13,7 @@ Source build `3c9ad30`, branch `feature/today-widget`. Archive: `Benger-source-1
 ## Benger 1.0.10 — koszykarski mecz
 
 Source build `42c2e85`, branch `feature/basketball-widget`. Archive: `Benger-source-1.0.10-42c2e85.zip`. SHA256: `3d888fa47a0e5e822498664e256b13eb9246c5ed45eabe82ef3a9ccc6a75e674`. Code and Git history only; no signing keys, passwords or user data.
+
+## Benger 1.0.11 — realistyczna arena
+
+Source build `92a319f`, branch `feature/basketball-visual-polish`. Archive: `Benger-source-1.0.11-92a319f.zip`. SHA256: `1ca3e40d7eca34768fec60bd072e116a726d786a9bbba4906379d8ff06f86a6e`. Code, Git history and the original generated arena artwork; no signing keys, passwords or user data.
