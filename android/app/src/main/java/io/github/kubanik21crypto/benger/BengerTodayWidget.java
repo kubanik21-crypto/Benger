@@ -60,9 +60,18 @@ public class BengerTodayWidget extends AppWidgetProvider {
         Intent i=new Intent(c,MainActivity.class).setAction(ACTION).putExtra(EXTRA,action).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(c,action.hashCode(),i,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
     }
-    static void updateAll(Context c){for(int id:AppWidgetManager.getInstance(c).getAppWidgetIds(new ComponentName(c,BengerTodayWidget.class)))render(c,id);}
+    static final String PLAY="io.github.kubanik21crypto.benger.PLAY_SHOT";
+    private static final java.util.concurrent.atomic.AtomicInteger shotGeneration=new java.util.concurrent.atomic.AtomicInteger();
+    private static final java.util.concurrent.ThreadPoolExecutor shotWorker=new java.util.concurrent.ThreadPoolExecutor(0,1,1,java.util.concurrent.TimeUnit.SECONDS,new java.util.concurrent.ArrayBlockingQueue<>(16));
+    static void playShot(Context context,Runnable finish){
+        final Context c=context.getApplicationContext();final int token=shotGeneration.incrementAndGet();final long deadline=android.os.SystemClock.uptimeMillis()+3000;
+        if(!ArenaShot.allowed(c)||count(c)==0||count(c)>4){try{updateAll(c);}finally{if(finish!=null)finish.run();}return;}
+        try{shotWorker.execute(()->{try{for(int frame=0;frame<=12;frame++){if(token!=shotGeneration.get()||count(c)==0||android.os.SystemClock.uptimeMillis()>deadline)return;for(int id:AppWidgetManager.getInstance(c).getAppWidgetIds(new ComponentName(c,BengerTodayWidget.class)))render(c,id,frame/12f);if(frame<12)Thread.sleep(125);}Thread.sleep(180);}catch(Exception ignored){}finally{try{if(token==shotGeneration.get())for(int id:AppWidgetManager.getInstance(c).getAppWidgetIds(new ComponentName(c,BengerTodayWidget.class)))render(c,id);}finally{if(finish!=null)finish.run();}}});}catch(java.util.concurrent.RejectedExecutionException error){try{updateAll(c);}finally{if(finish!=null)finish.run();}}
+    }
+    static void updateAll(Context c){shotGeneration.incrementAndGet();for(int id:AppWidgetManager.getInstance(c).getAppWidgetIds(new ComponentName(c,BengerTodayWidget.class)))render(c,id);}
     static boolean compactLayout(int minHeight,int maxHeight,boolean portrait){int height=portrait?maxHeight:minHeight;if(height<=0)height=minHeight>0?minHeight:380;return height<380;}
-    static void render(Context c,int id){
+    static void render(Context c,int id){render(c,id,null);}
+    private static void render(Context c,int id,Float shot){
         Bundle size=AppWidgetManager.getInstance(c).getAppWidgetOptions(id);
         boolean portrait=c.getResources().getConfiguration().orientation!=android.content.res.Configuration.ORIENTATION_LANDSCAPE;
         boolean compact=compactLayout(size.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,0),size.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,0),portrait);
@@ -83,17 +92,18 @@ public class BengerTodayWidget extends AppWidgetProvider {
                     for(int i=0;i<7;i++){JSONObject d=matchDays.getJSONObject(i);if(i>0)marks.append("   ");marks.append(labels[i]).append(" ").append(dayMark(d.getString("status")));description.append(d.getString("date")).append(": ").append(d.getInt("us")).append(":").append(d.getInt("them"));JSONArray reasons=d.getJSONArray("reasons");for(int k=0;k<reasons.length();k++)description.append(", ").append(reasons.getString(k));description.append(". ");}
                     v.setTextViewText(R.id.widget_match_days,marks.toString());v.setContentDescription(R.id.widget_match_days,description.toString());
                     boolean dark=(c.getResources().getConfiguration().uiMode&android.content.res.Configuration.UI_MODE_NIGHT_MASK)==android.content.res.Configuration.UI_MODE_NIGHT_YES;
-                    v.setImageViewBitmap(R.id.widget_court,BasketballCourt.draw(c,level,dark,match.getInt("us"),match.getInt("them")));v.setContentDescription(R.id.widget_court,"Koszykarskie boisko · "+levels[level]+" · poziom "+(level+1)+" z 5. Dzisiejszy wynik jest tymczasowy.");
+                    v.setImageViewBitmap(R.id.widget_court,shot==null?BasketballCourt.draw(c,level,dark,match.getInt("us"),match.getInt("them")):ArenaShot.frame(c,shot));v.setContentDescription(R.id.widget_court,"Koszykarskie boisko · "+levels[level]+" · poziom "+(level+1)+" z 5. Dzisiejszy wynik jest tymczasowy.");
                 }
                 v.setTextViewText(R.id.widget_training,row.getString("training"));v.setTextViewText(R.id.widget_updated,"Aktualizacja: "+new SimpleDateFormat("dd.MM HH:mm",new Locale("pl","PL")).format(new Date(data.getLong("generatedAt"))));
             }
         }catch(Exception ignored){/* Never replace invalid source data with invented totals. */}
+        Intent play=new Intent(c,BengerTodayWidget.class).setAction(PLAY);v.setOnClickPendingIntent(R.id.widget_play,PendingIntent.getBroadcast(c,777,play,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE));
         v.setOnClickPendingIntent(R.id.widget_match_panel,shortcut(c,"match"));
         v.setOnClickPendingIntent(R.id.widget_header,shortcut(c,"open"));v.setOnClickPendingIntent(R.id.widget_refresh,shortcut(c,"refresh"));v.setOnClickPendingIntent(R.id.widget_training,shortcut(c,"training"));v.setOnClickPendingIntent(R.id.widget_meal,shortcut(c,"meal"));v.setOnClickPendingIntent(R.id.widget_weight,shortcut(c,"weight"));
         AppWidgetManager.getInstance(c).updateAppWidget(id,v);
     }
-    @Override public void onUpdate(Context c,AppWidgetManager m,int[] ids){for(int id:ids)render(c,id);}
-    @Override public void onAppWidgetOptionsChanged(Context c,AppWidgetManager m,int id,Bundle b){render(c,id);}
-    @Override public void onDisabled(Context c){c.getSharedPreferences(PREF,Context.MODE_PRIVATE).edit().clear().apply();}
-    @Override public void onReceive(Context c,Intent i){super.onReceive(c,i);String a=i.getAction();if(Intent.ACTION_DATE_CHANGED.equals(a)||Intent.ACTION_TIME_CHANGED.equals(a)||Intent.ACTION_TIMEZONE_CHANGED.equals(a))updateAll(c);}
+    @Override public void onUpdate(Context c,AppWidgetManager m,int[] ids){updateAll(c);}
+    @Override public void onAppWidgetOptionsChanged(Context c,AppWidgetManager m,int id,Bundle b){updateAll(c);}
+    @Override public void onDisabled(Context c){shotGeneration.incrementAndGet();c.getSharedPreferences(PREF,Context.MODE_PRIVATE).edit().clear().apply();}
+    @Override public void onReceive(Context c,Intent i){if(PLAY.equals(i.getAction())){final PendingResult pending=goAsync();playShot(c,pending::finish);return;}super.onReceive(c,i);String a=i.getAction();if(Intent.ACTION_DATE_CHANGED.equals(a)||Intent.ACTION_TIME_CHANGED.equals(a)||Intent.ACTION_TIMEZONE_CHANGED.equals(a))updateAll(c);}
 }

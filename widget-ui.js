@@ -1,3 +1,4 @@
+import {validateShot,playShot} from './arena-motion.js';
 import {createMatchStore,buildMatchWeek,prepareMatch} from './basketball-match.js';
 import {createProgressStore} from './progress.js';
 import {createReminderPreferences} from './reminder-preferences.js';
@@ -60,6 +61,10 @@ export async function openArenaPreview(plugin,match,trigger){
  const score=document.createElement('p');score.className='arena-preview-score';score.textContent=`Ty ${match.us} : ${match.them} Rywale · poziom ${match.level+1}/5`;
  const image=document.createElement('img');image.src=result.image;image.width=720;image.height=216;image.alt=`Koszykarska arena · poziom ${match.level+1} z 5`;image.decoding='async';
  const help=document.createElement('p');help.textContent='Scena rozwija się wraz z przewagą w tym tygodniu. Wynik bieżącego dnia jest tymczasowy.';
+ const canvas=document.createElement('canvas');canvas.width=720;canvas.height=216;canvas.hidden=true;canvas.setAttribute('role','img');canvas.setAttribute('aria-label','Animacja rzutu piłki do kosza');
+ const replay=document.createElement('button');replay.type='button';replay.className='button-secondary';replay.id='arena-shot-play';replay.textContent='▶ Odtwórz rzut';
+ let stopMotion=()=>{},closed=false,shot=null;
+ replay.onclick=async()=>{if(replay.disabled||closed)return;replay.disabled=true;try{if(!shot){const data=await plugin.getArenaPreview({level:match.level,us:match.us,them:match.them,shot:true});if(typeof data.image!=='string'||data.image.length>1500000||!/^data:image\/webp;base64,[A-Za-z0-9+/]+={0,2}$/.test(data.image))throw new Error();const motion=validateShot(data.motion),background=new Image();background.src=data.image;await background.decode();shot={motion,background};}if(closed)return;stopMotion();image.hidden=true;canvas.hidden=false;help.textContent='Pokaz rzutu — nie zmienia punktów ani danych.';stopMotion=playShot({canvas,image:shot.background,config:shot.motion,reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,onEnd:()=>{if(!closed){replay.disabled=false;replay.textContent='▶ Powtórz rzut';}}});}catch{if(!closed){help.textContent='Nie udało się odtworzyć rzutu. Spróbuj ponownie.';replay.disabled=false;}}};
  const close=document.createElement('button');close.type='button';close.textContent='Wróć do Bengera';close.className='button-primary';close.onclick=()=>dialog.close();
- dialog.append(heading,score,image,help,close);dialog.addEventListener('close',()=>{dialog.remove();if(trigger?.isConnected&&!document.querySelector('dialog[open]'))trigger.focus({preventScroll:true});},{once:true});document.body.append(dialog);dialog.showModal();
+ dialog.append(heading,score,image,canvas,help,replay,close);dialog.addEventListener('close',()=>{closed=true;stopMotion();shot=null;dialog.remove();if(trigger?.isConnected&&!document.querySelector('dialog[open]'))trigger.focus({preventScroll:true});},{once:true});document.body.append(dialog);dialog.showModal();
 }

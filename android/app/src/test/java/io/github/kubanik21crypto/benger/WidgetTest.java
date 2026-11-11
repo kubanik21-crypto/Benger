@@ -2,6 +2,9 @@ package io.github.kubanik21crypto.benger;
 import org.junit.Test;
 import static org.junit.Assert.*;
 public class WidgetTest {
+ @Test public void shotPointsRequireGainInSameWeek(){assertFalse(ArenaShot.gained(null,"2026-11-09",0,2));assertFalse(ArenaShot.gained("2026-11-02","2026-11-09",10,2));assertFalse(ArenaShot.gained("a","a",2,2));assertFalse(ArenaShot.gained("a","a",3,2));assertTrue(ArenaShot.gained("a","a",2,4));}
+ @Test public void shotBallStartsAtHandPassesRimAndDrops(){float[] hand={220,38},control={426,-8},rim={626,45},drop={626,80};assertArrayEquals(hand,ArenaShot.position(0,hand,control,rim,drop),.01f);assertArrayEquals(rim,ArenaShot.position(.85f,hand,control,rim,drop),.01f);assertArrayEquals(drop,ArenaShot.position(1,hand,control,rim,drop),.01f);for(int i=0;i<=100;i++){float[] xy=ArenaShot.position(i/100f,hand,control,rim,drop);assertTrue(xy[0]>=220&&xy[0]<=627);assertTrue(xy[1]>=0&&xy[1]<=81);}}
+
  @Test public void arenaUsesPortraitHeightRatherThanLandscapeMinimum(){assertFalse(BengerTodayWidget.compactLayout(240,420,true));assertTrue(BengerTodayWidget.compactLayout(240,420,false));assertTrue(BengerTodayWidget.compactLayout(240,0,true));assertFalse(BengerTodayWidget.compactLayout(0,0,true));}
 
  @Test public void arenaScenesCoverAtlasExactlyWithoutNeighborBleed(){int previous=0;for(int level=0;level<5;level++){assertEquals(previous,BasketballCourt.frameTop(level,1536));int bottom=BasketballCourt.frameBottom(level,1536);assertTrue(bottom>previous);previous=bottom;}assertEquals(1536,previous);assertEquals(0,BasketballCourt.frameTop(-1,1536));assertEquals(1536,BasketballCourt.frameBottom(99,1536));}

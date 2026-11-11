@@ -1,0 +1,18 @@
+package io.github.kubanik21crypto.benger;
+import android.content.Context;
+import android.graphics.*;
+import org.json.JSONObject;
+import java.lang.ref.SoftReference;
+import java.nio.charset.StandardCharsets;
+
+final class ArenaShot {
+    private static SoftReference<Bitmap> source=new SoftReference<>(null);
+    private static JSONObject settings;
+    static synchronized JSONObject config(Context c)throws Exception{if(settings==null){try(java.io.InputStream stream=c.getAssets().open("public/arena-shot.json")){java.io.ByteArrayOutputStream buffer=new java.io.ByteArrayOutputStream();byte[] chunk=new byte[1024];int n;while((n=stream.read(chunk))!=-1){buffer.write(chunk,0,n);if(buffer.size()>4096)throw new IllegalArgumentException();}byte[] data=buffer.toByteArray();JSONObject v=new JSONObject(new String(data,StandardCharsets.UTF_8));if(v.getInt("version")!=1||v.getInt("width")!=720||v.getInt("height")!=216||v.getInt("frames")!=13||v.getInt("durationMs")!=1500)throw new IllegalArgumentException();settings=v;}}return settings;}
+    static boolean gained(String oldWeek,String nextWeek,int oldUs,int nextUs){return oldWeek!=null&&oldWeek.equals(nextWeek)&&nextUs>oldUs;}
+    static float[] position(float p,float[] a,float[] b,float[] rim,float[] drop){p=Math.max(0,Math.min(1,p));float t=Math.min(1,p/.85f),q=1-t;return p<=.85f?new float[]{q*q*a[0]+2*q*t*b[0]+t*t*rim[0],q*q*a[1]+2*q*t*b[1]+t*t*rim[1]}:new float[]{rim[0]+(drop[0]-rim[0])*(p-.85f)/.15f,rim[1]+(drop[1]-rim[1])*(p-.85f)/.15f};}
+    private static float[] pair(JSONObject v,String key)throws Exception{org.json.JSONArray a=v.getJSONArray(key);return new float[]{(float)a.getDouble(0),(float)a.getDouble(1)};}
+    static Bitmap background(Context c)throws Exception{JSONObject v=config(c);Bitmap art; synchronized(ArenaShot.class){art=source.get();if(art==null){BitmapFactory.Options o=new BitmapFactory.Options();o.inScaled=false;art=BitmapFactory.decodeResource(c.getResources(),R.drawable.basketball_shot,o);source=new SoftReference<>(art);}}if(art==null)throw new IllegalStateException();Bitmap out=Bitmap.createBitmap(720,216,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(out);org.json.JSONArray crop=v.getJSONArray("crop");canvas.drawBitmap(art,new Rect(crop.getInt(0),crop.getInt(1),crop.getInt(2),crop.getInt(3)),new Rect(0,0,720,216),new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG));return out;}
+    static Bitmap frame(Context c,float progress)throws Exception{JSONObject v=config(c);Bitmap image=background(c);Canvas canvas=new Canvas(image);float[] xy=position(progress,pair(v,"release"),pair(v,"control"),pair(v,"rim"),pair(v,"drop"));float radius=(float)v.getDouble("radius")*(1-.28f*progress);Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);p.setAlpha(progress>.94f?(int)Math.max(0,255*(1-progress)/.06f):255);p.setShader(new RadialGradient(xy[0]-3,xy[1]-3,radius,new int[]{Color.rgb(255,194,106),Color.rgb(219,118,43),Color.rgb(112,50,22)},new float[]{0,.55f,1},Shader.TileMode.CLAMP));canvas.drawCircle(xy[0],xy[1],radius,p);p.setShader(null);p.setStyle(Paint.Style.STROKE);p.setColor(Color.rgb(72,43,26));p.setAlpha(progress>.94f?(int)Math.max(0,255*(1-progress)/.06f):255);p.setStrokeWidth(.85f);canvas.save();canvas.rotate(progress*515,xy[0],xy[1]);canvas.drawCircle(xy[0],xy[1],radius,p);canvas.drawLine(xy[0]-radius,xy[1],xy[0]+radius,xy[1],p);canvas.drawLine(xy[0],xy[1]-radius,xy[0],xy[1]+radius,p);canvas.restore();return image;}
+    static boolean allowed(Context c){try{return android.provider.Settings.Global.getFloat(c.getContentResolver(),android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1)>0;}catch(RuntimeException denied){return false;}}
+}

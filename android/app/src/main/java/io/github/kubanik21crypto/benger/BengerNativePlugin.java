@@ -70,9 +70,9 @@ public class BengerNativePlugin extends Plugin {
         call.resolve(out);
     }
     @PluginMethod public void updateWidgetSnapshot(PluginCall call){
-        try{String raw=call.getString("snapshot");BengerTodayWidget.validate(raw);
+        try{String raw=call.getString("snapshot");org.json.JSONObject next=BengerTodayWidget.validate(raw);boolean gained=false;try{org.json.JSONObject previous=BengerTodayWidget.validate(BengerTodayWidget.cached(getContext()));org.json.JSONObject a=null,b=null;for(int i=0;i<8;i++){org.json.JSONObject row=previous.getJSONArray("days").getJSONObject(i);if(BengerTodayWidget.today().equals(row.getString("date")))a=row;row=next.getJSONArray("days").getJSONObject(i);if(BengerTodayWidget.today().equals(row.getString("date")))b=row;}if(a!=null&&b!=null&&a.has("match")&&b.has("match")){a=a.getJSONObject("match");b=b.getJSONObject("match");gained=ArenaShot.gained(a.getString("start"),b.getString("start"),a.getInt("us"),b.getInt("us"));}}catch(Exception ignored){}
             if(!getContext().getSharedPreferences(BengerTodayWidget.PREF,android.content.Context.MODE_PRIVATE).edit().putString("snapshot",raw).commit())throw new IllegalStateException();
-            BengerTodayWidget.updateAll(getContext());call.resolve();
+            BengerTodayWidget.updateAll(getContext());if(gained)BengerTodayWidget.playShot(getContext(),null);call.resolve();
         }catch(Exception error){call.reject("Nie można odświeżyć widżetu.");}
     }
     @PluginMethod public void clearWidgetSnapshot(PluginCall call){
@@ -83,11 +83,12 @@ public class BengerNativePlugin extends Plugin {
         try{
             int level=BengerTodayWidget.smallInt(call.getData(),"level",4),us=BengerTodayWidget.smallInt(call.getData(),"us",49),them=BengerTodayWidget.smallInt(call.getData(),"them",49);
             boolean dark=(getContext().getResources().getConfiguration().uiMode&android.content.res.Configuration.UI_MODE_NIGHT_MASK)==android.content.res.Configuration.UI_MODE_NIGHT_YES;
-            image=BasketballCourt.draw(getContext(),level,dark,us,them);
+            boolean shot=Boolean.TRUE.equals(call.getBoolean("shot",false));
+            image=shot?ArenaShot.background(getContext()):BasketballCourt.draw(getContext(),level,dark,us,them);
             try(java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream()){
                 android.graphics.Bitmap.CompressFormat format=android.os.Build.VERSION.SDK_INT>=30?android.graphics.Bitmap.CompressFormat.WEBP_LOSSY:android.graphics.Bitmap.CompressFormat.WEBP;
                 if(!image.compress(format,90,bytes)||bytes.size()>1024*1024)throw new IllegalStateException();
-                JSObject out=new JSObject();out.put("image","data:image/webp;base64,"+android.util.Base64.encodeToString(bytes.toByteArray(),android.util.Base64.NO_WRAP));call.resolve(out);
+                JSObject out=new JSObject();if(shot)out.put("motion",ArenaShot.config(getContext()));out.put("image","data:image/webp;base64,"+android.util.Base64.encodeToString(bytes.toByteArray(),android.util.Base64.NO_WRAP));call.resolve(out);
             }
         }catch(Exception error){call.reject("Nie udało się otworzyć podglądu areny.");}
         finally{if(image!=null)image.recycle();}
