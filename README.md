@@ -17,3 +17,7 @@ Source build `42c2e85`, branch `feature/basketball-widget`. Archive: `Benger-sou
 ## Benger 1.0.11 — realistyczna arena
 
 Source build `92a319f`, branch `feature/basketball-visual-polish`. Archive: `Benger-source-1.0.11-92a319f.zip`. SHA256: `1ca3e40d7eca34768fec60bd072e116a726d786a9bbba4906379d8ff06f86a6e`. Code, Git history and the original generated arena artwork; no signing keys, passwords or user data.
+
+## Benger 1.0.12 — ruchomy rzut
+
+Source build `eacc595`, branch `feature/arena-motion`. Archive: `Benger-source-1.0.12-eacc595.zip`. SHA256: `a9de9829a7294986093df42ccd58022012946de39379374c73549b7db69afe9a`. Code, Git history and original generated arena/shot artwork; no signing keys, passwords or user data.
