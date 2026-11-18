@@ -1,4 +1,4 @@
-import{execFileSync}from'node:child_process';import{readFile,mkdir,copyFile,writeFile}from'node:fs/promises';import{resolve}from'node:path';import{createHash}from'node:crypto';import{fileURLToPath}from'node:url';
+import{execFileSync}from'node:child_process';import{readFile,mkdir,copyFile,writeFile,readdir}from'node:fs/promises';import{resolve}from'node:path';import{createHash}from'node:crypto';import{fileURLToPath}from'node:url';
 const root=fileURLToPath(new URL('../../',import.meta.url));const[signingArg,outputArg]=process.argv.slice(2);
 if(!signingArg||!outputArg)throw new Error('Usage: node scripts/android/build-apk.mjs PRIVATE_SIGNING_DIR OUTPUT_DIR');
 const signing=resolve(signingArg),out=resolve(outputArg),config=JSON.parse(await readFile(resolve(signing,'signing.json'),'utf8'));
@@ -12,6 +12,8 @@ const versionCode=Math.floor((Date.now()-Date.UTC(2026,0,1))/1000)+1;if(versionC
 execFileSync('npm',['run','android:prepare'],{cwd:root,env,stdio:'inherit'});
 execFileSync('./gradlew',['--no-daemon','--console=plain','-PbengerVersionCode='+versionCode,':app:assembleRelease',':app:lintRelease'],{cwd:resolve(root,'android'),env,stdio:'inherit'});
 const apk=resolve(root,'android/app/build/outputs/apk/release/app-release.apk');
+const packaged=execFileSync(resolve(env.ANDROID_HOME,'build-tools/36.0.0/aapt'),['list',apk],{env,encoding:'utf8'}).split('\n');
+for(const file of await readdir(resolve(root,'vendor/ocr')))if(!packaged.includes('assets/public/vendor/ocr/'+file))throw new Error('Missing packaged offline OCR asset: '+file);
 const badging=execFileSync(resolve(env.ANDROID_HOME,'build-tools/36.0.0/aapt'),['dump','badging',apk],{env,encoding:'utf8'});
 if(badging.includes('application-debuggable')||!badging.includes("package: name='io.github.kubanik21crypto.benger'"))throw new Error('Not a release Benger APK');
 execFileSync(resolve(env.ANDROID_HOME,'build-tools/36.0.0/apksigner'),['verify','--verbose','--print-certs',apk],{env,stdio:'inherit'});

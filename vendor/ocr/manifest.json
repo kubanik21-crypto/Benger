@@ -12,7 +12,7 @@
     "LICENSE-regenerator.txt": "51887a3d47051ac2fce1210562e5b9fe0830a8a8fabeb272c2d586eeb18a05fd",
     "LICENSE-tesseract-js.txt": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
     "LICENSE-zlib-js.txt": "131afe3f7bdce1698beb292fb8de1a968de01bce876122a60ef5db230471c866",
-    "pol.traineddata.gz": "0028907f9c97cdf5c24889e1ed48e3f78edc95cad52a2337777cde5d501e4101",
+    "pol.traineddata": "c4476cdbc0e33d898d32345122b7be1cbf85ace15f920f06c7714756e1ef79b2",
     "tesseract-core-lstm.wasm.js": "775a35df6f2ae100e02609443e6bd5cafcd07983dd6175454ca4a432a7730687",
     "tesseract.min.js": "10fff78484067759c43028a02a72d76d0b90eb17302bb23b58a9ec5410bc928b",
     "tesseract.min.js.LICENSE.txt": "cdf963ced7d25a0f98901a547647b4d6e2dbe0197fd78c87a059a87b0e542fe2",

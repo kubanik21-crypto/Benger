@@ -8,7 +8,7 @@ export async function recognizeRecipeScreenshots(files,{signal,onProgress=()=>{}
  const check=()=>{if(signal?.aborted)throw new DOMException('Anulowano','AbortError');};
  try{
   check();const T=await loadLibrary();check();
-  worker=await T.createWorker('pol',1,{workerPath:local('worker.min.js'),corePath:local('tesseract-core-lstm.wasm.js'),langPath:new URL('./vendor/ocr/',import.meta.url).href,workerBlobURL:false,gzip:true,cacheMethod:'none',logger:event=>{if(!signal?.aborted&&event.status==='recognizing text')onProgress('Odczyt: '+Math.round(event.progress*100)+'%');}});check();
+  worker=await T.createWorker('pol',1,{workerPath:local('worker.min.js'),corePath:local('tesseract-core-lstm.wasm.js'),langPath:new URL('./vendor/ocr/',import.meta.url).href,workerBlobURL:false,gzip:false,cacheMethod:'none',logger:event=>{if(!signal?.aborted&&event.status==='recognizing text')onProgress('Odczyt: '+Math.round(event.progress*100)+'%');}});check();
   await worker.setParameters({tessedit_pageseg_mode:'11'});
   const texts=[];
   for(const [index,file]of files.entries()){
