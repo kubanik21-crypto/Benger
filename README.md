@@ -24,4 +24,4 @@ Source build `eacc595`, branch `feature/arena-motion`. Archive: `Benger-source-1
 
 ## Benger 1.0.13 — składniki ze screena
 
-Source build `acff0bd`, branch `feature/recipe-screenshot-import`. Archive: `Benger-source-1.0.13-acff0bd.zip`. SHA256: `b4f6bc0dd30d4d47796af9bd0c5def4d43b798ac4c38615ca83cbdfdc17ad8d9`. Source code, Git history, offline OCR assets and original artwork; no signing secrets or user data.
+Final source build `724531b`, branch `feature/recipe-screenshot-import`. Archive: `Benger-source-1.0.13-724531b.zip`. SHA256: `3a58d8c63a36ae53321fa09acc81891b147180079b5a560fee975fee440ec68c`. Source, Git history, offline OCR engine/model and original artwork. No signing secrets or user data.
