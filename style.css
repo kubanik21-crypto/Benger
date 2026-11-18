@@ -461,3 +461,8 @@ button:disabled { opacity:.65; }
 
 .arena-preview canvas{display:block;width:100%;height:auto;aspect-ratio:10/3;border-radius:14px}
 .arena-preview #arena-shot-play{margin-bottom:10px}
+
+#recipe-screenshot-dialog {box-sizing:border-box;max-width:calc(100vw - 24px);}
+#recipe-screenshot-dialog fieldset {min-width:0;margin:12px 0;border:1px solid var(--border);border-radius:12px;padding:12px;}
+#recipe-screenshot-dialog textarea {width:100%;box-sizing:border-box;}
+#recipe-screenshot-dialog input[type=checkbox] {display:inline;width:auto;min-height:24px;}

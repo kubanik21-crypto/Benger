@@ -1,3 +1,6 @@
+import {isAndroidNative} from './native-platform.js';
+import {openRecipeScreenshotImport} from './recipe-ocr-ui.js';
+import {prepareScreenshotIngredients} from './recipe-ocr.js';
 import {importRecipePlan} from './recipe-plan-import.js';
 import {RECIPE_PLAN_LABEL} from './recipe-plan-2026-data.js';
 import {pickRecipeIngredient} from './recipe-ingredient-picker.js';
@@ -89,6 +92,21 @@ export function initRecipes({repository,recipes=createRecipeRepository(),onAddTo
  async function chooseIngredient(itemId,productId){const version=++generation;pendingOperations++;buttons();try{const item=pending.proposal.items.find(i=>i.id===itemId),product=await repository.getProductById(productId);if(!product||version!==generation)return;const unit=['g','ml'].includes(item.intent.unit)||!item.intent.unit?product.unit:item.intent.unit;const edited=await editMealItem(pending.proposal,itemId,{productId,unit,...(['g','ml'].includes(item.intent.unit)&&item.intent.unit!==unit?{amount:null}:{})},{repository});if(version!==generation||!pending)return;pending.proposal=edited;renderPending();void resolver.rememberUserChoice(item.intent.query,productId).catch(()=>{});}catch(f){if(pending)error(storageErrorMessage(f));}finally{pendingOperations--;buttons();}}
  function renderPending(){if(!pending)return;$('recipe-event-title').textContent=editingIngredient?'Popraw składnik':'Sprawdź wypowiedź';$('recipe-event-review').hidden=false;$('recipe-event-raw').textContent=pending.event.raw;$('recipe-event-type').value=pending.event.type;$('recipe-event-items').replaceChildren(...pending.proposal.items.map(rowCard));const event=pending.event;$('recipe-event-description').textContent=[event.name,...event.steps,event.notes,Object.entries(event.yield).map(([key,v])=>`${({servings:'Porcje',finalWeight:'Masa g',finalVolume:'Objętość ml'})[key]}: ${v}`).join(' · ')].filter(Boolean).join('\n');}
  async function analyze(type){if(!draft||analyzing)return;error('');request?.abort();const version=++generation;request=new AbortController();analyzing=true;pending=null;$('recipe-event-review').hidden=true;$('recipe-editor').dataset.analysisState='processing';buttons();try{const analyzed=await analyzeCookingEvent($('recipe-text').value,{repository,resolver,type,knownIngredients:draft.ingredients,signal:request.signal});if(version!==generation)return;pending=analyzed;renderPending();$('recipe-event-title').focus();}catch(f){if(version===generation)error(storageErrorMessage(f));}finally{if(version===generation){analyzing=false;$('recipe-editor').dataset.analysisState='complete';buttons();}}}
+ if(isAndroidNative()){
+  const scan=button('Wczytaj składniki ze screena',async()=>{
+   await queue;if(!draft||!storageOK||pending||analyzing)throw new Error('Najpierw zapisz i zatwierdź bieżące zmiany szkicu.');
+   const id=draft.id,revision=draft.revision;
+   openRecipeScreenshotImport({onApply:async rows=>{
+    pendingOperations++;buttons();try{
+     const ingredients=await prepareScreenshotIngredients(rows,{resolver,repository});
+     await queue;if(!draft||draft.id!==id||draft.revision!==revision)throw new Error('Szkic zmienił się. Otwórz import ponownie.');
+     if(draft.ingredients.length+ingredients.length>200)throw new Error('Przepis może zawierać maksymalnie 200 składników.');
+     const candidate=structuredClone(draft);candidate.ingredients.push(...ingredients);
+     const saving=recipes.saveDraft(candidate);queue=saving.then(()=>{},()=>{});const saved=await saving;draft=saved;storageOK=true;showEditor();$('recipe-autosave').textContent='Składniki ze screena zapisane w szkicu. Uzupełnij brakujące dane.';
+    }finally{pendingOperations--;buttons();}
+   }});
+  });scan.id='recipe-screenshot-import';$('recipe-manual-ingredient').after(scan);
+ }
  if($('recipe-manual-ingredient'))$('recipe-manual-ingredient').onclick=()=>void pickIngredient().catch(f=>error(storageErrorMessage(f)));
  $('recipe-new').onclick=()=>void newDraft().catch(f=>error(storageErrorMessage(f)));$('recipe-cook').onclick=()=>void newDraft(true).catch(f=>error(storageErrorMessage(f)));$('recipe-search').oninput=()=>void refresh();
  $('recipe-event-form').onsubmit=e=>{e.preventDefault();void analyze();};$('recipe-event-type').onchange=()=>void analyze($('recipe-event-type').value);$('recipe-event-discard').onclick=()=>{generation++;pending=null;editingIngredient=null;$('recipe-event-review').hidden=true;buttons();};

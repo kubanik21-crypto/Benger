@@ -1,10 +1,11 @@
 import{preparePreview}from'../prepare-preview.mjs';
-import{readFile,writeFile,rm,mkdir,copyFile}from'node:fs/promises';
+import{readFile,writeFile,rm,mkdir,copyFile,cp}from'node:fs/promises';
 import{resolve}from'node:path';
 import{execFileSync}from'node:child_process';
 import{fileURLToPath}from'node:url';
 export async function prepareAndroidWeb(destination,sha){
  await preparePreview(destination,sha,{preview:false});
+ await cp(new URL('../../vendor/ocr/',import.meta.url),resolve(destination,'vendor/ocr'),{recursive:true});
  await mkdir(resolve(destination,'native-licenses'));
  await copyFile(new URL('../../android/licenses/Capacitor-MIT.txt',import.meta.url),resolve(destination,'native-licenses/Capacitor-MIT.txt'));
  await copyFile(new URL('../../vendor/zxing/LICENSE-library.txt',import.meta.url),resolve(destination,'native-licenses/Apache-2.0.txt'));

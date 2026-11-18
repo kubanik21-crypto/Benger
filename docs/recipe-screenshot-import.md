@@ -1,0 +1,11 @@
+# Składniki ze screena — Android 1.0.13
+
+W edycji lub szkicu przepisu przycisk „Wczytaj składniki ze screena” otwiera wybór do czterech obrazów PNG/JPEG/WebP (12 MiB każdy). Odczytane nazwy, ilości i jednostki wymagają sprawdzenia. Można poprawić tekst, odznaczyć wiersz albo pozostawić ilość/jednostkę pustą. Import dopisuje składniki do istniejącego szkicu; nie zmienia gotowych przepisów ani historii.
+
+OCR: lokalny Tesseract.js 6.0.1, Tesseract.js-core 6.0.0 LSTM WebAssembly i polski model tessdata_fast 4.1.0. Pobrano z oficjalnych paczek npm i oficjalnego repozytorium modelu. Wersje i SHA256 plików: vendor/ocr/manifest.json. Licencje Apache-2.0 i Leptonica BSD zawarte obok silnika. Biblioteki nie są modyfikowane. Żadnych kont, płatnych API, backendu ani wysyłania zdjęć. Silnik ładuje się dopiero po wybraniu obrazu, kończy pracę po odczycie/anulowaniu. Pliki silnika są dołączane tylko do APK, nie do webowego precache. Polski model rozpoznaje również alfabet łaciński, ale nie wszystkie języki.
+
+Obraz przechodzi przez canvas (maksymalna krawędź 2600 px, limit wejścia 24 megapiksele), a wynik przez wspólny parseProductQuery. Nagłówek „Składniki” i „Sposób przygotowania” pomagają oddzielić listę od interfejsu. Nie zastępuje to kontroli użytkownika: najlepiej wybierać przycięte screeny samej listy, bez zasłaniających elementów. Brak jednostki nie oznacza gramów. Notatki typu „plus łyżka do posmarowania” pozostają opisem, nie dodatkową porcją.
+
+Powiązanie z produktami używa istniejącego resolveProductQuery z allowExternal:false. Niejednoznaczne produkty pozostają UNRESOLVED; ich wybór, skanowanie i porcje są dostępne w zwykłym edytorze. Makro liczy istniejący deterministyczny silnik, jedynie dla potwierdzonego produktu i zgodnej bazowej jednostki g/ml. Nie ma zgadywania masy jajka ani gęstości. Household portions można uzupełnić standardowym pickerem.
+
+Nie powstaje nowy model persistence ani wersja backupu. Zapis całej listy korzysta z saveDraft, sprawdza id/revision i limit 200 składników. Obrazy nie trafiają do backupu. Niepowodzenie rozpoznania lub zapisu pozostawia dotychczasowy szkic. To import składników, nie automatyczne przepisywanie instrukcji przygotowania czy rozpoznawanie etykiet żywieniowych.
