@@ -21,3 +21,7 @@ Source build `92a319f`, branch `feature/basketball-visual-polish`. Archive: `Ben
 ## Benger 1.0.12 — ruchomy rzut
 
 Source build `eacc595`, branch `feature/arena-motion`. Archive: `Benger-source-1.0.12-eacc595.zip`. SHA256: `a9de9829a7294986093df42ccd58022012946de39379374c73549b7db69afe9a`. Code, Git history and original generated arena/shot artwork; no signing keys, passwords or user data.
+
+## Benger 1.0.13 — składniki ze screena
+
+Source build `acff0bd`, branch `feature/recipe-screenshot-import`. Archive: `Benger-source-1.0.13-acff0bd.zip`. SHA256: `b4f6bc0dd30d4d47796af9bd0c5def4d43b798ac4c38615ca83cbdfdc17ad8d9`. Source code, Git history, offline OCR assets and original artwork; no signing secrets or user data.
