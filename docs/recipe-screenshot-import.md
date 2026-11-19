@@ -9,3 +9,13 @@ Obraz przechodzi przez canvas (maksymalna krawędź 2600 px, limit wejścia 24 m
 Powiązanie z produktami używa istniejącego resolveProductQuery z allowExternal:false. Niejednoznaczne produkty pozostają UNRESOLVED; ich wybór, skanowanie i porcje są dostępne w zwykłym edytorze. Makro liczy istniejący deterministyczny silnik, jedynie dla potwierdzonego produktu i zgodnej bazowej jednostki g/ml. Nie ma zgadywania masy jajka ani gęstości. Household portions można uzupełnić standardowym pickerem.
 
 Nie powstaje nowy model persistence ani wersja backupu. Zapis całej listy korzysta z saveDraft, sprawdza id/revision i limit 200 składników. Obrazy nie trafiają do backupu. Niepowodzenie rozpoznania lub zapisu pozostawia dotychczasowy szkic. To import składników, nie automatyczne przepisywanie instrukcji przygotowania czy rozpoznawanie etykiet żywieniowych.
+
+## Poprawki 1.0.15 — granice sekcji i podgląd obszaru
+
+Nie dopisujemy już sztucznego nagłówka przed całym screenshotem. Niezależne strony są rozdzielane form-feed, a każda szuka swojego rzeczywistego nagłówka. Klasyfikator nagłówków toleruje polskie znaki i drobne pomyłki OCR. „PRZYGOTOWANIE” bez dwukropka również kończy listę. Adresy, elementy nawigacji, niektóre typowe kontrolki stron i proza instrukcji są pomijane; sam losowy napis bez sygnału żywności/ilości nie staje się automatycznie składnikiem. Brakujące lub nietypowe dane nadal wymagają sprawdzenia; nie jest to model rozumienia dowolnej witryny.
+
+Pierwszy przebieg Tesseract PSM11 pobiera geometrię linii. Znaleziony nagłówek i granica instrukcji pozwalają ponowić odczyt PSM6 na samej liście. Automatyczne zawężenie wymaga również ilości wyglądającej jak składnik; sam nagłówek nie wystarczy. Jeżeli obszar wskazano ręcznie, ponowny odczyt PSM6 dotyczy tego obszaru także bez nagłówka.
+
+Przed OCR jest podgląd obrazu i jawny przycisk odczytu. Ruch palca wyznacza prostokąt; cztery suwaki są alternatywą dostępną z klawiatury/czytnika. „Cały obraz” resetuje zaznaczenie. Każdy z maksymalnie 4 screenów ma własny obszar. Prostokąty są walidowane w zakresie 0–1, minimum 2% szerokości/wysokości. Odczyt nie przechowuje oryginalnych zdjęć ani współrzędnych w przepisie. Brak wyników nie tworzy pustych wpisów. Crop i odczyt można anulować, a błąd zapisu pozostawia poprzedni szkic.
+
+Deskryptory „czubate/płaskie” są oddzielane przed wspólnym parserem ilości, aby np. 3 łyżki nie stały się 1 łyżką. Opis pozostaje w originalText/quantityText; nie daje uprawnienia do standardowej masy płaskiej łyżki. Nie zmieniamy ProductResolver ani silnika makro. Dla nieznanego produktu z jawną ilością i jednostką zachowujemy normalny, nierozwiązany składnik.

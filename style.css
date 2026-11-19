@@ -492,3 +492,10 @@ button:disabled { opacity:.65; }
 @media(max-width:430px){.chart-axis {font-size:22px;}.chart-navigation button {flex:1;}.chart-toolbar button {width:100%;}}
 
 .chart-summary summary {color:var(--text);font-weight:600;min-height:44px;padding-block:8px;}
+
+.recipe-crop {min-width:0;padding-block:12px;}
+.recipe-crop canvas {display:block;max-width:100%;width:100%;height:auto;margin:12px auto;border:1px solid var(--border);touch-action:none;cursor:crosshair;}
+.recipe-crop input[type=range] {min-height:44px;width:100%;}
+.recipe-crop button {min-height:44px;margin:4px;}
+
+.recipe-ocr-read {position:sticky;top:0;z-index:2;width:100%;}
