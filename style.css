@@ -466,3 +466,29 @@ button:disabled { opacity:.65; }
 #recipe-screenshot-dialog fieldset {min-width:0;margin:12px 0;border:1px solid var(--border);border-radius:12px;padding:12px;}
 #recipe-screenshot-dialog textarea {width:100%;box-sizing:border-box;}
 #recipe-screenshot-dialog input[type=checkbox] {display:inline;width:auto;min-height:24px;}
+/* Shared interactive charts: dates, values and touch controls remain readable on phones. */
+.interactive-chart {min-width:0;margin-block:20px;border-top:1px solid var(--border);padding-top:12px;}
+.interactive-chart h3 {font-size:1.05rem;overflow-wrap:anywhere;}
+.chart-toolbar,.chart-navigation {display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin-block:12px;}
+.chart-toolbar label {flex:1;min-width:150px;margin:0;}
+.chart-toolbar select {margin-bottom:0;}
+.chart-toolbar button,.chart-navigation button {min-height:44px;padding:10px 12px;font-size:.9rem;}
+.chart-legend {display:flex;flex-wrap:wrap;gap:8px;}
+.chart-legend label {display:flex;align-items:center;gap:6px;font-size:.85rem;min-height:44px;overflow-wrap:anywhere;}
+.chart-legend input[type=checkbox] {width:20px;min-height:20px;margin:0;}
+.chart-swatch {display:inline-block;width:16px;height:4px;flex-shrink:0;}
+.chart-axis {fill:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;}
+.chart-grid {stroke:var(--border);stroke-width:1;}
+.chart-cursor {stroke:var(--text);stroke-width:1;stroke-dasharray:3 4;pointer-events:none;}
+.interactive-chart svg {width:100%;max-height:340px;display:block;cursor:crosshair;}
+.chart-reading {display:grid;gap:6px;min-height:70px;padding:12px;background:var(--elevated);border-radius:12px;font-variant-numeric:tabular-nums;font-size:.95rem;}
+.chart-summary {font-size:.85rem;color:var(--muted);line-height:1.6;margin-block:12px;overflow-wrap:anywhere;}
+.chart-table {overflow-x:auto;max-height:360px;}
+.chart-table table {width:100%;border-collapse:collapse;font-size:.85rem;}
+.chart-table td,.chart-table th {text-align:left;padding:8px;border-bottom:1px solid var(--border);}
+.chart-dialog {box-sizing:border-box;width:min(1100px,calc(100vw - 16px));max-height:94dvh;padding:16px;}
+.chart-dialog .interactive-chart {border:0;}
+.chart-dialog svg {max-height:65dvh;}
+@media(max-width:430px){.chart-axis {font-size:22px;}.chart-navigation button {flex:1;}.chart-toolbar button {width:100%;}}
+
+.chart-summary summary {color:var(--text);font-weight:600;min-height:44px;padding-block:8px;}
