@@ -29,3 +29,7 @@ Final source build `724531b`, branch `feature/recipe-screenshot-import`. Archive
 ## Benger 1.0.14 — interaktywne wykresy
 
 Final build `ed64819`, branch `feature/interactive-charts`. Archive `Benger-source-1.0.14-ed64819.zip`. SHA256 `c7a7230aa6ced8ca4e2246a8d7b1bbd3787b31db481d534e75ff118bd3b3fa3c`. Includes recipe screenshot import from 1.0.13. Source history, offline OCR assets and original artwork; no signing secrets or user data.
+
+## Benger 1.0.15 — sekcje przepisu i zaznaczanie obszaru
+
+Build `29b481b`, branch `fix/recipe-screenshot-regions`. Archive `Benger-source-1.0.15-29b481b.zip`. SHA256 `4a974ce4638f48df9f969d8d57b7946351575f9ed05f1abf3fe8cd8526ad253a`. Includes 1.0.14 interactive charts. Source history, offline OCR assets and original artwork only; no signing secrets or user data.
