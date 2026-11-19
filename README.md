@@ -25,3 +25,7 @@ Source build `eacc595`, branch `feature/arena-motion`. Archive: `Benger-source-1
 ## Benger 1.0.13 — składniki ze screena
 
 Final source build `724531b`, branch `feature/recipe-screenshot-import`. Archive: `Benger-source-1.0.13-724531b.zip`. SHA256: `3a58d8c63a36ae53321fa09acc81891b147180079b5a560fee975fee440ec68c`. Source, Git history, offline OCR engine/model and original artwork. No signing secrets or user data.
+
+## Benger 1.0.14 — interaktywne wykresy
+
+Build `8a35578`, branch `feature/interactive-charts`. Archive `Benger-source-1.0.14-8a35578.zip`. SHA256 `bc4878ad2d91a9ade10add885e7d1901367755d2917686d6b75cd0ca8c35e0cb`. Includes recipe screenshot import from 1.0.13. Source Git history, offline OCR assets and original artwork only; no signing secrets or user data.
