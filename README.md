@@ -33,3 +33,7 @@ Final build `ed64819`, branch `feature/interactive-charts`. Archive `Benger-sour
 ## Benger 1.0.15 — sekcje przepisu i zaznaczanie obszaru
 
 Build `29b481b`, branch `fix/recipe-screenshot-regions`. Archive `Benger-source-1.0.15-29b481b.zip`. SHA256 `4a974ce4638f48df9f969d8d57b7946351575f9ed05f1abf3fe8cd8526ad253a`. Includes 1.0.14 interactive charts. Source history, offline OCR assets and original artwork only; no signing secrets or user data.
+
+## Benger 1.0.16 — nazwy składników bez punktorów OCR
+
+Build `0177902`, branch `fix/ocr-ingredient-punctuation`. Archive `Benger-source-1.0.16-0177902.zip`. SHA256 `d1ae10c230bfe963461a4f2400c0558365c45d9b230f4badffbfe3c5818da7a5`. Source history, offline OCR assets and original artwork only; no signing secrets or user data.
