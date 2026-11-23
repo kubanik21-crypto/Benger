@@ -11,3 +11,16 @@ test('split quantity/name lines recombine; tab counter never becomes ingredient 
 test('geometric crop is bounded between actual headings and uses ingredient evidence',()=>{const line=(text,y0,y1)=>({text,bbox:{x0:10,x1:590,y0,y1}});const region=ingredientImageRegion([line('Garden',50,80),line('SKŁADNIKI / 2 PORCJE',350,380),line('250 g twarogu',430,450),line('3 jajka',475,495),line('PRZYGOTOWANIE',700,730)],600,1280);assert.equal(region.y,382/1280);assert.equal(region.height,(698-382)/1280);assert.equal(ingredientImageRegion([line('Składniki',350,380),line('Garden',430,450)],600,1280),null);});
 test('untrusted crop coordinates cannot request outside image or huge/empty geometry',()=>{for(const r of [{x:-1,y:0,width:1,height:1},{x:0,y:0,width:2,height:1},{x:0,y:0,width:.001,height:1},{x:NaN,y:0,width:1,height:1},{x:0,y:Infinity,width:1,height:1}])assert.throws(()=>normalizeOcrRegion(r));assert.deepEqual(normalizeOcrRegion(),{x:0,y:0,width:1,height:1});});
 test('heaped/level descriptors preserve the actual count without inventing grams',()=>{for(const [text,n]of [['3 czubate łyżki mąki',3],['2 płaskie łyżeczki soli',2],['1 czubatą łyżkę mąki',1]]){const row=parseRecipeScreenshot(text)[0];assert.equal(row.amount,n,text);assert.ok(['tablespoon','teaspoon'].includes(row.unit));assert.ok(row.note.includes('masa'));}});
+
+test('phone OCR regression: bullet glyphs and quantity separators never become product names',()=>{
+ for(const [text,name,amount,unit]of [['* jajka — 2 szt.','jajko',2,'piece'],['« marchew — 180 g','marchew',180,'g'],['• banan — 170 g','banan',170,'g'],['* jajka → 2 szt.','jajko',2,'piece'],['• płatki owsiane – 135 g','platki owsiane',135,'g']]){
+  const row=parseRecipeScreenshot(text)[0];assert.equal(row.name,name,text);assert.equal(row.amount,amount,text);assert.equal(row.unit,unit,text);assert.equal(row.originalText,text);
+ }
+});
+test('OCR name cleanup preserves milk fat percentage, internal hyphens, decimals and unknown units',()=>{
+ for(const [text,name,amount,unit]of [['• mleko 2% — 250 ml','mleko 2%',250,'ml'],['• mięso wieprzowo-wołowe — 180 g','mieso wieprzowo-wolowe',180,'g'],['• miód — 13,5 g','miod',13.5,'g'],['* masło — 80','maslo',80,null],['* marchew — -50 g','marchew',null,'g']]){const row=parseRecipeScreenshot(text)[0];assert.equal(row.name,name,text);assert.equal(row.amount,amount,text);assert.equal(row.unit,unit,text);}
+});
+test('complete screenshot ingredient list: all twelve names are clean and quantities are unchanged',()=>{
+ const rows=parseRecipeScreenshot('Składniki:\n• płatki owsiane — 135 g\n• skyr naturalny — 250 g\n• mleko 2% — 250 ml\n« marchew — 180 g\n* banan — 170g\n* jajka → 2 szt.\n• odżywka białkowa — 15 g\n• orzechy włoskie — 33 g\n• miód — 13 g\n• cynamon — 4 g\n• proszek do pieczenia — 4 g\n• ekstrakt waniliowy — 5 ml\nPrzygotowanie:\n1. Piekarnik nagrzej do 180 stopni.');
+ assert.equal(rows.length,12);assert.deepEqual(rows.map(r=>r.amount),[135,250,250,180,170,2,15,33,13,4,4,5]);assert.equal(rows[2].name,'mleko 2%');assert.equal(rows[5].name,'jajko');assert.ok(rows.every(r=>!/[•*«»→—–]/u.test(r.name)));
+});

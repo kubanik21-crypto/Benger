@@ -19,3 +19,7 @@ Pierwszy przebieg Tesseract PSM11 pobiera geometrię linii. Znaleziony nagłówe
 Przed OCR jest podgląd obrazu i jawny przycisk odczytu. Ruch palca wyznacza prostokąt; cztery suwaki są alternatywą dostępną z klawiatury/czytnika. „Cały obraz” resetuje zaznaczenie. Każdy z maksymalnie 4 screenów ma własny obszar. Prostokąty są walidowane w zakresie 0–1, minimum 2% szerokości/wysokości. Odczyt nie przechowuje oryginalnych zdjęć ani współrzędnych w przepisie. Brak wyników nie tworzy pustych wpisów. Crop i odczyt można anulować, a błąd zapisu pozostawia poprzedni szkic.
 
 Deskryptory „czubate/płaskie” są oddzielane przed wspólnym parserem ilości, aby np. 3 łyżki nie stały się 1 łyżką. Opis pozostaje w originalText/quantityText; nie daje uprawnienia do standardowej masy płaskiej łyżki. Nie zmieniamy ProductResolver ani silnika makro. Dla nieznanego produktu z jawną ilością i jednostką zachowujemy normalny, nierozwiązany składnik.
+
+## Poprawka 1.0.16 — punktory i separatory
+
+Po wspólnym parseProductQuery usuwamy dekoracyjne znaki wyłącznie z początku/końca wydzielonej nazwy. Dotyczy to m.in. •, *, « oraz myślników/strzałek pozostałych po odłączeniu ilości. Oryginalny odczyt jest zachowany w originalText. Nie zmieniamy parsera ilości, procentów, łączników wewnątrz nazw ani istniejących danych. Nowa nazwa trafia zarówno do pola edycji, jak i wspólnego resolveProductQuery podczas zatwierdzania. Testy obejmują pełną 12-elementową listę ze zgłoszenia, wartości dziesiętne, nieznaną jednostkę i odrzuconą ujemną ilość.

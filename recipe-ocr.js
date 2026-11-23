@@ -6,6 +6,9 @@ import {parseProductQuery} from './product-query.js';
 import {recipeId} from './recipe-id.js';
 import {ingredientFromPortion} from './recipe-model.js';
 import {loadItemPortions} from './meal-resolution.js';
+// OCR list marks and name/quantity separators are presentation, not product identity.
+// Only trim edges: percentages and punctuation inside a real product name stay intact.
+const cleanOcrName=name=>name.replace(/^[\s•●◦▪▫‣⁃·∙*«»‹›“”„"'|—–−\-→←↔➜➝⇒:;.,]+|[\s•●◦▪▫‣⁃·∙*«»‹›“”„"'|—–−\-→←↔➜➝⇒:;.,]+$/gu,'').trim();
 export function parseRecipeScreenshot(text){
  if(typeof text!=='string'||text.length>20000)throw new Error('Odczyt jest zbyt długi (limit 20 000 znaków).');
  const rows=[];
@@ -23,7 +26,7 @@ export function parseRecipeScreenshot(text){
    if(/\b(?:wlozyc|dodac|wymieszac|nalozyc|nakladac|smazyc|rozprowadzic|zmniejszyc|rozgniesc|zachowac|polaczyc|podawac|ugotowac|piec|gotuj|smaz|wymieszaj|rozgrzac|ubic|ubij|wbij|wbic|nalezy|przelozyc|odstawic|ostudzic|minuty|minut|min|stopni)\b/.test(key)||line.split(/\s+/).length>18)continue;
    const modifier=line.match(/(?<!\p{L})(?:czubat(?:ą|a|e|y|ych|ej)|p[łl]ask(?:ą|a|ie|i|ich|iej))(?!\p{L})/iu)?.[0]??'';
    const input=line.replace(/(\d)\s*([½¼¾])/g,(_,n,f)=>String(Number(n)+({'½':.5,'¼':.25,'¾':.75})[f])).replace(/[½¼¾]/g,f=>String(({'½':.5,'¼':.25,'¾':.75})[f])).replace(/(?<!\p{L})(?:czubat(?:ą|a|e|y|ych|ej)|p[łl]ask(?:ą|a|ie|i|ich|iej))(?!\p{L})/giu,'').replace(/\s+/g,' ').trim();
-   const parsed=parseProductQuery(input),name=parsed.intent.query,words=canonicalProductName(name).split(/[^a-z]+/).filter(Boolean);
+   const parsed=parseProductQuery(input),name=cleanOcrName(parsed.intent.query),words=canonicalProductName(name).split(/[^a-z]+/).filter(Boolean);
    const meaningful=name.replace(/[^a-ząćęłńóśźż]/giu,'');
    const known=words.some(w=>FOOD_HEADS.has(w)||isKnownProductPhrase(w)||['mak','sezam','drozdze','ziarna','cynamon'].includes(w));
    if(!name||meaningful.length<3||name.length>120||!/[aeiouyąęó]/iu.test(name)||!(known||parsed.parsedAmount!==null&&parsed.parsedUnit!==null))continue;
