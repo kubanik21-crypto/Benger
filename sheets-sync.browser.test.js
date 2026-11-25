@@ -1,0 +1,39 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {startBrowser} from './tests/browser-harness.mjs';
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+async function wait(p,expression){for(let i=0;i<300;i++){if(await p.evaluate(expression))return;await pause(30);}assert.fail(expression);}
+const seed=`(async()=>{const{NUTRITION_STORAGE_KEY}=await import('./app-storage.js');window.originalSyncData=Array.from({length:8},(_,i)=>({id:'plan-food-'+i,date:i<6?'2026-11-01':'2026-11-05',createdAt:'2026-11-01T08:00:00Z',meal:'breakfast',productId:'custom:test',productName:'Test',amount:100,unit:'g',nutrition:{kcal:100,protein:10,fat:0,carbs:15}}));localStorage.setItem(NUTRITION_STORAGE_KEY,JSON.stringify(window.originalSyncData));window.sourceBefore=localStorage.getItem(NUTRITION_STORAGE_KEY);location.hash='/ustawienia';for(const[id,value]of [['sync-export-from','2026-11-01'],['sync-export-to','2026-11-05']]){document.getElementById(id).value=value;document.getElementById(id).dispatchEvent(new Event('input'));}document.querySelector('#sheets-plan-lab').open=true;})()`;
+async function prepare(p){await p.evaluate("document.querySelector('#sheets-plan-lab > button').click()");await wait(p,"!document.querySelector('#sheets-plan-lab > button').disabled");}
+async function editSource(p,operation){await p.evaluate(`(async()=>{const{NUTRITION_STORAGE_KEY}=await import('./app-storage.js');const rows=JSON.parse(localStorage.getItem(NUTRITION_STORAGE_KEY));${operation};localStorage.setItem(NUTRITION_STORAGE_KEY,JSON.stringify(rows));window.dispatchEvent(new Event('benger:diary'));})()`);}
+
+test('offline local Sheets plan initializes, simulates acknowledgement, updates and confirms small deletion without any Google calls',{timeout:90000},async t=>{
+ const b=await startBrowser({staticPrefix:'/Benger/',productionBuild:true,mockOFF:true});t.after(()=>b.close());const p=await b.page(b.base);await p.evaluate(seed);
+ await p.evaluate('navigator.serviceWorker.ready');await wait(p,'Boolean(navigator.serviceWorker.controller)');await p.send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});
+ await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-status').textContent"),/Nic nie wysłano/);assert.match(await p.evaluate("document.querySelector('#sheets-plan-preview').textContent"),/Posiłki: \+8/);
+ assert.equal(await p.evaluate(`(async()=>{const{NUTRITION_STORAGE_KEY}=await import('./app-storage.js');return localStorage.getItem(NUTRITION_STORAGE_KEY)===window.sourceBefore})()`),true);
+ await p.evaluate("document.querySelector('#sheets-plan-lab > button:last-of-type').click()");await wait(p,"document.querySelector('#sheets-plan-status').textContent.includes('wyłącznie w pamięci')");await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-status').textContent"),/Brak żądania/);
+ await editSource(p,"rows[0].nutrition.kcal=200");await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-preview').textContent"),/kcal: 100 → 200/);
+ await p.evaluate("document.querySelector('#sheets-plan-lab > button:last-of-type').click()");await wait(p,"document.querySelector('#sheets-plan-status').textContent.includes('wyłącznie w pamięci')");
+ await editSource(p,'rows.shift()');await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-status').textContent"),/zablokowany/);assert.equal(await p.evaluate("document.querySelector('#sheets-plan-lab > button:last-of-type').disabled"),true);
+ await p.evaluate("document.querySelector('#sheets-plan-confirm-delete').checked=true");await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-status').textContent"),/Nic nie wysłano/);
+ for(const width of [320,390,430,1024]){await p.send('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});assert.equal(await p.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);}
+ await p.reload();await wait(p,"Boolean(document.querySelector('#sheets-plan-lab'))");assert.match(await p.evaluate("document.querySelector('#sheets-plan-lab').textContent"),/tylko do zamknięcia/);assert.equal(await p.evaluate("document.querySelector('#sheets-plan-preview').textContent"),'');assert.deepEqual(b.errors,[]);
+});
+
+test('local plan protects outside dates, flags goal impact and blocks a substantially incomplete database',{timeout:90000},async t=>{
+ const b=await startBrowser({staticPrefix:'/Benger/',productionBuild:true,mockOFF:true});t.after(()=>b.close());const p=await b.page(b.base);await p.evaluate(seed);await prepare(p);
+ await p.evaluate("document.querySelector('#sheets-plan-lab > button:last-of-type').click()");await wait(p,"document.querySelector('#sheets-plan-status').textContent.includes('wyłącznie w pamięci')");
+ await p.evaluate("document.querySelector('#sync-export-to').value='2026-11-03';document.querySelector('#sync-export-to').dispatchEvent(new Event('input'))");
+ await p.evaluate(`(async()=>{const{createGoalsStore}=await import('./goals.js');const goals=createGoalsStore();await goals.add({id:'goal-impact',effectiveFrom:'2026-10-01',nutrition:{kcal:2000}});await goals.close();window.dispatchEvent(new Event('benger:goals'));})()`);
+ await editSource(p,"rows[0].date='2026-11-05'");await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-preview').textContent"),/Wpływ poza zakresem/);assert.match(await p.evaluate("document.querySelector('#sheets-plan-preview').textContent"),/goal_kcal/);assert.match(await p.evaluate("document.querySelector('#sheets-plan-status').textContent"),/zablokowany/);
+ await p.evaluate("document.querySelector('#sheets-plan-confirm-impact').checked=true");await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-status').textContent"),/Nic nie wysłano/);
+ await editSource(p,'rows.splice(0,7)');await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-preview').textContent"),/25%|spoza zakresu/);await p.evaluate("document.querySelector('#sheets-plan-confirm-delete').checked=true;document.querySelector('#sheets-plan-confirm-impact').checked=true");await prepare(p);assert.match(await p.evaluate("document.querySelector('#sheets-plan-status').textContent"),/zablokowany/);assert.deepEqual(b.errors,[]);
+});
+
+test('data change during async read invalidates a local plan and prevents accepting stale simulation',{timeout:90000},async t=>{
+ const b=await startBrowser({mockOFF:true});t.after(()=>b.close());const p=await b.page(b.base);
+ await p.evaluate(`(async()=>{document.querySelector('#sheets-plan-lab').remove();const{initSheetsPlanUi}=await import('./sheets-plan-ui.js');const{buildSyncExport}=await import('./sync-export.js');window.planReads=0;initSheetsPlanUi({container:document.querySelector('#sync-export'),getRange:()=>({from:'2026-11-01',to:'2026-11-01'}),readFull:async()=>{window.planReads++;await new Promise(r=>window.releasePlanRead=r);return buildSyncExport({diary:[],goals:[],training:{completedWorkouts:[],completedMobility:[]},measurements:[]});}});})()`);
+ await p.evaluate("document.querySelector('#sheets-plan-lab > button').click();document.querySelector('#sheets-plan-lab > button').click()");await wait(p,'Boolean(window.releasePlanRead)');assert.equal(await p.evaluate('window.planReads'),1);
+ await p.evaluate("window.dispatchEvent(new Event('benger:diary'));window.releasePlanRead()");await wait(p,"!document.querySelector('#sheets-plan-lab > button').disabled");assert.match(await p.evaluate("document.querySelector('#sheets-plan-status').textContent"),/zmieniły się/);assert.equal(await p.evaluate("document.querySelector('#sheets-plan-lab > button:last-of-type').disabled"),true);assert.deepEqual(b.errors,[]);
+});

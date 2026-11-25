@@ -509,3 +509,7 @@ button:disabled { opacity:.65; }
 .sync-export-counts dd { margin:0; text-align:right; font-variant-numeric:tabular-nums; }
 #sync-export { overflow-wrap:anywhere; }
 @media(max-width:360px) { .sync-export-form { grid-template-columns:minmax(0,1fr); } }
+
+#sheets-plan-lab { margin-top:1rem; }
+#sheets-plan-lab button { margin-block:0.5rem; }
+#sheets-plan-preview li { overflow-wrap:anywhere; }

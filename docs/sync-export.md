@@ -183,3 +183,8 @@ Chromium oraz symulowanego bridge Androida. Nie potwierdzają działania systemo
 wyboru pliku na konkretnym Samsungu ani aktualności bieżącej bazy na telefonie.
 Zrzut ekranu testowego panelu powstaje w `/tmp/benger-sync-export-settings.png`;
 nie trafia do repozytorium i nie zawiera rzeczywistych danych użytkownika.
+
+## Etap 3A
+
+Lokalny podgląd mapowania i uzgadniania opisuje [Sheets reconciliation](sheets-reconciliation.md).
+To nadal symulacja offline, bez autoryzacji Google i wysyłania żądań.

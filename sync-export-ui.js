@@ -1,3 +1,4 @@
+import {initSheetsPlanUi} from './sheets-plan-ui.js';
 import {readLocalSyncExport} from './sync-export.js';
 import {NUTRITION_STORAGE_KEY} from './app-storage.js';
 import {createGoalsStore} from './goals.js';
@@ -89,5 +90,6 @@ export function initSyncExportUi({container=document.getElementById('route-ustaw
     finally{busy=false;for(const control of [from,to,preview,download])control.disabled=false;}
   }
   form.addEventListener('submit',event=>{event.preventDefault();void run(false);});download.addEventListener('click',()=>void run(true));
+  initSheetsPlanUi({container:panel,readFull:read,beforeRead,getRange:()=>({from:from.value,to:to.value})});
   return {panel};
 }
