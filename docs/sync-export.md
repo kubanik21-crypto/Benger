@@ -3,7 +3,7 @@
 Moduł `sync-export.js` przygotowuje obiekt JSON zgodny ze schematem eksportu **1**.
 Nie jest backupem i nie zmienia backup schema v8. Nie zapisuje danych, nie wykonuje
 żądań sieciowych, nie ma OAuth, kluczy, integracji Sheets, ChatGPT ani Garmin.
-Nie dodaje przycisku w interfejsie ani automatycznej synchronizacji.
+Nie wykonuje automatycznej synchronizacji. Interfejs lokalnego eksportu opisuje etap 2 poniżej.
 
 ## API
 
@@ -111,3 +111,75 @@ profilu Chromium, import modułu dopiero offline z produkcyjnego app shell,
 wykluczenie ciśnienia/notatek i niezmienność zapisanych danych.
 
 Oba zestawy włączone do istniejących `npm test` i `npm run test:browser`.
+
+## Etap 2 — Ustawienia → Synchronizacja danych
+
+`sync-export-ui.js` dodaje pojedynczy panel w istniejących Ustawieniach. Domyślny
+zakres obejmuje ostatnie 30 dni (według lokalnej daty urządzenia). Użytkownik może
+wybrać oba końce i użyć „Pokaż podgląd” albo bezpośrednio „Eksportuj JSON”.
+
+Podgląd pokazuje liczby podsumowań dni, dni z wpisami, wpisów, okresów celów,
+ukończonych treningów, Mobility, pozycji ćwiczeń, indywidualnych serii treningowych,
+pomiarów masy i obwodów. Suma kcal/B/T/W dotyczy wyłącznie zapisanych wpisów;
+nie traktuje dni bez wpisów jako zerowego spożycia. Zero zapisane w danych pozostaje
+zerem. Liczba serii Mobility jest zachowana w danych ćwiczenia, nie jest mieszana
+z indywidualnymi seriami treningowymi. Brak żywności nie blokuje eksportu treningów
+lub pomiarów. Całkowicie pusty zakres także można zapisać.
+
+Eksport zawsze zbiera świeży snapshot, nawet jeśli podgląd powstał wcześniej.
+Wspólna z backup UI funkcja `beforeDataRead` oczekuje na już trwające zapisy istniejących
+modułów. Nie zmieniono sposobu ich zapisu ani samego formatu/mechanizmu backupu.
+Zdarzenia zmian danych i edycja zakresu unieważniają widoczny podgląd.
+Przyciski i daty są blokowane na czas operacji; drugi tap nie uruchamia kolejnego zapisu.
+
+Android używa istniejącego `saveNativeBackup` / Android SAF z nazwą
+`benger-sync-OD-DO.json` (także chunkowanie i obsługa anulowania). Natywna lista
+dozwolonych nazw została rozszerzona tylko o ten wzorzec datowanego eksportu;
+dotychczasowe nazwy backupów i mechanizm ich zapisu pozostają bez zmian.
+Wymagany jest nowy build APK: sama wymiana plików web w starej aplikacji Android
+nie rozszerzy natywnej listy dozwolonych nazw. PWA używa tego
+samego wzorca co backup: Blob application/json, link download i zwolnienie URL.
+Ograniczenie pliku: 64 MiB. PWA potwierdza przekazanie do pobrania, ponieważ nie może
+potwierdzić fizycznego zapisu przez przeglądarkę; użytkownik powinien sprawdzić Pobrane.
+
+Jedyna nowa zapisywana informacja to operacyjny czas ostatniego eksportu w oddzielnym
+kluczu localStorage `${NUTRITION_STORAGE_KEY}.sync-export.last.v1` — osobnym także dla
+preview namespace. Nie zawiera danych eksportu i nie jest dodawana do backupu.
+Czas aktualizowany wyłącznie po wyniku saved=true; podgląd, błąd i anulowanie go nie
+zmieniają. Błąd zapisu samego czasu nie jest przedstawiany jako utrata zapisanego pliku.
+Komunikat wyjaśnia ograniczenie potwierdzenia pobierania w PWA.
+
+Walidacja, błędy pamięci, puste zakresy i nieprawidłowe dane nie powodują usuwania
+lub naprawiania źródeł. Podgląd błędnego wyniku jest ukrywany. Wszystkie komunikaty
+są tekstem, status ma aria-live, pola mają etykiety. Style używają istniejących paneli,
+przycisków i motywów. Moduł UI jest w app shell dostępnym offline.
+
+### Bezpieczny test na telefonie
+
+1. W obecnym Bengerze zapisz pełny backup przez **Więcej → Dane i backup**.
+   Sprawdź, że plik faktycznie znajduje się w wybranym folderze. Nie usuwaj aplikacji
+   ani jej danych. Nowy JSON synchronizacji nie zastępuje tego backupu.
+2. Ten etap nie publikuje produkcji ani APK. Dopiero przygotowany osobno build testowy
+   można testować. Najbezpieczniej użyć oddzielnego urządzenia/profilu testowego
+   i kopii backupu. Oddzielne preview nie zobaczy automatycznie danych z APK.
+3. Jeśli testujesz aktualizację istniejącego APK na swoim profilu, musi mieć ten sam
+   appId, origin i zgodny podpis. Instalacja ma być aktualizacją bez odinstalowywania.
+   Jeśli Android wymaga usunięcia starej aplikacji, przerwij — nie usuwaj jej.
+4. Otwórz **Więcej → Ustawienia → Synchronizacja danych**. Wybierz jeden znany dzień
+   i „Pokaż podgląd”. Porównaj sumy z zapisami dziennika oraz ukończonymi sesjami.
+   Cele mogą obejmować okres rozpoczęty przed wskazanym dniem; plany bez wykonania
+   nie liczą się jako ukończone treningi.
+5. Wyeksportuj JSON do wybranego folderu. Sprawdź nazwę i datę ostatniego eksportu.
+   Plik zawiera prywatne dane o żywieniu i aktywności — nie udostępniaj go publicznie.
+6. Wybierz pusty okres, następnie powtórz test w trybie samolotowym. Eksport powinien
+   działać; brak wpisów oznacza null, nie 0 kcal. Na Androidzie anuluj jeden zapis:
+   poprzednia data eksportu powinna zostać zachowana.
+7. Wróć do dziennika, historii treningów i Progresu. Wpisy, ciężary, pomiary i zdjęcia
+   powinny pozostać bez zmian. Nie importuj JSON synchronizacji jako backupu — to
+   inny format, a obecny import backupu go nie obsługuje.
+
+Testy automatyczne używają danych syntetycznych w prawdziwym localStorage/IndexedDB
+Chromium oraz symulowanego bridge Androida. Nie potwierdzają działania systemowego
+wyboru pliku na konkretnym Samsungu ani aktualności bieżącej bazy na telefonie.
+Zrzut ekranu testowego panelu powstaje w `/tmp/benger-sync-export-settings.png`;
+nie trafia do repozytorium i nie zawiera rzeczywistych danych użytkownika.

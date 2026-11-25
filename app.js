@@ -1,3 +1,4 @@
+import {initSyncExportUi} from './sync-export-ui.js';
 import {initWidget} from './widget-ui.js';
 import {initManualMeal} from './manual-meal-ui.js';
 import {initTrainingReminders} from './training-reminders-ui.js';
@@ -458,4 +459,6 @@ let remindersUI;const remindersReady=initTrainingReminders().then(value=>{remind
 const widgetReady=initWidget().catch(()=>null);
 void initPwa();
 
-initBackupUi({beforeRead:async()=>{await remindersReady;await remindersUI?.flush?.();await trainingUI.flush();await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);await (await widgetReady)?.flush?.();}});
+const beforeDataRead=async()=>{await remindersReady;await remindersUI?.flush?.();await trainingUI.flush();await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);await (await widgetReady)?.flush?.();};
+initBackupUi({beforeRead:beforeDataRead});
+initSyncExportUi({beforeRead:beforeDataRead});

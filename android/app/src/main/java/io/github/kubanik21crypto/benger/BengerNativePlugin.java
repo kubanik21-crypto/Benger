@@ -189,7 +189,7 @@ public class BengerNativePlugin extends Plugin {
     private boolean backupPending;
     @PluginMethod public void beginBackup(PluginCall call) {
         String name=call.getString("filename");
-        if(name==null||!name.matches("benger(-full)?-backup\\.json")){call.reject("Invalid backup filename");return;}
+        if(name==null||!(name.matches("benger(-full)?-backup\\.json")||name.matches("benger-sync-\\d{4}-\\d{2}-\\d{2}-\\d{4}-\\d{2}-\\d{2}\\.json"))){call.reject("Invalid backup filename");return;}
         if(backupPending||backupOut!=null){call.reject("Zapisywanie backupu już trwa.");return;}
         backupPending=true;
         Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT);
