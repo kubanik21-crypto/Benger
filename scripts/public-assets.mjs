@@ -1,6 +1,7 @@
 import { readdirSync } from 'node:fs';
 // Jawna lista publikacji: bez serwera, testów, fixture, .git i konfiguracji.
 export const PUBLIC_ASSETS = [
+  'sync-export.js',
   'recipe-ocr-regions.js','recipe-ocr-crop.js',
   'chart-model.js','charts.js',
   'recipe-ocr.js','recipe-ocr-engine.js','recipe-ocr-ui.js',
