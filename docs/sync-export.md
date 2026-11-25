@@ -188,3 +188,8 @@ nie trafia do repozytorium i nie zawiera rzeczywistych danych użytkownika.
 
 Lokalny podgląd mapowania i uzgadniania opisuje [Sheets reconciliation](sheets-reconciliation.md).
 To nadal symulacja offline, bez autoryzacji Google i wysyłania żądań.
+
+## Etap 3B
+
+Opcjonalne OAuth Android opisuje [Google OAuth Android](google-oauth-android.md).
+Domyślnie wyłączone do konfiguracji Google Cloud; nie uruchamia zapisu do Sheets.

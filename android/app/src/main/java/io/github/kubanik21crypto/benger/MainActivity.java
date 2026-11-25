@@ -12,6 +12,7 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override public void onCreate(Bundle state) {
         registerPlugin(BengerNativePlugin.class);
+        registerPlugin(BengerGoogleAuthPlugin.class);
         super.onCreate(state);
         View root = findViewById(android.R.id.content);
         root.setBackgroundColor(Color.parseColor("#102019"));
