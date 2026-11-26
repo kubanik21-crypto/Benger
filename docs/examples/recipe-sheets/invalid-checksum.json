@@ -1,0 +1,50 @@
+[
+  [
+    "schema_version",
+    "package_id",
+    "record_type",
+    "status",
+    "published_at",
+    "week_from",
+    "week_to",
+    "namespace",
+    "label",
+    "recipe_count",
+    "chunk_count",
+    "chunk_index",
+    "payload_json",
+    "content_sha256"
+  ],
+  [
+    1,
+    "dieta-2026-11-23-r1",
+    "MANIFEST",
+    "READY",
+    "2026-11-26T00:00:00.000Z",
+    "2026-11-23",
+    "2026-11-29",
+    "dieta-kuba",
+    "Przykłady publikacji — uzupełnij dane przed użyciem",
+    3,
+    1,
+    "",
+    "",
+    "0000000000000000000000000000000000000000000000000000000000000000"
+  ],
+  [
+    1,
+    "dieta-2026-11-23-r1",
+    "CHUNK",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    1,
+    "{\"format\":\"benger.recipe-package\",\"schemaVersion\":1,\"namespace\":\"dieta-kuba\",\"label\":\"Przykłady publikacji — uzupełnij dane przed użyciem\",\"recipes\":[{\"externalId\":\"example-1\",\"version\":1,\"name\":\"Owsianka — szablon do uzupełnienia\",\"meal\":\"breakfast\",\"servings\":2,\"ingredients\":[{\"id\":\"main\",\"name\":\"płatki owsiane\",\"amount\":100,\"unit\":\"g\",\"nutrition\":null}],\"steps\":[\"Dostosuj składniki i instrukcję przed użyciem.\"],\"preparationMinutes\":10,\"tags\":[\"przykład\"],\"expectedNutrition\":{\"total\":null,\"perServing\":null}},{\"externalId\":\"example-2\",\"version\":1,\"name\":\"Sałatka z kurczakiem — szablon do uzupełnienia\",\"meal\":\"dinner\",\"servings\":2,\"ingredients\":[{\"id\":\"main\",\"name\":\"kurczak\",\"amount\":100,\"unit\":\"g\",\"nutrition\":null}],\"steps\":[\"Dostosuj składniki i instrukcję przed użyciem.\"],\"preparationMinutes\":10,\"tags\":[\"przykład\"],\"expectedNutrition\":{\"total\":null,\"perServing\":null}},{\"externalId\":\"example-3\",\"version\":1,\"name\":\"Ryż z warzywami — szablon do uzupełnienia\",\"meal\":\"lunch\",\"servings\":2,\"ingredients\":[{\"id\":\"main\",\"name\":\"ryż suchy\",\"amount\":100,\"unit\":\"g\",\"nutrition\":null}],\"steps\":[\"Dostosuj składniki i instrukcję przed użyciem.\"],\"preparationMinutes\":10,\"tags\":[\"przykład\"],\"expectedNutrition\":{\"total\":null,\"perServing\":null}}]}",
+    ""
+  ]
+]

@@ -14,6 +14,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(BengerNativePlugin.class);
         registerPlugin(BengerGoogleAuthPlugin.class);
         registerPlugin(BengerGoogleSheetsPlugin.class);
+        registerPlugin(BengerRecipeSheetsPlugin.class);
         super.onCreate(state);
         View root = findViewById(android.R.id.content);
         root.setBackgroundColor(Color.parseColor("#102019"));
