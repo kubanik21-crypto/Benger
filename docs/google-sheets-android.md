@@ -1,5 +1,7 @@
 # Etap 3C — ręczna synchronizacja Android → Google Sheets
 
+Dalszy etap: [opcjonalna automatyzacja Android (3E)](google-sheets-auto.md).
+
 ## Zakres
 
 Gałąź `feature/local-sync-export`. Integracja korzysta z eksportu snapshot v1,

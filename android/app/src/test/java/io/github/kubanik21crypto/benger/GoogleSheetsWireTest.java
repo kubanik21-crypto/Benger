@@ -24,4 +24,11 @@ public class GoogleSheetsWireTest {
         journal.put("accessToken","synthetic-forbidden-field");
         try{GoogleSheetsWire.journal(journal,"profile","device");fail();}catch(IllegalArgumentException expected){}
     }
+    @Test public void automaticWritesAcceptOnlyFullRangeWithoutDeletes() throws Exception {
+        JSONObject journal=new JSONObject().put("profileId","profile").put("deviceId","device").put("operationId","operation").put("range",new JSONObject().put("from","2026-11-01").put("to","2026-11-30"));
+        GoogleSheetsWire.automaticSafe(data(),body(),schema(),journal);
+        JSONObject withRecord=data();JSONArray row=new JSONArray();for(String v:new String[]{"[\"profile\",\"food\",\"existing\"]","profile","existing","2026-11-01","", ""})row.put(new JSONObject().put("userEnteredValue",new JSONObject().put("stringValue",v)));
+        withRecord.getJSONArray("sheets").getJSONObject(0).getJSONArray("data").getJSONObject(0).getJSONArray("rowData").put(new JSONObject().put("values",row));
+        try{GoogleSheetsWire.automaticSafe(withRecord,body(),schema(),journal);fail();}catch(IllegalArgumentException expected){}
+    }
 }

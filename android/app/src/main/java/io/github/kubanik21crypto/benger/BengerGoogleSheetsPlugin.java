@@ -36,7 +36,7 @@ public final class BengerGoogleSheetsPlugin extends Plugin {
     static boolean busy(){return BUSY.get();}
     private static final class Fault extends Exception {final String code;final boolean definite;Fault(String code){this(code,false);}Fault(String code,boolean definite){this.code=code;this.definite=definite;}}
     private static final class Read {String ticket,accountKey,spreadsheetId,signature,valuesHash;JSONObject data;}
-    private static final class Upload {String id;long expires;Read read;JSONObject journal;StringBuilder raw=new StringBuilder();BengerGoogleAuthPlugin.SheetLease lease;}
+    private static final class Upload {boolean automatic;String id;long expires;Read read;JSONObject journal;StringBuilder raw=new StringBuilder();BengerGoogleAuthPlugin.SheetLease lease;}
     private interface Work {JSObject run(BengerGoogleAuthPlugin auth,BengerGoogleAuthPlugin.SheetLease lease,String key) throws Exception;}
     private BengerGoogleAuthPlugin auth(){return (BengerGoogleAuthPlugin)getBridge().getPlugin("BengerGoogleAuth").getInstance();}
     private SharedPreferences prefs(){return getContext().getSharedPreferences("benger-google-sheets-v1",Context.MODE_PRIVATE);}
@@ -50,7 +50,7 @@ public final class BengerGoogleSheetsPlugin extends Plugin {
     }
     private void save(String key,JSONObject value) throws Exception {if(!prefs().edit().putString(key,value.toString()).commit())throw new Fault("local-storage");}
     private JSObject binding(String key,JSONObject c) throws Exception {
-        JSObject out=new JSObject();out.put("accountKey",key);out.put("profileId",c.getString("profileId"));out.put("deviceId",c.getString("deviceId"));out.put("spreadsheetId",c.has("spreadsheetId")?c.get("spreadsheetId"):JSONObject.NULL);out.put("initialized",c.optBoolean("initialized"));out.put("creationPending",c.optBoolean("creationAttempted")&&!c.optBoolean("initialized"));out.put("baseline",c.has("baseline")?c.get("baseline"):JSONObject.NULL);out.put("pending",c.has("pending")?c.get("pending"):JSONObject.NULL);out.put("lastSuccess",c.optLong("lastSuccess",0));return out;
+        JSObject out=new JSObject();out.put("accountKey",key);out.put("profileId",c.getString("profileId"));out.put("deviceId",c.getString("deviceId"));out.put("spreadsheetId",c.has("spreadsheetId")?c.get("spreadsheetId"):JSONObject.NULL);out.put("initialized",c.optBoolean("initialized"));out.put("automationEnabled",c.optBoolean("automationEnabled",false)&&prefs().getBoolean("automationAllowed",false));out.put("creationPending",c.optBoolean("creationAttempted")&&!c.optBoolean("initialized"));out.put("baseline",c.has("baseline")?c.get("baseline"):JSONObject.NULL);out.put("pending",c.has("pending")?c.get("pending"):JSONObject.NULL);out.put("lastSuccess",c.optLong("lastSuccess",0));return out;
     }
     private boolean online(){try{ConnectivityManager m=(ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);NetworkCapabilities c=m.getNetworkCapabilities(m.getActiveNetwork());return c!=null&&c.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)&&c.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);}catch(Exception e){return false;}}
     private void reject(PluginCall call,String code){call.reject("Operacja Google nie została potwierdzona.",code);}
@@ -125,30 +125,42 @@ public final class BengerGoogleSheetsPlugin extends Plugin {
     @PluginMethod public void beginWrite(PluginCall call){getActivity().runOnUiThread(()->{try{
         if(busy()||dialog!=null)throw new Fault("busy");if(upload!=null&&SystemClock.elapsedRealtime()<=upload.expires)throw new Fault("busy");BengerGoogleAuthPlugin.SheetLease lease=auth().sheetLease();if(lease==null)throw new Fault("authorization-required");String key=key(lease.account);JSONObject c=config(key,false);
         if(c.has("pending"))throw new Fault("pending-operation");if(lastRead==null||!lastRead.ticket.equals(call.getString("ticket"))||!lastRead.accountKey.equals(key)||!lastRead.spreadsheetId.equals(file(c)))throw new Fault("remote-changed");
-        Upload u=new Upload();u.id=UUID.randomUUID().toString();u.expires=SystemClock.elapsedRealtime()+120000;u.read=lastRead;u.lease=lease;u.journal=GoogleSheetsWire.journal(call.getObject("journal"),c.getString("profileId"),c.getString("deviceId"));upload=u;JSObject out=new JSObject();out.put("id",u.id);call.resolve(out);
+        Upload u=new Upload();u.id=UUID.randomUUID().toString();u.expires=SystemClock.elapsedRealtime()+120000;u.automatic=Boolean.TRUE.equals(call.getBoolean("automatic",false));if(u.automatic&&(!c.optBoolean("automationEnabled",false)||!prefs().getBoolean("automationAllowed",false)))throw new Fault("confirmation-required");u.read=lastRead;u.lease=lease;u.journal=GoogleSheetsWire.journal(call.getObject("journal"),c.getString("profileId"),c.getString("deviceId"));upload=u;JSObject out=new JSObject();out.put("id",u.id);call.resolve(out);
     }catch(Fault f){reject(call,f.code);}catch(Exception ignored){reject(call,"schema-conflict");}});}
     @PluginMethod public void appendWrite(PluginCall call){getActivity().runOnUiThread(()->{String data=call.getString("data");if(upload==null||!upload.id.equals(call.getString("id"))||SystemClock.elapsedRealtime()>upload.expires||data==null||data.length()>128*1024||upload.raw.length()+data.length()>GoogleSheetsWire.MAX_WRITE){upload=null;reject(call,"schema-conflict");return;}upload.raw.append(data);call.resolve();});}
     @PluginMethod public void abortWrite(PluginCall call){getActivity().runOnUiThread(()->{if(upload!=null&&upload.id.equals(call.getString("id")))upload=null;call.resolve();});}
     @PluginMethod public void finishWrite(PluginCall call){getActivity().runOnUiThread(()->{
         Upload u=upload;upload=null;if(u==null||!u.id.equals(call.getString("id"))||SystemClock.elapsedRealtime()>u.expires){reject(call,"schema-conflict");return;}
         try{JSONObject c=config(u.read.accountKey,false),s=schema();JSONObject body=new JSONObject(u.raw.toString());if(u.raw.toString().getBytes(StandardCharsets.UTF_8).length>GoogleSheetsWire.MAX_WRITE)throw new Fault("schema-conflict");JSONObject expected=GoogleSheetsWire.expected(body,u.read.data,s,c.getString("profileId"),c.getString("deviceId"),u.journal.getString("operationId"));u.journal.put("expectedValuesDigest",GoogleSheetsWire.hash(expected));
+            if(u.automatic){submitWrite(call,u,body);return;}
             dialog=new AlertDialog.Builder(getActivity()).setTitle("Wyślij dane do Google Sheets?").setMessage("Arkusz: "+s.getString("title")+"\nKonto: "+u.lease.account+"\nZakres: "+u.journal.getJSONObject("range").getString("from")+" – "+u.journal.getJSONObject("range").getString("to")+"\nZostanie zapisany zatwierdzony podgląd, w tym pełna historia celów. Dane lokalne nie będą zmieniane.")
             .setNegativeButton("Anuluj",(d,w)->{JSObject r=new JSObject();r.put("cancelled",true);call.resolve(r);})
             .setOnCancelListener(d->{JSObject r=new JSObject();r.put("cancelled",true);call.resolve(r);})
-            .setPositiveButton("Wyślij",(d,w)->{dialog=null;job(call,(a,lease,key)->{
-                if(!u.read.accountKey.equals(key)||u.lease.generation!=lease.generation||!a.leaseCurrent(u.lease))throw new Fault("authorization-required");JSONObject latest=config(key,false);if(latest.has("pending"))throw new Fault("pending-operation");Read fresh=readVerified(a,lease,key,latest);if(!fresh.signature.equals(u.read.signature))throw new Fault("remote-changed");
+            .setPositiveButton("Wyślij",(d,w)->{dialog=null;submitWrite(call,u,body);}).create();dialog.setOnDismissListener(d->dialog=null);dialog.show();
+        }catch(Fault f){reject(call,f.code);}catch(Exception ignored){reject(call,"schema-conflict");}
+    });}
+    private void submitWrite(PluginCall call,Upload u,JSONObject body){
+        job(call,(a,lease,key)->{
+                if(!u.read.accountKey.equals(key)||u.lease.generation!=lease.generation||!a.leaseCurrent(u.lease))throw new Fault("authorization-required");JSONObject latest=config(key,false);if(u.automatic&&(!latest.optBoolean("automationEnabled",false)||!prefs().getBoolean("automationAllowed",false)))throw new Fault("confirmation-required");if(latest.has("pending"))throw new Fault("pending-operation");Read fresh=readVerified(a,lease,key,latest);if(!fresh.signature.equals(u.read.signature))throw new Fault("remote-changed");
+                if(u.automatic){if(!prefs().getBoolean("automationAllowed",false))throw new Fault("confirmation-required");if(!fresh.valuesHash.equals(latest.optString("automationBaseValues")))throw new Fault("remote-changed");try{GoogleSheetsWire.automaticSafe(fresh.data,body,schema(),u.journal);}catch(Exception rejected){throw new Fault("confirmation-required");}}
                 latest.put("pending",u.journal);save(key,latest);lastRead=null;
                 try{request(a,lease,"POST","https://sheets.googleapis.com/v4/spreadsheets/"+file(latest)+":batchUpdate",body);}
                 catch(Fault error){if(error.definite){latest.remove("pending");save(key,latest);throw error;}throw new Fault("pending-operation");}
                 catch(Exception ignored){throw new Fault("pending-operation");}
                 JSObject result=new JSObject();result.put("submitted",true);return result;
-            });}).create();dialog.setOnDismissListener(d->dialog=null);dialog.show();
-        }catch(Fault f){reject(call,f.code);}catch(Exception ignored){reject(call,"schema-conflict");}
+            });
+    }
+    @PluginMethod public void setAutomation(PluginCall call){
+        if(!Boolean.TRUE.equals(call.getBoolean("enabled",false))){getActivity().runOnUiThread(()->{if(prefs().edit().putBoolean("automationAllowed",false).commit()){JSObject result=new JSObject();result.put("automationEnabled",false);call.resolve(result);}else reject(call,"local-storage");});return;}
+        job(call,(a,lease,key)->{
+        JSONObject c=config(key,false);boolean enabled=Boolean.TRUE.equals(call.getBoolean("enabled",false));
+        if(enabled){if(!c.optBoolean("initialized")||!c.has("baseline")||c.has("pending"))throw new Fault("confirmation-required");Read prior=lastRead;if(prior==null||!prior.accountKey.equals(key)||!prior.ticket.equals(call.getString("ticket")))throw new Fault("remote-changed");Read fresh=readVerified(a,lease,key,c);if(!fresh.signature.equals(prior.signature))throw new Fault("remote-changed");c.put("automationBaseValues",fresh.valuesHash);}
+        c.put("automationEnabled",enabled);save(key,c);if(!prefs().edit().putBoolean("automationAllowed",true).commit())throw new Fault("local-storage");return binding(key,c);
     });}
     @PluginMethod public void confirmSheet(PluginCall call){getActivity().runOnUiThread(()->{try{
         if(busy()||upload!=null)throw new Fault("busy");BengerGoogleAuthPlugin.SheetLease lease=auth().sheetLease();if(lease==null)throw new Fault("authorization-required");String key=key(lease.account);JSONObject c=config(key,false),pending=c.getJSONObject("pending"),receipt=call.getObject("receipt");
         if(lastRead==null||!lastRead.accountKey.equals(key)||!lastRead.ticket.equals(call.getString("ticket"))||!lastRead.valuesHash.equals(pending.getString("expectedValuesDigest"))||receipt.length()!=6||receipt.getInt("schemaVersion")!=1||!receipt.getString("spreadsheetId").equals(file(c))||!receipt.getString("profileId").equals(c.getString("profileId"))||!receipt.getString("deviceId").equals(c.getString("deviceId"))||!receipt.getString("stateHash").equals(pending.getString("targetHash"))||!GoogleSheetsWire.canonical(receipt.getJSONArray("inventory")).equals(GoogleSheetsWire.canonical(pending.getJSONArray("inventory"))))throw new Fault("pending-operation");
-        c.put("baseline",receipt);c.remove("pending");c.put("lastSuccess",System.currentTimeMillis());save(key,c);call.resolve(binding(key,c));
+        c.put("baseline",receipt);c.put("automationBaseValues",lastRead.valuesHash);c.remove("pending");c.put("lastSuccess",System.currentTimeMillis());save(key,c);call.resolve(binding(key,c));
     }catch(Fault f){reject(call,f.code);}catch(Exception ignored){reject(call,"pending-operation");}});}
     @Override protected void handleOnDestroy(){destroyed=true;upload=null;lastRead=null;if(dialog!=null)dialog.dismiss();executor.shutdown();super.handleOnDestroy();}
 }

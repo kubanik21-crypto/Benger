@@ -4,7 +4,7 @@ export const GOOGLE_DRIVE_FILE_SCOPE='https://www.googleapis.com/auth/drive.file
 export const GOOGLE_AUTH_MESSAGES=Object.freeze({
  'configuration-required':'Autoryzacja Google wymaga konfiguracji projektu Google Cloud i testowego buildu Androida.',
  disconnected:'Konto Google nie jest połączone.',
- authorized:'Google udzielił zgody. Samo połączenie nie wysyła danych; synchronizacja wymaga osobnego potwierdzenia. Stan zgody nie jest sprawdzany zdalnie w tle.',
+ authorized:'Google udzielił zgody. Samo połączenie nie wysyła danych; wysyłanie wymaga ręcznego potwierdzenia lub włączenia automatyzacji. Stan zgody nie jest sprawdzany zdalnie w tle.',
  expired:'Lokalna sesja wygasła. Połącz konto ponownie; zgoda Google może nadal obowiązywać.',
  offline:'Brak połączenia z internetem. Lokalne dane i eksport działają nadal.',
  authorizing:'Dokończ wybór konta i zgodę w panelu Google.',

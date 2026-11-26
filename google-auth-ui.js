@@ -5,7 +5,7 @@ export function initGoogleAuthUi({container,auth=createGoogleAuth(),native=isAnd
  if(!native)return null; // PWA gets no controls, prompts, timers or Google calls.
  const panel=el('section');panel.id='google-authorization';panel.setAttribute('aria-labelledby','google-auth-title');
  const title=el('h3','Konto Google');title.id='google-auth-title';
- panel.append(title,el('p','Opcjonalna autoryzacja Androida. Dostęp tylko drive.file: pliki utworzone przez Bengera lub jawnie mu udostępnione. Samo połączenie nie tworzy arkusza i nie wysyła danych; synchronizacja wymaga osobnej akcji i potwierdzenia.'),
+ panel.append(title,el('p','Opcjonalna autoryzacja Androida. Dostęp tylko drive.file: pliki utworzone przez Bengera lub jawnie mu udostępnione. Samo połączenie nie tworzy arkusza i nie wysyła danych; wysyłanie wymaga ręcznego potwierdzenia lub świadomego włączenia automatyzacji.'),
  el('p','Wybór konta i zgoda odbywają się w systemowym panelu. Token pozostaje w pamięci natywnej. Po zamknięciu procesu aplikacji trzeba połączyć konto ponownie; zapisane lokalnie dane pozostają dostępne.'));
  const account=el('p');account.id='google-auth-account';
  const status=el('p');status.id='google-auth-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');

@@ -69,6 +69,17 @@ final class GoogleSheetsWire {
         JSONArray statuses=expected.getJSONArray("Synchronizacja");if(statuses.length()!=2)throw new IllegalArgumentException();JSONArray columns=header(schema,"Synchronizacja"),status=statuses.getJSONArray(1);int op=-1;for(int i=0;i<columns.length();i++)if("operationId".equals(columns.getString(i)))op=i;
         if(op<0||!operation.equals(status.getString(op)))throw new IllegalArgumentException();for(int i=0;i<columns.length();i++){String column=columns.getString(i);if(column.equals("writerDeviceId")&&!device.equals(status.getString(i)))throw new IllegalArgumentException();if((column.equals("sheetSchemaVersion")||column.equals("exportSchemaVersion"))&&status.getInt(i)!=1)throw new IllegalArgumentException();if(column.equals("status")&&!status.getString(i).equals("committed"))throw new IllegalArgumentException();}return expected;
     }
+    /** Automation cannot delete records, leave the full history range, or bypass native opt-in. */
+    static void automaticSafe(JSONObject data,JSONObject body,JSONObject schema,JSONObject journal) throws Exception {
+        JSONObject old=matrices(data,schema),next=expected(body,data,schema,journal.getString("profileId"),journal.getString("deviceId"),journal.getString("operationId"));
+        String from=journal.getJSONObject("range").getString("from"),to=journal.getJSONObject("range").getString("to");
+        for(String name:names(schema)){
+            if(name.equals("Synchronizacja"))continue;
+            JSONArray previous=old.getJSONArray(name),rows=next.getJSONArray(name);java.util.HashSet<String> keys=new java.util.HashSet<>();
+            for(int j=1;j<rows.length();j++){JSONArray row=rows.getJSONArray(j);keys.add(row.getString(0));String date=row.getString(3);if(date.compareTo(from)<0||date.compareTo(to)>0)throw new IllegalArgumentException();}
+            for(int j=1;j<previous.length();j++)if(!keys.contains(previous.getJSONArray(j).getString(0)))throw new IllegalArgumentException();
+        }
+    }
     static JSONObject journal(JSONObject input,String profile,String device) throws Exception {
         if(input.toString().getBytes(StandardCharsets.UTF_8).length>512*1024||input.length()!=8||input.getInt("schemaVersion")!=1||!profile.equals(input.getString("profileId"))||!device.equals(input.getString("deviceId")))throw new IllegalArgumentException();
         for(String key:new String[]{"operationId","baseHash","targetHash"})if(!input.getString(key).matches("[a-f0-9]{64}"))throw new IllegalArgumentException();
