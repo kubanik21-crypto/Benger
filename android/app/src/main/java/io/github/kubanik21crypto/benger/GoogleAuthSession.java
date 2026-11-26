@@ -4,12 +4,12 @@ package io.github.kubanik21crypto.benger;
 final class GoogleAuthSession {
     static final String SCOPE = "https://www.googleapis.com/auth/drive.file";
     static final long MAX_SESSION_MS = 45L * 60L * 1000L;
-    private String accessToken;
-    private String account;
-    private String pendingRevocation;
-    private long validUntil;
-    private long generation;
-    private String state = "disconnected";
+    private volatile String accessToken;
+    private volatile String account;
+    private volatile String pendingRevocation;
+    private volatile long validUntil;
+    private volatile long generation;
+    private volatile String state = "disconnected";
 
     long begin() {
         generation++;
@@ -47,6 +47,9 @@ final class GoogleAuthSession {
         return state;
     }
     boolean connected(long now) { return "authorized".equals(state(now)); }
+    String nativeToken(long now) { return connected(now) ? accessToken : null; }
+    long generation() { return generation; }
+    void invalidateToken() { accessToken=null; validUntil=0; state="expired"; }
     String account() { return account; }
     long remaining(long now) { return connected(now) ? Math.max(0, validUntil - now) : 0; }
     String pendingRevocation() { return pendingRevocation; }

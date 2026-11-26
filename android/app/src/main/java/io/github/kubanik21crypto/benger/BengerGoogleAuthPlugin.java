@@ -38,7 +38,7 @@ public final class BengerGoogleAuthPlugin extends Plugin {
     private Account selected;
     private long requestGeneration;
     private boolean revoking;
-    private boolean destroyed;
+    private volatile boolean destroyed;
     private boolean pickerOutstanding;
     private boolean resolutionOutstanding;
 
@@ -158,7 +158,7 @@ public final class BengerGoogleAuthPlugin extends Plugin {
     @PluginMethod public void connect(PluginCall call) {
         getActivity().runOnUiThread(() -> {
             if (!BuildConfig.BENGER_GOOGLE_AUTH_ENABLED) { call.resolve(snapshot("configuration-required")); return; }
-            if (pending != null || revoking || pickerOutstanding || resolutionOutstanding) { call.resolve(snapshot("busy")); return; }
+            if (BengerGoogleSheetsPlugin.busy() || pending != null || revoking || pickerOutstanding || resolutionOutstanding) { call.resolve(snapshot("busy")); return; }
             if (session.pendingRevocation() != null) { call.resolve(snapshot("revoke-pending")); return; }
             if (!online()) { call.resolve(snapshot("offline")); return; }
             if (!servicesAvailable()) { call.resolve(snapshot("services-unavailable")); return; }
@@ -173,7 +173,7 @@ public final class BengerGoogleAuthPlugin extends Plugin {
     }
     @PluginMethod public void disconnect(PluginCall call) {
         getActivity().runOnUiThread(() -> {
-            if (revoking || pending != null || pickerOutstanding || resolutionOutstanding) { call.resolve(snapshot("busy")); return; }
+            if (BengerGoogleSheetsPlugin.busy() || revoking || pending != null || pickerOutstanding || resolutionOutstanding) { call.resolve(snapshot("busy")); return; }
             String selectedName = selected == null ? null : selected.name;
             PluginCall old = pending;
             pending = null;
@@ -197,6 +197,24 @@ public final class BengerGoogleAuthPlugin extends Plugin {
                     .addOnCanceledListener(() -> { revoking = false; if (!destroyed) call.resolve(snapshot("revoke-pending")); });
             } catch (Exception ignored) { revoking = false; call.resolve(snapshot("revoke-pending")); }
         });
+    }
+    static final class SheetLease {
+        final String account;
+        final String bearer;
+        final long generation;
+        SheetLease(String account,String bearer,long generation){this.account=account;this.bearer=bearer;this.generation=generation;}
+    }
+    SheetLease sheetLease() {
+        long now=SystemClock.elapsedRealtime();
+        if(!BuildConfig.BENGER_GOOGLE_AUTH_ENABLED||destroyed||pending!=null||revoking||!session.connected(now))return null;
+        return new SheetLease(session.account(),session.nativeToken(now),session.generation());
+    }
+    boolean leaseCurrent(SheetLease lease){return !destroyed&&lease!=null&&session.isCurrent(lease.generation)&&session.connected(SystemClock.elapsedRealtime())&&lease.account.equals(session.account());}
+    void invalidateSheetToken(SheetLease lease){
+        if(leaseCurrent(lease)){
+            session.invalidateToken();
+            try{client().clearToken(com.google.android.gms.auth.api.identity.ClearTokenRequest.builder().setToken(lease.bearer).build()).addOnFailureListener(ignored->{});}catch(Exception ignored){}
+        }
     }
     @Override protected void handleOnDestroy() {
         destroyed = true;

@@ -513,3 +513,7 @@ button:disabled { opacity:.65; }
 #sheets-plan-lab { margin-top:1rem; }
 #sheets-plan-lab button { margin-block:0.5rem; }
 #sheets-plan-preview li { overflow-wrap:anywhere; }
+
+#google-sheets-sync { margin-block:1rem; overflow-wrap:anywhere; }
+#google-sheets-sync button { margin-block:0.4rem; }
+#google-sheets-changes li { overflow-wrap:anywhere; }

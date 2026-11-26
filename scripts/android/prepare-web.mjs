@@ -1,3 +1,4 @@
+import {SHEET_COLUMNS,SHEETS_TITLE,SHEETS_SCHEMA_VERSION} from '../../sheets-mapper.js';
 import{preparePreview}from'../prepare-preview.mjs';
 import{readFile,writeFile,rm,mkdir,copyFile,cp}from'node:fs/promises';
 import{resolve}from'node:path';
@@ -5,6 +6,7 @@ import{execFileSync}from'node:child_process';
 import{fileURLToPath}from'node:url';
 export async function prepareAndroidWeb(destination,sha){
  await preparePreview(destination,sha,{preview:false});
+ await writeFile(resolve(destination,'google-sheets-schema.json'),JSON.stringify({title:SHEETS_TITLE,version:SHEETS_SCHEMA_VERSION,names:Object.keys(SHEET_COLUMNS),columns:SHEET_COLUMNS}));
  await cp(new URL('../../vendor/ocr/',import.meta.url),resolve(destination,'vendor/ocr'),{recursive:true});
  await mkdir(resolve(destination,'native-licenses'));
  await copyFile(new URL('../../android/licenses/Capacitor-MIT.txt',import.meta.url),resolve(destination,'native-licenses/Capacitor-MIT.txt'));

@@ -34,5 +34,5 @@ test('native SDK is pinned, uses AuthorizationClient + drive.file only, no backe
  assert.match(plugin,/Identity\.getAuthorizationClient/);assert.match(plugin,/setOptOutIncludingGrantedScopes\(true\)/);assert.match(plugin,/setAccount\(selected\)/);
  assert.doesNotMatch(plugin,/requestOfflineAccess|getServerAuthCode|GoogleSignIn\.getClient|Log\.|printStackTrace|SharedPreferences|HttpURLConnection|spreadsheets|drive\.google/);
  const gradle=await readFile('android/app/build.gradle','utf8');assert.match(gradle,/play-services-auth:22\.0\.0/);assert.match(gradle,/BENGER_GOOGLE_AUTH_ENABLED/);assert.match(gradle,/\?: "false"/);
- const session=await readFile('android/app/src/main/java/io/github/kubanik21crypto/benger/GoogleAuthSession.java','utf8');assert.match(session,/private String accessToken/);assert.doesNotMatch(session,/public.*[Tt]oken|SharedPreferences|System\.out|Log\./);
+ const session=await readFile('android/app/src/main/java/io/github/kubanik21crypto/benger/GoogleAuthSession.java','utf8');assert.match(session,/private (?:volatile )?String accessToken/);assert.doesNotMatch(session,/public.*[Tt]oken|SharedPreferences|System\.out|Log\./);
 });

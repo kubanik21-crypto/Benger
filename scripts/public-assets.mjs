@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs';
 // Jawna lista publikacji: bez serwera, testów, fixture, .git i konfiguracji.
 export const PUBLIC_ASSETS = [
-  'sync-export.js','sync-export-ui.js','sheets-mapper.js','sheets-reconcile.js','sheets-plan-ui.js','google-auth.js','google-auth-ui.js',
+  'sync-export.js','sync-export-ui.js','sheets-mapper.js','sheets-reconcile.js','sheets-plan-ui.js','google-auth.js','google-auth-ui.js','google-sheets.js','google-sheets-ui.js',
   'recipe-ocr-regions.js','recipe-ocr-crop.js',
   'chart-model.js','charts.js',
   'recipe-ocr.js','recipe-ocr-engine.js','recipe-ocr-ui.js',

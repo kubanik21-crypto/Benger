@@ -91,6 +91,6 @@ export function initSyncExportUi({container=document.getElementById('route-ustaw
   }
   form.addEventListener('submit',event=>{event.preventDefault();void run(false);});download.addEventListener('click',()=>void run(true));
   initSheetsPlanUi({container:panel,readFull:read,beforeRead,getRange:()=>({from:from.value,to:to.value})});
-  if(isAndroidNative())void import('./google-auth-ui.js').then(({initGoogleAuthUi})=>initGoogleAuthUi({container:panel})).catch(()=>{const hint=el('p','Autoryzacja Google jest niedostępna w tym buildzie. Eksport lokalny działa nadal.');panel.append(hint);});
+  if(isAndroidNative())void import('./google-auth-ui.js').then(({initGoogleAuthUi})=>initGoogleAuthUi({container:panel,sheets:{readFull:read,beforeRead,getRange:()=>({from:from.value,to:to.value})}})).catch(()=>{const hint=el('p','Autoryzacja Google jest niedostępna w tym buildzie. Eksport lokalny działa nadal.');panel.append(hint);});
   return {panel};
 }

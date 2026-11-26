@@ -1,5 +1,8 @@
 # Etap 3B — opcjonalna autoryzacja Google na Androidzie
 
+Dalszy etap: [ręczna synchronizacja Google Sheets (3C)](google-sheets-android.md).
+Poniższy opis dokumentuje pierwotny zakres etapu 3B.
+
 ## Stan i zakres
 
 Kod przygotowany na feature/local-sync-export, po ae8a893. Nie ma OAuth PWA,
