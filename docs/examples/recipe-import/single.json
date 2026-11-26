@@ -1,0 +1,44 @@
+{
+  "format": "benger.recipe-package",
+  "schemaVersion": 1,
+  "namespace": "dieta-kuba",
+  "label": "Przykłady importu — uzupełnij produkty",
+  "recipes": [
+    {
+      "externalId": "owsianka",
+      "version": 1,
+      "name": "Owsianka do uzupełnienia",
+      "meal": "breakfast",
+      "servings": 2,
+      "ingredients": [
+        {
+          "id": "oats",
+          "name": "płatki owsiane",
+          "amount": 140,
+          "unit": "g",
+          "massState": "raw",
+          "nutrition": null
+        },
+        {
+          "id": "milk",
+          "name": "mleko",
+          "amount": 400,
+          "unit": "ml",
+          "nutrition": null
+        }
+      ],
+      "steps": [
+        "Połącz płatki z mlekiem.",
+        "Gotuj do preferowanej konsystencji."
+      ],
+      "preparationMinutes": 10,
+      "tags": [
+        "przykład"
+      ],
+      "expectedNutrition": {
+        "total": null,
+        "perServing": null
+      }
+    }
+  ]
+}

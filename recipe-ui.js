@@ -1,3 +1,4 @@
+import {openRecipeFileImport} from './recipe-file-import-ui.js';
 import {isAndroidNative} from './native-platform.js';
 import {openRecipeScreenshotImport} from './recipe-ocr-ui.js';
 import {prepareScreenshotIngredients} from './recipe-ocr.js';
@@ -23,6 +24,7 @@ const decimal=text=>/^\d+(?:[.,]\d+)?$/.test(text.trim())?Number(text.trim().rep
 export function initRecipes({repository,recipes=createRecipeRepository(),onAddToDiary}={}){
  let draft=null,pending=null,queue=Promise.resolve(),storageOK=true,analyzing=false,generation=0,request=null,editingIngredient=null, pendingOperations=0,listRevision=0,finishing=false,creating=false;
  const resolver=createProductResolver({repository});
+ const fileImportButton=button('Importuj przepisy',()=>openRecipeFileImport({repository,onImported:refresh}));fileImportButton.id='recipe-import-file';document.querySelector('.recipe-toolbar').append(fileImportButton);
  const packPanel=node('details'),packSummary=node('summary',RECIPE_PLAN_LABEL),packStatus=node('p');packPanel.id='recipe-plan-pack';packStatus.id='recipe-plan-pack-status';packStatus.setAttribute('role','status');let importingPack=false;
  const importPack=button('Dodaj 9 przepisów z planu',async()=>{if(importingPack)return;importingPack=true;importPack.disabled=true;packStatus.textContent='Łączę składniki z lokalnym katalogiem…';try{const result=await importRecipePlan({recipes,repository,resolver});packStatus.textContent=`Dodano: ${result.added.length}. Już zapisane: ${result.skipped.length}. Niejasne produkty i ilości pozostały do uzupełnienia.`;await refresh();}catch(e){packStatus.textContent=storageErrorMessage(e);}finally{importingPack=false;importPack.disabled=false;}});
  const filterPack=button('Pokaż przepisy z tej paczki',()=>{$('recipe-search').value=RECIPE_PLAN_LABEL;return refresh();});packPanel.append(packSummary,node('p','9 przepisów z Twojego planu. Import nie nadpisuje późniejszych edycji. Brakujące produkty i ilości uzupełnisz w przepisie lub porcji.'),importPack,filterPack,packStatus);document.querySelector('.recipe-toolbar').after(packPanel);

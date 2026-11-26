@@ -18,6 +18,7 @@ export function validateRecipe(value,{draft=false}={}){
  const ingredients=value.ingredients.map(i=>{
   if(!i||!isUuid(i.id)||!text(i.originalText,1000)||!text(i.query??'',240)||!['RESOLVED','UNRESOLVED'].includes(i.resolutionStatus)||typeof i.excludedFromNutrition!=='boolean')fail();
   const result={id:i.id,originalText:i.originalText,query:i.query??'',resolutionStatus:i.resolutionStatus,excludedFromNutrition:i.excludedFromNutrition};
+  for(const key of ['massState','nutritionSource','nutritionSourceUrl'])if(i[key]!==undefined){if(key==='massState'?!['raw','cooked','unspecified'].includes(i[key]):!text(i[key],key==='nutritionSourceUrl'?500:240,true))fail();result[key]=i[key];}
   if(i.quantityText!==undefined){if(!text(i.quantityText,300,true))fail();result.quantityText=i.quantityText;}
   if(i.catalogMatch!==undefined){const m=i.catalogMatch;if(!m||!['matched','ambiguous','unmatched'].includes(m.status)||!['productId','productName'].every(k=>m[k]===null||text(m[k],240,true))||m.status==='matched'&&(!m.productId||!m.productName))fail();result.catalogMatch={status:m.status,productId:m.productId,productName:m.productName};}
   if(i.resolutionStatus==='RESOLVED'){
@@ -37,6 +38,7 @@ export function validateRecipe(value,{draft=false}={}){
  if(value.status!==status)fail();
  if(!draft){const actual=value.nutrition;if(!actual||actual.complete!==nutrition.complete||actual.unresolvedCount!==nutrition.unresolvedCount)fail();for(const key of ['knownTotal','total','perServing','per100g','per100ml']){if(nutrition[key]===null){if(actual[key]!==null)fail();}else if(!actual[key]||!['kcal','protein','fat','carbs'].every(k=>Number.isFinite(actual[key][k])&&actual[key][k]===nutrition[key][k]))fail();}}
  const result={id:value.id,name:value.name,createdAt:value.createdAt,updatedAt:value.updatedAt,status,ingredients,steps,yield:yieldInfo,nutrition,notes:value.notes,version:value.version,events};
+ if(value.importInfo!==undefined){const m=value.importInfo;if(!m||!text(m.namespace,100,true)||!text(m.externalId,100,true)||!Number.isSafeInteger(m.externalVersion)||m.externalVersion<1||m.externalVersion>1e6||!['contentHash','localHash'].every(k=>typeof m[k]==='string'&&/^[a-f0-9]{64}$/.test(m[k])))fail();result.importInfo={namespace:m.namespace,externalId:m.externalId,externalVersion:m.externalVersion,contentHash:m.contentHash,localHash:m.localHash};}
  if(value.pack!==undefined){const p=value.pack;if(!p||!text(p.id,100,true)||!text(p.recipeId,100,true)||!text(p.label,200,true)||!['breakfast','lunch','dinner','snack'].includes(p.meal))fail();result.pack={id:p.id,recipeId:p.recipeId,label:p.label,meal:p.meal};}
  if(draft){if(value.recipeId===null&&value.baseVersion!==0||value.recipeId!==null&&(!isUuid(value.recipeId)||value.baseVersion<1)||!Number.isSafeInteger(value.baseVersion)||value.baseVersion<0||!Number.isSafeInteger(value.revision)||value.revision<0)fail();Object.assign(result,{recipeId:value.recipeId,baseVersion:value.baseVersion,revision:value.revision});}
  return result;

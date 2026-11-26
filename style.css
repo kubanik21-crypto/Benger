@@ -517,3 +517,7 @@ button:disabled { opacity:.65; }
 #google-sheets-sync { margin-block:1rem; overflow-wrap:anywhere; }
 #google-sheets-sync button { margin-block:0.4rem; }
 #google-sheets-changes li { overflow-wrap:anywhere; }
+
+#recipe-file-import { width:min(94vw,48rem); max-height:85dvh; overflow:auto; overflow-wrap:anywhere; }
+#recipe-file-import input[type=file] { max-width:100%; }
+#recipe-file-import-preview label { display:flex; gap:.5rem; align-items:flex-start; }

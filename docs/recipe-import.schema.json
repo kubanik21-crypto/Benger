@@ -1,0 +1,482 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:benger:recipe-package:1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "benger.recipe-package"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "namespace": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "\\S"
+    },
+    "recipes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recipe"
+      },
+      "minItems": 1,
+      "maxItems": 50
+    }
+  },
+  "required": [
+    "format",
+    "schemaVersion",
+    "namespace",
+    "recipes"
+  ],
+  "$defs": {
+    "macros": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kcal": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10000000000.0
+        },
+        "protein": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10000000000.0
+        },
+        "fat": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10000000000.0
+        },
+        "carbs": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10000000000.0
+        }
+      },
+      "required": [
+        "kcal",
+        "protein",
+        "fat",
+        "carbs"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "\\S"
+        },
+        "url": {
+          "type": "string",
+          "maxLength": 500,
+          "pattern": "^https?://",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "label"
+      ]
+    },
+    "nutrition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "enum": [
+            "g",
+            "ml"
+          ]
+        },
+        "per100": {
+          "$ref": "#/$defs/macros"
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
+      },
+      "required": [
+        "unit",
+        "per100",
+        "source"
+      ]
+    },
+    "ingredient": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "\\S"
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 100000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "enum": [
+            "g",
+            "ml",
+            "piece",
+            "slice",
+            "slab",
+            "tablespoon",
+            "teaspoon",
+            "cup",
+            "mug",
+            "package",
+            "serving",
+            "handful",
+            "scoop"
+          ]
+        },
+        "baseAmount": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 100000
+        },
+        "baseUnit": {
+          "enum": [
+            "g",
+            "ml"
+          ]
+        },
+        "massState": {
+          "enum": [
+            "raw",
+            "cooked",
+            "unspecified"
+          ]
+        },
+        "productId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "pattern": "\\S"
+        },
+        "nutrition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nutrition"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "amount",
+        "unit"
+      ],
+      "dependentRequired": {
+        "baseAmount": [
+          "baseUnit"
+        ],
+        "baseUnit": [
+          "baseAmount"
+        ]
+      },
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "required": [
+                  "baseAmount"
+                ]
+              },
+              {
+                "required": [
+                  "baseUnit"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "enum": [
+                  "piece",
+                  "slice",
+                  "slab",
+                  "tablespoon",
+                  "teaspoon",
+                  "cup",
+                  "mug",
+                  "package",
+                  "serving",
+                  "handful",
+                  "scoop"
+                ]
+              },
+              "amount": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000
+              }
+            }
+          }
+        }
+      ]
+    },
+    "step": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "pattern": "\\S"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "pattern": "\\S"
+            },
+            "durationMinutes": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 10080
+            },
+            "temperatureC": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 350
+            }
+          },
+          "required": [
+            "text"
+          ]
+        }
+      ]
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "\\S"
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "const": "UPDATE_AMOUNT"
+                  },
+                  "ingredientId": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 100000
+                  }
+                },
+                "required": [
+                  "type",
+                  "ingredientId",
+                  "amount"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "const": "REMOVE"
+                  },
+                  "ingredientId": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "ingredientId"
+                ]
+              }
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "overrides"
+      ]
+    },
+    "recipe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "externalId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "\\S"
+        },
+        "meal": {
+          "enum": [
+            "breakfast",
+            "lunch",
+            "dinner",
+            "snack"
+          ]
+        },
+        "servings": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10000
+        },
+        "ingredients": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ingredient"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          },
+          "minItems": 0,
+          "maxItems": 100
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "\\S"
+          },
+          "minItems": 0,
+          "maxItems": 20
+        },
+        "preparationMinutes": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10080
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/variant"
+          },
+          "minItems": 0,
+          "maxItems": 20
+        },
+        "expectedNutrition": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "total": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/macros"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "perServing": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/macros"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "total",
+            "perServing"
+          ]
+        },
+        "finalWeight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10000000
+        },
+        "finalVolume": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 10000000
+        }
+      },
+      "required": [
+        "externalId",
+        "version",
+        "name",
+        "meal",
+        "servings",
+        "ingredients",
+        "steps"
+      ]
+    }
+  }
+}
