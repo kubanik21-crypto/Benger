@@ -1,6 +1,6 @@
 # Dostęp Androida do istniejącego arkusza przepisów
 
-**Dla obecnego wydania 1.0.18 bez terminala używamy wariantu [Actions bez podpisu → podpis lokalny](recipe-picker-actions-build.md). GitHub potrzebuje tylko już dodanego sekretu Pickera; nie trzeba dalej zmieniać sieci Codexa ani przesyłać podpisu do GitHuba.** Poniższe polecenia terminalowe pozostają alternatywą dla lokalnej kompilacji.
+**Dla obecnej poprawki testowej 1.0.19 bez terminala używamy wariantu [Actions bez podpisu → podpis lokalny](recipe-picker-actions-build.md). GitHub potrzebuje tylko już dodanego sekretu Pickera; nie trzeba dalej zmieniać sieci Codexa ani przesyłać podpisu do GitHuba.** Poniższe polecenia terminalowe pozostają alternatywą dla lokalnej kompilacji.
 
 ## Stan i architektura
 
@@ -46,15 +46,15 @@ Nie trzeba tworzyć backendu, nowego arkusza, publicznego udostępnienia ani kli
 
 Token nie przechodzi przez most Capacitor ani główny JavaScript aplikacji, localStorage, backup, logi czy arkusz. **Wyjątek niezbędny dla oficjalnego JavaScript Pickera:** krótkotrwały token jest przekazany natywnie do SDK w izolowanym WebView i pozostaje tam w pamięci podczas wyboru pliku. To należy odróżnić od całkowitego braku tokenu w jakimkolwiek JavaScript. Po zamknięciu WebView jest niszczony.
 
-Osobny WebView nie ma mostu Capacitor/addJavascriptInterface, DOM storage, dostępu plikowego ani nawigacji głównej do dowolnego hosta. Wiadomości akceptowane są tylko z głównej ramki lokalnego origin z nonce; zawierają wyłącznie wynik wyboru. Zasoby zewnętrzne ograniczono do HTTPS hostów Google, konsolę wyciszono, cookies third-party są wyłączone. Jeśli restrykcje uniemożliwią działanie SDK na urządzeniu, trzeba najpierw zbadać problem; nie osłabiamy ich w ciemno.
+Osobny WebView nie ma mostu Capacitor/addJavascriptInterface, DOM storage, dostępu plikowego ani nawigacji głównej do dowolnego hosta. Wiadomości akceptowane są tylko z głównej ramki lokalnego origin z nonce; zawierają wyłącznie wynik wyboru. Zasoby zewnętrzne ograniczono do HTTPS hostów Google, konsolę wyciszono, od 1.0.19 cookies third-party są włączone wyłącznie dla WebView Pickera. Nie zmieniamy globalnej akceptacji cookies ani ustawień głównego WebView. Natywny filtr dopuszcza z accounts.google.com tylko CheckCookie i RotateCookiesPage (GET) oraz ListAccounts (GET/POST); logowanie/OAuth w osadzonym panelu nadal są blokowane. Poprawka wynika z rzeczywistego komunikatu blokady konta/cookies na telefonie; jej odbiór wymaga ponownego testu na tym urządzeniu.
 
 drive.file pozwala technicznie edytować wybrany plik, ale aplikacyjny czytnik przepisu udostępnia tylko GET. Nie jest to osobny scope OAuth read-only (Google nie oferuje drive.file.readonly). Źródło jest na stałe wskazane w kodzie.
 
 Powiązanie per konto zapisane jest w osobnych prywatnych preferencjach Androida. Nie zawiera tokenu. Dotychczasowy token OAuth jest sesyjny: po restarcie procesu/wygaśnięciu może być potrzebne ponowne połączenie. Brak internetu/uprawnienia nie blokuje lokalnej biblioteki ani backupu. Nie ma WorkManagera, synchronizacji w tle zamkniętej aplikacji ani nowej płatnej usługi.
 
-## Bezpieczne przygotowanie testowego APK 1.0.18
+## Bezpieczne przygotowanie testowego APK 1.0.19
 
-Punktem wyjścia jest etap 4B, commit 759df23, na feature/local-sync-export. Wersję aplikacji zwiększono do 1.0.18. versionCode nadal nadaje istniejący build-apk.mjs według czasu budowania; musi przekroczyć 28496407 z zachowanego APK 1.0.17. applicationId, origin, baza, mechanizm podpisu, OAuth i ustawienia synchronizacji pozostają bez zmian.
+Punktem wyjścia jest etap 4B, commit 759df23, na feature/local-sync-export. Wersję poprawki zwiększono do 1.0.19. versionCode nadal nadaje istniejący build-apk.mjs według czasu budowania; musi przekroczyć 28546933 z podpisanego APK 1.0.18. applicationId, origin, baza, mechanizm podpisu, OAuth i ustawienia synchronizacji pozostają bez zmian.
 
 ### Najpierw zgodność projektów
 
@@ -102,9 +102,9 @@ Następnie użyj istniejącego skryptu budującego i **zachowanego** katalogu po
 ```bash
 node scripts/android/build-apk.mjs \
   /workspace/private/benger-signing-2026-11 \
-  /workspace/releases/benger-recipe-picker-1.0.18
+  /workspace/releases/benger-recipe-picker-1.0.19
 ```
 
 Skrypt sprawdza certyfikat przed kompilacją, przygotowuje zasoby Androida, uruchamia assembleRelease oraz lintRelease i weryfikuje podpisany APK. Oryginalny klucz nie jest generowany ponownie. Nie używaj `--debug`, `--info`, `--scan`, dumpowania środowiska ani cat BuildConfig do obsługi klucza. API key z konieczności znajdzie się w APK i ignorowanych przez Git wynikach Gradle; nie jest sekretem serwerowym. Nie publikuj tych źródeł wygenerowanych ani diagnostyki z jego wartością. Ograniczenia referrera i API są niezbędne.
 
-Przed udostępnieniem porównaj rzeczywisty applicationId, certyfikat, versionName/versionCode i konfigurację flag w APK z zachowaną wersją 1.0.17. Jeśli którekolwiek sprawdzenie zawiedzie, nie udostępniaj APK jako aktualizacji. Test na telefonie: backup, instalacja jako aktualizacja bez odinstalowania, sprawdzenie historii/ustawień/RAW DATA, wybór źródła Pickerem i ręczny podgląd paczki. Automatycznego importu nie włączaj przed pierwszym udanym testem. Nie zmieniaj istniejącego ustawienia automatycznego eksportu RAW DATA.
+Przed udostępnieniem porównaj rzeczywisty applicationId, certyfikat, versionName/versionCode i konfigurację flag w APK z podpisaną wersją 1.0.18. Jeśli którekolwiek sprawdzenie zawiedzie, nie udostępniaj APK jako aktualizacji. Test na telefonie: backup, instalacja jako aktualizacja bez odinstalowania, sprawdzenie historii/ustawień/RAW DATA, wybór źródła Pickerem i ręczny podgląd paczki. Automatycznego importu nie włączaj przed pierwszym udanym testem. Nie zmieniaj istniejącego ustawienia automatycznego eksportu RAW DATA.
