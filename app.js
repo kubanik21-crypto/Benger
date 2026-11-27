@@ -1,3 +1,4 @@
+import {initMealPlanUi} from './meal-plan-ui.js';
 import {initSyncExportUi} from './sync-export-ui.js';
 import {initWidget} from './widget-ui.js';
 import {initManualMeal} from './manual-meal-ui.js';
@@ -174,6 +175,7 @@ function updateNutritionEntries(change) {
     return false;
   }
   nutritionEntries = next;
+  window.dispatchEvent(new Event('benger:nutrition-changed'));
   renderNutritionEntries();
   return true;
 }
@@ -462,3 +464,4 @@ void initPwa();
 const beforeDataRead=async()=>{await remindersReady;await remindersUI?.flush?.();await trainingUI.flush();await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);await (await widgetReady)?.flush?.();};
 initBackupUi({beforeRead:beforeDataRead});
 initSyncExportUi({beforeRead:beforeDataRead});
+initMealPlanUi({readEntries:()=>nutritionEntries,updateEntries:updateNutritionEntries,readDate:readDiaryDate});

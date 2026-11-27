@@ -1,0 +1,43 @@
+{
+  "format": "benger.recipe-package",
+  "schemaVersion": 1,
+  "namespace": "synthetic-import-tests",
+  "label": "Dane syntetyczne — nie do spożycia",
+  "recipes": [
+    {
+      "externalId": "test-0",
+      "version": 1,
+      "name": "Przepis testowy 0",
+      "meal": "lunch",
+      "servings": 2,
+      "ingredients": [
+        {
+          "id": "test-product",
+          "name": "Produkt syntetyczny",
+          "amount": 200,
+          "unit": "g",
+          "massState": "raw",
+          "nutrition": {
+            "unit": "g",
+            "per100": {
+              "kcal": 100,
+              "protein": 10,
+              "fat": 0,
+              "carbs": 15
+            },
+            "source": {
+              "label": "Dane syntetyczne do testów"
+            }
+          }
+        }
+      ],
+      "steps": [
+        "Instrukcja testowa."
+      ],
+      "preparationMinutes": 10,
+      "tags": [
+        "test"
+      ]
+    }
+  ]
+}

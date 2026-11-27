@@ -1,0 +1,376 @@
+{
+  "format": "benger.meal-plan",
+  "schemaVersion": 1,
+  "namespace": "synthetic-diet",
+  "id": "week-2026-11-30",
+  "version": 1,
+  "label": "Tydzień testowy",
+  "from": "2026-11-30",
+  "to": "2026-12-06",
+  "meals": [
+    {
+      "id": "meal-0",
+      "date": "2026-11-30",
+      "meal": "breakfast",
+      "order": 0,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-1",
+      "date": "2026-11-30",
+      "meal": "lunch",
+      "order": 1,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-2",
+      "date": "2026-11-30",
+      "meal": "dinner",
+      "order": 2,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-3",
+      "date": "2026-11-30",
+      "meal": "snack",
+      "order": 3,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-4",
+      "date": "2026-12-01",
+      "meal": "breakfast",
+      "order": 0,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-5",
+      "date": "2026-12-01",
+      "meal": "lunch",
+      "order": 1,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-6",
+      "date": "2026-12-01",
+      "meal": "dinner",
+      "order": 2,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-7",
+      "date": "2026-12-01",
+      "meal": "snack",
+      "order": 3,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-8",
+      "date": "2026-12-02",
+      "meal": "breakfast",
+      "order": 0,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-9",
+      "date": "2026-12-02",
+      "meal": "lunch",
+      "order": 1,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-10",
+      "date": "2026-12-02",
+      "meal": "dinner",
+      "order": 2,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-11",
+      "date": "2026-12-02",
+      "meal": "snack",
+      "order": 3,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-12",
+      "date": "2026-12-03",
+      "meal": "breakfast",
+      "order": 0,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-13",
+      "date": "2026-12-03",
+      "meal": "lunch",
+      "order": 1,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-14",
+      "date": "2026-12-03",
+      "meal": "dinner",
+      "order": 2,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-15",
+      "date": "2026-12-03",
+      "meal": "snack",
+      "order": 3,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-16",
+      "date": "2026-12-04",
+      "meal": "breakfast",
+      "order": 0,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-17",
+      "date": "2026-12-04",
+      "meal": "lunch",
+      "order": 1,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-18",
+      "date": "2026-12-04",
+      "meal": "dinner",
+      "order": 2,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-19",
+      "date": "2026-12-04",
+      "meal": "snack",
+      "order": 3,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-20",
+      "date": "2026-12-05",
+      "meal": "breakfast",
+      "order": 0,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-21",
+      "date": "2026-12-05",
+      "meal": "lunch",
+      "order": 1,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-22",
+      "date": "2026-12-05",
+      "meal": "dinner",
+      "order": 2,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-23",
+      "date": "2026-12-05",
+      "meal": "snack",
+      "order": 3,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-24",
+      "date": "2026-12-06",
+      "meal": "breakfast",
+      "order": 0,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-25",
+      "date": "2026-12-06",
+      "meal": "lunch",
+      "order": 1,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-26",
+      "date": "2026-12-06",
+      "meal": "dinner",
+      "order": 2,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    },
+    {
+      "id": "meal-27",
+      "date": "2026-12-06",
+      "meal": "snack",
+      "order": 3,
+      "recipe": {
+        "namespace": "synthetic-import-tests",
+        "id": "test-0",
+        "version": 1
+      },
+      "amount": 1,
+      "unit": "serving"
+    }
+  ]
+}

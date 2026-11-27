@@ -521,3 +521,8 @@ button:disabled { opacity:.65; }
 #recipe-file-import { width:min(94vw,48rem); max-height:85dvh; overflow:auto; overflow-wrap:anywhere; }
 #recipe-file-import input[type=file] { max-width:100%; }
 #recipe-file-import-preview label { display:flex; gap:.5rem; align-items:flex-start; }
+/* Planned meals contain forms and recipe details, not the compact diary row grid. */
+#meal-plan-day .food-entry { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+#meal-plan-day .food-entry > * { min-width: 0; max-width: 100%; }
+#meal-plan-day .food-entry h4 { overflow-wrap: break-word; }
+#meal-plan-day .food-entry button { white-space: normal; }

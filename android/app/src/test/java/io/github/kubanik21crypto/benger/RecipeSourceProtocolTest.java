@@ -35,4 +35,15 @@ public class RecipeSourceProtocolTest {
   try{RecipeSourceProtocol.sourceValue(new JSONObject("{\"userEnteredValue\":{\"boolValue\":true}}"));fail();}catch(RecipeSourceProtocol.Invalid expected){}
   try{RecipeSourceProtocol.metadata(response(new JSONArray().put(block(3000,0,new Object[][]{{"x"}}))));fail();}catch(IllegalArgumentException expected){}
  }
+
+ @Test public void mealPlanUsesSameBoundedReadWithClosedTabAllowlist()throws Exception{
+  String tab="BENGER_MEAL_PLAN";assertTrue(RecipeSourceProtocol.endpoint(tab).contains("ranges=BENGER_MEAL_PLAN!A:L"));assertFalse(RecipeSourceProtocol.endpoint().contains(tab));
+  JSONObject meta=metadata();meta.getJSONArray("sheets").getJSONObject(0).getJSONObject("properties").put("title",tab);
+  JSONArray rows=RecipeSourceProtocol.metadata(meta,tab);assertEquals(Arrays.asList(2),RecipeSourceProtocol.readyRows(rows));
+  JSONObject content=response(new JSONArray().put(block(2,12,new Object[][]{{"{\"format\":\"benger.meal-plan\"}"}})));content.getJSONArray("sheets").getJSONObject(0).getJSONObject("properties").put("title",tab);
+  RecipeSourceProtocol.payload(rows,content,new HashSet<>(Arrays.asList(2)),tab);assertEquals(tab,RecipeSourceProtocol.materialize(rows,tab).getJSONArray("sheets").getJSONObject(0).getJSONObject("properties").getString("title"));
+  assertTrue(RecipeSourceProtocol.payloadEndpoint(Arrays.asList(2),tab).contains("BENGER_MEAL_PLAN!M3"));
+  try{RecipeSourceProtocol.endpoint("Treningi");fail();}catch(IllegalArgumentException expected){}
+  try{RecipeSourceProtocol.metadata(meta);fail();}catch(IllegalArgumentException expected){}
+ }
 }
