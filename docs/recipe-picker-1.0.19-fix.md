@@ -34,3 +34,17 @@ Jeżeli komunikat wróci, nie rozszerzać scopes ani nie logować się przez osa
 - git diff --check: czysty.
 
 Nie wykonano rzeczywistego testu konta/cookies na telefonie ani nie uznano symulowanych testów za jego zastępstwo. Testowy APK z kluczem zostanie zbudowany w Actions i podpisany lokalnie dopiero po otrzymaniu ZIP-a.
+
+## Podpisany artefakt otrzymany z Actions
+
+Użytkownik przekazał ZIP z kompilacji 5fbf9be7d7dc863077a41001855af97728f98d18. Zweryfikowano jego strukturę, deklarowany commit, wersję, SHA-256 i brak podpisu. APK podpisano offline istniejącym kluczem; klucz API nie był odczytywany ani wypisywany.
+
+- APK: **Benger-1.0.19-5fbf9be.apk**, **9615142** bajty.
+- versionCode: **28551134**, wyższy od **28546933** z 1.0.18.
+- applicationId: **io.github.kubanik21crypto.benger**.
+- Certyfikat SHA-256: **56ab7cec22d03e1a368ec28aa4d01c67e15973675f0fdf28bb8f4d4ba1f3ecf2**, zgodny z rzeczywistym poprzednim podpisanym APK.
+- SHA-256 podpisanego APK: **9d3b973a276d9281269446e118d708928cc474a1e92c4219c67762d49d2a72cf**.
+- Potwierdzono integralność, poprawność podpisu i wyrównania ZIP, niezmienioną konfigurację origin Capacitor i zachowanie bajtów wszystkich plików wejściowego APK po podpisaniu.
+- Dostawa poza Git: /workspace/releases/benger-recipe-picker-1.0.19/ — APK, metadata.json, INSTRUKCJA.txt i Benger-1.0.19-SIGNED-5fbf9be.zip. ZIP został odczytany ponownie i sprawdzony.
+
+Nie przebudowywano artefaktu, nie zmieniano magazynów użytkownika, main ani produkcji. Test instalacji i zachowania Google Picker na fizycznym telefonie pozostaje wymagany; zgodności podpisu nie przedstawiamy jako potwierdzenia działania konta/cookies w Google.
