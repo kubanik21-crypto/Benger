@@ -1,12 +1,14 @@
+import {recipePickerBuildEnvironment} from './recipe-picker-build-config.mjs';
 import{execFileSync}from'node:child_process';import{readFile,mkdir,copyFile,writeFile,readdir}from'node:fs/promises';import{resolve}from'node:path';import{createHash}from'node:crypto';import{fileURLToPath}from'node:url';
 const root=fileURLToPath(new URL('../../',import.meta.url));const[signingArg,outputArg]=process.argv.slice(2);
 if(!signingArg||!outputArg)throw new Error('Usage: node scripts/android/build-apk.mjs PRIVATE_SIGNING_DIR OUTPUT_DIR');
+const pickerEnv=await recipePickerBuildEnvironment(process.env,{repositoryRoot:root});
 const signing=resolve(signingArg),out=resolve(outputArg),config=JSON.parse(await readFile(resolve(signing,'signing.json'),'utf8'));
 if(config.applicationId!=='io.github.kubanik21crypto.benger'||config.alias!=='benger')throw new Error('Incorrect signing identity');
 const expected=(await readFile(resolve(root,'android/signing-certificate.sha256'),'utf8')).trim();
 const certificate=execFileSync('keytool',['-exportcert','-alias','benger','-keystore',resolve(signing,'benger.p12'),'-storepass:file',resolve(signing,'password.txt')],{stdio:['ignore','pipe','pipe']});
 if(createHash('sha256').update(certificate).digest('hex')!==expected||config.certificateSha256!==expected)throw new Error('Signing certificate changed: refusing to build an incompatible update');
-const password=(await readFile(resolve(signing,'password.txt'),'utf8')).trim();const env={...process.env,BENGER_ANDROID_KEYSTORE:resolve(signing,'benger.p12'),BENGER_ANDROID_STORE_PASSWORD:password,BENGER_ANDROID_KEY_PASSWORD:password};
+const password=(await readFile(resolve(signing,'password.txt'),'utf8')).trim();const env={...pickerEnv,BENGER_ANDROID_KEYSTORE:resolve(signing,'benger.p12'),BENGER_ANDROID_STORE_PASSWORD:password,BENGER_ANDROID_KEY_PASSWORD:password};
 const sha=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const version=JSON.parse(await readFile(resolve(root,'package.json'),'utf8')).version;
 const versionCode=Math.floor((Date.now()-Date.UTC(2026,0,1))/1000)+1;if(versionCode<1||versionCode>2100000000)throw new Error('Invalid Android version code');
 execFileSync('npm',['run','android:prepare'],{cwd:root,env,stdio:'inherit'});

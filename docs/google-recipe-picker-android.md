@@ -49,3 +49,60 @@ Osobny WebView nie ma mostu Capacitor/addJavascriptInterface, DOM storage, dost�
 drive.file pozwala technicznie edytować wybrany plik, ale aplikacyjny czytnik przepisu udostępnia tylko GET. Nie jest to osobny scope OAuth read-only (Google nie oferuje drive.file.readonly). Źródło jest na stałe wskazane w kodzie.
 
 Powiązanie per konto zapisane jest w osobnych prywatnych preferencjach Androida. Nie zawiera tokenu. Dotychczasowy token OAuth jest sesyjny: po restarcie procesu/wygaśnięciu może być potrzebne ponowne połączenie. Brak internetu/uprawnienia nie blokuje lokalnej biblioteki ani backupu. Nie ma WorkManagera, synchronizacji w tle zamkniętej aplikacji ani nowej płatnej usługi.
+
+## Bezpieczne przygotowanie testowego APK 1.0.18
+
+Punktem wyjścia jest etap 4B, commit 759df23, na feature/local-sync-export. Wersję aplikacji zwiększono do 1.0.18. versionCode nadal nadaje istniejący build-apk.mjs według czasu budowania; musi przekroczyć 28496407 z zachowanego APK 1.0.17. applicationId, origin, baza, mechanizm podpisu, OAuth i ustawienia synchronizacji pozostają bez zmian.
+
+### Najpierw zgodność projektów
+
+Klient Android OAuth, Picker App ID i API key muszą pochodzić z tego samego projektu. Prefiks Client ID wskazuje numer projektu. Użytkownik potwierdził właściwy projekt: **Benger Personal**, Project ID `benger-personal`, Project number **481332161595**, istniejący klient `Benger Android` z tym samym prefiksem. Wcześniej zgłoszony projekt Benger – Dieta Integration jest niewłaściwy; nie używamy jego konfiguracji ani klucza. Nie usuwaj klienta i nie zmieniaj dotychczasowej autoryzacji.
+
+W projekcie **Benger Personal** włącz Picker API i utwórz ograniczony klucz, używając numeru 481332161595 jako BENGER_PICKER_APP_ID. Sam klucz z innego projektu nie zapewni zgodnego dostępu drive.file. Nie próbujemy migrować klienta ani powiązania RAW DATA w ramach wydania APK.
+
+Skrypt budowania przy włączonym Pickerze wymaga dodatkowego, niepoufnego potwierdzenia `BENGER_GOOGLE_OAUTH_PROJECT_NUMBER`. Musi ono być równe BENGER_PICKER_APP_ID. To zabezpieczenie przed pomyłką konfiguracyjną, nie zdalne sprawdzenie projektu Google; numer musi potwierdzić właściciel w konsoli.
+
+### Klucz przez prywatny plik — Bash na komputerze budującym APK
+
+Te polecenia wykonuje się w terminalu **tego samego środowiska, w którym powstaje APK**. Ustawienie ich na innym komputerze nie przekazuje klucza do środowiska Cloud. Nie wklejaj klucza do czatu, komendy, pliku w repozytorium ani zrzutu ekranu.
+
+```bash
+set +x
+umask 077
+mkdir -p /workspace/private/benger-recipe-picker
+chmod 700 /workspace/private/benger-recipe-picker
+IFS= read -r -s -p 'Klucz Benger Recipe Picker (ukryty): ' BENGER_PICKER_KEY_INPUT
+printf '\n'
+printf '%s' "$BENGER_PICKER_KEY_INPUT" > /workspace/private/benger-recipe-picker/api-key.txt
+unset BENGER_PICKER_KEY_INPUT
+chmod 600 /workspace/private/benger-recipe-picker/api-key.txt
+```
+
+Klucz jest wpisywany do ukrytego promptu; nie jest częścią historii poleceń. Nie uruchamiaj tego w sesji z nagrywaniem wejścia terminala ani nie pokazuj zawartości pliku. Uprawnienia pliku ograniczają innych użytkowników systemu, lecz nie szyfrują dysku.
+
+W bieżącym Cloud przygotowano poza repozytorium prywatny plik `/workspace/private/benger-recipe-picker/build.env` zawierający flagi oraz potwierdzony numer 481332161595 dla Pickera i OAuth. **Nie ma w nim klucza API.**
+
+Dla potwierdzonego projektu ustaw:
+
+```bash
+export BENGER_GOOGLE_AUTH_ENABLED=true
+export BENGER_RECIPE_PICKER_ENABLED=true
+export BENGER_PICKER_APP_ID=481332161595
+export BENGER_GOOGLE_OAUTH_PROJECT_NUMBER=481332161595
+export BENGER_PICKER_API_KEY_FILE=/workspace/private/benger-recipe-picker/api-key.txt
+unset BENGER_PICKER_API_KEY
+```
+
+Alternatywnie skrypt przyjmuje klucz wyłącznie ze zmiennej środowiskowej BENGER_PICKER_API_KEY ustawionej przez ukryty prompt lub bezpieczny magazyn sekretów; nie ustawiaj obu źródeł jednocześnie. Przy pliku wymaga lokalizacji poza repozytorium, rozmiaru do 256 bajtów i uprawnień 600. Klucza nie dodaje do metadata.json ani nie wypisuje. Błędy walidacji nie zawierają jego wartości.
+
+Następnie użyj istniejącego skryptu budującego i **zachowanego** katalogu podpisu:
+
+```bash
+node scripts/android/build-apk.mjs \
+  /workspace/private/benger-signing-2026-11 \
+  /workspace/releases/benger-recipe-picker-1.0.18
+```
+
+Skrypt sprawdza certyfikat przed kompilacją, przygotowuje zasoby Androida, uruchamia assembleRelease oraz lintRelease i weryfikuje podpisany APK. Oryginalny klucz nie jest generowany ponownie. Nie używaj `--debug`, `--info`, `--scan`, dumpowania środowiska ani cat BuildConfig do obsługi klucza. API key z konieczności znajdzie się w APK i ignorowanych przez Git wynikach Gradle; nie jest sekretem serwerowym. Nie publikuj tych źródeł wygenerowanych ani diagnostyki z jego wartością. Ograniczenia referrera i API są niezbędne.
+
+Przed udostępnieniem porównaj rzeczywisty applicationId, certyfikat, versionName/versionCode i konfigurację flag w APK z zachowaną wersją 1.0.17. Jeśli którekolwiek sprawdzenie zawiedzie, nie udostępniaj APK jako aktualizacji. Test na telefonie: backup, instalacja jako aktualizacja bez odinstalowania, sprawdzenie historii/ustawień/RAW DATA, wybór źródła Pickerem i ręczny podgląd paczki. Automatycznego importu nie włączaj przed pierwszym udanym testem. Nie zmieniaj istniejącego ustawienia automatycznego eksportu RAW DATA.
