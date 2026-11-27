@@ -35,3 +35,30 @@ test('first automatic catch-up across multiple weeks re-prepares each publicatio
  f.setGrid([...f.getGrid(),...same.slice(1)]);f.service.setAuto(true);await f.service.check();assert.equal(f.state().recipes.length,3);assert.equal(f.service.snapshot().status,'imported');assert.equal(f.service.snapshot().pendingNew,0);assert.equal(f.service.snapshot().issues.length,0);assert.equal(f.service.snapshot().registry.length,2);
 });
 test('Picker uses the system browser and one-shot loopback delivery without exposing credentials to app JS',async()=>{const native=await readFile('android/app/src/main/java/io/github/kubanik21crypto/benger/BengerRecipeSheetsPlugin.java','utf8'),html=await readFile('android/app/src/main/assets/google-recipe-picker.html','utf8'),server=await readFile('android/app/src/main/java/io/github/kubanik21crypto/benger/BrowserPickerSession.java','utf8');assert.ok(native.includes('Intent.ACTION_VIEW'));assert.ok(native.includes('BrowserPickerSession'));assert.ok(!/new WebView|evaluateJavascript|addJavascriptInterface/.test(native));assert.ok(server.includes('127.0.0.1'));assert.ok(server.includes('.localhost:'));assert.ok(server.includes('Cache-Control: no-store'));assert.ok(server.includes('issued.compareAndSet(false,true)'));assert.ok(html.includes("credentials:'omit'"));assert.ok(html.includes("'intent://recipe-picker-return/'"));assert.ok(!/localStorage|sessionStorage|console\./.test(html));});
+
+test('shared 18095-character fixture reads twelve recipes with exact SHA and rejects tampering',async()=>{
+ const raw=await readFile('fixtures/recipe-source-12.json','utf8');assert.equal(raw.length,18095);
+ const rows=await publishRecipeRows(raw,meta);assert.equal(rows[2][12].length,18095);
+ const result=await readRecipePublications(recipeSourceGrid(recipeSheetResponse(rows)));
+ assert.equal(result.issues.length,0);assert.equal(JSON.parse(result.publications[0].raw).recipes.length,12);assert.equal(result.publications[0].digest,await recipePayloadHash(raw));
+ rows[2][12]+=' ';assert.equal((await readRecipePublications(rows)).publications.length,0);
+});
+test('native payload limit follows JS contract while RAW DATA keeps 5000',async()=>{
+ const source=await readFile('android/app/src/main/java/io/github/kubanik21crypto/benger/RecipeSourceProtocol.java','utf8'),wire=await readFile('android/app/src/main/java/io/github/kubanik21crypto/benger/GoogleSheetsWire.java','utf8');
+ assert.ok(source.includes('CHUNK_SIZE=20000'));assert.ok(source.includes('payloadValue(values.getJSONObject(0))'));assert.ok(wire.includes('length()<=5000'));
+});
+
+test('fragment boundaries 5000/5001/18095/20000 accepted, 20001 rejected by contract',async()=>{
+ for(const size of [5000,5001,18095,20000,20001]){
+  const base=JSON.stringify(recipePackage());const raw=base+' '.repeat(size-base.length);
+  const rows=await publishRecipeRows(raw,meta);
+  if(size===20001){rows[1][10]=1;rows[2][12]=raw;rows.splice(3);}
+  const result=await readRecipePublications(rows);
+  assert.equal(result.publications.length,size<=20000?1:0);
+ }
+});
+test('native diagnostic codes are safe and identify rejection stage',async()=>{
+ for(const code of ['source-metadata-value','source-metadata-invalid','source-payload-type','source-payload-length','source-payload-invalid']){
+  await assert.rejects(createRecipeSourceTransport({native:true,bridge:{readPublications:async()=>{throw{code,message:'PRIVATE_SYNTHETIC'};}}}).read(),e=>e.code===code&&!e.message.includes('PRIVATE_SYNTHETIC')&&/Odczyt/.test(e.message));
+ }
+});

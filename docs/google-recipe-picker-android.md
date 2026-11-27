@@ -1,4 +1,4 @@
-# Google Picker Android — wersja testowa 1.0.20
+# Google Picker Android — wersja testowa 1.0.21
 
 Budowanie bez terminala: [Actions → podpis lokalny](recipe-picker-actions-build.md).
 
