@@ -16,7 +16,8 @@ await mkdir(out,{recursive:true});const filename=`Benger-1.0.18-${m.build.slice(
 const temp=await mkdtemp(join(tmpdir(),'benger-apk-align-'));let complete=false;
 try{
  const aligned=resolve(temp,'aligned.apk');execFileSync(resolve(tools,'zipalign'),['-P','16','-f','4',apk,aligned],{stdio:'pipe'});
- execFileSync(resolve(tools,'apksigner'),['sign','--ks',resolve(dir,'benger.p12'),'--ks-key-alias','benger','--ks-pass','file:'+resolve(dir,'password.txt'),'--key-pass','file:'+resolve(dir,'password.txt'),'--v4-signing-enabled','false','--out',signed,aligned],{stdio:'pipe'});
+ // PKCS12 key uses the store password; passing its file twice consumes a missing second line.
+ execFileSync(resolve(tools,'apksigner'),['sign','--ks',resolve(dir,'benger.p12'),'--ks-key-alias','benger','--ks-pass','file:'+resolve(dir,'password.txt'),'--v4-signing-enabled','false','--out',signed,aligned],{stdio:'pipe'});
  const certificates=execFileSync(resolve(tools,'apksigner'),['verify','--verbose','--print-certs',signed],{encoding:'utf8'}),signedBadging=execFileSync(resolve(tools,'aapt'),['dump','badging',signed],{encoding:'utf8'});
  verifyApkBuild({badging:signedBadging,certificates,buildConfig:'',version:m.version,versionCode:m.versionCode,expectedCertificate:expected,env:{BENGER_PREVIOUS_VERSION_CODE:'28496407'}});
  execFileSync(resolve(tools,'zipalign'),['-c','-P','16','4',signed],{stdio:'pipe'});

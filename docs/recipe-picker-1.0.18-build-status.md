@@ -1,5 +1,24 @@
 # Przygotowanie testowego APK 1.0.18
 
+## Wynik końcowy — testowy APK podpisany i zweryfikowany
+
+- Wersja **1.0.18**, versionCode **28546933** (1.0.17: 28496407).
+- Źródło APK: **e5ab88806c1b0bb1ab8006fe85d35fac7384ca53**, baza 4B: 759df23.
+- Artefakt unsigned pochodzi z przebiegu https://github.com/kubanik21-crypto/Benger/actions/runs/45975020611 i został przekazany przez użytkownika w ZIP.
+- Sprawdzono hash unsigned, metadane, historię commita i tożsamość aplikacji. APK podpisano offline zachowanym kluczem, bez odczytu klucza API ani transferu podpisu do GitHuba.
+- Podpis finalnego APK jest identyczny jak w zachowanym APK 1.0.17: certyfikat SHA-256 `56ab7cec22d03e1a368ec28aa4d01c67e15973675f0fdf28bb8f4d4ba1f3ecf2`.
+- applicationId **io.github.kubanik21crypto.benger**, konfiguracja origin Capacitor i wszystkie pliki wejściowego APK pozostały bez zmian; dodano podpis i wyrównano ZIP.
+- Nazwa: **Benger-1.0.18-e5ab888.apk**, rozmiar **9615142** bajty.
+- SHA-256 finalnego APK: `4e7eea33c985575d2ceb5aaee745593f9a7e2f124aada65d6bd57b08964151cb`.
+- OAuth oraz Picker włączone, projekt **481332161595**. Domyślne wyłączenie autoimportu, format backupu i mechanizm RAW DATA nie były zmieniane podczas podpisywania.
+- Sprawdzono apksigner, zipalign, aapt, hash i zgodność z poprzednim APK. Pełne Node po poprawce helpera: **1826/1826**; git diff --check czysty.
+
+W signerze poprawiono sposób podania hasła PKCS12: apksigner korzysta z hasła magazynu również dla klucza. Przekazanie tego samego pliku dwukrotnie próbowało czytać drugą, nieistniejącą linię. Nie modyfikowano pliku hasła ani klucza. Poprawka helpera nie zmienia skompilowanego kodu aplikacji e5ab888.
+
+Pliki dostawy są poza repozytorium: /workspace/releases/benger-recipe-picker-1.0.18/ (APK, metadata.json, INSTRUKCJA.txt i ZIP SIGNED). Nie zawierają prywatnego podpisu. Nie scalano z main i nie wdrażano produkcji. To APK testowy; instalacja, Google Picker i zachowanie rzeczywistych danych na telefonie wymagają odbioru użytkownika. Należy wykonać backup, instalować jako aktualizację, bez odinstalowywania. Po aktualizacji może być konieczne ponowne połączenie konta Google, ponieważ sesja OAuth jest w RAM.
+
+## Historia przygotowania (poniższe blokady zostały rozwiązane wariantem rozdzielonym)
+
 Gałąź: feature/local-sync-export. Baza funkcjonalna: 759df23 (etap 4B).
 
 ## Potwierdzone przed budową
