@@ -1,0 +1,20 @@
+// CI build only. Never accepts a signing identity and never produces an installable update.
+import {execFileSync,spawnSync} from 'node:child_process';import {readFile,mkdir,copyFile,writeFile,readdir} from 'node:fs/promises';import {resolve} from 'node:path';import {fileURLToPath} from 'node:url';import {createHash} from 'node:crypto';
+import {recipePickerBuildEnvironment} from './recipe-picker-build-config.mjs';import {verifyUnsignedApkBuild} from './verify-apk-build.mjs';
+const root=fileURLToPath(new URL('../../',import.meta.url));
+if(process.argv.length!==3)throw Error('Usage: node scripts/android/build-unsigned-picker-apk.mjs OUTPUT_DIR');
+const env=await recipePickerBuildEnvironment(process.env,{repositoryRoot:root});
+if(env.BENGER_RECIPE_PICKER_ENABLED!=='true'||env.BENGER_PICKER_APP_ID!=='481332161595')throw Error('Expected the confirmed Benger Personal Picker configuration.');
+for(const name of['BENGER_ANDROID_KEYSTORE','BENGER_ANDROID_STORE_PASSWORD','BENGER_ANDROID_KEY_PASSWORD'])delete env[name];
+const out=resolve(process.argv[2]),sha=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),version=JSON.parse(await readFile(resolve(root,'package.json'),'utf8')).version,versionCode=Math.floor((Date.now()-Date.UTC(2026,0,1))/1000)+1;
+if(version!=='1.0.18'||!Number.isSafeInteger(versionCode)||versionCode<=28496407||versionCode>2100000000)throw Error('Invalid test update version.');
+execFileSync('npm',['run','android:prepare'],{cwd:root,env,stdio:'inherit'});
+execFileSync('./gradlew',['--no-daemon','--console=plain','-PbengerUnsignedApk=true','-PbengerVersionCode='+versionCode,':app:assembleRelease',':app:lintRelease'],{cwd:resolve(root,'android'),env,stdio:'inherit'});
+const apk=resolve(root,'android/app/build/outputs/apk/release/app-release-unsigned.apk'),tools=resolve(env.ANDROID_HOME,'build-tools/36.0.0');
+const badging=execFileSync(resolve(tools,'aapt'),['dump','badging',apk],{env,encoding:'utf8'}),buildConfig=await readFile(resolve(root,'android/app/build/generated/source/buildConfig/release/io/github/kubanik21crypto/benger/BuildConfig.java'),'utf8');
+const verified=verifyUnsignedApkBuild({badging,buildConfig,version,versionCode,env});
+const signature=spawnSync(resolve(tools,'apksigner'),['verify',apk],{env,encoding:'utf8'});if(signature.error||signature.status!==1)throw Error('Unsigned artifact did not have the expected unsigned state.');
+const packaged=execFileSync(resolve(tools,'aapt'),['list',apk],{env,encoding:'utf8'}).split('\n');for(const name of await readdir(resolve(root,'vendor/ocr')))if(!packaged.includes('assets/public/vendor/ocr/'+name))throw Error('Offline OCR asset is missing.');
+await mkdir(out,{recursive:true});const filename=`Benger-UNSIGNED-1.0.18-${sha.slice(0,7)}.apk`;await copyFile(apk,resolve(out,filename));const bytes=await readFile(apk);
+const metadata={app:'Benger',applicationId:'io.github.kubanik21crypto.benger',version,versionCode,build:sha,builtAt:new Date().toISOString(),filename,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex'),expectedCertificateSha256:(await readFile(resolve(root,'android/signing-certificate.sha256'),'utf8')).trim(),...verified};
+await writeFile(resolve(out,'metadata.json'),JSON.stringify(metadata,null,2)+'\n');console.log('Unsigned artifact prepared for local signing. DO NOT INSTALL.');

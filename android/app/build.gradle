@@ -39,7 +39,7 @@ android {
     buildTypes {
         debug { if (System.getenv('BENGER_ANDROID_KEYSTORE')) signingConfig signingConfigs.benger }
         release {
-            signingConfig signingConfigs.benger
+            if (project.findProperty("bengerUnsignedApk") != "true") signingConfig signingConfigs.benger
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

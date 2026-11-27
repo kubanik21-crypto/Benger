@@ -1,5 +1,7 @@
 # Dostęp Androida do istniejącego arkusza przepisów
 
+**Dla obecnego wydania 1.0.18 bez terminala używamy wariantu [Actions bez podpisu → podpis lokalny](recipe-picker-actions-build.md). GitHub potrzebuje tylko już dodanego sekretu Pickera; nie trzeba dalej zmieniać sieci Codexa ani przesyłać podpisu do GitHuba.** Poniższe polecenia terminalowe pozostają alternatywą dla lokalnej kompilacji.
+
 ## Stan i architektura
 
 Dotychczasowy OAuth Androida i zakres `https://www.googleapis.com/auth/drive.file` pozostają bez zmian. Samo ID arkusza nie udziela dostępu. Nowy czytnik źródła wykonuje wyłącznie GET, niezależnie od istniejącego eksportera Benger – RAW DATA. Nie tworzy arkusza i nie zmienia jego udostępniania.

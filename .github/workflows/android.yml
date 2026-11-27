@@ -1,7 +1,7 @@
 name: Android APK
 on:
   push:
-    branches: [feature/android-apk, main, recovery/benger-1.0.6, feature/contextual-barcode, feature/daily-reminders, feature/today-widget, feature/basketball-widget, feature/basketball-visual-polish, feature/arena-motion, feature/recipe-screenshot-import, feature/interactive-charts, fix/recipe-screenshot-regions, fix/ocr-ingredient-punctuation]
+    branches: [feature/local-sync-export, feature/android-apk, main, recovery/benger-1.0.6, feature/contextual-barcode, feature/daily-reminders, feature/today-widget, feature/basketball-widget, feature/basketball-visual-polish, feature/arena-motion, feature/recipe-screenshot-import, feature/interactive-charts, fix/recipe-screenshot-regions, fix/ocr-ingredient-punctuation]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 jobs:
   android:
-    if: github.event_name != 'workflow_dispatch' || github.ref != 'refs/heads/feature/local-sync-export'
+    if: github.ref != 'refs/heads/feature/local-sync-export'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -78,7 +78,7 @@ jobs:
         run: rm -rf "$RUNNER_TEMP/benger-signing"
 
   recipe-picker-test:
-    if: github.repository == 'kubanik21-crypto/Benger' && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/feature/local-sync-export'
+    if: github.repository == 'kubanik21-crypto/Benger' && github.ref == 'refs/heads/feature/local-sync-export' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[picker-test-apk]')))
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
@@ -102,9 +102,8 @@ jobs:
       - name: Check requested source and private build inputs
         env:
           PICKER_KEY_PRESENT: ${{ secrets.BENGER_PICKER_API_KEY != '' }}
-          SIGNING_PRESENT: ${{ secrets.BENGER_ANDROID_SIGNING_BUNDLE != '' }}
         run: |
-          node -e 'if(require("./package.json").version!=="1.0.18")process.exit(1);if(process.env.PICKER_KEY_PRESENT!=="true"||process.env.SIGNING_PRESENT!=="true")throw Error("Required Picker or existing signing secret is missing.")'
+          node -e 'if(require("./package.json").version!=="1.0.18")process.exit(1);if(process.env.PICKER_KEY_PRESENT!=="true")throw Error("Required Picker secret is missing.")'
           git merge-base --is-ancestor 759df23 HEAD
       - run: npm ci
       - name: Node regression tests
@@ -115,11 +114,7 @@ jobs:
           CHROMIUM_PATH: /usr/bin/google-chrome
       - name: Android SDK
         run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-36' 'build-tools;36.0.0'"
-      - name: Restore existing signing identity
-        env:
-          SIGNING_BUNDLE: ${{ secrets.BENGER_ANDROID_SIGNING_BUNDLE }}
-        run: node scripts/android/restore-ci-signing.mjs "$RUNNER_TEMP/benger-picker-signing"
-      - name: Build and verify signed test APK with Picker
+      - name: Build unsigned APK for local signing
         env:
           BENGER_GOOGLE_AUTH_ENABLED: 'true'
           BENGER_RECIPE_PICKER_ENABLED: 'true'
@@ -128,13 +123,13 @@ jobs:
           BENGER_PREVIOUS_VERSION_CODE: '28496407'
           BENGER_PICKER_API_KEY: ${{ secrets.BENGER_PICKER_API_KEY }}
         run: |
-          node scripts/android/build-apk.mjs "$RUNNER_TEMP/benger-picker-signing" "$RUNNER_TEMP/benger-picker-apk"
+          node scripts/android/build-unsigned-picker-apk.mjs "$RUNNER_TEMP/benger-picker-apk"
           cd android
           ./gradlew --no-daemon --console=plain :app:testDebugUnitTest
-      - name: Test APK artifact only (no production deployment)
+      - name: UNSIGNED artifact for local signing — DO NOT INSTALL
         uses: actions/upload-artifact@v4
         with:
-          name: Benger-Recipe-Picker-1.0.18-${{ github.sha }}
+          name: Benger-UNSIGNED-1.0.18-${{ github.sha }}
           path: |
             ${{ runner.temp }}/benger-picker-apk/*.apk
             ${{ runner.temp }}/benger-picker-apk/metadata.json
@@ -144,5 +139,5 @@ jobs:
         if: always()
         shell: bash
         run: |
-          rm -rf "$RUNNER_TEMP/benger-picker-signing" "$RUNNER_TEMP/benger-picker-apk"
+          rm -rf "$RUNNER_TEMP/benger-picker-apk"
           rm -rf android/app/build

@@ -1,53 +1,69 @@
-# Testowy APK 1.0.18 — kompilacja GitHub Actions
+# Testowy APK 1.0.18 — Actions bez podpisu, podpisanie lokalne
 
-Źródło: feature/local-sync-export, etap 4B 759df23 + przygotowanie wydania a9ef7ab. Nie scalaj z main i nie uruchamiaj wdrożenia produkcji.
+Źródło: feature/local-sync-export, etap 4B 759df23 + przygotowanie wydania 1.0.18. Nie scalaj z main i nie uruchamiaj wdrożenia produkcji.
 
-## Sekrety i zakres
+## Obecny wariant — bez zmieniania ustawień sieci Codexa
 
-Użytkownik potwierdził dodanie repozytoryjnego sekretu `BENGER_PICKER_API_KEY`, pochodzącego z **Benger Personal / benger-personal / 481332161595**. Nie trzeba i nie można odczytać jego wartości przez API GitHub. Nie kopiujemy go do Codexa, źródeł, metadanych ani logów.
+GitHub Actions buduje **APK bez podpisu**, korzystając tylko z dodanego przez użytkownika sekretu `BENGER_PICKER_API_KEY`. Codex uruchamia pojedynczy build oznaczonym pushem; użytkownik pobiera artefakt ze zwykłej strony GitHuba. Codex podpisuje otrzymany plik lokalnie dotychczasowym kluczem. Nie wymaga to połączenia Codexa z api.github.com, odczytywania klucza API, nowego tokenu GitHuba ani przekazywania prywatnego podpisu do GitHuba.
 
-Do podpisanego APK potrzebny jest również zaszyfrowany sekret Actions `BENGER_ANDROID_SIGNING_BUNDLE`, odtworzony z **istniejącego** prywatnego podpisu. Nie generujemy nowego klucza. Lokalny helper `scripts/android/upload-existing-signing-secret.mjs PRIVATE_SIGNING_DIR` najpierw weryfikuje rzeczywisty certyfikat względem repozytorium, następnie przekazuje pakiet przez stdin do `gh secret set`. Nie wypisuje ani nie zapisuje dodatkowej kopii prywatnego pakietu. Wywołanie wymaga dostępu do api.github.com oraz odpowiednich uprawnień GitHub do zapisu sekretów repozytorium. Nie uruchamiaj go z tracingiem/dumpem zmiennych.
+Projekt: **Benger Personal / benger-personal / 481332161595**. Numer Pickera i dotychczasowego OAuth pozostaje ten sam. W tym wariancie **nie jest potrzebny BENGER_ANDROID_SIGNING_BUNDLE** i nie uruchamiamy upload-existing-signing-secret.mjs. Poprzednio przygotowane helpery CI podpisu nie są używane przez job importu przepisów.
 
-API key jest przeglądarkowym kluczem ograniczonym do właściwych API/origin. Z konieczności znajduje się w APK i tymczasowych wygenerowanych plikach Gradle. Nie stanowi sekretu serwerowego. Ograniczenia Google Cloud muszą pozostać włączone. Sekret podpisujący nie trafia do APK ani artefaktu.
+Klucz Pickera znajduje się w skompilowanym APK tak jak w docelowej aplikacji — to ograniczony klucz przeglądarkowy, nie sekret serwerowy. Nie jest wypisywany w logach, dodawany do źródeł ani metadata.json. Ograniczenia API i referrera Google Cloud pozostają wymagane. Prywatnego podpisu nie ma w artefakcie.
 
-## Ręczne uruchomienie
+## Uruchomienie i kroki użytkownika
 
-Istniejący workflow **Android APK** ma osobny job `recipe-picker-test`, aktywny wyłącznie przy `workflow_dispatch` na `feature/local-sync-export` w `kubanik21-crypto/Benger`. Zwykły push, PR lub uruchomienie na innej gałęzi nie uruchamiają tego joba. Dotychczasowy job i produkcyjne workflow pozostają oddzielne.
+W aktualnym main (41ae0a) nie ma .github/workflows/android.yml. Dlatego wcześniejsza instrukcja Run workflow wymagałaby pliku na domyślnej gałęzi i nie nadaje się do obecnego repozytorium. Nie zmieniamy main.
 
-Po potwierdzeniu dostępu API i zapisaniu istniejącego podpisu:
+Codex uruchamia jedną kompilację zwykłym pushem commita oznaczonego **[picker-test-apk]** na **feature/local-sync-export**. Pozostałe pushe bez tego oznaczenia nie uruchamiają joba Pickera. Workflow_dispatch pozostaje alternatywą na przyszłość, gdy workflow będzie dostępny na domyślnej gałęzi; nie jest potrzebny teraz.
+
+1. Otwórz https://github.com/kubanik21-crypto/Benger/actions?query=branch%3Afeature%2Flocal-sync-export .
+2. Otwórz najnowszy przebieg **Android APK** z oznaczeniem **[picker-test-apk]**.
+3. Zaczekaj na powodzenie joba **recipe-picker-test**. Drugi, stary job może być pominięty — to oczekiwane.
+4. Na dole przebiegu, w **Artifacts**, pobierz **Benger-UNSIGNED-1.0.18-SHA**.
+5. Prześlij cały pobrany ZIP do tego czatu. **Nie instaluj zawartego w nim APK** — przed instalacją wymaga podpisania.
+
+Jeśli build się nie powiedzie, przekaż nazwę nieudanego kroku lub link do przebiegu, bez wartości sekretów. Nie trzeba zmieniać ustawień środowiska, dodawać kolejnego sekretu ani wklejać tokenów.
+
+## Co robi CI
+
+Job `recipe-picker-test` działa wyłącznie w kubanik21-crypto/Benger na feature/local-sync-export: przy jawnie oznaczonym pushem [picker-test-apk] lub workflow_dispatch. Nie uruchamia go nieoznaczony push ani PR. Ma tylko contents:read i nie zapisuje niczego do repozytorium ani produkcji.
+
+- Sprawdza 1.0.18, pochodzenie od 759df23 i obecność sekretu Pickera, bez jego wartości.
+- Wykonuje pełne Node i Chromium bez przekazywania im klucza.
+- Instaluje wskazany Android SDK.
+- Tylko krok budowania otrzymuje klucz API. Włącza dotychczasowy OAuth i Picker z numerem projektu 481332161595.
+- Jawny parametr `bengerUnsignedApk=true` wyłącza podpis release wyłącznie dla tej kompilacji. Normalne buildy bez tego parametru nadal wymagają starego klucza.
+- Buduje release bez podpisu, wykonuje lint i Android JUnit, sprawdza applicationId, wersję, versionCode wyższy niż 28496407, natywne flagi i konfigurację Pickera bez wypisywania klucza oraz obecność zasobów offline.
+- Oczekuje, że apksigner odrzuci brak podpisu. Nie akceptuje debug APK jako artefaktu.
+- Udostępnia wyłącznie APK i bezpieczne metadata.json na 14 dni pod nazwą UNSIGNED. Metadane zawierają signingState:unsigned-do-not-install i oczekiwany certyfikat, a nie twierdzenie, że plik już został podpisany.
+- Usuwa pliki robocze i wygenerowany build po zakończeniu.
+
+Repozytorium jest publiczne, używany jest standardowy runner ubuntu-latest. Nie dodajemy hostingu, własnego backendu ani płatnej usługi.
+
+## Podpisanie i sprawdzenie po otrzymaniu ZIP
+
+Codex rozpakowuje wyłącznie oczekiwane APK i metadata.json, sprawdza sumę pliku i commit źródła, następnie używa:
 
 ```sh
-gh workflow run android.yml --repo kubanik21-crypto/Benger --ref feature/local-sync-export
+node scripts/android/sign-imported-apk.mjs \
+  /workspace/private/benger-signing-2026-11 \
+  /sciezka/do/unsigned.apk /sciezka/do/metadata.json \
+  /workspace/releases/benger-recipe-picker-1.0.18
 ```
 
-Alternatywa w interfejsie GitHuba: Actions → Android APK → Run workflow → branch **feature/local-sync-export** → Run workflow. Samo uruchomienie bez podpisu zakończy się bez APK; nie zastępuj podpisu nowym kluczem. Plik workflow już istnieje na domyślnej gałęzi, więc nie wymaga scalania nowych zmian do main.
+Signer odrzuca złą wersję, tożsamość, projekt, deklarowane flagi, certyfikat, obcy/nieznany commit, plik o zmienionym hashu i już podpisany input. Nie wymaga klucza API. Weryfikuje rzeczywisty certyfikat istniejącego keystore, wyrównuje APK zipalign, podpisuje starym kluczem przez plik hasła (bez wartości hasła w argumentach), weryfikuje wynik i tworzy nowe metadane. Nie generuje nowego klucza. Dodatkowe pola wejściowych metadanych nie są kopiowane do wyniku.
 
-Job:
+Wymagany certyfikat SHA-256: `56ab7cec22d03e1a368ec28aa4d01c67e15973675f0fdf28bb8f4d4ba1f3ecf2`.
+ApplicationId: `io.github.kubanik21crypto.benger`. VersionName: **1.0.18**, versionCode musi być większy od **28496407** z zachowanego APK 1.0.17. Dopiero zweryfikowany, podpisany plik jest udostępniany do instalacji.
 
-1. Sprawdza wersję 1.0.18, pochodzenie od 759df23 i obecność obu sekretów (bez ich wartości).
-2. Uruchamia pełne Node i Chromium, bez przekazywania im klucza Pickera.
-3. Odtwarza istniejący podpis do prywatnego katalogu RUNNER_TEMP (700, pliki 600).
-4. W kroku kompilacji ustawia OAuth i Picker true oraz oba numery projektów **481332161595**. Jedynie ten krok otrzymuje klucz API.
-5. Buduje release, uruchamia lintRelease i Android JUnit, sprawdza podpis, applicationId, wersję, versionCode wyższy niż **28496407** oraz wygenerowane natywne flagi i klucz bez wypisywania ich treści.
-6. Udostępnia tylko APK i bezpieczne metadata.json w artefakcie **Benger-Recipe-Picker-1.0.18-SHA**, ważnym 14 dni. Nie tworzy GitHub Release, nie zapisuje plików w main ani gałęzi produkcyjnej.
-7. Zawsze usuwa prywatne materiały i katalog wygenerowanego buildu. Sekrety pozostają wyłącznie w szyfrowanym magazynie Actions.
+## Odbiór na telefonie
 
-Repozytorium jest publiczne; używany jest standardowy runner ubuntu-latest, bez nowego hostingu i płatnej usługi.
+Backup → instalacja podpisanego APK jako aktualizacji bez odinstalowania → kontrola historii/ustawień → istniejące konto Google i automatyczny eksport RAW DATA → ręczny wybór źródła i podgląd importu przepisów. Nie zmieniamy powiązania RAW DATA. Autoimport przepisów pozostaje domyślnie wyłączony. Testy CI nie zastępują testu Google Picker i aktualizacji na telefonie.
 
-## Odbiór APK
+## Stan i testy
 
-Po sukcesie joba należy pobrać artefakt, ponownie porównać hash pliku, rzeczywisty podpis oraz applicationId/versionCode z zachowanym APK 1.0.17. Wydanie wymaga tego samego certyfikatu `56ab7cec22d03e1a368ec28aa4d01c67e15973675f0fdf28bb8f4d4ba1f3ecf2` i applicationId `io.github.kubanik21crypto.benger`.
+Ta instrukcja zastępuje poprzedni plan wymagający od Codexa dostępu do API GitHuba i dodania podpisu do sekretów Actions. Ustawienia zablokowanego konfiguratora można zostawić bez dalszych prób. Nie obchodzimy polityki sieci: uruchomienie wykorzystuje dozwolony Git push, a pobranie artefaktu wykonuje właściciel w swoim interfejsie GitHuba.
 
-Na telefonie: zachowaj backup → instaluj jako aktualizację bez odinstalowania → sprawdź historię i ustawienia → dotychczasowe konto Google i automatyczny eksport RAW DATA → ręczny podgląd importu przepisów i wybór źródła Pickerem. Nie zmieniaj powiązania RAW DATA. Automatyczny import nowych przepisów pozostaje domyślnie wyłączony. Rzeczywisty test Google Picker i aktualizacji na telefonie nie jest zastępowany testami CI.
+Na tym etapie nie ma jeszcze gotowego podpisanego APK 1.0.18 z rzeczywistym kluczem Pickera. Lokalny test mechanizmu unsigned bez klucza nie jest wydaniem do instalacji. Wyniki przygotowania są poniżej.
 
-## Stan bieżącego środowiska
-
-Git HTTPS do repozytorium działa. Żądanie HTTPS do `api.github.com` kończy się **CONNECT 403** — blokadą polityki sieci przed połączeniem z API. Z tego środowiska nie potwierdzono jeszcze sekretów przez API, nie podłączono podpisu jako sekretu i nie uruchomiono kompilacji Actions. To nie jest potwierdzenie błędnego klucza ani wyniku autoryzacji GitHuba.
-
-W ustawieniach bieżącego środowiska Codexa trzeba dopuścić domenę **api.github.com**, zachowując pozostałe ustawienia. Po zastosowaniu zmiany sprawdzamy API normalnym klientem, bez obchodzenia polityki i bez przekazywania tokenów do czatu. Sam dostęp sieciowy nie gwarantuje uprawnień do zapisu sekretów; te sprawdzimy dopiero po skutecznym połączeniu. Jeśli pobranie artefaktu przekieruje na dodatkową blokowaną domenę, należy dopuścić tylko faktycznie wskazany host, bez szerokich wildcardów.
-
-Nie zbudowano jeszcze testowego APK z rzeczywistym kluczem Pickera; nie udostępniamy starego ani niekompletnego APK jako nowej wersji.
-
-## Testy przygotowania workflow
-
-Pełne Node: **1820/1820**. Nowe testy obejmują odrzucenie złej tożsamości/podpisu/wersji APK, sprawdzenie flag i konfiguracji Pickera bez ujawniania klucza, prywatne uprawnienia odtworzonego podpisu i błędy bez treści sekretów. Zweryfikowano YAML workflow i ograniczenia joba. Nowy walidator sprawdzono też na rzeczywistym zachowanym APK 1.0.17: format aapt i certyfikat są akceptowane. `git diff --check`: czysty. Nie uruchomiono jeszcze tego workflow na GitHubie — to testy lokalne i syntetyczne oraz kontrola poprzedniego APK, nie wynik nowej kompilacji CI.
+Weryfikacja wariantu rozdzielonego: pełne Node **1826/1826**, Android **39/39**, assembleRelease unsigned i lintRelease — BUILD SUCCESSFUL. Na rzeczywistym lokalnym pliku testowym potwierdzono applicationId/wersję, brak podpisu (apksigner status 1) i poprawne wyrównanie ZIP. Test kompilacji odbył się bez klucza Pickera, z jego konfiguracją wyłączoną; plik testowy usunięto i nie jest udostępniany do instalacji. Testy sprawdzają też odrzucanie wadliwych metadanych/hashy przed odczytem keystore i brak prywatnych danych w metadanych wynikowych. Właściwa kompilacja Actions z sekretem użytkownika i późniejsze podpisanie artefaktu pozostają następnymi krokami.

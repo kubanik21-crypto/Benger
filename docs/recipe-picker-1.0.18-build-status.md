@@ -31,3 +31,7 @@ Nie zbudowano ani nie udostępniono skonfigurowanego APK 1.0.18. Nie zmieniono m
 - Android: **39/39** JUnit; `testDebugUnitTest lintRelease`: BUILD SUCCESSFUL. Kompilacja testowa/lint bez klucza Pickera, z domyślnie wyłączoną jego konfiguracją; nie jest to skonfigurowany release APK ani test Google na telefonie.
 - `git diff --check`: czysty.
 - Testy nowego walidatora: zgodne/niezgodne projekty, brak klucza, OAuth, prywatny plik, odmowa pliku wewnątrz repozytorium, szerokie uprawnienia i podwójne źródło klucza. Dane kluczy w testach są syntetyczne.
+
+## Aktualna droga bez terminala i bez zmiany sieci Codexa
+
+Zastępujemy poprzedni plan instrukcją recipe-picker-actions-build.md: ręczny build unsigned w GitHub Actions z istniejącym sekretem Pickera, pobranie ZIP przez użytkownika i lokalne podpisanie tym samym kluczem. Nie potrzeba sekretu podpisu w GitHubie ani dostępu Codexa do api.github.com. Do właściwego wydania nadal potrzebny jest artefakt z udanego przebiegu Actions; nie wydajemy lokalnego buildu testowego bez klucza.
