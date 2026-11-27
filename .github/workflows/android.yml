@@ -9,6 +9,7 @@ permissions:
   contents: read
 jobs:
   android:
+    if: github.event_name != 'workflow_dispatch' || github.ref != 'refs/heads/feature/local-sync-export'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -75,3 +76,73 @@ jobs:
       - name: Remove private signing files
         if: always()
         run: rm -rf "$RUNNER_TEMP/benger-signing"
+
+  recipe-picker-test:
+    if: github.repository == 'kubanik21-crypto/Benger' && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/feature/local-sync-export'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    concurrency:
+      group: benger-recipe-picker-test
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Check requested source and private build inputs
+        env:
+          PICKER_KEY_PRESENT: ${{ secrets.BENGER_PICKER_API_KEY != '' }}
+          SIGNING_PRESENT: ${{ secrets.BENGER_ANDROID_SIGNING_BUNDLE != '' }}
+        run: |
+          node -e 'if(require("./package.json").version!=="1.0.18")process.exit(1);if(process.env.PICKER_KEY_PRESENT!=="true"||process.env.SIGNING_PRESENT!=="true")throw Error("Required Picker or existing signing secret is missing.")'
+          git merge-base --is-ancestor 759df23 HEAD
+      - run: npm ci
+      - name: Node regression tests
+        run: npm test
+      - name: Chromium regression tests
+        run: npm run test:browser
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+      - name: Android SDK
+        run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-36' 'build-tools;36.0.0'"
+      - name: Restore existing signing identity
+        env:
+          SIGNING_BUNDLE: ${{ secrets.BENGER_ANDROID_SIGNING_BUNDLE }}
+        run: node scripts/android/restore-ci-signing.mjs "$RUNNER_TEMP/benger-picker-signing"
+      - name: Build and verify signed test APK with Picker
+        env:
+          BENGER_GOOGLE_AUTH_ENABLED: 'true'
+          BENGER_RECIPE_PICKER_ENABLED: 'true'
+          BENGER_PICKER_APP_ID: '481332161595'
+          BENGER_GOOGLE_OAUTH_PROJECT_NUMBER: '481332161595'
+          BENGER_PREVIOUS_VERSION_CODE: '28496407'
+          BENGER_PICKER_API_KEY: ${{ secrets.BENGER_PICKER_API_KEY }}
+        run: |
+          node scripts/android/build-apk.mjs "$RUNNER_TEMP/benger-picker-signing" "$RUNNER_TEMP/benger-picker-apk"
+          cd android
+          ./gradlew --no-daemon --console=plain :app:testDebugUnitTest
+      - name: Test APK artifact only (no production deployment)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Benger-Recipe-Picker-1.0.18-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/benger-picker-apk/*.apk
+            ${{ runner.temp }}/benger-picker-apk/metadata.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Remove private build material
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/benger-picker-signing" "$RUNNER_TEMP/benger-picker-apk"
+          rm -rf android/app/build
