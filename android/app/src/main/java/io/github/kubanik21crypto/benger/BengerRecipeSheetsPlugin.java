@@ -1,15 +1,11 @@
 package io.github.kubanik21crypto.benger;
 
-import android.app.Dialog;
+import android.content.Intent;
+import android.os.SystemClock;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
-import android.webkit.*;
-import android.view.ViewGroup;
-import androidx.webkit.WebViewAssetLoader;
-import androidx.webkit.WebViewCompat;
-import androidx.webkit.WebViewFeature;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import org.json.*;
@@ -27,18 +23,26 @@ public final class BengerRecipeSheetsPlugin extends Plugin {
     private final AtomicBoolean busy=new AtomicBoolean(false);
     private final ExecutorService executor=Executors.newSingleThreadExecutor();
     private volatile boolean destroyed;
-    private Dialog picker;
-    private WebView pickerView;
-    private PluginCall pickerCall;
-    private final AtomicBoolean picked=new AtomicBoolean(false);
-    private static final String ORIGIN="https://appassets.androidplatform.net";
-    private static final String PICKER_PAGE=ORIGIN+"/assets/google-recipe-picker.html";
+    private final ScheduledThreadPoolExecutor timeouts=new ScheduledThreadPoolExecutor(1);
+    private volatile PickerFlow picker;
+    private static final class PickerFlow {
+        final PluginCall call;
+        final AtomicBoolean done=new AtomicBoolean(),processing=new AtomicBoolean();
+        volatile BengerGoogleAuthPlugin.SheetLease lease;
+        BrowserPickerSession server;
+        ScheduledFuture<?> timeout;
+        boolean paused;
+        final long started=SystemClock.elapsedRealtime();
+        boolean expired(){return SystemClock.elapsedRealtime()-started>=BrowserPickerSession.TTL_MS;}
+        PickerFlow(PluginCall call,BengerGoogleAuthPlugin.SheetLease lease){this.call=call;this.lease=lease;}
+    }
+    @Override public void load(){timeouts.setRemoveOnCancelPolicy(true);}
     private static final class Fault extends Exception {final String code;Fault(String code){this.code=code;}}
     private interface Work{JSObject run(BengerGoogleAuthPlugin auth,BengerGoogleAuthPlugin.SheetLease lease) throws Exception;}
     private BengerGoogleAuthPlugin auth(){return (BengerGoogleAuthPlugin)getBridge().getPlugin("BengerGoogleAuth").getInstance();}
     private android.content.SharedPreferences prefs(){return getContext().getSharedPreferences("benger-recipe-source-v1",Context.MODE_PRIVATE);}
     private boolean pickerConfigured(){return BuildConfig.BENGER_RECIPE_PICKER_ENABLED&&BuildConfig.BENGER_PICKER_API_KEY.matches("AIza[0-9A-Za-z_-]{20,100}")&&BuildConfig.BENGER_PICKER_APP_ID.matches("[0-9]{5,30}");}
-    private JSObject status() throws Exception {BengerGoogleAuthPlugin.SheetLease lease=auth().sheetLease();JSObject s=new JSObject();s.put("configured",BuildConfig.BENGER_GOOGLE_AUTH_ENABLED);s.put("pickerConfigured",pickerConfigured());s.put("connected",lease!=null);s.put("sourceId",RecipeSourceProtocol.SOURCE_ID);s.put("accountKey",lease==null?JSONObject.NULL:RecipeSourceProtocol.account(lease.account));s.put("linked",lease!=null&&RecipeSourceProtocol.SOURCE_ID.equals(prefs().getString(RecipeSourceProtocol.account(lease.account),null)));return s;}
+    private JSObject status() throws Exception {BengerGoogleAuthPlugin.SheetLease lease=auth().sheetLease();JSObject s=new JSObject();s.put("configured",BuildConfig.BENGER_GOOGLE_AUTH_ENABLED);s.put("pickerConfigured",pickerConfigured());s.put("pickerMode","system-browser");s.put("connected",lease!=null);s.put("sourceId",RecipeSourceProtocol.SOURCE_ID);s.put("accountKey",lease==null?JSONObject.NULL:RecipeSourceProtocol.account(lease.account));s.put("linked",lease!=null&&RecipeSourceProtocol.SOURCE_ID.equals(prefs().getString(RecipeSourceProtocol.account(lease.account),null)));return s;}
     private void reject(PluginCall call,String code){call.reject("Nie potwierdzono odczytu źródła przepisów.",code);}
     private boolean online(){try{ConnectivityManager cm=(ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);NetworkCapabilities c=cm.getNetworkCapabilities(cm.getActiveNetwork());return c!=null&&c.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);}catch(Exception ignored){return false;}}
     private void work(PluginCall call,Work work){getActivity().runOnUiThread(()->{if(destroyed||!busy.compareAndSet(false,true)){reject(call,"busy");return;}try{BengerGoogleAuthPlugin a=auth();BengerGoogleAuthPlugin.SheetLease lease=a.sheetLease();if(lease==null)throw new Fault("authorization-required");if(!online())throw new Fault("offline");if(BengerGoogleSheetsPlugin.busy())throw new Fault("busy");executor.execute(()->{try{JSObject result=work.run(a,lease);if(!a.leaseCurrent(lease))throw new Fault("authorization-required");if(!destroyed)call.resolve(result);}catch(Fault f){if(!destroyed)reject(call,f.code);}catch(Exception ignored){if(!destroyed)reject(call,"source-invalid");}finally{busy.set(false);}});}catch(Fault f){busy.set(false);reject(call,f.code);}catch(Exception ignored){busy.set(false);reject(call,"source-invalid");}});}
@@ -53,23 +57,54 @@ public final class BengerRecipeSheetsPlugin extends Plugin {
     @PluginMethod public void getStatus(PluginCall call){getActivity().runOnUiThread(()->{try{call.resolve(status());}catch(Exception ignored){reject(call,"source-invalid");}});}
     @PluginMethod public void bindExistingAccess(PluginCall call){work(call,(a,lease)->{verify(a,lease);if(!a.leaseCurrent(lease))throw new Fault("authorization-required");if(!prefs().edit().putString(RecipeSourceProtocol.account(lease.account),RecipeSourceProtocol.SOURCE_ID).commit())throw new Fault("source-storage");return status();});}
     @PluginMethod public void readPublications(PluginCall call){work(call,(a,lease)->{if(!RecipeSourceProtocol.SOURCE_ID.equals(prefs().getString(RecipeSourceProtocol.account(lease.account),null)))throw new Fault("source-unlinked");verify(a,lease);JSONObject first=get(a,lease,RecipeSourceProtocol.endpoint());JSONArray rows=RecipeSourceProtocol.metadata(first);java.util.List<Integer> ready=RecipeSourceProtocol.readyRows(rows);for(int i=0;i<ready.size();i+=25){java.util.List<Integer> batch=ready.subList(i,Math.min(ready.size(),i+25));RecipeSourceProtocol.payload(rows,get(a,lease,RecipeSourceProtocol.payloadEndpoint(batch)),new java.util.HashSet<>(batch));}JSONObject second=get(a,lease,RecipeSourceProtocol.endpoint());if(!GoogleSheetsWire.hash(first).equals(GoogleSheetsWire.hash(second)))throw new Fault("source-changing");JSObject out=new JSObject();out.put("data",RecipeSourceProtocol.materialize(rows));out.put("accountKey",RecipeSourceProtocol.account(lease.account));out.put("sourceId",RecipeSourceProtocol.SOURCE_ID);return out;});}
-    @PluginMethod public void pickSource(PluginCall call){getActivity().runOnUiThread(()->{
-        if(!pickerConfigured()){reject(call,"picker-configuration");return;}if(!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)){reject(call,"picker-unavailable");return;}if(destroyed||BengerGoogleSheetsPlugin.busy()||!busy.compareAndSet(false,true)){reject(call,"busy");return;}
-        try{BengerGoogleAuthPlugin a=auth();BengerGoogleAuthPlugin.SheetLease lease=a.sheetLease();if(lease==null)throw new Fault("authorization-required");if(!online())throw new Fault("offline");String nonce=UUID.randomUUID().toString();picked.set(false);pickerCall=call;
-            WebView view=new WebView(getContext());pickerView=view;WebSettings settings=view.getSettings();settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(false);settings.setAllowFileAccess(false);settings.setAllowContentAccess(false);settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);settings.setCacheMode(WebSettings.LOAD_NO_CACHE);CookieManager.getInstance().setAcceptThirdPartyCookies(view,true); // Required by Picker; scoped to this isolated WebView, not the main app.
-            WebViewAssetLoader loader=new WebViewAssetLoader.Builder().addPathHandler("/assets/",new WebViewAssetLoader.AssetsPathHandler(getContext())).build();
-            view.setWebChromeClient(new WebChromeClient(){@Override public boolean onConsoleMessage(ConsoleMessage message){return true;}});
-            if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) WebViewCompat.addWebMessageListener(view,"bengerPickerResult",Collections.singleton(ORIGIN),(web,message,origin,main,reply)->{try{if(!main||!ORIGIN.equals(origin.toString())||message.getData()==null||message.getData().length()>2000)return;JSONObject result=new JSONObject(message.getData());if(!nonce.equals(result.optString("nonce"))||!picked.compareAndSet(false,true))return;
-                if(!"picked".equals(result.optString("type"))){closePicker();busy.set(false);if("cancelled".equals(result.optString("type"))){JSObject cancelled=new JSObject();cancelled.put("cancelled",true);call.resolve(cancelled);}else reject(call,"picker-unavailable");return;}
-                RecipeSourceProtocol.selected(result.getString("id"),result.getString("mimeType"));closePicker();executor.execute(()->{try{verify(a,lease);if(!a.leaseCurrent(lease))throw new Fault("authorization-required");if(!prefs().edit().putString(RecipeSourceProtocol.account(lease.account),RecipeSourceProtocol.SOURCE_ID).commit())throw new Fault("source-storage");if(!destroyed)call.resolve(status());}catch(Fault f){if(!destroyed)reject(call,f.code);}catch(Exception ignored){if(!destroyed)reject(call,"source-invalid");}finally{busy.set(false);}});
-            }catch(Exception ignored){closePicker();busy.set(false);reject(call,"source-invalid");}});
-            view.setWebViewClient(new WebViewClient(){@Override public WebResourceResponse shouldInterceptRequest(WebView v,WebResourceRequest request){WebResourceResponse local=loader.shouldInterceptRequest(request.getUrl());if(local!=null)return local;Uri u=request.getUrl();String h=u.getHost();if(!RecipePickerWebPolicy.allows(u.getScheme(),h,u.getPath(),request.getMethod()))return new WebResourceResponse("text/plain","UTF-8",new ByteArrayInputStream(new byte[0]));return null;}
-                @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest request){return request.isForMainFrame()&&!PICKER_PAGE.equals(request.getUrl().toString());}
-                @Override public void onPageFinished(WebView v,String url){if(PICKER_PAGE.equals(url)&&a.leaseCurrent(lease)){JSONObject config=new JSONObject();try{config.put("nonce",nonce).put("appId",BuildConfig.BENGER_PICKER_APP_ID).put("apiKey",BuildConfig.BENGER_PICKER_API_KEY).put("token",lease.bearer);v.evaluateJavascript("window.startBengerPicker("+config.toString()+")",null);}catch(Exception ignored){}}}
-            });
-            Dialog dialog=new Dialog(getActivity());picker=dialog;dialog.setTitle("Wybierz źródło przepisów Google");dialog.setContentView(view);dialog.setOnDismissListener(d->{if(!picked.getAndSet(true)){closePicker();busy.set(false);JSObject result=new JSObject();result.put("cancelled",true);call.resolve(result);}});dialog.show();if(dialog.getWindow()!=null)dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);view.loadUrl(PICKER_PAGE);
-        }catch(Fault f){busy.set(false);reject(call,f.code);}catch(Exception ignored){busy.set(false);closePicker();reject(call,"picker-unavailable");}
+    private String pickerHtml() throws IOException {
+        try(InputStream in=getContext().getAssets().open("google-recipe-picker.html")){ByteArrayOutputStream bytes=new ByteArrayOutputStream();byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1){if(bytes.size()+n>32768)throw new IOException();bytes.write(b,0,n);}return new String(bytes.toByteArray(),StandardCharsets.UTF_8);}
+    }
+    private void finishPicker(PickerFlow flow,JSObject result,String code){getActivity().runOnUiThread(()->{
+        if(!flow.done.compareAndSet(false,true))return;
+        if(flow.timeout!=null)flow.timeout.cancel(false);
+        if(flow.server!=null)flow.server.close();
+        flow.lease=null;if(picker==flow)picker=null;busy.set(false);
+        if(!destroyed){if(code==null)flow.call.resolve(result);else reject(flow.call,code);}
     });}
-    private void closePicker(){getActivity().runOnUiThread(()->{Dialog d=picker;picker=null;if(d!=null)d.dismiss();WebView v=pickerView;pickerView=null;if(v!=null){if(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER))WebViewCompat.removeWebMessageListener(v,"bengerPickerResult");v.stopLoading();v.clearHistory();v.destroy();}pickerCall=null;});}
-    @Override protected void handleOnDestroy(){destroyed=true;picked.set(true);closePicker();executor.shutdown();super.handleOnDestroy();}
+    private JSObject cancelled(){JSObject value=new JSObject();value.put("cancelled",true);return value;}
+    @PluginMethod public void pickSource(PluginCall call){getActivity().runOnUiThread(()->{
+        if(!pickerConfigured()){reject(call,"picker-configuration");return;}
+        if(destroyed||BengerGoogleSheetsPlugin.busy()||!busy.compareAndSet(false,true)){reject(call,"busy");return;}
+        PickerFlow flow=null;
+        try{
+            BengerGoogleAuthPlugin a=auth();BengerGoogleAuthPlugin.SheetLease lease=a.sheetLease();
+            if(lease==null)throw new Fault("authorization-required");if(!online())throw new Fault("offline");
+            flow=new PickerFlow(call,lease);final PickerFlow active=flow;picker=flow;
+            flow.server=new BrowserPickerSession(BrowserPickerSession.PORT,pickerHtml(),()->{
+                if(active.done.get()||active.expired()||picker!=active||!a.leaseCurrent(lease))throw new IOException();
+                return new JSONObject().put("appId",BuildConfig.BENGER_PICKER_APP_ID).put("apiKey",BuildConfig.BENGER_PICKER_API_KEY).put("token",lease.bearer).toString();
+            });
+            Intent browser=new Intent(Intent.ACTION_VIEW,Uri.parse(flow.server.pageUrl())).addCategory(Intent.CATEGORY_BROWSABLE);
+            Intent chrome=new Intent(browser).setPackage("com.android.chrome");
+            if(chrome.resolveActivity(getContext().getPackageManager())!=null)browser=chrome;
+            else if(browser.resolveActivity(getContext().getPackageManager())==null)throw new Fault("picker-browser-unavailable");
+            flow.timeout=timeouts.schedule(()->finishPicker(active,null,"picker-session-ended"),BrowserPickerSession.TTL_MS,TimeUnit.MILLISECONDS);
+            executor.execute(()->{active.server.serve();if(!active.server.hasDeliveredConfig()&&!active.done.get())finishPicker(active,null,"picker-session-ended");});
+            getActivity().startActivity(browser);
+        }catch(java.net.BindException e){if(flow!=null)finishPicker(flow,null,"picker-port-busy");else{busy.set(false);reject(call,"picker-port-busy");}}
+        catch(Fault f){if(flow!=null)finishPicker(flow,null,f.code);else{busy.set(false);reject(call,f.code);}}
+        catch(Exception ignored){if(flow!=null)finishPicker(flow,null,"picker-browser-unavailable");else{busy.set(false);reject(call,"picker-browser-unavailable");}}
+    });}
+    @Override protected void handleOnNewIntent(Intent intent){
+        super.handleOnNewIntent(intent);PickerFlow flow=picker;Uri uri=intent==null?null:intent.getData();
+        if(flow==null||flow.done.get()||uri==null||!Intent.ACTION_VIEW.equals(intent.getAction())||!"benger".equals(uri.getScheme())||!"recipe-picker-return".equals(uri.getHost())||uri.toString().length()>2048||uri.getPathSegments().size()!=1)return;
+        BrowserPickerReturn value;
+        try{value=BrowserPickerReturn.parse(uri.toString(),flow.server.nonce());}catch(Exception ignored){finishPicker(flow,null,"source-invalid");return;}
+        if(value==null)return;
+        if(flow.expired()){finishPicker(flow,null,"picker-session-ended");return;}
+        if("cancelled".equals(value.type)){finishPicker(flow,cancelled(),null);return;}
+        if("error".equals(value.type)){finishPicker(flow,null,"picker-unavailable");return;}
+        if(!flow.server.hasDeliveredConfig()){finishPicker(flow,null,"picker-session-ended");return;}
+        if(!flow.processing.compareAndSet(false,true))return;
+        executor.execute(()->{try{BengerGoogleAuthPlugin a=auth();BengerGoogleAuthPlugin.SheetLease lease=flow.lease;if(flow.done.get()||flow.expired()||lease==null||!a.leaseCurrent(lease))throw new Fault("authorization-required");verify(a,lease);if(flow.done.get()||flow.expired()||picker!=flow||!a.leaseCurrent(lease))throw new Fault("authorization-required");if(!prefs().edit().putString(RecipeSourceProtocol.account(lease.account),RecipeSourceProtocol.SOURCE_ID).commit())throw new Fault("source-storage");finishPicker(flow,status(),null);}catch(Fault f){finishPicker(flow,null,f.code);}catch(Exception ignored){finishPicker(flow,null,"source-invalid");}});
+    }
+    @Override protected void handleOnPause(){super.handleOnPause();PickerFlow flow=picker;if(flow!=null)flow.paused=true;}
+    @Override protected void handleOnResume(){super.handleOnResume();PickerFlow flow=picker;if(flow!=null&&flow.paused)getBridge().getWebView().postDelayed(()->{if(picker==flow&&!flow.done.get()&&!flow.processing.get())finishPicker(flow,cancelled(),null);},500);}
+    @Override protected void handleOnDestroy(){destroyed=true;PickerFlow flow=picker;if(flow!=null)finishPicker(flow,null,"picker-session-ended");timeouts.shutdownNow();executor.shutdown();super.handleOnDestroy();}
 }

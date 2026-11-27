@@ -1,6 +1,37 @@
-<!doctype html><html lang="pl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://apis.google.com; style-src 'unsafe-inline'; frame-src https://docs.google.com https://drive.google.com https://accounts.google.com; connect-src https://*.googleapis.com https://apis.google.com https://docs.google.com https://drive.google.com https://accounts.google.com; img-src data: https://*.googleusercontent.com https://*.gstatic.com https://*.google.com"><title>Wybór źródła przepisów</title><style>body{font:18px system-ui;background:#102019;color:#e7f1e9;padding:1rem}</style><p id="status">Wybierz istniejący arkusz żywieniowy. Ten panel nie zapisuje przepisów ani nie zmienia arkusza.</p><script>
-// Isolated native-owned WebView, no Capacitor bridge/storage. Only the official Picker gets the short-lived token.
-let started=false;
-window.startBengerPicker=function(config){if(started)return;started=true;let finished=false;const send=(type,doc={})=>{if(finished)return;finished=true;window.bengerPickerResult.postMessage(JSON.stringify({type,nonce:config.nonce,...doc}));config.token='';config.apiKey='';};
-const script=document.createElement('script');script.src='https://apis.google.com/js/api.js';script.onerror=()=>send('error');script.onload=()=>gapi.load('picker',{callback:()=>{try{const view=new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS).setIncludeFolders(false);const picker=new google.picker.PickerBuilder().setAppId(config.appId).setDeveloperKey(config.apiKey).setOAuthToken(config.token).setOrigin(location.origin).addView(view).setCallback(data=>{if(data.action===google.picker.Action.CANCEL)send('cancelled');if(data.action===google.picker.Action.PICKED){const doc=data.docs?.[0];if(doc)send('picked',{id:doc.id,mimeType:doc.mimeType});else send('error');}}).build();config.token='';config.apiKey='';picker.setVisible(true);}catch{send('error');}},onerror:()=>send('error'),timeout:20000,ontimeout:()=>send('error')});document.head.append(script);};
+<!doctype html>
+<html lang="pl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://apis.google.com; style-src 'unsafe-inline'; connect-src 'self' https://*.googleapis.com https://apis.google.com https://docs.google.com https://drive.google.com https://accounts.google.com; frame-src https://docs.google.com https://drive.google.com https://accounts.google.com; img-src data: https://*.googleusercontent.com https://*.gstatic.com https://*.google.com; base-uri 'none'; form-action 'none'; worker-src 'none'">
+<title>Benger — wybór arkusza</title><link rel="icon" href="data:,">
+<style>body{font:18px system-ui;margin:0;padding:24px;background:#102019;color:#e7f1e9;line-height:1.5}main{max-width:620px;margin:auto}a{display:inline-block;background:#9fdfbd;color:#102019;padding:14px 20px;border-radius:16px;font-weight:700;text-decoration:none}p{overflow-wrap:anywhere}</style>
+<main><h1>Wybierz arkusz Google</h1><p id="status" role="status">Otwieram Google Picker. Wybierz arkusz jadłospisu z zakładką BENGER_IMPORT. Użyj tego samego konta co w Bengerze.</p><a id="return" href="#">Anuluj i wróć do Bengera</a></main>
+<script>
+// Trusted page served only over a short-lived loopback capability. No OAuth credentials in launch/return URLs or storage.
+(()=>{
+ const nonce=location.pathname.split('/')[1],base='/'+nonce+'/',status=document.getElementById('status'),back=document.getElementById('return');
+ let config=null,picker=null,finished=false;
+ function returnUrl(type,doc={}){const params=new URLSearchParams({type});if(type==='picked'){params.set('id',doc.id);params.set('mime',doc.mimeType);}return 'intent://recipe-picker-return/'+nonce+'?'+params.toString()+'#Intent;scheme=benger;package=io.github.kubanik21crypto.benger;end';}
+ function finish(type,doc={}){if(finished)return;finished=true;if(config){config.token='';config.apiKey='';}if(picker){try{picker.setVisible(false);}catch{}picker=null;}back.href=returnUrl(type,doc);back.textContent=type==='picked'?'Zatwierdź wybór i wróć do Bengera':'Wróć do Bengera';status.textContent=type==='picked'?'Wybrano arkusz. Kliknij poniżej, aby Benger sprawdził dostęp.':type==='cancelled'?'Wybór anulowany. Wróć do Bengera.':'Nie udało się otworzyć panelu Google. Wróć do Bengera i spróbuj ponownie. Nie zmieniaj uprawnień OAuth.';}
+ back.href=returnUrl('cancelled');
+ back.addEventListener('click',()=>{if(config){config.token='';config.apiKey='';}});
+ if(!/^[a-f0-9]{64}$/.test(nonce)){finish('error');return;}
+ const hex=buffer=>Array.from(new Uint8Array(buffer),b=>b.toString(16).padStart(2,'0')).join('');
+ const unhex=value=>{if(typeof value!=='string'||value.length>32768||value.length%2||!/^[a-f0-9]*$/.test(value))throw Error();return Uint8Array.from(value.match(/../g)??[],part=>parseInt(part,16));};
+ (async()=>{
+  const pair=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},false,['deriveBits']);
+  const publicKey=hex(await crypto.subtle.exportKey('spki',pair.publicKey));
+  const response=await fetch(base+'session',{method:'POST',headers:{'Content-Type':'application/json','X-Benger-Picker-Nonce':nonce},body:JSON.stringify({publicKey}),cache:'no-store',credentials:'omit'});
+  if(!response.ok)throw Error();const sealed=await response.json();
+  const serverKey=await crypto.subtle.importKey('spki',unhex(sealed.serverKey),{name:'ECDH',namedCurve:'P-256'},false,[]);
+  const shared=new Uint8Array(await crypto.subtle.deriveBits({name:'ECDH',public:serverKey},pair.privateKey,256)),context=new TextEncoder().encode(nonce+location.origin),material=new Uint8Array(shared.length+context.length);material.set(shared);material.set(context,shared.length);
+  const digest=await crypto.subtle.digest('SHA-256',material),aes=await crypto.subtle.importKey('raw',digest,{name:'AES-GCM'},false,['decrypt']);shared.fill(0);material.fill(0);
+  const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unhex(sealed.iv),additionalData:new TextEncoder().encode(nonce+'\n'+location.origin),tagLength:128},aes,unhex(sealed.ciphertext));config=JSON.parse(new TextDecoder().decode(plain));
+  const script=document.createElement('script');script.src='https://apis.google.com/js/api.js';script.onerror=()=>finish('error');script.onload=()=>gapi.load('picker',{callback:()=>{try{
+   const view=new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS).setIncludeFolders(false);
+   picker=new google.picker.PickerBuilder().setAppId(config.appId).setDeveloperKey(config.apiKey).setOAuthToken(config.token).setOrigin(location.origin).addView(view).setCallback(data=>{
+    if(data.action===google.picker.Action.CANCEL)finish('cancelled');
+    if(data.action===google.picker.Action.PICKED){const doc=data.docs?.[0];if(doc&&typeof doc.id==='string'&&doc.id.length<=200&&doc.mimeType==='application/vnd.google-apps.spreadsheet')finish('picked',{id:doc.id,mimeType:doc.mimeType});else finish('error');}
+   }).build();config.token='';config.apiKey='';picker.setVisible(true);
+  }catch{finish('error');}},onerror:()=>finish('error'),timeout:20000,ontimeout:()=>finish('error')});document.head.append(script);
+ })().catch(()=>finish('error'));
+})();
 </script></html>
