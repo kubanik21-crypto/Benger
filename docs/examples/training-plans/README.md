@@ -1,6 +1,6 @@
 # Przykłady treningowe — etap 5A
 
-**Wyłącznie dane syntetyczne.** Nie są jadłospisem, rehabilitacją ani planem treningowym użytkownika. Nie importować ich do prywatnego arkusza i nie używać jako propozycji treningów. Importer treningowy nie został jeszcze zaimplementowany.
+**Wyłącznie dane syntetyczne.** Nie są jadłospisem, rehabilitacją ani planem treningowym użytkownika. Nie importować ich do prywatnego arkusza i nie używać jako propozycji treningów. Lokalny importer 5B obsługuje te pliki JSON. Integracja ich publikacji z Google Sheets nie jest jeszcze zaimplementowana. Instrukcja: [training-plan-import-5b.md](../../training-plan-import-5b.md).
 
 | Plik | Przeznaczenie i oczekiwany wynik |
 |---|---|

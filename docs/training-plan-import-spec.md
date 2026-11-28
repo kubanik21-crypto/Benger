@@ -1,6 +1,6 @@
-# Propozycja kontraktu importu planów treningowych — v1 / etap 5A
+# Kontrakt importu planów treningowych — v1 / etap 5B
 
-**Status: projekt do akceptacji, brak działającego importera treningów.** Przykłady nie są indywidualnym planem użytkownika. Audyt: [training-integration-audit.md](training-integration-audit.md). Formalna struktura: [training-plan-import.schema.json](training-plan-import.schema.json). Katalog: [training-exercise-catalog-spec.md](training-exercise-catalog-spec.md).
+**Status: zaakceptowany kontrakt; lokalny importer wdrożony na gałęzi testowej w 5B.** Implementacja, granice i instrukcja dla czatu Treningi: [training-plan-import-5b.md](training-plan-import-5b.md). Integracja Google Sheets treningów pozostaje przyszłym etapem. Przykłady nie są indywidualnym planem użytkownika. Audyt: [training-integration-audit.md](training-integration-audit.md). Formalna struktura: [training-plan-import.schema.json](training-plan-import.schema.json). Katalog: [training-exercise-catalog-spec.md](training-exercise-catalog-spec.md).
 
 ## 1. Zakres v1 i granice modeli
 
@@ -90,7 +90,7 @@ Schema dopuszcza większy zakres wartości i sprzęt przyszłych capabilities, a
 
 Cardio: distanceKm 0…500, speedKmH 0…50, paceSecondsPerKm 1…86400, inclinePercent -20…50, intensity tekst lub null, heartRateZone 1…5 lub null. Nie podawać jednocześnie prędkości i tempa bez uzgodnionej reguły priorytetu — v1 blokuje tę niejednoznaczność. Nie wyliczać brakującego dystansu z czasu/prędkości ani tętna ze strefy. Obecna realizacja zapisuje czas, dystans, speed/incline; HR i pace są celami planistycznymi do wyświetlenia, bez wymyślonej historii.
 
-Przy projekcji restSeconds=null nie wolno niejawnie wywołać dosage() z pominiętą przerwą i przedstawić 60 s jako plan autora. Zachować null w metadanych, a brak uzupełnić przez jawny wybór lokalnej preferencji w preview albo wstrzymać realizację wymagającą tej wartości. Podobnie ewentualna podpowiedź poprzedniego kg w formularzu jest preferencją wykonania, nie brakującym celem źródła.
+Przy projekcji restSeconds=null nie wolno niejawnie wywołać dosage() z pominiętą przerwą i przedstawić 60 s jako plan autora. Zachować null w metadanych. W 5B brak przerwy wyłącza automatyczny timer odpoczynku w projekcji wykonawczej, a UI jawnie pokazuje nieokreślony cel. Użytkownik może ustawić lokalną preferencję przerwy w dotychczasowym formularzu sesji; nie zmienia to źródłowego null. Podobnie ewentualna podpowiedź poprzedniego kg w formularzu jest preferencją wykonania, nie brakującym celem źródła.
 
 ## 5. Ćwiczenia i wersje definicji
 
