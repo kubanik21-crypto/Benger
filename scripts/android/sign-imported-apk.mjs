@@ -10,17 +10,17 @@ execFileSync('git',['merge-base','--is-ancestor','759df23',m.build],{cwd:root,st
 execFileSync('git',['merge-base','--is-ancestor','58bfd99',m.build],{cwd:root,stdio:'pipe'});
 if(JSON.parse(execFileSync('git',['show',m.build+':package.json'],{cwd:root,encoding:'utf8'})).version!==m.version)throw Error('Source version does not match the artifact.');
 const tools=resolve(process.env.ANDROID_HOME,'build-tools/36.0.0'),badging=execFileSync(resolve(tools,'aapt'),['dump','badging',apk],{encoding:'utf8'});
-verifyUnsignedApkBuild({badging,version:m.version,versionCode:m.versionCode,buildConfig:'',env:{BENGER_PREVIOUS_VERSION_CODE:'28575272'}});
+verifyUnsignedApkBuild({badging,version:m.version,versionCode:m.versionCode,buildConfig:'',env:{BENGER_PREVIOUS_VERSION_CODE:'28632436'}});
 const originalSignature=spawnSync(resolve(tools,'apksigner'),['verify',apk],{encoding:'utf8'});if(originalSignature.error||originalSignature.status!==1)throw Error('Expected an unsigned input APK.');
 const cert=execFileSync('keytool',['-exportcert','-alias','benger','-keystore',resolve(dir,'benger.p12'),'-storepass:file',resolve(dir,'password.txt')],{stdio:['ignore','pipe','pipe']});if(createHash('sha256').update(cert).digest('hex')!==expected)throw Error('Existing signing certificate mismatch.');
-await mkdir(out,{recursive:true});const filename=`Benger-1.0.23-${m.build.slice(0,7)}.apk`,signed=resolve(out,filename);if(await stat(signed).catch(()=>null))throw Error('Refusing to overwrite an existing signed APK.');
+await mkdir(out,{recursive:true});const filename=`Benger-1.0.24-${m.build.slice(0,7)}.apk`,signed=resolve(out,filename);if(await stat(signed).catch(()=>null))throw Error('Refusing to overwrite an existing signed APK.');
 const temp=await mkdtemp(join(tmpdir(),'benger-apk-align-'));let complete=false;
 try{
  const aligned=resolve(temp,'aligned.apk');execFileSync(resolve(tools,'zipalign'),['-P','16','-f','4',apk,aligned],{stdio:'pipe'});
  // PKCS12 key uses the store password; passing its file twice consumes a missing second line.
  execFileSync(resolve(tools,'apksigner'),['sign','--ks',resolve(dir,'benger.p12'),'--ks-key-alias','benger','--ks-pass','file:'+resolve(dir,'password.txt'),'--v4-signing-enabled','false','--out',signed,aligned],{stdio:'pipe'});
  const certificates=execFileSync(resolve(tools,'apksigner'),['verify','--verbose','--print-certs',signed],{encoding:'utf8'}),signedBadging=execFileSync(resolve(tools,'aapt'),['dump','badging',signed],{encoding:'utf8'});
- verifyApkBuild({badging:signedBadging,certificates,buildConfig:'',version:m.version,versionCode:m.versionCode,expectedCertificate:expected,env:{BENGER_PREVIOUS_VERSION_CODE:'28575272'}});
+ verifyApkBuild({badging:signedBadging,certificates,buildConfig:'',version:m.version,versionCode:m.versionCode,expectedCertificate:expected,env:{BENGER_PREVIOUS_VERSION_CODE:'28632436'}});
  execFileSync(resolve(tools,'zipalign'),['-c','-P','16','4',signed],{stdio:'pipe'});
  const bytes=await readFile(signed),result={app:'Benger',applicationId:config.applicationId,version:m.version,versionCode:m.versionCode,build:m.build,builtAt:new Date(m.builtAt).toISOString(),filename,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex'),unsignedSha256:m.sha256,certificateSha256:expected,signingState:'signed',signedAt:new Date().toISOString(),googleAuthorizationEnabled:true,recipePickerEnabled:true,recipePickerAppId:'481332161595',distribution:'manual-test-only',featureBaseCommit:'759df23'};
  await writeFile(resolve(out,'metadata.json'),JSON.stringify(result,null,2)+'\n');complete=true;console.log(JSON.stringify(result,null,2));

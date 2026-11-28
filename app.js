@@ -1,3 +1,4 @@
+import {initViewportDiagnostics} from './viewport-diagnostics.js';
 import {initDailyShell} from './daily-shell.js';
 import {beginUserMutation,settleUserMutation} from './sync-intents.js';
 import {rememberDiaryOrigins} from './diary-origins.js';
@@ -477,5 +478,6 @@ initSyncExportUi({beforeRead:beforeDataRead});
 initMealPlanUi({readEntries:()=>nutritionEntries,updateEntries:updateNutritionEntries,readDate:readDiaryDate,renderActual:createNutritionArticle,editEntry:openEntryEditor});
 
 initMoreShell();
+initViewportDiagnostics();
 
 initDailyShell({readEntries:()=>nutritionEntries,readDate:readDiaryDate});

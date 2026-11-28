@@ -23,6 +23,36 @@ import java.util.ArrayList;
 
 @CapacitorPlugin(name="BengerNative", permissions={@Permission(alias="microphone", strings={Manifest.permission.RECORD_AUDIO})})
 public class BengerNativePlugin extends Plugin {
+    // On-demand geometry only; no account, storage, URL, document contents or token access.
+    @PluginMethod public void getViewportDiagnostics(PluginCall call) {
+        getActivity().runOnUiThread(() -> {
+            try {
+                android.webkit.WebView web = getBridge().getWebView();
+                android.util.DisplayMetrics metrics = web.getResources().getDisplayMetrics();
+                android.content.res.Configuration config = web.getResources().getConfiguration();
+                android.graphics.Rect visible = new android.graphics.Rect();
+                web.getWindowVisibleDisplayFrame(visible);
+                JSObject out = new JSObject();
+                out.put("webViewWidthPx", web.getWidth()); out.put("webViewHeightPx", web.getHeight());
+                out.put("measuredWidthPx", web.getMeasuredWidth()); out.put("measuredHeightPx", web.getMeasuredHeight());
+                out.put("density", metrics.density); out.put("densityDpi", metrics.densityDpi); out.put("scaledDensity", metrics.scaledDensity);
+                out.put("fontScale", config.fontScale); out.put("screenWidthDp", config.screenWidthDp); out.put("screenHeightDp", config.screenHeightDp);
+                out.put("smallestScreenWidthDp", config.smallestScreenWidthDp); out.put("orientation", config.orientation);
+                if (web.getDisplay() != null) out.put("displayId", web.getDisplay().getDisplayId());
+                out.put("visibleWidthPx", visible.width()); out.put("visibleHeightPx", visible.height());
+                if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    android.graphics.Rect bounds = getActivity().getWindowManager().getCurrentWindowMetrics().getBounds();
+                    out.put("windowWidthPx", bounds.width()); out.put("windowHeightPx", bounds.height());
+                }
+                out.put("textZoom", web.getSettings().getTextZoom());
+                out.put("useWideViewPort", web.getSettings().getUseWideViewPort());
+                out.put("loadWithOverviewMode", web.getSettings().getLoadWithOverviewMode());
+                out.put("supportZoom", web.getSettings().supportZoom()); out.put("sdk", android.os.Build.VERSION.SDK_INT);
+                call.resolve(out);
+            } catch (Exception error) { call.reject("Diagnostyka rozmiarów jest niedostępna."); }
+        });
+    }
+
     @Override protected void handleOnResume() {
         super.handleOnResume();
         notifyListeners("foreground", new JSObject());

@@ -9,7 +9,7 @@ export function createAutoSync({coordinator,local=globalThis.localStorage,now=Da
  function publish(){onChange(snapshot());}
  function persist(){try{local.setItem(AUTO_SYNC_KEY,JSON.stringify(state));durable=true;publish();return true;}catch{durable=false;state.paused=true;state.status='storage';publish();return false;}}
  function stop(){if(timer!==null)clearTimer(timer);timer=null;}
- function schedule(ms=delay){stop();if(!disposed&&state.enabled&&!state.paused&&durable&&visible()){timer=setTimer(()=>{timer=null;void sync();},Math.max(ms,state.nextAttempt-now(),0));}}
+ function schedule(ms=delay){stop();if(!disposed&&state.enabled&&state.dirty&&!running&&!state.paused&&durable&&visible()){timer=setTimer(()=>{timer=null;void sync();},Math.max(ms,state.nextAttempt-now(),0));}}
  function changed(event){if(event?.type==='storage'&&[AUTO_SYNC_KEY,`${NUTRITION_STORAGE_KEY}.user-operations.v1`].includes(event.key))return;state.revision++;state.dirty=true;state.debounceUntil=now()+delay;if(!state.paused)state.status=state.enabled?'pending':'disabled';persist();schedule();}
  async function enable(value){stop();if(!value){state.enabled=false;state.status='disabled';persist();try{await coordinator.setAutomation(false);}catch{}return snapshot();}
   if(!durable||state.status==='storage'||state.hold)throw new Error(state.hold?'Wymagana ręczna weryfikacja pełnego zakresu przed wznowieniem.':AUTO_MESSAGES.storage);
@@ -18,10 +18,12 @@ export function createAutoSync({coordinator,local=globalThis.localStorage,now=Da
   if(!persist()){try{await coordinator.setAutomation(false);}catch{}return snapshot();}schedule();return snapshot();
  }
  async function sync({force=false}={}){
+  // A recovery tick is not a data mutation. A clean queue must do no work.
+  if(disposed||running||!state.enabled||state.paused||!durable||(!force&&!state.dirty))return;
   if(!force&&Math.max(state.nextAttempt,state.debounceUntil??0)>now()){schedule(Math.max(state.nextAttempt,state.debounceUntil??0)-now());return;}
   stop();if(disposed||running||!state.enabled||state.paused||!durable)return;
   if(!visible()){schedule();return;}
-  if(!online()){state.status='offline';persist();return;}
+  if(!online()){if(state.status!=='offline'){state.status='offline';persist();}return;}
   running=true;const revision=state.revision;state.dirty=true;state.status='syncing';if(!persist()){running=false;return;}
   try{const result=await coordinator.automatic({identity:state.identity,knownSourceHash:state.sourceHash,seenSources:state.seenSources});
    if(state.sourceHash&&state.sourceHash!==result.sourceHash)state.seenSources=[...new Set([...state.seenSources,state.sourceHash])].slice(-64);
@@ -31,13 +33,13 @@ export function createAutoSync({coordinator,local=globalThis.localStorage,now=Da
    if(!state.paused){if(code==='source-changed'){state.status='pending';state.nextAttempt=now()+delay;}else if((['offline','api-error','quota','busy'].includes(code)||code==='pending-operation'&&state.attempts<3)){state.attempts=Math.min(state.attempts+1,16);state.nextAttempt=now()+Math.min(60000*2**(state.attempts-1),30*60000);state.status=code==='offline'?'offline':'retry';}
     else{state.status=code==='authorization-required'?'authorization':code==='confirmation-required'?'confirmation':'conflict';state.paused=true;if(code!=='authorization-required')state.hold='verification';}}
    if(!state.enabled)state.status='disabled';persist();
-  }finally{running=false;schedule();}
+  }finally{running=false;if(state.dirty)schedule(Math.max(0,(state.debounceUntil??0)-now()));}
  }
  function resume(){if(disposed)return;state.dirty=true;if(state.enabled&&!['restore','storage'].includes(state.status)){if(state.status==='authorization'){state.paused=false;state.nextAttempt=0;}if(state.status==='offline')state.nextAttempt=0;if(!state.paused){state.status='pending';persist();schedule(0);}}}
  function pauseRestore(){stop();state.revision++;state.paused=true;state.hold='restore';state.dirty=true;state.status='restore';persist();}
  // Only a completed manual verification can release a restore/conflict hold.
  function manualVerified(){if(state.status==='storage')return;state.hold=null;state.paused=false;state.dirty=true;state.sourceHash=null;state.seenSources=[];state.nextAttempt=0;state.attempts=0;state.status=state.enabled?'pending':'disabled';persist();schedule();}
- function start(){if(state.status==='syncing'){state.status='pending';state.dirty=true;}persist();if(state.enabled&&!state.paused)schedule(0);else publish();}
+ function start(){if(state.enabled&&!state.paused){state.dirty=true;state.status='pending';}if(state.status==='syncing'){state.status='pending';state.dirty=true;}persist();if(state.enabled&&!state.paused)schedule(0);else publish();}
  return {snapshot,enable,changed,sync,resume,pauseRestore,manualVerified,start,dispose(){disposed=true;stop();}};
 }
 export function attachAutoSyncEvents(service,{window:win=globalThis.window,document:doc=globalThis.document}={}){
@@ -45,7 +47,8 @@ export function attachAutoSyncEvents(service,{window:win=globalThis.window,docum
  for(const e of edits)win.addEventListener(e,service.changed);for(const e of wake)win.addEventListener(e,service.resume);
  const visibility=()=>{if(!doc.hidden)service.resume();};doc.addEventListener('visibilitychange',visibility);
  const restore=e=>{if(e.target?.closest?.('#backup-import')&&!e.target.disabled)service.pauseRestore();};doc.addEventListener('click',restore,true);win.addEventListener('benger:restore-started',service.pauseRestore);
- // Check durable stores while the WebView is active, including writes without an app event.
+ // Recovery tick only retries pending durable work; clean queues return without reads or writes.
+ // Cold start/resume verifies the source once, including missed events while inactive.
  const poll=win.setInterval(()=>{if(!doc.hidden)void service.sync();},60000);
  service.start();return()=>{win.clearInterval(poll);for(const e of edits)win.removeEventListener(e,service.changed);for(const e of wake)win.removeEventListener(e,service.resume);doc.removeEventListener('visibilitychange',visibility);doc.removeEventListener('click',restore,true);win.removeEventListener('benger:restore-started',service.pauseRestore);service.dispose();};
 }

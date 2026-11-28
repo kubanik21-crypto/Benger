@@ -565,3 +565,14 @@ button:disabled { opacity:.65; }
 #google-sheets-auto > p:not([id]) { font-size:.85rem; }
 #google-sheets-sync > h3 { font-size:1rem; }
 .dashboard-speech details { font-size:.8rem; }
+
+/* BUG-02: allow long diary text to wrap in narrow windows, without hiding content or resetting zoom. */
+#route-dziennik { overflow-wrap:anywhere; }
+.app-nav { max-width:100vw; }
+.app-nav a { min-width:0; overflow-wrap:anywhere; text-align:center; }
+#selected-day-balance { grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr)); }
+.balance-metric { overflow-wrap:anywhere; }
+.date-bar input[type=date] { width:12em;min-width:0;max-width:100%; }
+#viewport-diagnostics { min-width:0; }
+#viewport-diagnostics button { white-space:normal;margin:4px 4px 4px 0; }
+#viewport-diagnostics-output { white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;font-size:12px; }
