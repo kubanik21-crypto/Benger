@@ -581,3 +581,10 @@ button:disabled { opacity:.65; }
 #viewport-diary-bar { position:fixed;z-index:40;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(680px,calc(100% - 24px));padding:8px;border:1px solid var(--border);border-radius:12px;background:var(--surface);display:flex;flex-wrap:wrap;gap:6px; }
 #viewport-diary-bar p { flex-basis:100%;margin:0;font-size:12px;overflow-wrap:anywhere; }
 #viewport-diary-bar button { flex:1;min-width:0;font-size:12px;padding:8px;overflow-wrap:anywhere; }
+
+/* Local training-plan import: content wraps within the existing training column. */
+.training-import-card,.training-import-target{border:1px solid var(--border,#719485);border-radius:12px;padding:12px;margin:12px 0;min-width:0;overflow-wrap:anywhere}
+.training-import-target strong{display:block}.training-import-target small{display:block;margin-top:8px}
+.training-import-dialog{width:min(640px,calc(100vw - 32px));max-height:85dvh;box-sizing:border-box;overflow:auto;color:inherit;background:var(--surface);border:1px solid var(--border,#719485);border-radius:16px;padding:16px}
+.training-import-dialog::backdrop{background:#0009}.training-import-dialog button{margin:6px 4px 0 0;max-width:100%;white-space:normal}
+.training-import-dialog select{max-width:100%;min-width:0}.training-import-change{padding:8px 0;border-bottom:1px solid #78988955}
