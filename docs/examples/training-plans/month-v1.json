@@ -1,0 +1,1344 @@
+{
+  "format": "benger.training-plan",
+  "schemaVersion": 1,
+  "namespace": "example-training",
+  "packageId": "demo-december-r1",
+  "createdAt": "2026-11-28T00:00:00.000Z",
+  "label": "Test integracji treningów — dane syntetyczne",
+  "catalogRevision": "sha256:a4dd1b222aab825b9a2c16d66ab41e637df33e66a2ed3431aa7d96ac82a26aab",
+  "requiredCapabilities": [
+    "training-core-v1",
+    "planned-targets-v1"
+  ],
+  "block": {
+    "id": "demo-december",
+    "version": 1,
+    "name": "Grudzień — przykład struktury",
+    "from": "2026-12-01",
+    "to": "2026-12-31",
+    "timeZone": "Europe/Warsaw",
+    "weekCount": 5,
+    "goal": null,
+    "description": "Wyłącznie test kontraktu, nie zalecenie treningowe.",
+    "progression": "Opis testowy. Brak automatycznego dobierania ciężarów.",
+    "deloadWeeks": [
+      4
+    ]
+  },
+  "exerciseDefinitions": [],
+  "sessions": [
+    {
+      "id": "unit-001",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-02",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-002",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-04",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-003",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-07",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-004",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-09",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-005",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-11",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-006",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-14",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-007",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-16",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-008",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-18",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-009",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-21",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-010",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-23",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-011",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-28",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-012",
+      "version": 1,
+      "name": "Syntetyczny trening",
+      "date": "2026-12-30",
+      "time": null,
+      "kind": "workout",
+      "purpose": "strength",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "warmup-press",
+          "exercise": {
+            "builtinId": "builtin:db-bench",
+            "expectedMode": "strength",
+            "expectedDumbbells": 2
+          },
+          "phase": "warmup",
+          "setKind": "warmup",
+          "prescription": {
+            "sets": 1,
+            "repsMin": 12,
+            "repsMax": 12,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-goblet",
+          "exercise": {
+            "builtinId": "builtin:goblet",
+            "expectedMode": "strength",
+            "expectedDumbbells": 1
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 3,
+            "repsMin": 8,
+            "repsMax": 10,
+            "durationSeconds": null,
+            "restSeconds": 90,
+            "side": "both",
+            "targetRir": 2,
+            "targetRpe": null,
+            "load": {
+              "value": 10,
+              "unit": "kg",
+              "basis": "per-dumbbell"
+            },
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        },
+        {
+          "id": "main-plank",
+          "exercise": {
+            "builtinId": "builtin:plank",
+            "expectedMode": "time",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": "work",
+          "prescription": {
+            "sets": 2,
+            "repsMin": null,
+            "repsMax": null,
+            "durationSeconds": 30,
+            "restSeconds": 45,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "mobility-001",
+      "version": 1,
+      "name": "Syntetyczne Mobility",
+      "date": "2026-12-06",
+      "time": null,
+      "kind": "mobility",
+      "purpose": "mobility",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "rotation",
+          "exercise": {
+            "builtinId": "builtin:mob-open-book",
+            "expectedMode": "mobility",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": null,
+          "prescription": {
+            "sets": 2,
+            "repsMin": 8,
+            "repsMax": 8,
+            "durationSeconds": null,
+            "restSeconds": 0,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "mobility-002",
+      "version": 1,
+      "name": "Syntetyczne Mobility",
+      "date": "2026-12-13",
+      "time": null,
+      "kind": "mobility",
+      "purpose": "mobility",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "rotation",
+          "exercise": {
+            "builtinId": "builtin:mob-open-book",
+            "expectedMode": "mobility",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": null,
+          "prescription": {
+            "sets": 2,
+            "repsMin": 8,
+            "repsMax": 8,
+            "durationSeconds": null,
+            "restSeconds": 0,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "mobility-003",
+      "version": 1,
+      "name": "Syntetyczne Mobility",
+      "date": "2026-12-20",
+      "time": null,
+      "kind": "mobility",
+      "purpose": "mobility",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "rotation",
+          "exercise": {
+            "builtinId": "builtin:mob-open-book",
+            "expectedMode": "mobility",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": null,
+          "prescription": {
+            "sets": 2,
+            "repsMin": 8,
+            "repsMax": 8,
+            "durationSeconds": null,
+            "restSeconds": 0,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "mobility-004",
+      "version": 1,
+      "name": "Syntetyczne Mobility",
+      "date": "2026-12-27",
+      "time": null,
+      "kind": "mobility",
+      "purpose": "mobility",
+      "goal": null,
+      "estimatedDurationSeconds": null,
+      "instructions": "Przykład techniczny, nie indywidualny plan użytkownika.",
+      "items": [
+        {
+          "id": "rotation",
+          "exercise": {
+            "builtinId": "builtin:mob-open-book",
+            "expectedMode": "mobility",
+            "expectedDumbbells": 0
+          },
+          "phase": "main",
+          "setKind": null,
+          "prescription": {
+            "sets": 2,
+            "repsMin": 8,
+            "repsMax": 8,
+            "durationSeconds": null,
+            "restSeconds": 0,
+            "side": "both",
+            "targetRir": null,
+            "targetRpe": null,
+            "load": null,
+            "tempo": null,
+            "technique": "Dane syntetyczne do testu kontraktu.",
+            "alternatives": [],
+            "progression": null,
+            "cardio": null
+          }
+        }
+      ]
+    }
+  ],
+  "extensions": {}
+}

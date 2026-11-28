@@ -1,0 +1,27 @@
+{
+  "schemaValid": [
+    "valid-minimal.json",
+    "month-v1.json",
+    "month-v2-week-update.json",
+    "mobility.json",
+    "invalid-semantic.json"
+  ],
+  "schemaInvalid": [
+    "invalid-schema.json"
+  ],
+  "semanticInvalid": {
+    "invalid-semantic.json": [
+      "duplicate-session-id",
+      "session-outside-block",
+      "unknown-exercise-id",
+      "reps-range",
+      "unsupported-dumbbell-load"
+    ]
+  },
+  "semanticValid": [
+    "valid-minimal.json",
+    "month-v1.json",
+    "month-v2-week-update.json",
+    "mobility.json"
+  ]
+}

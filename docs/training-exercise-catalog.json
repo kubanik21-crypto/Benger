@@ -1,0 +1,868 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "benger-public-builtins",
+  "revision": "sha256:a4dd1b222aab825b9a2c16d66ab41e637df33e66a2ed3431aa7d96ac82a26aab",
+  "sourceCommit": "5b51a0b",
+  "scope": "static-builtins-only",
+  "exercises": [
+    {
+      "id": "builtin:arnold",
+      "names": {
+        "pl": "Arnold press",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:bridge",
+      "names": {
+        "pl": "Glute bridge",
+        "en": null
+      },
+      "aliases": [],
+      "category": "pośladki",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:bulgarian",
+      "names": {
+        "pl": "Bulgarian split squat",
+        "en": null
+      },
+      "aliases": [],
+      "category": "nogi",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:calf",
+      "names": {
+        "pl": "Calf raises z hantlami",
+        "en": null
+      },
+      "aliases": [],
+      "category": "nogi",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:chin-up",
+      "names": {
+        "pl": "Podciąganie podchwytem",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biceps",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "pull-up-bar"
+      ]
+    },
+    {
+      "id": "builtin:concentration",
+      "names": {
+        "pl": "Concentration curl",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biceps",
+      "mode": "strength",
+      "dumbbells": 1,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:curl",
+      "names": {
+        "pl": "Uginanie ramion z hantlami",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biceps",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:db-bench",
+      "names": {
+        "pl": "Wyciskanie hantli płasko",
+        "en": null
+      },
+      "aliases": [],
+      "category": "klatka",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:db-fly",
+      "names": {
+        "pl": "Rozpiętki hantlami",
+        "en": null
+      },
+      "aliases": [],
+      "category": "klatka",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:db-incline",
+      "names": {
+        "pl": "Wyciskanie hantli skos dodatni",
+        "en": null
+      },
+      "aliases": [],
+      "category": "klatka",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:db-row",
+      "names": {
+        "pl": "Wiosłowanie hantlem",
+        "en": null
+      },
+      "aliases": [],
+      "category": "plecy",
+      "mode": "strength",
+      "dumbbells": 1,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:db-rows",
+      "names": {
+        "pl": "Wiosłowanie dwoma hantlami",
+        "en": null
+      },
+      "aliases": [],
+      "category": "plecy",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:db-squat",
+      "names": {
+        "pl": "Przysiad z dwoma hantlami",
+        "en": null
+      },
+      "aliases": [],
+      "category": "nogi",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:dips",
+      "names": {
+        "pl": "Dipy na poręczach",
+        "en": null
+      },
+      "aliases": [],
+      "category": "triceps",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "dip-bars"
+      ]
+    },
+    {
+      "id": "builtin:french",
+      "names": {
+        "pl": "French press hantlem",
+        "en": null
+      },
+      "aliases": [],
+      "category": "triceps",
+      "mode": "strength",
+      "dumbbells": 1,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:goblet",
+      "names": {
+        "pl": "Goblet squat",
+        "en": null
+      },
+      "aliases": [],
+      "category": "nogi",
+      "mode": "strength",
+      "dumbbells": 1,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:hammer",
+      "names": {
+        "pl": "Hammer curl",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biceps",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:hip-thrust",
+      "names": {
+        "pl": "Hip thrust z hantlem",
+        "en": null
+      },
+      "aliases": [],
+      "category": "pośladki",
+      "mode": "strength",
+      "dumbbells": 1,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:incline-curl",
+      "names": {
+        "pl": "Incline curl",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biceps",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:lateral",
+      "names": {
+        "pl": "Unoszenie hantli bokiem",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:lunge",
+      "names": {
+        "pl": "Wykroki z hantlami",
+        "en": null
+      },
+      "aliases": [],
+      "category": "nogi",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:mob-90-90",
+      "names": {
+        "pl": "Rotacje bioder 90/90",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biodra",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-adductor",
+      "names": {
+        "pl": "Adductor rock back",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biodra",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-bench-extension",
+      "names": {
+        "pl": "Wyprost piersiowy przy ławce",
+        "en": null
+      },
+      "aliases": [],
+      "category": "piersiowy",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:mob-bird-dog",
+      "names": {
+        "pl": "Bird dog",
+        "en": null
+      },
+      "aliases": [],
+      "category": "stabilizacja/core",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-bracing",
+      "names": {
+        "pl": "Spokojny oddech i bracing",
+        "en": null
+      },
+      "aliases": [],
+      "category": "stabilizacja/core",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-cat-cow",
+      "names": {
+        "pl": "Cat-cow",
+        "en": null
+      },
+      "aliases": [],
+      "category": "lędźwia",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-dead-bug",
+      "names": {
+        "pl": "Dead bug",
+        "en": null
+      },
+      "aliases": [],
+      "category": "stabilizacja/core",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-glute-stretch",
+      "names": {
+        "pl": "Glute stretch",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biodra",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-hip-flexor",
+      "names": {
+        "pl": "Hip flexor stretch",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biodra",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-hip-rotation",
+      "names": {
+        "pl": "Kontrolowane rotacje biodra",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biodra",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-mob-bridge",
+      "names": {
+        "pl": "Glute bridge — kontrola ruchu",
+        "en": null
+      },
+      "aliases": [],
+      "category": "lędźwia",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-open-book",
+      "names": {
+        "pl": "Open book — rotacje piersiowe",
+        "en": null
+      },
+      "aliases": [],
+      "category": "piersiowy",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-pelvic-tilt",
+      "names": {
+        "pl": "Pelvic tilt",
+        "en": null
+      },
+      "aliases": [],
+      "category": "lędźwia",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-quadruped-rotation",
+      "names": {
+        "pl": "Rotacje piersiowe w klęku",
+        "en": null
+      },
+      "aliases": [],
+      "category": "piersiowy",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-scapular-push",
+      "names": {
+        "pl": "Scapular push-up",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-scapular-retraction",
+      "names": {
+        "pl": "Ściąganie łopatek",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-shoulder-rotation",
+      "names": {
+        "pl": "Kontrolowane rotacje barków",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-side-plank",
+      "names": {
+        "pl": "Side plank",
+        "en": null
+      },
+      "aliases": [],
+      "category": "stabilizacja/core",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-thread-needle",
+      "names": {
+        "pl": "Thread the needle",
+        "en": null
+      },
+      "aliases": [],
+      "category": "piersiowy",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-trx-stretch",
+      "names": {
+        "pl": "TRX-supported stretch",
+        "en": null
+      },
+      "aliases": [],
+      "category": "całe ciało",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "trx"
+      ]
+    },
+    {
+      "id": "builtin:mob-wall-slides",
+      "names": {
+        "pl": "Wall slides",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:mob-whole-body",
+      "names": {
+        "pl": "Spokojna mobilizacja całego ciała",
+        "en": null
+      },
+      "aliases": [],
+      "category": "całe ciało",
+      "mode": "mobility",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:overhead",
+      "names": {
+        "pl": "Overhead triceps extension",
+        "en": null
+      },
+      "aliases": [],
+      "category": "triceps",
+      "mode": "strength",
+      "dumbbells": 1,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:plank",
+      "names": {
+        "pl": "Plank",
+        "en": null
+      },
+      "aliases": [],
+      "category": "core",
+      "mode": "time",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:pull-up",
+      "names": {
+        "pl": "Podciąganie nachwytem",
+        "en": null
+      },
+      "aliases": [],
+      "category": "plecy",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "pull-up-bar"
+      ]
+    },
+    {
+      "id": "builtin:pullover",
+      "names": {
+        "pl": "Pullover hantlem",
+        "en": null
+      },
+      "aliases": [],
+      "category": "plecy",
+      "mode": "strength",
+      "dumbbells": 1,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:push-up",
+      "names": {
+        "pl": "Pompki",
+        "en": null
+      },
+      "aliases": [],
+      "category": "klatka",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight"
+      ]
+    },
+    {
+      "id": "builtin:rdl",
+      "names": {
+        "pl": "Romanian deadlift z hantlami",
+        "en": null
+      },
+      "aliases": [],
+      "category": "pośladki",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:reverse-fly",
+      "names": {
+        "pl": "Reverse fly hantlami",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:reverse-lunge",
+      "names": {
+        "pl": "Reverse lunges",
+        "en": null
+      },
+      "aliases": [],
+      "category": "nogi",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:shoulder-press",
+      "names": {
+        "pl": "Wyciskanie hantli nad głowę",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:single-rdl",
+      "names": {
+        "pl": "Single-leg RDL",
+        "en": null
+      },
+      "aliases": [],
+      "category": "pośladki",
+      "mode": "strength",
+      "dumbbells": 1,
+      "equipment": [
+        "dumbbell"
+      ]
+    },
+    {
+      "id": "builtin:step-up",
+      "names": {
+        "pl": "Step-up na stabilnym podwyższeniu",
+        "en": null
+      },
+      "aliases": [],
+      "category": "nogi",
+      "mode": "strength",
+      "dumbbells": 2,
+      "equipment": [
+        "dumbbell",
+        "bench"
+      ]
+    },
+    {
+      "id": "builtin:treadmill",
+      "names": {
+        "pl": "Bieżnia",
+        "en": null
+      },
+      "aliases": [],
+      "category": "cardio",
+      "mode": "cardio",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "treadmill"
+      ]
+    },
+    {
+      "id": "builtin:trx-chest",
+      "names": {
+        "pl": "TRX chest press",
+        "en": null
+      },
+      "aliases": [],
+      "category": "klatka",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "trx"
+      ]
+    },
+    {
+      "id": "builtin:trx-curl",
+      "names": {
+        "pl": "TRX biceps curl",
+        "en": null
+      },
+      "aliases": [],
+      "category": "biceps",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "trx"
+      ]
+    },
+    {
+      "id": "builtin:trx-reverse",
+      "names": {
+        "pl": "TRX reverse fly",
+        "en": null
+      },
+      "aliases": [],
+      "category": "barki",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "trx"
+      ]
+    },
+    {
+      "id": "builtin:trx-row",
+      "names": {
+        "pl": "TRX row",
+        "en": null
+      },
+      "aliases": [],
+      "category": "plecy",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "trx"
+      ]
+    },
+    {
+      "id": "builtin:trx-triceps",
+      "names": {
+        "pl": "TRX triceps extension",
+        "en": null
+      },
+      "aliases": [],
+      "category": "triceps",
+      "mode": "bodyweight",
+      "dumbbells": 0,
+      "equipment": [
+        "bodyweight",
+        "trx"
+      ]
+    }
+  ]
+}
