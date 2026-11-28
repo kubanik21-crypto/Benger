@@ -1,3 +1,4 @@
+import {diaryCreatedAt} from './diary-origins.js';
 import {NUTRITION_STORAGE_KEY} from './app-storage.js';
 import {validateMealPlan,fail} from './meal-plan-contract.js';
 import {canonicalImport,importHash,importUuid} from './recipe-import-format.js';
@@ -27,7 +28,7 @@ export async function resolveMeal(planMeal,state){
 }
 export async function plannedEntryId(plan,mealId){return importUuid('meal-plan-consumption',plan.namespace,plan.id,mealId);}
 export function planPortion(item,amount=item.amount,unit=item.unit){return executionPortion(createRecipeExecution(item.base,amount,unit,item.variant));}
-export async function createPlannedEntry(plan,item,{amount=item.amount,unit=item.unit}={}){return copyDiaryEntry({...planPortion(item,amount,unit),sourceType:'recipe',id:await plannedEntryId(plan,item.id),date:item.definition.date,meal:item.definition.meal,createdAt:new Date().toISOString()});}
+export async function createPlannedEntry(plan,item,{amount=item.amount,unit=item.unit}={}){return copyDiaryEntry({...planPortion(item,amount,unit),sourceType:'recipe',id:await plannedEntryId(plan,item.id),date:item.definition.date,meal:item.definition.meal,createdAt:diaryCreatedAt(await plannedEntryId(plan,item.id),new Date().toISOString())});}
 export function addPlannedEntry(current,entry){if(!validDiaryEntry(entry))fail('Nieprawidłowe spożycie.');if(current.some(r=>r.id===entry.id))return current;return [...current,entry];}
 export function createMealPlanRepository({storage=createProductStorage(),now=Date.now,readDiary=()=>JSON.parse(globalThis.localStorage?.getItem(NUTRITION_STORAGE_KEY)??'[]')}={}){
  async function read(){const row=await storage.read('meta',MEAL_PLAN_KEY);return row?validateMealPlanState(row.value):emptyMealPlans();}

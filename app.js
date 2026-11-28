@@ -1,3 +1,5 @@
+import {initDailyShell} from './daily-shell.js';
+import {rememberDiaryOrigins} from './diary-origins.js';
 import {initMoreShell} from './more-shell.js';
 import {initMealPlanUi} from './meal-plan-ui.js';
 import {initSyncExportUi} from './sync-export-ui.js';
@@ -169,6 +171,7 @@ function updateNutritionEntries(change) {
   }
   const next = change(nutritionEntries);
   try {
+    rememberDiaryOrigins(nutritionEntries);
     localStorage.setItem(nutritionStorageKey, JSON.stringify(next));
   } catch (failure) {
     renderNutritionEntries();
@@ -176,6 +179,7 @@ function updateNutritionEntries(change) {
     return false;
   }
   nutritionEntries = next;
+  window.dispatchEvent(new Event('benger:diary'));
   window.dispatchEvent(new Event('benger:nutrition-changed'));
   renderNutritionEntries();
   return true;
@@ -232,8 +236,9 @@ function createNutritionArticle(entry) {
   return article;
 }
 
-let entryEditor;
+let entryEditor;let editorScroll=0;
 function openEntryEditor(entry) {
+  editorScroll=window.scrollY;
   if(!entryEditor)entryEditor=createEntryEditor();
   entryEditor.open(entry);
 }
@@ -284,14 +289,13 @@ function createEntryEditor() {
     if(dialog.open)return;
     const id=restoreId??original?.id;original=null;restoreId=null;
     const article=[...document.querySelectorAll('#nutrition-entries article')].find(node=>node.dataset.entryId===id);
-    (article?.querySelector('.edit-entry')??$('nutrition-title')).focus();
+    const visible=[...document.querySelectorAll('#meal-plan-day [data-entry-id]')].find(n=>n.dataset.entryId===id);(visible?.querySelector('.edit-entry')??article?.querySelector('.edit-entry')??$('nutrition-title')).focus({preventScroll:true});window.scrollTo(0,editorScroll);
   });
   window.addEventListener('benger:route',()=>{if(dialog.open)finish();});
   return {open(entry){original=copyDiaryEntry(entry);name.textContent=original.recipeName??original.productName;label.textContent=`Ilość (${original.unit==='serving'?'porcje':original.unit})`;input.value=String(original.amount).replace('.',',');updatePreview();dialog.showModal();input.focus();input.select();}};
 }
 
 function renderNutritionEntries() {
-  window.dispatchEvent(new Event('benger:diary'));
   renderDiaryHistory(nutritionStorageOK?nutritionEntries:[],date=>{dateInput.value=date;dateInput.dispatchEvent(new Event('change'));navigate('dziennik');});
   if($('manual-date'))$('manual-date').textContent=`Dzień zapisu: ${dateInput.value}`;
   const box = $('nutrition-entries');
@@ -465,6 +469,8 @@ void initPwa();
 const beforeDataRead=async()=>{await remindersReady;await remindersUI?.flush?.();await trainingUI.flush();await dashboardUI.flush();await progressUI.flush();await recipesUI.flush();await voiceEntry.flush();await Promise.all([...diarySideEffects]);await (await widgetReady)?.flush?.();};
 initBackupUi({beforeRead:beforeDataRead});
 initSyncExportUi({beforeRead:beforeDataRead});
-initMealPlanUi({readEntries:()=>nutritionEntries,updateEntries:updateNutritionEntries,readDate:readDiaryDate});
+initMealPlanUi({readEntries:()=>nutritionEntries,updateEntries:updateNutritionEntries,readDate:readDiaryDate,renderActual:createNutritionArticle,editEntry:openEntryEditor});
 
 initMoreShell();
+
+initDailyShell({readEntries:()=>nutritionEntries,readDate:readDiaryDate});

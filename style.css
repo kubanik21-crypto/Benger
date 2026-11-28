@@ -536,3 +536,26 @@ button:disabled { opacity:.65; }
 #route-ustawienia > h1 { order:-1; }
 #route-dieta,#route-synchronizacja,#route-zaawansowane { overflow-wrap:anywhere; }
 #route-dieta button,#route-synchronizacja button { max-width:100%;white-space:normal; }
+.timeline-meal { margin:14px 0; }
+.timeline-meal > h3 { font-size:1.05rem;margin:8px 0; }
+.meal-status { font-size:.8rem;font-weight:650;color:var(--accent);margin:0; }
+#meal-plan-day .food-entry .food-entry { border:0;padding:0;margin:0;background:transparent; }
+#meal-plan-day .food-entry .entry-source { font-size:.8rem; }
+#meal-plan-day .food-entry > p { margin:2px 0; }
+.date-bar { display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0; }
+.date-bar .date-actions { display:flex;gap:4px;margin:0; }
+.date-actions button:not(#diary-today) { min-width:44px;width:44px;padding:8px; }
+#diary-day-label { flex-basis:100%;font-size:.85rem;color:var(--muted);margin:0; }
+.compact-balance { padding:12px!important;margin:8px 0!important; }
+.compact-balance > h3,.compact-balance > dl { display:none; }
+#selected-day-balance { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+.balance-metric { min-width:0;font-size:.82rem; }
+.balance-metric:first-child { grid-column:1/-1;font-size:1.05rem; }
+.balance-metric progress { display:block;width:100%;height:7px;margin-top:5px;accent-color:var(--accent); }
+#diary-sync-state { display:block;font-size:.75rem;margin-top:8px;color:var(--muted); }
+.diary-quick-actions { display:flex;flex-wrap:wrap;gap:6px;margin:8px 0; }
+.diary-quick-actions button { flex:1 1 40%;padding:10px;min-height:44px; }
+.diary-quick-actions button:first-child { flex-basis:100%; }
+#meal-plan-day { padding:10px; }
+#meal-plan-day > p { font-size:.85rem; }
+#route-progres > p:first-of-type { font-size:.8rem; }
