@@ -23,6 +23,23 @@ import java.util.ArrayList;
 
 @CapacitorPlugin(name="BengerNative", permissions={@Permission(alias="microphone", strings={Manifest.permission.RECORD_AUDIO})})
 public class BengerNativePlugin extends Plugin {
+    private int viewportConfigurationChangeCount;
+    private int viewportLastConfigurationDensityDpi;
+    private int viewportObservedDisplayChangeCount;
+    private int viewportLastObservedDisplayId = -1;
+    private void observeViewportDisplay() {
+        if (getBridge() == null || getBridge().getWebView() == null || getBridge().getWebView().getDisplay() == null) return;
+        int id = getBridge().getWebView().getDisplay().getDisplayId();
+        if (viewportLastObservedDisplayId >= 0 && viewportLastObservedDisplayId != id) viewportObservedDisplayChangeCount++;
+        viewportLastObservedDisplayId = id;
+    }
+    @Override protected void handleOnConfigurationChanged(android.content.res.Configuration config) {
+        super.handleOnConfigurationChanged(config);
+        viewportConfigurationChangeCount++;
+        viewportLastConfigurationDensityDpi = config.densityDpi;
+        observeViewportDisplay();
+    }
+
     // On-demand geometry only; no account, storage, URL, document contents or token access.
     @PluginMethod public void getViewportDiagnostics(PluginCall call) {
         getActivity().runOnUiThread(() -> {
@@ -48,6 +65,31 @@ public class BengerNativePlugin extends Plugin {
                 out.put("useWideViewPort", web.getSettings().getUseWideViewPort());
                 out.put("loadWithOverviewMode", web.getSettings().getLoadWithOverviewMode());
                 out.put("supportZoom", web.getSettings().supportZoom()); out.put("sdk", android.os.Build.VERSION.SDK_INT);
+                // These are public View/window measurements, not Chromium compositor buffer dimensions.
+                android.view.View root = web.getRootView();
+                android.graphics.Rect global = new android.graphics.Rect();
+                boolean visibleGlobally = web.getGlobalVisibleRect(global);
+                out.put("globalVisible", visibleGlobally);
+                out.put("globalVisibleWidthPx", visibleGlobally ? global.width() : 0);
+                out.put("globalVisibleHeightPx", visibleGlobally ? global.height() : 0);
+                out.put("rootWidthPx", root.getWidth()); out.put("rootHeightPx", root.getHeight());
+                out.put("hardwareAccelerated", web.isHardwareAccelerated()); out.put("layerType", web.getLayerType());
+                out.put("webViewScaleX", web.getScaleX()); out.put("webViewScaleY", web.getScaleY());
+                out.put("webViewTranslationX", web.getTranslationX()); out.put("webViewTranslationY", web.getTranslationY());
+                out.put("webContextDensityDpi", config.densityDpi);
+                out.put("activityDensityDpi", getActivity().getResources().getConfiguration().densityDpi);
+                out.put("configurationChangeCount", viewportConfigurationChangeCount);
+                out.put("lastConfigurationDensityDpi", viewportLastConfigurationDensityDpi);
+                observeViewportDisplay();
+                out.put("observedDisplayChangeCount", viewportObservedDisplayChangeCount);
+                out.put("lastObservedDisplayId", viewportLastObservedDisplayId);
+                if (getActivity() instanceof MainActivity)
+                    out.put("initialActivityDensityDpi", ((MainActivity) getActivity()).viewportInitialActivityDensityDpi());
+                if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    try { if (web.getContext().getDisplay() != null) out.put("webContextDisplayId", web.getContext().getDisplay().getDisplayId()); }
+                    catch (UnsupportedOperationException ignored) { /* Context does not expose a display. */ }
+                    if (getActivity().getDisplay() != null) out.put("activityDisplayId", getActivity().getDisplay().getDisplayId());
+                }
                 call.resolve(out);
             } catch (Exception error) { call.reject("Diagnostyka rozmiarów jest niedostępna."); }
         });
@@ -55,6 +97,7 @@ public class BengerNativePlugin extends Plugin {
 
     @Override protected void handleOnResume() {
         super.handleOnResume();
+        observeViewportDisplay();
         notifyListeners("foreground", new JSObject());
     }
 

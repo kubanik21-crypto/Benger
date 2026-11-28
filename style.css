@@ -576,3 +576,8 @@ button:disabled { opacity:.65; }
 #viewport-diagnostics { min-width:0; }
 #viewport-diagnostics button { white-space:normal;margin:4px 4px 4px 0; }
 #viewport-diagnostics-output { white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;font-size:12px; }
+
+/* Read-only diagnostic toolbar, present only after explicit activation. No layout/zoom overrides. */
+#viewport-diary-bar { position:fixed;z-index:40;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(680px,calc(100% - 24px));padding:8px;border:1px solid var(--border);border-radius:12px;background:var(--surface);display:flex;flex-wrap:wrap;gap:6px; }
+#viewport-diary-bar p { flex-basis:100%;margin:0;font-size:12px;overflow-wrap:anywhere; }
+#viewport-diary-bar button { flex:1;min-width:0;font-size:12px;padding:8px;overflow-wrap:anywhere; }

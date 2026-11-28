@@ -10,12 +10,17 @@ import androidx.core.view.WindowInsetsCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+    // Initial activity resources only; no density, font or WebView layout override.
+    private int viewportInitialActivityDensityDpi;
+    public int viewportInitialActivityDensityDpi() { return viewportInitialActivityDensityDpi; }
+
     @Override public void onCreate(Bundle state) {
         registerPlugin(BengerNativePlugin.class);
         registerPlugin(BengerGoogleAuthPlugin.class);
         registerPlugin(BengerGoogleSheetsPlugin.class);
         registerPlugin(BengerRecipeSheetsPlugin.class);
         super.onCreate(state);
+        viewportInitialActivityDensityDpi = getResources().getConfiguration().densityDpi;
         View root = findViewById(android.R.id.content);
         root.setBackgroundColor(Color.parseColor("#102019"));
         getWindow().setStatusBarColor(Color.parseColor("#102019"));
