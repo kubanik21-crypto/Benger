@@ -1,3 +1,4 @@
+import {initMoreShell} from './more-shell.js';
 import {initMealPlanUi} from './meal-plan-ui.js';
 import {initSyncExportUi} from './sync-export-ui.js';
 import {initWidget} from './widget-ui.js';
@@ -465,3 +466,5 @@ const beforeDataRead=async()=>{await remindersReady;await remindersUI?.flush?.()
 initBackupUi({beforeRead:beforeDataRead});
 initSyncExportUi({beforeRead:beforeDataRead});
 initMealPlanUi({readEntries:()=>nutritionEntries,updateEntries:updateNutritionEntries,readDate:readDiaryDate});
+
+initMoreShell();
