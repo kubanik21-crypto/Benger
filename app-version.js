@@ -1,2 +1,2 @@
 // Generated from package.json by the build.
-export const APP_VERSION="1.0.24";
+export const APP_VERSION="1.0.25";
