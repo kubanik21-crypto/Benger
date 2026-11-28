@@ -103,7 +103,7 @@ jobs:
         env:
           PICKER_KEY_PRESENT: ${{ secrets.BENGER_PICKER_API_KEY != '' }}
         run: |
-          node -e 'if(require("./package.json").version!=="1.0.22")process.exit(1);if(process.env.PICKER_KEY_PRESENT!=="true")throw Error("Required Picker secret is missing.")'
+          node -e 'if(require("./package.json").version!=="1.0.23")process.exit(1);if(process.env.PICKER_KEY_PRESENT!=="true")throw Error("Required Picker secret is missing.")'
           git merge-base --is-ancestor 759df23 HEAD
           git merge-base --is-ancestor 58bfd99 HEAD
       - run: npm ci
@@ -121,7 +121,7 @@ jobs:
           BENGER_RECIPE_PICKER_ENABLED: 'true'
           BENGER_PICKER_APP_ID: '481332161595'
           BENGER_GOOGLE_OAUTH_PROJECT_NUMBER: '481332161595'
-          BENGER_PREVIOUS_VERSION_CODE: '28567213'
+          BENGER_PREVIOUS_VERSION_CODE: '28575272'
           BENGER_PICKER_API_KEY: ${{ secrets.BENGER_PICKER_API_KEY }}
         run: |
           node scripts/android/build-unsigned-picker-apk.mjs "$RUNNER_TEMP/benger-picker-apk"
@@ -130,7 +130,7 @@ jobs:
       - name: UNSIGNED artifact for local signing — DO NOT INSTALL
         uses: actions/upload-artifact@v4
         with:
-          name: Benger-UNSIGNED-1.0.22-${{ github.sha }}
+          name: Benger-UNSIGNED-1.0.23-${{ github.sha }}
           path: |
             ${{ runner.temp }}/benger-picker-apk/*.apk
             ${{ runner.temp }}/benger-picker-apk/metadata.json

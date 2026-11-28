@@ -546,6 +546,7 @@ button:disabled { opacity:.65; }
 .date-bar .date-actions { display:flex;gap:4px;margin:0; }
 .date-actions button:not(#diary-today) { min-width:44px;width:44px;padding:8px; }
 #diary-day-label { flex-basis:100%;font-size:.85rem;color:var(--muted);margin:0; }
+#day-summary.compact-balance:not([hidden]) { display:block; }
 .compact-balance { padding:12px!important;margin:8px 0!important; }
 .compact-balance > h3,.compact-balance > dl { display:none; }
 #selected-day-balance { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
