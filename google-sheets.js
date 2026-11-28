@@ -1,3 +1,5 @@
+import {operationSnapshot,acknowledgeUserMutations,readIntents} from './sync-intents.js';
+import {proveUserChanges} from './sync-intent-proof.js';
 import {isAndroidNative,getNativePlugin} from './native-platform.js';
 import {SHEET_NAMES,SHEET_COLUMNS,SHEETS_TITLE,mapSheetExport,fingerprint,rowObject,fail,same} from './sheets-mapper.js';
 import {validateSheetsState,prepareSheetsPlan,prepareSheetsBatchUpdate,acknowledgeSheetsPlan} from './sheets-reconcile.js';
@@ -56,13 +58,13 @@ export function createSheetsCoordinator({transport=createNativeSheetsTransport()
   const receipt={schemaVersion:1,spreadsheetId:state.binding.spreadsheetId,profileId:state.binding.profileId,deviceId:state.binding.deviceId,stateHash:hash,inventory:pending.inventory};
   await transport.confirm(state.ticket,receipt);return observed();
  }
- async function prepare(range,{deletionDigest=null,impactDigest=null}={}){
-  const fullExport=await readFull({}),state=await recover(),b=state.binding;
-  const plan=await prepareSheetsPlan({fullExport,current:state.current,baseline:b.baseline,profileId:b.profileId,deviceId:b.deviceId,range,initialize:b.baseline===null,confirmDeletionDigest:deletionDigest,confirmImpactDigest:impactDigest});
-  const batch=plan.blockers.length?null:await prepareSheetsBatchUpdate(plan,state.current);return {plan,current:state.current,binding:b,batch};
+ async function prepare(range,{deletionDigest=null,impactDigest=null,provenLostKeys=[],observation=null}={}){
+  const fullExport=await readFull({}),state=observation??await recover(),b=state.binding;
+  const plan=await prepareSheetsPlan({fullExport,current:state.current,baseline:b.baseline,profileId:b.profileId,deviceId:b.deviceId,range,initialize:b.baseline===null,confirmDeletionDigest:deletionDigest,confirmImpactDigest:impactDigest,provenLostKeys});
+  const batch=plan.blockers.length?null:await prepareSheetsBatchUpdate(plan,state.current);if(plan.noop&&!plan.blockers.length&&[...plan.inventory,...(b.baseline?.inventory??[])].every(r=>r.date>=range.from&&r.date<=range.to))acknowledgeUserMutations(readIntents().operations.filter(o=>o.identity===null||o.identity===[b.accountKey,b.profileId,b.spreadsheetId].join('|')).map(o=>o.operationId),{manual:true});return {plan,current:state.current,binding:b,batch};
  }
  async function send(preview,{automatic=false}={}){
-  const {plan,binding}=preview;
+  const {plan,binding}=preview;const identity=[binding.accountKey,binding.profileId,binding.spreadsheetId].join('|'),intentState=operationSnapshot(identity),intentIds=preview.intentIds??readIntents().operations.filter(o=>o.identity===identity||o.identity===null).map(o=>o.operationId);
   if(plan.blockers.length||plan.noop)fail('plan nie wymaga lub nie dopuszcza zapisu.');
   const full=await readFull({}),source=mapSheetExport(full,{profileId:plan.profileId});if(await fingerprint({profileId:plan.profileId,rows:source.rows})!==plan.sourceHash)throw Object.assign(new Error('Dane lokalne zmieniły się po podglądzie.'),{code:'source-changed'});
   const state=await observed(),b=state.binding;if(b.pending)throw sheetsError({code:'pending-operation'});
@@ -70,24 +72,31 @@ export function createSheetsCoordinator({transport=createNativeSheetsTransport()
   const prepared=await prepareSheetsBatchUpdate(plan,state.current);
   if(prepared.alreadyApplied){if(b.baseline?.stateHash===plan.targetHash)return {saved:true,binding:b};throw sheetsError({code:'pending-operation'});}
   const latest=mapSheetExport(await readFull({}),{profileId:plan.profileId});if(await fingerprint({profileId:plan.profileId,rows:latest.rows})!==plan.sourceHash)throw Object.assign(new Error('Dane lokalne zmieniły się podczas odczytu arkusza.'),{code:'source-changed'});
-  const journal={schemaVersion:1,operationId:plan.operationId,targetHash:plan.targetHash,baseHash:plan.baseHash,profileId:plan.profileId,deviceId:plan.deviceId,range:plan.range,inventory:plan.inventory};
+  const journal={schemaVersion:1,operationId:plan.operationId,targetHash:plan.targetHash,baseHash:plan.baseHash,profileId:plan.profileId,deviceId:plan.deviceId,range:plan.range,inventory:plan.inventory,...(automatic&&preview.intentProof?.length?{authorizedDeletes:preview.intentProof}: {})};
   const result=await transport.write({ticket:state.ticket,body:prepared.body,journal,automatic});if(result.cancelled)return {cancelled:true};
   const after=await observed();if(after.binding.accountKey!==b.accountKey)fail('zmieniono konto.');
-  const receipt=await acknowledgeSheetsPlan(plan,after.current);await transport.confirm(after.ticket,receipt);return {saved:true,binding:await transport.binding()};
+  const receipt=await acknowledgeSheetsPlan(plan,after.current);await transport.confirm(after.ticket,receipt);const confirmed=await transport.binding();if([...plan.inventory,...(binding.baseline?.inventory??[])].every(r=>r.date>=plan.range.from&&r.date<=plan.range.to))acknowledgeUserMutations(intentIds,{manual:!automatic});return {saved:true,binding:confirmed};
  }
  async function automatic({identity,knownSourceHash=null,seenSources=[]}={}){
   const b=await transport.binding();
   if(!b.initialized||!b.baseline||!b.automationEnabled||[b.accountKey,b.profileId,b.spreadsheetId].join('|')!==identity)throw Object.assign(new Error('Połącz właściwe konto i zweryfikuj punkt odniesienia.'),{code:'authorization-required'});
   const mapped=mapSheetExport(await readFull({}),{profileId:b.profileId}),sourceHash=await fingerprint({profileId:b.profileId,rows:mapped.rows});
-  if(sourceHash!==knownSourceHash&&seenSources.includes(sourceHash))throw Object.assign(new Error('Wykryto powrót do wcześniejszego snapshotu. Zweryfikuj dane ręcznie.'),{code:'rollback'});
-  if(sourceHash===knownSourceHash&&!b.pending)return {sourceHash,binding:b,noop:true};
-  const dates=[...Object.values(mapped.rows).flatMap(rows=>rows.map(r=>r[3])),...b.baseline.inventory.map(r=>r.date)].filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+  const intents=operationSnapshot(identity);if(intents.hold||intents.operations.some(o=>o.phase!=='committed'))throw Object.assign(new Error('Niepewna operacja lub przywrócenie danych wymaga weryfikacji.'),{code:'confirmation-required'});
+  if(sourceHash===knownSourceHash&&!b.pending&&!intents.operations.length)return {sourceHash,binding:b,noop:true};
+  const observation=await recover();if([observation.binding.accountKey,observation.binding.profileId,observation.binding.spreadsheetId].join('|')!==identity)throw sheetsError({code:'authorization-required'});
+  const dates=[...Object.values(mapped.rows).flatMap(rows=>rows.map(r=>r[3])),...Object.entries(observation.current.tables).filter(([n])=>n!=='Synchronizacja').flatMap(([,t])=>t.rows.map(r=>r[3])),...b.baseline.inventory.map(r=>r.date)].filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
   if(!dates.length)throw Object.assign(new Error('Pusty snapshot wymaga weryfikacji ręcznej.'),{code:'confirmation-required'});
-  const p=await prepare({from:dates[0],to:dates.at(-1)});
+  const range={from:dates[0],to:dates.at(-1)};let p=await prepare(range,{observation});
+  const coverage=await proveUserChanges(p.current,p.plan.nextState,{identity,profileId:b.profileId});
+  const deletes=Object.values(p.plan.changes).flatMap(c=>c.deleted),proved=new Set(coverage.proof.map(r=>r.key));
+  if(p.plan.deletionDigest&&deletes.every(key=>proved.has(key))&&!coverage.blocked)p=await prepare(range,{observation,deletionDigest:p.plan.deletionDigest,provenLostKeys:coverage.primaryKeys});
+  if(sourceHash!==knownSourceHash&&seenSources.includes(sourceHash)&&!coverage.fullyCovered)throw Object.assign(new Error('Wykryto powrót do wcześniejszego snapshotu bez pełnego rejestru intencji.'),{code:'rollback'});
   if(p.plan.sourceHash!==sourceHash)throw Object.assign(new Error('Dane lokalne zmieniły się podczas ustalania zakresu.'),{code:'source-changed'});
-  if(p.plan.blockers.length||p.plan.deletionDigest||p.plan.impactDigest)throw Object.assign(new Error(p.plan.blockers.join(' ')||'Zmiany wymagają potwierdzenia ręcznego.'),{code:'confirmation-required'});
+  if(p.plan.blockers.length||p.plan.deletionDigest&&!deletes.every(key=>proved.has(key))||p.plan.impactDigest)throw Object.assign(new Error(p.plan.blockers.join(' ')||'Zmiany wymagają potwierdzenia ręcznego.'),{code:'confirmation-required'});
+  p.intentProof=coverage.proof;p.intentIds=coverage.operationIds;
   const result=p.plan.noop?{binding:p.binding,noop:true}:await send(p,{automatic:true});
   if(result.cancelled)throw Object.assign(new Error('Anulowano synchronizację.'),{code:'confirmation-required'});
+  if(p.plan.noop)acknowledgeUserMutations(coverage.operationIds);
   return {...result,sourceHash:p.plan.sourceHash};
  }
  return {binding:()=>transport.binding(),prepareAll:exclusive(async()=>{const b=await transport.binding(),mapped=mapSheetExport(await readFull({}),{profileId:b.profileId});const dates=[...Object.values(mapped.rows).flatMap(rows=>rows.map(r=>r[3])),...(b.baseline?.inventory??[]).map(r=>r.date)].filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)).sort();if(!dates.length)throw Object.assign(new Error('Brak danych do synchronizacji.'),{code:'confirmation-required'});return prepare({from:dates[0],to:dates.at(-1)});}),setAutomation:async enabled=>{if(!enabled)return transport.setAutomation(false);return exclusive(async()=>{const state=await recover();if(!state.binding.baseline||await fingerprint(state.current)!==state.binding.baseline.stateHash)throw sheetsError({code:'remote-changed'});return transport.setAutomation(true,state.ticket);})();},create:exclusive(()=>transport.create()),prepare:exclusive(prepare),send:exclusive(send),check:exclusive(recover),automatic:exclusive(automatic)};

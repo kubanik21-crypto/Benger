@@ -32,7 +32,7 @@ function primaryInventory(mapped){
 function diff(current,next,profile){
  return Object.fromEntries(SHEET_NAMES.filter(n=>n!==STATUS).map(name=>{const old=new Map(current.tables[name].rows.filter(r=>r[1]===profile).map(r=>[r[0],r])),now=new Map(next.tables[name].rows.filter(r=>r[1]===profile).map(r=>[r[0],r]));return [name,{added:[...now.keys()].filter(k=>!old.has(k)),updated:[...now.keys()].filter(k=>old.has(k)&&!same(now.get(k),old.get(k))),deleted:[...old.keys()].filter(k=>!now.has(k))}];}));
 }
-export async function prepareSheetsPlan({fullExport,current,baseline=null,profileId,deviceId,range,initialize=false,confirmDeletionDigest=null,confirmImpactDigest=null}){
+export async function prepareSheetsPlan({fullExport,current,baseline=null,profileId,deviceId,range,initialize=false,confirmDeletionDigest=null,confirmImpactDigest=null,provenLostKeys=[]}){
  identity(profileId);identity(deviceId);range=validateRange(range);current=clone(current);fullExport=clone(fullExport);baseline=clone(baseline);validateSheetsState(current);
  const mapped=mapSheetExport(fullExport,{profileId}),inventory=primaryInventory(mapped),baseHash=await fingerprint(current);
  const blockers=[];
@@ -76,7 +76,7 @@ export async function prepareSheetsPlan({fullExport,current,baseline=null,profil
  const impactDigest=outsideChanges.length?await fingerprint({baseHash,sourceHash,range,outsideChanges}):null;
  const currentKeys=new Set(inventory.map(r=>r.key));
  if(baseline&&Array.isArray(baseline.inventory)){
-  const lost=baseline.inventory.filter(r=>!currentKeys.has(r.key));
+  const lost=baseline.inventory.filter(r=>!currentKeys.has(r.key)&&!provenLostKeys.includes(r.key));
   if(lost.some(r=>r.table!=='Cele'&&!within(r.date,range)))blockers.push('Lokalna baza utraciła rekordy spoza zakresu. Poszerz zakres lub sprawdź kompletność bazy.');
   if(lost.length&&(!inventory.length||lost.length/baseline.inventory.length>0.25))blockers.push('Ubytek ponad 25% rekordów źródłowych: podejrzenie niepełnej lokalnej bazy. Odzyskanie wymaga osobnego procesu.');
  }

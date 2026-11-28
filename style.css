@@ -559,3 +559,8 @@ button:disabled { opacity:.65; }
 #meal-plan-day { padding:10px; }
 #meal-plan-day > p { font-size:.85rem; }
 #route-progres > p:first-of-type { font-size:.8rem; }
+.sync-human-changes article { padding:10px 0;border-bottom:1px solid var(--border); }
+.sync-human-changes p { margin:4px 0; }
+#google-sheets-auto > p:not([id]) { font-size:.85rem; }
+#google-sheets-sync > h3 { font-size:1rem; }
+.dashboard-speech details { font-size:.8rem; }

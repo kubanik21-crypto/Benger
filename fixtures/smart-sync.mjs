@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {buildSyncExport} from '../sync-export.js';
+import {SHEET_NAMES,SHEET_COLUMNS,SHEETS_TITLE,fingerprint,rowObject} from '../sheets-mapper.js';
+import {emptySheetsState} from '../sheets-reconcile.js';
+import {parseGoogleSheets,createSheetsCoordinator,createNativeSheetsTransport,sheetsError} from '../google-sheets.js';
+const range={from:'2026-11-01',to:'2026-11-03'};
+const source=()=>({diary:Array.from({length:8},(_,i)=>({id:'food'+i,date:i<6?'2026-11-01':'2026-11-05',createdAt:'2026-11-01T08:00:00Z',meal:'lunch',productId:'custom:test',productName:'Produkt',amount:100,unit:'g',nutrition:{kcal:100,protein:10,fat:0,carbs:15}})),goals:[],training:{completedWorkouts:[],completedMobility:[]},measurements:[]});
+const value=v=>v===null?{}:{userEnteredValue:{[typeof v==='number'?'numberValue':typeof v==='boolean'?'boolValue':'stringValue']:v}};
+export function asGoogle(state){return {spreadsheetId:state.spreadsheetId,properties:{title:SHEETS_TITLE},sheets:SHEET_NAMES.map(name=>{const t=state.tables[name];return {properties:{title:name,sheetId:t.sheetId,gridProperties:{rowCount:t.rows.length+1,columnCount:t.columns.length}},data:[{rowData:[t.columns,...t.rows].map(row=>({values:row.map(value)}))}]};})};}
+export function fake(){const s=source();let state=emptySheetsState('spreadsheet');for(const t of Object.values(state.tables))t.exists=true;
+ const binding={accountKey:'account',spreadsheetId:'spreadsheet',profileId:'profile',deviceId:'device',initialized:true,baseline:null,pending:null,lastSuccess:0};let ticket=0;const signatures=new Map();const calls={write:0,confirm:0,read:0};
+ const transport={binding:async()=>structuredClone(binding),create:async()=>structuredClone(binding),read:async()=>{calls.read++;const id='ticket'+(++ticket);signatures.set(id,await fingerprint(state));return{binding:structuredClone(binding),ticket:id,data:asGoogle(state)};},
+  write:async({ticket,body,journal})=>{calls.write++;assert.equal(signatures.get(ticket),await fingerprint(state));binding.pending=structuredClone(journal);if(transport.cancel){binding.pending=null;return {cancelled:true};}if(!transport.leaveUnchanged){const next=structuredClone(state);for(const req of body.requests)if(req.updateCells){const [name,tab]=Object.entries(next.tables).find(([,t])=>t.sheetId===req.updateCells.range.sheetId);tab.rows=req.updateCells.rows.slice(1).map(row=>row.values.map(c=>c.userEnteredValue?Object.values(c.userEnteredValue)[0]:null));assert.deepEqual(req.updateCells.rows[0].values.map(c=>c.userEnteredValue.stringValue),SHEET_COLUMNS[name]);}state=next;}if(transport.loseResponse)throw sheetsError({code:'pending-operation'});return {submitted:true};},
+  confirm:async(ticket,receipt)=>{calls.confirm++;assert.equal(signatures.get(ticket),await fingerprint(state));assert.equal(receipt.stateHash,binding.pending.targetHash);binding.baseline=structuredClone(receipt);binding.pending=null;binding.lastSuccess=100;return structuredClone(binding);}};
+ const readFull=async()=>buildSyncExport(s,{exportedAt:'2026-11-26T10:00:00Z'});const coordinator=createSheetsCoordinator({transport,readFull});return {s,transport,coordinator,binding,calls,state:()=>state};
+}

@@ -31,4 +31,18 @@ public class GoogleSheetsWireTest {
         withRecord.getJSONArray("sheets").getJSONObject(0).getJSONArray("data").getJSONObject(0).getJSONArray("rowData").put(new JSONObject().put("values",row));
         try{GoogleSheetsWire.automaticSafe(withRecord,body(),schema(),journal);fail();}catch(IllegalArgumentException expected){}
     }
+
+    @Test public void automaticDeletionRequiresExactBoundBeforeRowAndGroup() throws Exception {
+        JSONObject d=data();JSONArray original=new JSONArray(new String[]{"[\"profile\",\"food\",\"existing\"]","profile","existing","2026-11-01","",""}),cells=new JSONArray();for(int i=0;i<original.length();i++)cells.put(new JSONObject().put("userEnteredValue",new JSONObject().put("stringValue",original.getString(i))));
+        d.getJSONArray("sheets").getJSONObject(1).getJSONArray("data").getJSONObject(0).getJSONArray("rowData").put(new JSONObject().put("values",cells));
+        JSONObject proof=new JSONObject().put("table","Posiłki").put("key",original.getString(0)).put("beforeHash",GoogleSheetsWire.deletionRowHash(original)).put("group","food:existing");
+        JSONObject journal=new JSONObject().put("profileId","profile").put("deviceId","device").put("operationId","operation").put("range",new JSONObject().put("from","2026-11-01").put("to","2026-11-30")).put("authorizedDeletes",new JSONArray().put(proof));
+        GoogleSheetsWire.automaticSafe(d,body(),schema(),journal);
+        for(String key:new String[]{"beforeHash","group","key"}){JSONObject changed=new JSONObject(journal.toString());changed.getJSONArray("authorizedDeletes").getJSONObject(0).put(key,"wrong");try{GoogleSheetsWire.automaticSafe(d,body(),schema(),changed);fail();}catch(Exception expected){}}
+        try{GoogleSheetsWire.automaticSafe(data(),body(),schema(),journal);fail();}catch(IllegalArgumentException expected){}
+    }
+
+    @Test public void deletionProofUsesSharedUnicodeAndExactDecimalFixture() throws Exception {JSONObject fixture=new JSONObject(new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("../../fixtures/deletion-proof-v1.json")),java.nio.charset.StandardCharsets.UTF_8));assertEquals(fixture.getString("sha256"),GoogleSheetsWire.deletionRowHash(fixture.getJSONArray("row")));}
+
+    @Test public void realJavaScriptWorkoutAndSetProofPassesNativeAndRejectsOmission() throws Exception {JSONObject f=new JSONObject(new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("../../fixtures/smart-deletion-wire.json")),java.nio.charset.StandardCharsets.UTF_8));JSONObject j=f.getJSONObject("journal");GoogleSheetsWire.journal(j,j.getString("profileId"),j.getString("deviceId"));GoogleSheetsWire.automaticSafe(f.getJSONObject("data"),f.getJSONObject("body"),f.getJSONObject("schema"),j);j.getJSONArray("authorizedDeletes").remove(0);try{GoogleSheetsWire.automaticSafe(f.getJSONObject("data"),f.getJSONObject("body"),f.getJSONObject("schema"),j);fail();}catch(IllegalArgumentException expected){}}
 }

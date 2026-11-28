@@ -10,7 +10,7 @@ export function createAutoSync({coordinator,local=globalThis.localStorage,now=Da
  function persist(){try{local.setItem(AUTO_SYNC_KEY,JSON.stringify(state));durable=true;publish();return true;}catch{durable=false;state.paused=true;state.status='storage';publish();return false;}}
  function stop(){if(timer!==null)clearTimer(timer);timer=null;}
  function schedule(ms=delay){stop();if(!disposed&&state.enabled&&!state.paused&&durable&&visible()){timer=setTimer(()=>{timer=null;void sync();},Math.max(ms,state.nextAttempt-now(),0));}}
- function changed(event){if(event?.type==='storage'&&event.key===AUTO_SYNC_KEY)return;state.revision++;state.dirty=true;state.debounceUntil=now()+delay;if(!state.paused)state.status=state.enabled?'pending':'disabled';persist();schedule();}
+ function changed(event){if(event?.type==='storage'&&[AUTO_SYNC_KEY,`${NUTRITION_STORAGE_KEY}.user-operations.v1`].includes(event.key))return;state.revision++;state.dirty=true;state.debounceUntil=now()+delay;if(!state.paused)state.status=state.enabled?'pending':'disabled';persist();schedule();}
  async function enable(value){stop();if(!value){state.enabled=false;state.status='disabled';persist();try{await coordinator.setAutomation(false);}catch{}return snapshot();}
   if(!durable||state.status==='storage'||state.hold)throw new Error(state.hold?'Wymagana ręczna weryfikacja pełnego zakresu przed wznowieniem.':AUTO_MESSAGES.storage);
   const b=await coordinator.setAutomation(true),identity=[b.accountKey,b.profileId,b.spreadsheetId].join('|');
@@ -41,11 +41,11 @@ export function createAutoSync({coordinator,local=globalThis.localStorage,now=Da
  return {snapshot,enable,changed,sync,resume,pauseRestore,manualVerified,start,dispose(){disposed=true;stop();}};
 }
 export function attachAutoSyncEvents(service,{window:win=globalThis.window,document:doc=globalThis.document}={}){
- const edits=['benger:diary','benger:training','benger:goals','benger:progress','storage'],wake=['online','pageshow','benger:native-resume','benger:google-auth-state'];
+ const edits=['benger:diary','benger:training','benger:goals','benger:progress','benger:user-mutation','storage'],wake=['online','pageshow','benger:native-resume','benger:google-auth-state'];
  for(const e of edits)win.addEventListener(e,service.changed);for(const e of wake)win.addEventListener(e,service.resume);
  const visibility=()=>{if(!doc.hidden)service.resume();};doc.addEventListener('visibilitychange',visibility);
- const restore=e=>{if(e.target?.closest?.('#backup-import')&&!e.target.disabled)service.pauseRestore();};doc.addEventListener('click',restore,true);
+ const restore=e=>{if(e.target?.closest?.('#backup-import')&&!e.target.disabled)service.pauseRestore();};doc.addEventListener('click',restore,true);win.addEventListener('benger:restore-started',service.pauseRestore);
  // Check durable stores while the WebView is active, including writes without an app event.
  const poll=win.setInterval(()=>{if(!doc.hidden)void service.sync();},60000);
- service.start();return()=>{win.clearInterval(poll);for(const e of edits)win.removeEventListener(e,service.changed);for(const e of wake)win.removeEventListener(e,service.resume);doc.removeEventListener('visibilitychange',visibility);doc.removeEventListener('click',restore,true);service.dispose();};
+ service.start();return()=>{win.clearInterval(poll);for(const e of edits)win.removeEventListener(e,service.changed);for(const e of wake)win.removeEventListener(e,service.resume);doc.removeEventListener('visibilitychange',visibility);doc.removeEventListener('click',restore,true);win.removeEventListener('benger:restore-started',service.pauseRestore);service.dispose();};
 }

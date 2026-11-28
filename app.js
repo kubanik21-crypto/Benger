@@ -1,4 +1,5 @@
 import {initDailyShell} from './daily-shell.js';
+import {beginUserMutation,settleUserMutation} from './sync-intents.js';
 import {rememberDiaryOrigins} from './diary-origins.js';
 import {initMoreShell} from './more-shell.js';
 import {initMealPlanUi} from './meal-plan-ui.js';
@@ -169,15 +170,18 @@ function updateNutritionEntries(change) {
     renderNutritionEntries();
     return false;
   }
-  const next = change(nutritionEntries);
+  const next = change(nutritionEntries);let intent=null;
   try {
+    intent=beginUserMutation('food',nutritionEntries,next);
     rememberDiaryOrigins(nutritionEntries);
     localStorage.setItem(nutritionStorageKey, JSON.stringify(next));
   } catch (failure) {
+    settleUserMutation(intent,false);
     renderNutritionEntries();
     $('nutrition-storage-message').textContent = storageErrorMessage(failure);
     return false;
   }
+  settleUserMutation(intent,true);
   nutritionEntries = next;
   window.dispatchEvent(new Event('benger:diary'));
   window.dispatchEvent(new Event('benger:nutrition-changed'));
@@ -215,6 +219,7 @@ function createPortionArticle(entry) {
     provenance.textContent = entry.kind==='RECIPE'?`Twój przepis · v${entry.recipeVersion}${entry.mealSnapshot?.variantName?' · '+entry.mealSnapshot.variantName:''}`:[entry.brand, entry.source === 'openfoodfacts' ? 'Open Food Facts' : entry.source === 'benger' ? 'Archiwalny produkt' : entry.source].filter(Boolean).join(' · ');
     article.append(provenance);
   }
+  if(entry.kind==='RECIPE'&&entry.mealSnapshot){const detail=document.createElement('details'),heading=document.createElement('summary');heading.textContent='Rzeczywista porcja i składniki';detail.append(heading);for(const i of entry.mealSnapshot.ingredients){const line=document.createElement('p');line.textContent=`${i.productName??i.query}: ${formatter.format(i.amount)} ${i.unit}`;detail.append(line);}article.append(detail);}
   return article;
 }
 

@@ -1,0 +1,4804 @@
+{
+  "data": {
+    "spreadsheetId": "spreadsheet",
+    "properties": {
+      "title": "Benger – RAW DATA"
+    },
+    "sheets": [
+      {
+        "properties": {
+          "title": "Dziennik żywieniowy",
+          "sheetId": 9100,
+          "gridProperties": {
+            "rowCount": 6,
+            "columnCount": 16
+          }
+        },
+        "data": [
+          {
+            "rowData": [
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "key"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profileId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recordId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "date"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "hasEntries"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "entryCount"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "mealCount"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "kcal"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "protein"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "fat"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "carbs"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "goalId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "goal_kcal"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "goal_protein"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "goal_fat"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "goal_carbs"
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"day\",\"2026-11-01\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "boolValue": true
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 6
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 1
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 600
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 60
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 90
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {}
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"day\",\"2026-11-02\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-02"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-02"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "boolValue": false
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {}
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"day\",\"2026-11-03\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-03"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-03"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "boolValue": false
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {}
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"day\",\"2026-11-04\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-04"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-04"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "boolValue": false
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {}
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"day\",\"2026-11-05\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-05"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-05"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "boolValue": true
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 1
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 200
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 20
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 30
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {}
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "properties": {
+          "title": "Posiłki",
+          "sheetId": 9101,
+          "gridProperties": {
+            "rowCount": 9,
+            "columnCount": 24
+          }
+        },
+        "data": [
+          {
+            "rowData": [
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "key"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profileId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recordId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "date"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "createdAt"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "meal"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "sourceType"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "productId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "productName"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recipeId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recipeVersion"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recipeName"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "variantId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "amount"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "unit"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "enteredAmount"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "enteredUnit"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "portionSource"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "portionConfidence"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "estimated"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "kcal"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "protein"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "fat"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "carbs"
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"food\",\"food0\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "food0"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T08:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "lunch"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "product"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "custom:test"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Produkt"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 15
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"food\",\"food1\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "food1"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T08:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "lunch"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "product"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "custom:test"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Produkt"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 15
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"food\",\"food2\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "food2"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T08:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "lunch"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "product"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "custom:test"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Produkt"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 15
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"food\",\"food3\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "food3"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T08:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "lunch"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "product"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "custom:test"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Produkt"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 15
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"food\",\"food4\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "food4"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T08:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "lunch"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "product"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "custom:test"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Produkt"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 15
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"food\",\"food5\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "food5"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T08:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "lunch"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "product"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "custom:test"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Produkt"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 15
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"food\",\"food6\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "food6"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-05"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T08:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "lunch"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "product"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "custom:test"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Produkt"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 15
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"food\",\"food7\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "food7"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-05"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T08:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "lunch"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "product"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "custom:test"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Produkt"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "g"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 100
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 15
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "properties": {
+          "title": "Treningi",
+          "sheetId": 9102,
+          "gridProperties": {
+            "rowCount": 2,
+            "columnCount": 11
+          }
+        },
+        "data": [
+          {
+            "rowData": [
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "key"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profileId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recordId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "date"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "name"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "startedAt"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "completedAt"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "scheduledRuleId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "scheduledDate"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exerciseCount"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "setCount"
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"workout\",\"workout-shared\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "workout-shared"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Trening syntetyczny"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T09:00:00Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01T10:00:00Z"
+                    }
+                  },
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 1
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "properties": {
+          "title": "Serie",
+          "sheetId": 9103,
+          "gridProperties": {
+            "rowCount": 4,
+            "columnCount": 28
+          }
+        },
+        "data": [
+          {
+            "rowData": [
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "key"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profileId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recordId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "date"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "rowType"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "sessionId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exercisePosition"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exerciseId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exerciseName"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "mode"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "dumbbells"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "side"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "setPosition"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "setId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "kind"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "reps"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "kg"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "loadBasis"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "rir"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "durationSeconds"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "distanceKm"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "speedKmH"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "inclinePercent"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "plannedSets"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "repsMin"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "repsMax"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "plannedDurationSeconds"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "restSeconds"
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"set\",\"[\\\"workout\\\",\\\"workout-shared\\\",0,\\\"warmup\\\"]\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"workout\",\"workout-shared\",0,\"warmup\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "set"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "workout-shared"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "builtin:db-bench"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Wyciskanie hantli płasko"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "strength"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "both"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "warmup"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "warmup"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "per-dumbbell"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 8
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 12
+                    }
+                  },
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 60
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"set\",\"[\\\"workout\\\",\\\"workout-shared\\\",0,\\\"work\\\"]\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"workout\",\"workout-shared\",0,\"work\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "set"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "workout-shared"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "builtin:db-bench"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Wyciskanie hantli płasko"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "strength"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "both"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 1
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "work"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "work"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 10
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 32
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "per-dumbbell"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 8
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 12
+                    }
+                  },
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 60
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"workout-exercise\",\"[\\\"workout\\\",\\\"workout-shared\\\",0]\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"workout\",\"workout-shared\",0]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exercise"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "workout-shared"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "builtin:db-bench"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "Wyciskanie hantli płasko"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "strength"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "both"
+                    }
+                  },
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 8
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 12
+                    }
+                  },
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 60
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "properties": {
+          "title": "Mobility",
+          "sheetId": 9104,
+          "gridProperties": {
+            "rowCount": 1,
+            "columnCount": 21
+          }
+        },
+        "data": [
+          {
+            "rowData": [
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "key"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profileId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recordId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "date"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "rowType"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "sessionId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "name"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "startedAt"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "completedAt"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exerciseId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exercisePosition"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "side"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "plannedSets"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "completedSets"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "repsMin"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "repsMax"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "durationSeconds"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "restSeconds"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "scheduledRuleId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "scheduledDate"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "sessionExerciseCount"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "properties": {
+          "title": "Pomiary",
+          "sheetId": 9105,
+          "gridProperties": {
+            "rowCount": 1,
+            "columnCount": 20
+          }
+        },
+        "data": [
+          {
+            "rowData": [
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "key"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profileId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recordId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "date"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "type"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "time"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "utcOffsetMinutes"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "unit"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "kg"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "neck"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "chest"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "waist"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "abdomen"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "hips"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "thighLeft"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "thighRight"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "calfLeft"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "calfRight"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "armLeft"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "armRight"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "properties": {
+          "title": "Cele",
+          "sheetId": 9106,
+          "gridProperties": {
+            "rowCount": 1,
+            "columnCount": 10
+          }
+        },
+        "data": [
+          {
+            "rowData": [
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "key"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profileId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recordId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "date"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "effectiveFrom"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "effectiveTo"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "kcal"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "protein"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "fat"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "carbs"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "properties": {
+          "title": "Synchronizacja",
+          "sheetId": 9107,
+          "gridProperties": {
+            "rowCount": 2,
+            "columnCount": 18
+          }
+        },
+        "data": [
+          {
+            "rowData": [
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "key"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profileId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "recordId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "date"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "writerDeviceId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "sheetSchemaVersion"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exportSchemaVersion"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "operationId"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "status"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "exportedAt"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "from"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "to"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "foodEntries"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "workouts"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "sets"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "mobilitySessions"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "measurements"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "goals"
+                    }
+                  }
+                ]
+              },
+              {
+                "values": [
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "[\"profile\",\"sync\",\"profile\"]"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "profile"
+                    }
+                  },
+                  {},
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "device"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 1
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 1
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "0f11e0aee37c03d434bcac40a528bcb66363889a4b7f9fe6213d611f679e0bba"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "committed"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-26T10:00:00.000Z"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-01"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "stringValue": "2026-11-05"
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 8
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 1
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 2
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  },
+                  {
+                    "userEnteredValue": {
+                      "numberValue": 0
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "body": {
+    "requests": [
+      {
+        "updateSheetProperties": {
+          "properties": {
+            "sheetId": 9100,
+            "gridProperties": {
+              "rowCount": 6,
+              "columnCount": 16
+            }
+          },
+          "fields": "gridProperties.rowCount,gridProperties.columnCount"
+        }
+      },
+      {
+        "updateCells": {
+          "range": {
+            "sheetId": 9100,
+            "startRowIndex": 0,
+            "endRowIndex": 6,
+            "startColumnIndex": 0,
+            "endColumnIndex": 16
+          },
+          "rows": [
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "key"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profileId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recordId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "date"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "hasEntries"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "entryCount"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "mealCount"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "kcal"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "protein"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "fat"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "carbs"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "goalId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "goal_kcal"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "goal_protein"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "goal_fat"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "goal_carbs"
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"day\",\"2026-11-01\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "boolValue": true
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 6
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 1
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 600
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 60
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 90
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {}
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"day\",\"2026-11-02\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-02"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-02"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "boolValue": false
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"day\",\"2026-11-03\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-03"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-03"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "boolValue": false
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"day\",\"2026-11-04\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-04"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-04"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "boolValue": false
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"day\",\"2026-11-05\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-05"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-05"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "boolValue": true
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 2
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 1
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 200
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 20
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 30
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ],
+          "fields": "userEnteredValue"
+        }
+      },
+      {
+        "updateSheetProperties": {
+          "properties": {
+            "sheetId": 9101,
+            "gridProperties": {
+              "rowCount": 9,
+              "columnCount": 24
+            }
+          },
+          "fields": "gridProperties.rowCount,gridProperties.columnCount"
+        }
+      },
+      {
+        "updateCells": {
+          "range": {
+            "sheetId": 9101,
+            "startRowIndex": 0,
+            "endRowIndex": 9,
+            "startColumnIndex": 0,
+            "endColumnIndex": 24
+          },
+          "rows": [
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "key"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profileId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recordId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "date"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "createdAt"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "meal"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "sourceType"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "productId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "productName"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recipeId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recipeVersion"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recipeName"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "variantId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "amount"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "unit"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "enteredAmount"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "enteredUnit"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "portionSource"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "portionConfidence"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "estimated"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "kcal"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "protein"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "fat"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "carbs"
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"food\",\"food0\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "food0"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01T08:00:00Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "lunch"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "product"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "custom:test"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "Produkt"
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 10
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 15
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"food\",\"food1\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "food1"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01T08:00:00Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "lunch"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "product"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "custom:test"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "Produkt"
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 10
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 15
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"food\",\"food2\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "food2"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01T08:00:00Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "lunch"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "product"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "custom:test"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "Produkt"
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 10
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 15
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"food\",\"food3\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "food3"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01T08:00:00Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "lunch"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "product"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "custom:test"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "Produkt"
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 10
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 15
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"food\",\"food4\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "food4"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01T08:00:00Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "lunch"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "product"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "custom:test"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "Produkt"
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 10
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 15
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"food\",\"food5\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "food5"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01T08:00:00Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "lunch"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "product"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "custom:test"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "Produkt"
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 10
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 15
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"food\",\"food6\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "food6"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-05"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01T08:00:00Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "lunch"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "product"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "custom:test"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "Produkt"
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 10
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 15
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"food\",\"food7\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "food7"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-05"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01T08:00:00Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "lunch"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "product"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "custom:test"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "Produkt"
+                  }
+                },
+                {},
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "g"
+                  }
+                },
+                {},
+                {},
+                {},
+                {
+                  "userEnteredValue": {
+                    "numberValue": 100
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 10
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 15
+                  }
+                }
+              ]
+            }
+          ],
+          "fields": "userEnteredValue"
+        }
+      },
+      {
+        "updateSheetProperties": {
+          "properties": {
+            "sheetId": 9102,
+            "gridProperties": {
+              "rowCount": 2,
+              "columnCount": 11
+            }
+          },
+          "fields": "gridProperties.rowCount,gridProperties.columnCount"
+        }
+      },
+      {
+        "updateCells": {
+          "range": {
+            "sheetId": 9102,
+            "startRowIndex": 0,
+            "endRowIndex": 2,
+            "startColumnIndex": 0,
+            "endColumnIndex": 11
+          },
+          "rows": [
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "key"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profileId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recordId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "date"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "name"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "startedAt"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "completedAt"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "scheduledRuleId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "scheduledDate"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "exerciseCount"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "setCount"
+                  }
+                }
+              ]
+            }
+          ],
+          "fields": "userEnteredValue"
+        }
+      },
+      {
+        "updateSheetProperties": {
+          "properties": {
+            "sheetId": 9103,
+            "gridProperties": {
+              "rowCount": 4,
+              "columnCount": 28
+            }
+          },
+          "fields": "gridProperties.rowCount,gridProperties.columnCount"
+        }
+      },
+      {
+        "updateCells": {
+          "range": {
+            "sheetId": 9103,
+            "startRowIndex": 0,
+            "endRowIndex": 4,
+            "startColumnIndex": 0,
+            "endColumnIndex": 28
+          },
+          "rows": [
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "key"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profileId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recordId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "date"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "rowType"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "sessionId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "exercisePosition"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "exerciseId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "exerciseName"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "mode"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "dumbbells"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "side"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "setPosition"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "setId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "kind"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "reps"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "kg"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "loadBasis"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "rir"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "durationSeconds"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "distanceKm"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "speedKmH"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "inclinePercent"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "plannedSets"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "repsMin"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "repsMax"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "plannedDurationSeconds"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "restSeconds"
+                  }
+                }
+              ]
+            }
+          ],
+          "fields": "userEnteredValue"
+        }
+      },
+      {
+        "updateSheetProperties": {
+          "properties": {
+            "sheetId": 9104,
+            "gridProperties": {
+              "rowCount": 1,
+              "columnCount": 21
+            }
+          },
+          "fields": "gridProperties.rowCount,gridProperties.columnCount"
+        }
+      },
+      {
+        "updateCells": {
+          "range": {
+            "sheetId": 9104,
+            "startRowIndex": 0,
+            "endRowIndex": 1,
+            "startColumnIndex": 0,
+            "endColumnIndex": 21
+          },
+          "rows": [
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "key"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profileId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recordId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "date"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "rowType"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "sessionId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "name"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "startedAt"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "completedAt"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "exerciseId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "exercisePosition"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "side"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "plannedSets"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "completedSets"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "repsMin"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "repsMax"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "durationSeconds"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "restSeconds"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "scheduledRuleId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "scheduledDate"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "sessionExerciseCount"
+                  }
+                }
+              ]
+            }
+          ],
+          "fields": "userEnteredValue"
+        }
+      },
+      {
+        "updateSheetProperties": {
+          "properties": {
+            "sheetId": 9105,
+            "gridProperties": {
+              "rowCount": 1,
+              "columnCount": 20
+            }
+          },
+          "fields": "gridProperties.rowCount,gridProperties.columnCount"
+        }
+      },
+      {
+        "updateCells": {
+          "range": {
+            "sheetId": 9105,
+            "startRowIndex": 0,
+            "endRowIndex": 1,
+            "startColumnIndex": 0,
+            "endColumnIndex": 20
+          },
+          "rows": [
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "key"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profileId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recordId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "date"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "type"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "time"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "utcOffsetMinutes"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "unit"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "kg"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "neck"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "chest"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "waist"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "abdomen"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "hips"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "thighLeft"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "thighRight"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "calfLeft"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "calfRight"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "armLeft"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "armRight"
+                  }
+                }
+              ]
+            }
+          ],
+          "fields": "userEnteredValue"
+        }
+      },
+      {
+        "updateSheetProperties": {
+          "properties": {
+            "sheetId": 9106,
+            "gridProperties": {
+              "rowCount": 1,
+              "columnCount": 10
+            }
+          },
+          "fields": "gridProperties.rowCount,gridProperties.columnCount"
+        }
+      },
+      {
+        "updateCells": {
+          "range": {
+            "sheetId": 9106,
+            "startRowIndex": 0,
+            "endRowIndex": 1,
+            "startColumnIndex": 0,
+            "endColumnIndex": 10
+          },
+          "rows": [
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "key"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profileId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recordId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "date"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "effectiveFrom"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "effectiveTo"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "kcal"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "protein"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "fat"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "carbs"
+                  }
+                }
+              ]
+            }
+          ],
+          "fields": "userEnteredValue"
+        }
+      },
+      {
+        "updateSheetProperties": {
+          "properties": {
+            "sheetId": 9107,
+            "gridProperties": {
+              "rowCount": 2,
+              "columnCount": 18
+            }
+          },
+          "fields": "gridProperties.rowCount,gridProperties.columnCount"
+        }
+      },
+      {
+        "updateCells": {
+          "range": {
+            "sheetId": 9107,
+            "startRowIndex": 0,
+            "endRowIndex": 2,
+            "startColumnIndex": 0,
+            "endColumnIndex": 18
+          },
+          "rows": [
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "key"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profileId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "recordId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "date"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "writerDeviceId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "sheetSchemaVersion"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "exportSchemaVersion"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "operationId"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "status"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "exportedAt"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "from"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "to"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "foodEntries"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "workouts"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "sets"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "mobilitySessions"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "measurements"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "goals"
+                  }
+                }
+              ]
+            },
+            {
+              "values": [
+                {
+                  "userEnteredValue": {
+                    "stringValue": "[\"profile\",\"sync\",\"profile\"]"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "profile"
+                  }
+                },
+                {},
+                {
+                  "userEnteredValue": {
+                    "stringValue": "device"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 1
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 1
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "e202aba280df87a64231a79c618e6efd2ee60e4aef9d1071be6f65fd3e60b3b7"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "committed"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-26T10:00:00.000Z"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-01"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "stringValue": "2026-11-05"
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 8
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                },
+                {
+                  "userEnteredValue": {
+                    "numberValue": 0
+                  }
+                }
+              ]
+            }
+          ],
+          "fields": "userEnteredValue"
+        }
+      }
+    ],
+    "includeSpreadsheetInResponse": false
+  },
+  "journal": {
+    "schemaVersion": 1,
+    "operationId": "e202aba280df87a64231a79c618e6efd2ee60e4aef9d1071be6f65fd3e60b3b7",
+    "targetHash": "780a3ed0c5caa08e97fc48c865e36119eb5c2ba5c4acf72cfd46c4483894b893",
+    "baseHash": "93284a4fe2e835f1ff3ed07a08a86f0279a2475eacf9323c22b8030cf93711ce",
+    "profileId": "profile",
+    "deviceId": "device",
+    "range": {
+      "from": "2026-11-01",
+      "to": "2026-11-05"
+    },
+    "inventory": [
+      {
+        "key": "[\"profile\",\"food\",\"food0\"]",
+        "date": "2026-11-01",
+        "table": "Posiłki"
+      },
+      {
+        "key": "[\"profile\",\"food\",\"food1\"]",
+        "date": "2026-11-01",
+        "table": "Posiłki"
+      },
+      {
+        "key": "[\"profile\",\"food\",\"food2\"]",
+        "date": "2026-11-01",
+        "table": "Posiłki"
+      },
+      {
+        "key": "[\"profile\",\"food\",\"food3\"]",
+        "date": "2026-11-01",
+        "table": "Posiłki"
+      },
+      {
+        "key": "[\"profile\",\"food\",\"food4\"]",
+        "date": "2026-11-01",
+        "table": "Posiłki"
+      },
+      {
+        "key": "[\"profile\",\"food\",\"food5\"]",
+        "date": "2026-11-01",
+        "table": "Posiłki"
+      },
+      {
+        "key": "[\"profile\",\"food\",\"food6\"]",
+        "date": "2026-11-05",
+        "table": "Posiłki"
+      },
+      {
+        "key": "[\"profile\",\"food\",\"food7\"]",
+        "date": "2026-11-05",
+        "table": "Posiłki"
+      }
+    ],
+    "authorizedDeletes": [
+      {
+        "table": "Serie",
+        "key": "[\"profile\",\"set\",\"[\\\"workout\\\",\\\"workout-shared\\\",0,\\\"warmup\\\"]\"]",
+        "beforeHash": "2e67159ce960a23b40918b49fc21a17d4578580313858d9b3ee779ae10d2303b",
+        "group": "workout:workout-shared"
+      },
+      {
+        "table": "Serie",
+        "key": "[\"profile\",\"set\",\"[\\\"workout\\\",\\\"workout-shared\\\",0,\\\"work\\\"]\"]",
+        "beforeHash": "bf05a6f74240ac43f0e967ea13d7b4d2b1d4839e814f05e62dc2b6fd4b557443",
+        "group": "workout:workout-shared"
+      },
+      {
+        "table": "Serie",
+        "key": "[\"profile\",\"workout-exercise\",\"[\\\"workout\\\",\\\"workout-shared\\\",0]\"]",
+        "beforeHash": "396fd20f9b0523b75ae333b6d93a290004122488a13e914977197bc7d53eb56b",
+        "group": "workout:workout-shared"
+      },
+      {
+        "table": "Treningi",
+        "key": "[\"profile\",\"workout\",\"workout-shared\"]",
+        "beforeHash": "0d855320331b97f4b1a553f5dc254306cf21ae4c1f3bccb2859da08424a4ac01",
+        "group": "workout:workout-shared"
+      }
+    ]
+  },
+  "schema": {
+    "names": [
+      "Dziennik żywieniowy",
+      "Posiłki",
+      "Treningi",
+      "Serie",
+      "Mobility",
+      "Pomiary",
+      "Cele",
+      "Synchronizacja"
+    ],
+    "columns": {
+      "Dziennik żywieniowy": [
+        "key",
+        "profileId",
+        "recordId",
+        "date",
+        "hasEntries",
+        "entryCount",
+        "mealCount",
+        "kcal",
+        "protein",
+        "fat",
+        "carbs",
+        "goalId",
+        "goal_kcal",
+        "goal_protein",
+        "goal_fat",
+        "goal_carbs"
+      ],
+      "Posiłki": [
+        "key",
+        "profileId",
+        "recordId",
+        "date",
+        "createdAt",
+        "meal",
+        "sourceType",
+        "productId",
+        "productName",
+        "recipeId",
+        "recipeVersion",
+        "recipeName",
+        "variantId",
+        "amount",
+        "unit",
+        "enteredAmount",
+        "enteredUnit",
+        "portionSource",
+        "portionConfidence",
+        "estimated",
+        "kcal",
+        "protein",
+        "fat",
+        "carbs"
+      ],
+      "Treningi": [
+        "key",
+        "profileId",
+        "recordId",
+        "date",
+        "name",
+        "startedAt",
+        "completedAt",
+        "scheduledRuleId",
+        "scheduledDate",
+        "exerciseCount",
+        "setCount"
+      ],
+      "Serie": [
+        "key",
+        "profileId",
+        "recordId",
+        "date",
+        "rowType",
+        "sessionId",
+        "exercisePosition",
+        "exerciseId",
+        "exerciseName",
+        "mode",
+        "dumbbells",
+        "side",
+        "setPosition",
+        "setId",
+        "kind",
+        "reps",
+        "kg",
+        "loadBasis",
+        "rir",
+        "durationSeconds",
+        "distanceKm",
+        "speedKmH",
+        "inclinePercent",
+        "plannedSets",
+        "repsMin",
+        "repsMax",
+        "plannedDurationSeconds",
+        "restSeconds"
+      ],
+      "Mobility": [
+        "key",
+        "profileId",
+        "recordId",
+        "date",
+        "rowType",
+        "sessionId",
+        "name",
+        "startedAt",
+        "completedAt",
+        "exerciseId",
+        "exercisePosition",
+        "side",
+        "plannedSets",
+        "completedSets",
+        "repsMin",
+        "repsMax",
+        "durationSeconds",
+        "restSeconds",
+        "scheduledRuleId",
+        "scheduledDate",
+        "sessionExerciseCount"
+      ],
+      "Pomiary": [
+        "key",
+        "profileId",
+        "recordId",
+        "date",
+        "type",
+        "time",
+        "utcOffsetMinutes",
+        "unit",
+        "kg",
+        "neck",
+        "chest",
+        "waist",
+        "abdomen",
+        "hips",
+        "thighLeft",
+        "thighRight",
+        "calfLeft",
+        "calfRight",
+        "armLeft",
+        "armRight"
+      ],
+      "Cele": [
+        "key",
+        "profileId",
+        "recordId",
+        "date",
+        "effectiveFrom",
+        "effectiveTo",
+        "kcal",
+        "protein",
+        "fat",
+        "carbs"
+      ],
+      "Synchronizacja": [
+        "key",
+        "profileId",
+        "recordId",
+        "date",
+        "writerDeviceId",
+        "sheetSchemaVersion",
+        "exportSchemaVersion",
+        "operationId",
+        "status",
+        "exportedAt",
+        "from",
+        "to",
+        "foodEntries",
+        "workouts",
+        "sets",
+        "mobilitySessions",
+        "measurements",
+        "goals"
+      ]
+    }
+  }
+}

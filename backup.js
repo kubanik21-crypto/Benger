@@ -1,3 +1,4 @@
+import {holdUserMutations} from './sync-intents.js';
 import {MEAL_PLAN_KEY,validateMealPlanState} from './meal-plan.js';
 import {MATCH_KEY,validateMatchState,mergeMatchStates} from './basketball-match.js';
 import {TRAINING_PREFERENCES_KEY,ROUTINE_PREFERENCES_KEY,validateNotificationPreferences,notificationPreferencesFromRecords} from './reminder-preferences.js';
@@ -81,6 +82,7 @@ const keyed=(rows,key)=>new Map(rows.map(row=>[key(row),row]));
 export async function importBackup(raw,{mode='merge',storage=createProductStorage(),local=globalThis.localStorage}={}){
  const backup=parseBackup(raw);if(!['merge','replace'].includes(mode))fail('Nieznany tryb importu.');
  try{
+  holdUserMutations(local);
   await recoverPendingImport({storage,local,close:false});const previous=await storage.snapshot(),oldDiary=local.getItem(NUTRITION_STORAGE_KEY);
   const oldEntries=JSON.parse(oldDiary??'[]');if(!Array.isArray(oldEntries)||oldEntries.some(row=>!validDiaryEntry(row)))fail('Bieżący dziennik jest uszkodzony. Najpierw zabezpiecz jego kopię.');
   local.setItem(NUTRITION_STORAGE_KEY,oldDiary??'[]'); // quota/permission check before mutation
